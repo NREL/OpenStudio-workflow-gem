@@ -40,12 +40,20 @@ module OpenStudio
           instance.get_problem id, options
         end
 
-        def log_message(message, options = [])
-          instance.log_message message, options
-        end
-
         def get_logger(id)
           instance.get_logger id
+        end
+
+        def communicate_started(id)
+          instance.communicate_started id
+        end
+
+        def communicate_complete(id)
+          instance.communicate_complete id
+        end
+
+        def communicate_failure(id)
+          instance.communicate_failure id
         end
 
       end

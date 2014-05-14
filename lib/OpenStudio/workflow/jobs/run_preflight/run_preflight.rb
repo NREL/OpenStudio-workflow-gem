@@ -24,6 +24,7 @@ class RunPreflight
   def initialize(directory, logger, adapter, options = {})
     defaults = {}
     @options = defaults.merge(options)
+    @directory = directory
     @adapter = adapter
     @logger = logger
 
@@ -31,6 +32,7 @@ class RunPreflight
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
+    @adapter.communicate_started @directory
 
     # Add the moment this does nothing.
   end

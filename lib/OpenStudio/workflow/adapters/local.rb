@@ -50,14 +50,20 @@ module OpenStudio
           end
         end
 
-        # log the message via the adapater
-        def log_message(message, options = {})
-          pp message
-          #@logger.info message
+        def communicate_started(directory)
+          # Watch out for namespace conflicts (::Time is okay but Time is OpenStudio::Time)
+          File.open("#{directory}/started.job", 'w') {|f| f << "Started Workflow #{::Time.now}"}
         end
 
-        def communicate_started
-          pp "i have started"
+        def communicate_complete(directory)
+          File.open("#{directory}/finished.job", 'w') {|f| f << "Finished Workflow #{::Time.now}"}
+        end
+
+        # Final state of the simulation. The os_directory is the run directory and may be needed to
+        # zip up the results of the simuation.
+        def communicate_failure(directory)
+          File.open("#{directory}/failed.job", 'w') {|f| f << "Failed Workflow #{::Time.now}"}
+          #@communicate_module.communicate_failure(@communicate_object, os_directory)
         end
 
         # Fot the local adapter send back a handle to a file to append the data. For this adapter
@@ -80,15 +86,7 @@ module OpenStudio
           #@communicate_module.communicate_results_json(@communicate_object, eplus_json, analysis_dir)
         end
 
-        def communicate_complete
-          #@communicate_module.communicate_complete(@communicate_object)
-        end
 
-        # Final state of the simulation. The os_directory is the run directory and may be needed to
-        # zip up the results of the simuation.
-        def communicate_failure(os_directory)
-          #@communicate_module.communicate_failure(@communicate_object, os_directory)
-        end
 
         def reload
           #@communicate_module.reload(@communicate_object)

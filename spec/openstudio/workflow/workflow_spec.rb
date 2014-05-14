@@ -27,6 +27,7 @@ describe 'OpenStudio::Workflow' do
     run_dir = './spec/files/local_ex1'
     k = OpenStudio::Workflow.load 'Local', run_dir
     expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect{k.run}.to raise_error "Problem file does not exist for ./spec/files/local_ex1/problem.json"
+    expect(k.run).to be true
+    expect(k.final_state).to be :errored
   end
 end

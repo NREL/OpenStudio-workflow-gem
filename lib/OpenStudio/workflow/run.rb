@@ -27,6 +27,7 @@ module OpenStudio
       attr_reader :options
       attr_reader :directory
       attr_reader :run_directory
+      attr_reader :final_state
 
       # Create a nice name for the state object instead of aasm
       alias state aasm
@@ -35,11 +36,11 @@ module OpenStudio
       def default_transition
         # TODO: replace these with dynamic states from a config file of some sort
         [
-            {:from => :queued, :to => :preflight},
-            {:from => :preflight, :to => :openstudio},
-            {:from => :openstudio, :to => :energyplus},
-            {:from => :energyplus, :to => :postprocess},
-            {:from => :postprocess, :to => :finished},
+            {from: :queued, to: :preflight},
+            {from: :preflight, to: :openstudio},
+            {from: :openstudio, to: :energyplus},
+            {from: :energyplus, to: :postprocess},
+            {from: :postprocess, to: :finished},
         ]
       end
 
@@ -48,12 +49,13 @@ module OpenStudio
       def default_states
         # TODO: replace this with some sort of dymanic store
         [
-            {:state => :queued, :options => {initial: true}},
+            {state: :queued, :options => {initial: true}},
             {state: :preflight, :options => {after_enter: :run_preflight}},
             {state: :openstudio, :options => {after_enter: :run_openstudio}},
             {state: :energyplus, :options => {after_enter: :run_energyplus}},
             {state: :postprocess, :options => {after_enter: :run_postprocess}},
-            {state: :finished}
+            {state: :finished},
+            {state: :errored}
         ]
       end
 
@@ -69,6 +71,7 @@ module OpenStudio
         @run_directory = "#{@directory}/run"
         defaults = {transitions: default_transition, jobs: {}}
         @options = defaults.merge(options)
+        @error = false
         @job_results = {}
 
         if options[:profile_run]
@@ -93,25 +96,27 @@ module OpenStudio
         machine
       end
 
-      # run the simulations. TODO: add a catch if any job fails; TODO: make a block method to provide feedback
+      # run the simulations.
+      # TODO: add a catch if any job fails; TODO: make a block method to provide feedback
       def run
         @logger.info "Starting workflow"
         begin
-          while self.state.current_state != :finished
+          while self.state.current_state != :finished && !@error
             self.step
           end
 
           @logger.info "Finished workflow"
-          #@adapter.
-        rescue Exception => e
-          log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-          @logger.info log_message
 
-          # need to tell the system that this failed
-          @adapter.communicate_failure run_directory
+          if @error
+            # need to tell the system that this failed
+            @adapter.communicate_failure @directory
+          end
         ensure
-          @logger.info "#{__FILE__} Completed"
+          @adapter.communicate_complete @directory
+          @logger.info "Running workflow from #{__FILE__} complete"
 
+
+          # TODO: define the outputs and figure out how to show it correctory
           obj_function_array ||= ['NA']
 
           # Print the objective functions to the screen even though the file is being used right now
@@ -120,6 +125,20 @@ module OpenStudio
         end
 
         true
+      end
+
+      def step_error(*args)
+        # gather what you need before the error
+        @error = true
+        @logger.error "Found error during #{aasm.current_state} with message #{args}"
+        #pp self.methods
+        error_out
+
+
+        # set the state to error
+        #pp self.aasm.current_state
+
+        #pp "IIIIIII AAAMMMM"
       end
 
 
@@ -158,6 +177,11 @@ module OpenStudio
         klass.perform
       end
 
+      def final_state
+        aasm.current_state
+      end
+
+
       private
 
       # Create a state machine from the predefined transitions methods.  This loads in
@@ -176,9 +200,15 @@ module OpenStudio
         # Create a new event and add in the transitions
         new_event = OpenStudio::Workflow::Run.aasm.event(:step)
         event = OpenStudio::Workflow::Run.aasm.events[:step]
+        event.options[:error] = 'step_error'
         default_transition.each do |t|
           event.transitions(t)
         end
+
+        new_event = OpenStudio::Workflow::Run.aasm.event(:error_out)
+        event = OpenStudio::Workflow::Run.aasm.events[:error_out]
+        event.transitions(:to => :errored)
+
       end
 
       # Get any options that may have been sent into the class defining the workflow step
@@ -203,6 +233,7 @@ module OpenStudio
         klass = Object.const_get(klass_name).new(@directory, @logger, @adapter, get_job_options)
         klass
       end
+
 
     end
   end

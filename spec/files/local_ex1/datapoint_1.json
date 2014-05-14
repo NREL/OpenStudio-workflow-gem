@@ -1,0 +1,28 @@
+{
+    "data_point": {
+        "_id": "4f0b5de0-babf-0131-609d-080027880ca6",
+        "analysis_id": "1b66e240-babf-0131-ec2f-14109fdf0b37",
+        "created_at": "2014-05-10T22:21:09Z",
+        "download_information": null,
+        "download_status": "completed",
+        "internal_ip_address": "192.168.33.11",
+        "ip_address": "192.168.33.11",
+        "name": "Autocreated on worker: 4f0b5de0-babf-0131-609d-080027880ca6",
+        "openstudio_datapoint_file_name": "/mnt/openstudio/analysis_1b66e240-babf-0131-ec2f-14109fdf0b37/data_point_4f0b5de0-babf-0131-609d-080027880ca6.zip",
+        "output": null,
+        "run_end_time": "2014-05-10T22:22:12+00:00",
+        "run_start_time": "2014-05-10T22:21:10+00:00",
+        "set_variable_values": {
+            "d25b7290-babe-0131-ebca-14109fdf0b37": 25.449938617921802,
+            "d25a1940-babe-0131-ebc1-14109fdf0b37": 26.375007197907237,
+            "d25a7c60-babe-0131-ebc4-14109fdf0b37": 2.1272239732788876,
+            "d25c3150-babe-0131-ebd0-14109fdf0b37": 50,
+            "d25ccd70-babe-0131-ebd5-14109fdf0b37": 0.6247657382615875
+        },
+        "status": "completed",
+        "status_message": "completed normal",
+        "updated_at": "2014-05-10T22:22:16Z",
+        "uuid": "4f0b5de0-babf-0131-609d-080027880ca6",
+        "variable_values": null
+    }
+}

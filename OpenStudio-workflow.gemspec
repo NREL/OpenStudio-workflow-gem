@@ -10,10 +10,10 @@ Gem::Specification.new do |spec|
   spec.email         = ["nicholas.long@nrel.gov"]
   spec.summary       = %q{Workflow Manager}
   spec.description   = %q{Run OpenStudio based simulations using EnergyPlus}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/NREL/OpenStudio-workflow-gem"
   spec.license       = "LGPL"
 
-  spec.files         = `git ls-files -z`.split("\x0")
+  spec.files         = Dir.glob("lib/**/*") + %w(README.md CHANGELOG.md Rakefile)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]

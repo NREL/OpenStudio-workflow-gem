@@ -124,23 +124,19 @@ module OpenStudio
           puts obj_function_array.join(',')
         end
 
-        true
+        state.current_state
       end
 
+      # call back for when there is an exception running any of the state transitions
       def step_error(*args)
-        # gather what you need before the error
+        # Make sure to set the instance variable @error to true in order to stop the :step
+        # event from being fired.
         @error = true
         @logger.error "Found error during #{aasm.current_state} with message #{args}"
-        #pp self.methods
+
+        # Call the error_out event to transition to the :errored state
         error_out
-
-
-        # set the state to error
-        #pp self.aasm.current_state
-
-        #pp "IIIIIII AAAMMMM"
       end
-
 
       # TODO: these methods needs to be dynamic or inherited
       # run energplus
@@ -178,9 +174,8 @@ module OpenStudio
       end
 
       def final_state
-        aasm.current_state
+        state.current_state
       end
-
 
       private
 

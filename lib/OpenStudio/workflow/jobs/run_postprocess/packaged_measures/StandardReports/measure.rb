@@ -184,7 +184,7 @@ class StandardReports < OpenStudio::Ruleset::ReportingUserScript
     html_out = renderer.result(binding)
 
     # write html file
-    html_out_path = "./report.html"
+    html_out_path = 'report.html'
     File.open(html_out_path, 'w') do |file|
       file << html_out
       
@@ -197,7 +197,7 @@ class StandardReports < OpenStudio::Ruleset::ReportingUserScript
     end
 
     #closing the sql file
-    sqlFile.close()
+    sqlFile.close
 
     #reporting final condition
     runner.registerFinalCondition("Standard Report generated successfully.")

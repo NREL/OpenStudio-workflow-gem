@@ -32,6 +32,7 @@ class RunPostprocess
     @run_directory = "#{@directory}/run"
     @adapter = adapter
     @logger = logger
+    @results = {}
 
     # TODO: we shouldn't have to keep loading this file if we need it. It should be availabe for any job.
     # TODO: passing in the options everytime is ridiculuous
@@ -45,60 +46,24 @@ class RunPostprocess
     fail "EnergyPlus SQL file did not exist #{@sql_filename}" unless File.exist? @sql_filename
 
     @objective_functions = {}
-
   end
-
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
 
-    begin
-      if @options[:use_monthly_reports]
-        run_monthly_postprocess
-      else
-        run_standard_postprocess
-      end
-
-      translate_csv_to_json
-
-      # Run any packaged measures
-      run_packaged_measures
-
-      run_extract_objective_functions
-
-
-
-    rescue Exception => e
-      log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      @logger.info log_message
-    ensure
-      obj_fun_file = "#{@run_directory}/objectives.json"
-      @logger.info "Saving objective function file #{obj_fun_file}"
-      @logger.info "Objective Function JSON is #{@objective_functions}"
-      File.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
-      File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
-
-      # TODO: Use dir.glob instead of pathname--remove dependency on pathname
-      require 'pathname'
-
-      paths_to_rm = []
-      paths_to_rm << Pathname.glob('*.ini')
-      paths_to_rm << Pathname.glob('ExpandObjects')
-      paths_to_rm << Pathname.glob('EnergyPlus')
-      paths_to_rm << Pathname.glob('*.so')
-      paths_to_rm << Pathname.glob('*.epw')
-      paths_to_rm << Pathname.glob('*.idd')
-      # paths_to_rm << Pathname.glob("*.audit")
-      # paths_to_rm << Pathname.glob("*.bnd")
-      paths_to_rm << Pathname.glob('*.mtd')
-      paths_to_rm << Pathname.glob('*.rdd')
-      paths_to_rm << Pathname.glob('packaged_measures')
-      paths_to_rm.each { |p| FileUtils.rm_rf(p) }
-
-      # save the objective function results
-
+    if @options[:use_monthly_reports]
+      run_monthly_postprocess
+    else
+      run_standard_postprocess
     end
 
+    translate_csv_to_json
+
+    run_packaged_measures
+
+    run_extract_objective_functions
+
+    @results
   end
 
   def run_extract_objective_functions
@@ -188,12 +153,20 @@ class RunPostprocess
     runner.setLastOpenStudioModel(@model)
     runner.setLastEnergyPlusSqlFilePath(@sql_filename)
 
-
-    # set argument values to good values and run the measure
-    argument_map = OpenStudio::Ruleset::OSArgumentMap.new
-    @logger.info "Calling run on measure"
-    measure.run(runner, argument_map)
-    measure_result = runner.result
+    # create a new directory before running
+    measure_run_dir = "#{@directory}/#{measure_name}"
+    @logger.info "Running measure in #{measure_run_dir}"
+    FileUtils.mkdir_p(measure_run_dir)
+    current_dir = Dir.pwd
+    begin
+      Dir.chdir(measure_run_dir)
+      argument_map = OpenStudio::Ruleset::OSArgumentMap.new
+      @logger.info "Calling run on measure"
+      measure.run(runner, argument_map)
+      measure_result = runner.result
+    ensure
+      Dir.chdir(current_dir)
+    end
 
     @logger.info measure_result.initialCondition.get.logMessage unless measure_result.initialCondition.empty?
     @logger.info measure_result.finalCondition.get.logMessage unless measure_result.finalCondition.empty?
@@ -205,7 +178,6 @@ class RunPostprocess
     report_json = JSON.parse(OpenStudio.toJSON(measure_result.attributes), symbolize_names: true)
     @logger.info "JSON file is #{report_json}"
     File.open("#{@run_directory}/standard_report.json", 'w') { |f| f << JSON.pretty_generate(report_json) }
-
 
 
     @logger.info 'Finished OpenStudio Post Processing'
@@ -242,8 +214,7 @@ class RunPostprocess
         begin
           val = result.get
         rescue Exception => e
-          log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-          puts log_message
+          @logger.info "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
           val = nil
         end
       end

@@ -86,7 +86,11 @@ module OpenStudio
         # There is a namespace conflict when OpenStudio is loaded: be careful!
         log_file = File.open("#{@run_directory}/run.log", "a")
         l = @adapter.get_logger @directory
-        @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file, l)
+        if l
+          @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file, l)
+        else
+          @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file)
+        end
 
         @logger.info "Initializing diretory #{@directory} for simulation with options #{@options}"
 
@@ -111,10 +115,16 @@ module OpenStudio
             # need to tell the system that this failed
             @adapter.communicate_failure @directory
           end
+
+          # TODO: this should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
+          if @job_results[:run_postprocess]
+            # these are the results that need to be sent back to adapter
+            @logger.info "Sending the results back to the adapter"
+            @adapter.communicate_results @directory, @job_results[:run_postprocess]
+          end
         ensure
           @adapter.communicate_complete @directory
           @logger.info "Running workflow from #{__FILE__} complete"
-
 
           # TODO: define the outputs and figure out how to show it correctory
           obj_function_array ||= ['NA']
@@ -144,7 +154,7 @@ module OpenStudio
         @logger.info "Running #{__method__}"
         klass = get_run_class(__method__)
 
-        klass.perform
+        @job_results[__method__.to_sym] = klass.perform
       end
 
       # run openstudio to create the model and apply the measures
@@ -161,7 +171,7 @@ module OpenStudio
         @logger.info "Running #{__method__}"
         klass = get_run_class(__method__)
 
-        klass.perform
+        @job_results[__method__.to_sym] = klass.perform
       end
 
       # preconfigured run method for preflight. This configures the input directories and sets everything
@@ -170,7 +180,7 @@ module OpenStudio
         @logger.info "Running #{__method__}"
         klass = get_run_class(__method__)
 
-        klass.perform
+        @job_results[__method__.to_sym] = klass.perform
       end
 
       def final_state

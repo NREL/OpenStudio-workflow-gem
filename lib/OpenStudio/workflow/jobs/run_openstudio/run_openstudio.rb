@@ -34,8 +34,8 @@ class RunOpenstudio
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
     @run_directory = "#{@directory}/run"
     @adapter = adapter
+    @results = {}
     @logger = logger
-
     @logger.info "#{self.class} passed the following options #{@options}"
 
     # initialize instance variables that are needed in the perform section
@@ -46,7 +46,6 @@ class RunOpenstudio
     @datapoint_json = nil
     @output_attributes = []
     @report_measures = []
-    @result = {}
     @measure_type_lookup = {
         :openstudio_measure => 'RubyMeasure',
         :energyplus_measure => 'EnergyPlusMeasure',
@@ -84,7 +83,7 @@ class RunOpenstudio
 
     save_osm_and_idf
 
-    @result
+    @results
   end
 
   private
@@ -116,8 +115,8 @@ class RunOpenstudio
       end
     end
 
-    @result[:osm] = File.expand_path(osm_filename)
-    @result[:idf] = File.expand_path(idf_filename)
+    @results[:osm] = File.expand_path(osm_filename)
+    @results[:idf] = File.expand_path(idf_filename)
   end
 
   def load_seed_model
@@ -163,7 +162,7 @@ class RunOpenstudio
           fail "Could not find weather file for simulation #{weather_filename}"
         end
 
-        @result[:weather_filename] = weather_filename
+        @results[:weather_filename] = weather_filename
       else
         fail 'No weather file path defined'
       end

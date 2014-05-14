@@ -48,6 +48,10 @@ module OpenStudio
           instance.communicate_started id
         end
 
+        def communicate_results(id, results)
+          instance.communicate_results id, results
+        end
+
         def communicate_complete(id)
           instance.communicate_complete id
         end

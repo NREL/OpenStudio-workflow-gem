@@ -70,16 +70,15 @@ class RunPostprocess
     # Initialize the objective function variable
     @objective_functions = {}
     if File.exist?("#{@run_directory}/eplustbl.json")
-      result_json = JSON.parse(File.read("#{@run_directory}/eplustbl.json"), symbolize_names: true)
+      @results = JSON.parse(File.read("#{@run_directory}/eplustbl.json"), symbolize_names: true)
       @logger.info "Analysis JSON Output Variables are: #{@analysis_json[:analysis][:output_variables]}"
       # Save the objective functions to the object for sending back to the simulation executive
       @analysis_json[:analysis][:output_variables].each do |variable|
         # determine which ones are the objective functions (code smell: todo: use enumerator)
         if variable[:objective_function]
           @logger.info "Found objective function for #{variable[:name]}"
-          if result_json[variable[:name].to_sym]
-            # objective_functions[variable['name']] = result_json[variable['name'].to_sym]
-            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = result_json[variable[:name].to_sym]
+          if @results[variable[:name].to_sym]
+            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[variable[:name].to_sym]
             if variable[:objective_function_target]
               @logger.info "Found objective function target for #{variable[:name]}"
               @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f

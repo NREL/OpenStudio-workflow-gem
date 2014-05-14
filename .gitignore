@@ -28,3 +28,4 @@ spec/files/*/run
 spec/files/*/*.log
 spec/files/*/*.job
 spec/files/*/StandardReports
+spec/files/*/datapoint_out.json

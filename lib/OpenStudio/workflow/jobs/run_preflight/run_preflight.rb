@@ -26,6 +26,7 @@ class RunPreflight
     @options = defaults.merge(options)
     @directory = directory
     @adapter = adapter
+    @results = {}
     @logger = logger
 
   end
@@ -35,5 +36,8 @@ class RunPreflight
     @adapter.communicate_started @directory
 
     # Add the moment this does nothing.
+
+    # return the results back to the caller--always
+    @results
   end
 end

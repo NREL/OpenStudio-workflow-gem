@@ -25,7 +25,13 @@ module OpenStudio
     module Adapters
       class Local < Adapter
 
-        # get the data point from the path
+        # Tell the system that the process has started
+        def communicate_started(directory)
+          # Watch out for namespace conflicts (::Time is okay but Time is OpenStudio::Time)
+          File.open("#{directory}/started.job", 'w') {|f| f << "Started Workflow #{::Time.now}"}
+        end
+
+        # Get the data point from the path
         def get_datapoint(directory, options={})
           defaults = {datapoint_filename: 'datapoint.json', format: 'json'}
           options = defaults.merge(options)
@@ -38,21 +44,21 @@ module OpenStudio
           end
         end
 
+        # Get the Problem/Analysis definition from the local file
         # TODO: rename this to get_analysis_definintion (or something like that)
-        def get_problem(directory_name, options = {})
+        def get_problem(directory, options = {})
           defaults = {problem_filename: 'problem.json', format: 'json'}
           options = defaults.merge(options)
 
-          if File.exist? "#{directory_name}/#{options[:problem_filename]}"
-            ::MultiJson.load(File.read("#{directory_name}/#{options[:problem_filename]}"), symbolize_names: true)
+          if File.exist? "#{directory}/#{options[:problem_filename]}"
+            ::MultiJson.load(File.read("#{directory}/#{options[:problem_filename]}"), symbolize_names: true)
           else
-            fail "Problem file does not exist for #{directory_name}/#{options[:problem_filename]}"
+            fail "Problem file does not exist for #{directory}/#{options[:problem_filename]}"
           end
         end
 
-        def communicate_started(directory)
-          # Watch out for namespace conflicts (::Time is okay but Time is OpenStudio::Time)
-          File.open("#{directory}/started.job", 'w') {|f| f << "Started Workflow #{::Time.now}"}
+        def communicate_intermediate_result(directory)
+          # noop
         end
 
         def communicate_complete(directory)
@@ -66,32 +72,34 @@ module OpenStudio
           #@communicate_module.communicate_failure(@communicate_object, os_directory)
         end
 
+        def communicate_results(directory, results)
+          if results.is_a? Hash
+            File.open("#{directory}/datapoint_out.json", 'w') {|f| f << MultiJson.dump(results, pretty: true)}
+            pp "I am a hash and will do soemthing with it"
+          else
+            pp "Unknown datapoint result type. Please handle #{results.class}"
+            #data_point_json_path = OpenStudio::Path.new(run_dir) / OpenStudio::Path.new('data_point_out.json')
+            #os_data_point.saveJSON(data_point_json_path, true)
+          end
+          #end
+        end
+
+        # TODO: can this be deprecated in favor a checking the class?
+        def communicate_results_json(eplus_json, analysis_dir)
+          # noop
+        end
+
+        def reload
+          # noop
+        end
+
         # Fot the local adapter send back a handle to a file to append the data. For this adapter
         # the log messages are likely to be the same as the run.log messages.
-        # TODO: can we just return a nil for this use case?
+        # TODO: do we really want two local logs from the Local adapter? One is in the run dir and the other is in the root
         def get_logger(directory)
           @log_file ||= File.open("#{directory}/local_adapter.log", "w")
           @log_file
         end
-
-        def communicate_intermediate_result(h)
-          #@communicate_module.communicate_intermediate_result(@communicate_object, h)
-        end
-
-        def communicate_results(os_data_point, os_directory)
-          #@communicate_module.communicate_results(@communicate_object, os_data_point, os_directory)
-        end
-
-        def communicate_results_json(eplus_json, analysis_dir)
-          #@communicate_module.communicate_results_json(@communicate_object, eplus_json, analysis_dir)
-        end
-
-
-
-        def reload
-          #@communicate_module.reload(@communicate_object)
-        end
-
 
       end
     end

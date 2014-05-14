@@ -38,7 +38,7 @@ Or install it yourself as:
 
 There are currently two adapters to run OpenStudio workflow. The first is a simple Local adapter
 allowing the user to pass in the directory to simulation. The directory must have an
-[analysis/problem JSON file](spec/files/lcoal_ex1/analysis_1.json) and a [datapoint JSON file](spec/files/local_ex1/datapoint_1.json).
+[analysis/problem JSON file](spec/files/local_ex1/analysis_1.json) and a [datapoint JSON file](spec/files/local_ex1/datapoint_1.json).
 The workflow manager will use these data (and the measures, seed model, and weather data) to assemble and
 execute the standard workflow of (preflight->openstudio measures->energyplus->postprocess).
 

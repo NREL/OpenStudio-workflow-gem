@@ -41,7 +41,9 @@ module OpenStudio
 
     # Create a new workflow instance using the defined adapter and UUID
     def load(adapter_name, uuid_or_run_dir, options={})
-      adapter = load_adapter adapter_name
+      defaults = {adapter_options: {}}
+      options = defaults.merge(options)
+      adapter = load_adapter adapter_name, options[:adapter_options]
       run_klass = OpenStudio::Workflow::Run.new(adapter, uuid_or_run_dir, options)
       # return the run class
       run_klass
@@ -49,12 +51,11 @@ module OpenStudio
 
     private
 
-    def load_adapter(name)
+    def load_adapter(name, adapter_options={})
       require_relative "workflow/adapters/#{name.downcase}"
       klass_name = name.to_s.split('_').map(&:capitalize) * ''
       pp "#{klass_name} is the adapter class name"
-      #OpenStudio::Workflow::Adapters.const_get(klass).new
-      klass = OpenStudio::Workflow::Adapters.const_get(klass_name)
+      klass = OpenStudio::Workflow::Adapters.const_get(klass_name).new(adapter_options)
       klass
     end
   end

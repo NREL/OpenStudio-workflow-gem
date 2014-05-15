@@ -74,17 +74,13 @@ module OpenStudio
         @error = false
         @job_results = {}
 
-        if options[:profile_run]
-          require 'ruby-prof'
-          RubyProf.start
-        end
-
         # By default blow away the entire run directory every time and recreate it
         FileUtils.rm_rf(@run_directory) if File.exist?(@run_directory)
         FileUtils.mkdir_p(@run_directory)
 
         # There is a namespace conflict when OpenStudio is loaded: be careful!
         log_file = File.open("#{@run_directory}/run.log", "a")
+
         l = @adapter.get_logger @directory
         if l
           @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file, l)

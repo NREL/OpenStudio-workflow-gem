@@ -17,50 +17,54 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require 'singleton'
-
 # Adapter class to decide where to obtain instructions to run the simulation workflow
 module OpenStudio
   module Workflow
     class Adapter
-      include Singleton
 
-      class << self
-        attr_reader :problem
+      attr_accessor :options
 
-        def load(filename, options={})
-          instance.load(filename, options)
-        end
-
-        def get_datapoint(id, options={})
-          instance.get_datapoint id, options
-        end
-
-        def get_problem(id, options = {})
-          instance.get_problem id, options
-        end
-
-        def get_logger(id)
-          instance.get_logger id
-        end
-
-        def communicate_started(id)
-          instance.communicate_started id
-        end
-
-        def communicate_results(id, results)
-          instance.communicate_results id, results
-        end
-
-        def communicate_complete(id)
-          instance.communicate_complete id
-        end
-
-        def communicate_failure(id)
-          instance.communicate_failure id
-        end
-
+      def initialize(options={})
+        @options = options
+        pp "i have no options #{@options}"
       end
+
+      #class << self
+      #attr_reader :problem
+
+      def load(filename, options={})
+        instance.load(filename, options)
+      end
+
+      def get_datapoint(id, options={})
+        instance.get_datapoint id, options
+      end
+
+      def get_problem(id, options = {})
+        instance.get_problem id, options
+      end
+
+      def get_logger(id)
+        instance.get_logger id
+      end
+
+      def communicate_started(id)
+        instance.communicate_started id
+      end
+
+      def communicate_results(id, results)
+        instance.communicate_results id, results
+      end
+
+      def communicate_complete(id)
+        instance.communicate_complete id
+      end
+
+      def communicate_failure(id)
+        instance.communicate_failure id
+      end
+
+      #end
     end
   end
 end

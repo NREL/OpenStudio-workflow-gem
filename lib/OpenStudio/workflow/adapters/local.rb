@@ -24,11 +24,15 @@ module OpenStudio
   module Workflow
     module Adapters
       class Local < Adapter
+        def initialize(options={})
+
+          super
+        end
 
         # Tell the system that the process has started
         def communicate_started(directory)
           # Watch out for namespace conflicts (::Time is okay but Time is OpenStudio::Time)
-          File.open("#{directory}/started.job", 'w') {|f| f << "Started Workflow #{::Time.now}"}
+          File.open("#{directory}/started.job", 'w') { |f| f << "Started Workflow #{::Time.now}" }
         end
 
         # Get the data point from the path
@@ -62,19 +66,19 @@ module OpenStudio
         end
 
         def communicate_complete(directory)
-          File.open("#{directory}/finished.job", 'w') {|f| f << "Finished Workflow #{::Time.now}"}
+          File.open("#{directory}/finished.job", 'w') { |f| f << "Finished Workflow #{::Time.now}" }
         end
 
         # Final state of the simulation. The os_directory is the run directory and may be needed to
         # zip up the results of the simuation.
         def communicate_failure(directory)
-          File.open("#{directory}/failed.job", 'w') {|f| f << "Failed Workflow #{::Time.now}"}
+          File.open("#{directory}/failed.job", 'w') { |f| f << "Failed Workflow #{::Time.now}" }
           #@communicate_module.communicate_failure(@communicate_object, os_directory)
         end
 
         def communicate_results(directory, results)
           if results.is_a? Hash
-            File.open("#{directory}/datapoint_out.json", 'w') {|f| f << MultiJson.dump(results, pretty: true)}
+            File.open("#{directory}/datapoint_out.json", 'w') { |f| f << MultiJson.dump(results, pretty: true) }
             pp "I am a hash and will do soemthing with it"
           else
             pp "Unknown datapoint result type. Please handle #{results.class}"

@@ -9,7 +9,7 @@ This applications has the following dependencies
 * Ruby 2.0
 * OpenStudio with Ruby 2.0 bindings
 * EnergyPlus 8.1 (assuming OpenStudio ~> 1.3.1)
-* MongoDB if using MongoDB Adapter
+* MongoDB if using MongoDB Adapter (or when running rspec)
 
 [OpenStudio](http://developer.nrel.gov/downloads/buildings/openstudio/builds/) needs to be installed
 and in your path.  On Mac/Linux it is easiest to add the following to your .bash_profile or /etc/profile.d in order
@@ -67,6 +67,7 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 * Implement a logger in the Adapters, right now they are unable to log
 * Hook up the measure groups based workflows
 * More tests!
+* ~~Add xml workflow item~~
 
 ## Contributing
 

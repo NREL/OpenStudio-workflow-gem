@@ -18,7 +18,6 @@
 ######################################################################
 
 # TODO: I hear that measures can step on each other if not run in their own directory
-
 class RunOpenstudio
   CRASH_ON_NO_WORKFLOW_VARIABLE = false
 
@@ -37,7 +36,6 @@ class RunOpenstudio
     @logger.info "#{self.class} passed the following options #{@options}"
 
     # initialize instance variables that are needed in the perform section
-    @logger.info "#{self.class} passed the following options #{@options}"
     @model = nil
     @model_idf = nil
     @analysis_json = nil
@@ -55,7 +53,6 @@ class RunOpenstudio
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
     @logger.info "Current directory is #{@directory}"
-    # get json from database
 
     @logger.info "Retrieving datapoint and problem"
     @datapoint_json = @adapter.get_datapoint(@directory, @options)
@@ -68,9 +65,6 @@ class RunOpenstudio
       apply_measures(:openstudio_measure)
       translate_to_energyplus
       apply_measures(:energyplus_measure)
-      # TODO: check where this should really go? at the end?
-      apply_measures(:reporting_measure)
-
 
       # TODO: naming convention for the output attribute files
       @logger.info "Measure output attributes are #{@output_attributes}"
@@ -121,27 +115,39 @@ class RunOpenstudio
     model = nil
     @logger.info 'Loading seed model'
 
-    if @analysis_json[:analysis][:seed]
+    baseline_model_path = nil
+    # Unique case to use the previous generated OSM as the seed
+    if @options[:run_xml] && @options[:run_xml][:osm_filename]
+      if File.exist? @options[:run_xml][:osm_filename]
+        baseline_model_path = @options[:run_xml][:osm_filename]
+      end
+    elsif @analysis_json[:analysis][:seed]
       @logger.info "Seed model is #{@analysis_json[:analysis][:seed]}"
       if @analysis_json[:analysis][:seed][:path]
 
         # assume that the seed model has been placed in the directory
         baseline_model_path = File.expand_path(
             File.join(@directory, @analysis_json[:analysis][:seed][:path]))
-        if File.exist? baseline_model_path
-          @logger.info "Reading in baseline model #{baseline_model_path}"
-          translator = OpenStudio::OSVersion::VersionTranslator.new
-          model = translator.loadModel(baseline_model_path)
-          fail 'OpenStudio model is empty or could not be loaded' if model.empty?
-          model = model.get
-        else
-          fail "Seed model '#{baseline_model_path}' did not exist"
-        end
+
       else
         fail 'No seed model path in JSON defined'
       end
     else
       fail 'No seed model block'
+    end
+
+    if baseline_model_path
+      if File.exist? baseline_model_path
+        @logger.info "Reading in baseline model #{baseline_model_path}"
+        translator = OpenStudio::OSVersion::VersionTranslator.new
+        model = translator.loadModel(baseline_model_path)
+        fail 'OpenStudio model is empty or could not be loaded' if model.empty?
+        model = model.get
+      else
+        fail "Seed model '#{baseline_model_path}' did not exist"
+      end
+    else
+      fail "No baseline/seed model found"
     end
 
     model
@@ -150,23 +156,27 @@ class RunOpenstudio
   # Save the weather file to the instance variable
   def load_weather_file
     weather_filename = nil
-    if @analysis_json[:analysis][:weather_file]
+    if @options[:run_xml] && @options[:run_xml][:weather_filename]
+      if File.exist? @options[:run_xml][:weather_filename]
+        weather_filename = @options[:run_xml][:weather_filename]
+      end
+    elsif @analysis_json[:analysis][:weather_file]
       if @analysis_json[:analysis][:weather_file][:path]
-        # This last(4) needs to be cleaned up.  Why don't we know the path of the file?
-        # assume that the seed model has been placed in the directory
         weather_filename = File.expand_path(
             File.join(@directory, @analysis_json[:analysis][:weather_file][:path]))
-        unless File.exist?(weather_filename)
-          fail "Could not find weather file for simulation #{weather_filename}"
-        end
 
-        @results[:weather_filename] = weather_filename
       else
         fail 'No weather file path defined'
       end
     else
       fail 'No weather file block defined'
     end
+
+    unless File.exist?(weather_filename)
+      fail "Could not find weather file for simulation #{weather_filename}"
+    end
+
+    @results[:weather_filename] = weather_filename
 
     weather_filename
   end

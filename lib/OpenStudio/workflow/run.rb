@@ -33,7 +33,7 @@ module OpenStudio
       alias state aasm
 
       # load the transitions
-      def default_transition
+      def self.default_transition
         # TODO: replace these with dynamic states from a config file of some sort
         [
             {from: :queued, to: :preflight},
@@ -46,7 +46,7 @@ module OpenStudio
 
       # The default states for the workflow.  Note that the states of :queued of :finished need
       # to exist for all cases.
-      def default_states
+      def self.default_states
         # TODO: replace this with some sort of dymanic store
         [
             {state: :queued, :options => {initial: true}},
@@ -70,7 +70,11 @@ module OpenStudio
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
 
-        defaults = {transitions: default_transition, jobs: {}}
+        defaults = {
+            transitions: OpenStudio::Workflow::Run.default_transition,
+            states: OpenStudio::Workflow::Run.default_states,
+            jobs: {}
+        }
         @options = defaults.merge(options)
 
         @error = false
@@ -97,6 +101,8 @@ module OpenStudio
 
         # load the state machine
         machine
+
+        pp aasm
       end
 
       # run the simulations.
@@ -163,7 +169,6 @@ module OpenStudio
 
         # TODO: save the resulting filenames to an array
         @job_results[__method__.to_sym] = klass.perform
-        @logger.info @job_results
       end
 
       def run_postprocess
@@ -182,6 +187,14 @@ module OpenStudio
         @job_results[__method__.to_sym] = klass.perform
       end
 
+      def run_xml
+        @logger.info "Running #{__method__}"
+        klass = get_run_class(__method__)
+
+        @job_results[__method__.to_sym] = klass.perform
+        @logger.info @job_results
+      end
+
       def final_state
         state.current_state
       end
@@ -193,26 +206,24 @@ module OpenStudio
       # and calls the actions defined in the states in the Hash of default_states
       def machine
         @logger.info "Initializing state machine"
-        default_states.each do |s|
+        @options[:states].each do |s|
           s[:options] ? o = s[:options] : o = {}
           OpenStudio::Workflow::Run.aasm.states << AASM::State.new(s[:state], self.class, o)
         end
         OpenStudio::Workflow::Run.aasm.initial_state(:queued)
 
-        #logger.info OpenStudio::Workflow::Run.aasm.states
-
         # Create a new event and add in the transitions
         new_event = OpenStudio::Workflow::Run.aasm.event(:step)
         event = OpenStudio::Workflow::Run.aasm.events[:step]
-        event.options[:error] = 'step_error'
-        default_transition.each do |t|
+        #event.options[:error] = 'step_error'
+        @options[:transitions].each do |t|
           event.transitions(t)
         end
 
+        # Add in special event to error_out the state machine
         new_event = OpenStudio::Workflow::Run.aasm.event(:error_out)
         event = OpenStudio::Workflow::Run.aasm.events[:error_out]
         event.transitions(:to => :errored)
-
       end
 
       # Get any options that may have been sent into the class defining the workflow step

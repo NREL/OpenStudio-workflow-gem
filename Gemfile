@@ -3,6 +3,9 @@ source 'http://rubygems.org'
 # Specify your gem's dependencies in OpenStudio-workflow.gemspec
 gemspec
 
+gem 'uuid'
+gem 'zip'
+
 group :mongo do
   gem 'mongoid', '~> 3.1.6'
   gem 'paperclip', '~> 4.1.1' # do not upgrade because breaks the after_commit
@@ -10,6 +13,10 @@ group :mongo do
   gem 'delayed_job_mongoid'
 end
 
+group :xml do
+  gem 'libxml-ruby'
+  gem 'os'
+end
 
 group :test do
   gem "rspec", "~> 2.12"

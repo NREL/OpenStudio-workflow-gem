@@ -60,11 +60,13 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 * Implement better error handling with custom exception classes
 * Dynamically add other "states" to the workflow
 * Change into the right directory when running measures
-* Implement Error State
-* Implement MongoDB Adapter
-* Implement remaining Adapter states (i.e. communicate success, communicate failure etc
+* ~~Implement Error State~~
+* ~~Implement MongoDB Adapter~~
+* ~~Implement remaining Adapter states (i.e. communicate success, communicate failure etc~~
 * Add a results adapter to return a string as the last call based on the source of the call. (e.g. R, command line, C++, etc).
-* Implemnet a logger in the Adapters, right now they are unable to log
+* Implement a logger in the Adapters, right now they are unable to log
+* Hook up the measure groups based workflows
+* More tests!
 
 ## Contributing
 

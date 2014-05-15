@@ -99,7 +99,7 @@ module OpenStudio
         # For the local adapter send back a handle to a file to append the data. For this adapter
         # the log messages are likely to be the same as the run.log messages.
         # TODO: do we really want two local logs from the Local adapter? One is in the run dir and the other is in the root
-        def get_logger(directory)
+        def get_logger(directory, options={})
           @log ||= File.open("#{directory}/local_adapter.log", "w")
           @log
         end

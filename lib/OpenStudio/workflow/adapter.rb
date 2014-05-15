@@ -60,8 +60,8 @@ module OpenStudio
         instance.communicate_failure id
       end
 
-      def get_logger(file)
-        instance.get_logger file
+      def get_logger(file, options={})
+        instance.get_logger file, options
       end
     end
   end

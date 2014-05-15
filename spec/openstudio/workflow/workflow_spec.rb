@@ -27,8 +27,6 @@ describe 'OpenStudio::Workflow' do
       dp.save!
       a.save!
     end
-
-
   end
 
   it 'create a local file adapater' do

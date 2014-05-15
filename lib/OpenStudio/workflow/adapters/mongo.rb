@@ -22,11 +22,16 @@ require_relative '../adapter'
 module OpenStudio
   module Workflow
     module Adapters
-      # class MongoLog
-      #   def write(*args)
-      #     pp "LAKJDFLKJLSDJKF #{args}"
-      #   end
-      # end
+      class MongoLog
+        def initialize(datapoint_model)
+          @dp = datapoint_model
+          @dp.sdp_log_file ||= []
+        end
+        def write(msg)
+           @dp.sdp_log_file << msg.gsub('\n','')
+           @dp.save!
+        end
+      end
 
       class Mongo < Adapter
         def initialize(options={})
@@ -181,8 +186,10 @@ module OpenStudio
         end
 
         # TODO: Implement the writing to the mongo_db for logging
-        def get_logger(directory)
-          @log ||= File.open("#{directory}/mongo_adapter.log", "w")
+        def get_logger(directory, options={})
+          # get the datapoint object
+          get_datapoint(directory, options) unless @datapoint
+          @log = OpenStudio::Workflow::Adapters::MongoLog.new(@datapoint)
           @log
         end
 

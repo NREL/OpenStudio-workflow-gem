@@ -66,7 +66,6 @@ module OpenStudio
       #        independent of the adapter that is being used. Note that the simulation will actually run in 'run'
       def initialize(adapter, directory, options = {})
         @adapter = adapter
-
         @directory = directory
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
@@ -85,7 +84,7 @@ module OpenStudio
         # There is a namespace conflict when OpenStudio is loaded: be careful!
         log_file = File.open("#{@run_directory}/run.log", "a")
 
-        l = @adapter.get_logger @directory
+        l = @adapter.get_logger @directory, @options
         if l
           @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file, l)
         else

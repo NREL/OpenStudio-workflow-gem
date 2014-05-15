@@ -55,7 +55,7 @@ module OpenStudio
     def load_adapter(name, adapter_options={})
       require_relative "workflow/adapters/#{name.downcase}"
       klass_name = name.to_s.split('_').map(&:capitalize) * ''
-      pp "#{klass_name} is the adapter class name"
+      #pp "#{klass_name} is the adapter class name"
       klass = OpenStudio::Workflow::Adapters.const_get(klass_name).new(adapter_options)
       klass
     end

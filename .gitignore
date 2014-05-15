@@ -24,6 +24,7 @@ tmp
 mkmf.log
 .idea
 .DS_Store
+/*.osm
 spec/files/*/run
 spec/files/*/*.log
 spec/files/*/*.job

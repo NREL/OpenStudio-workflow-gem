@@ -101,8 +101,6 @@ module OpenStudio
 
         # load the state machine
         machine
-
-        pp aasm
       end
 
       # run the simulations.
@@ -215,7 +213,9 @@ module OpenStudio
         # Create a new event and add in the transitions
         new_event = OpenStudio::Workflow::Run.aasm.event(:step)
         event = OpenStudio::Workflow::Run.aasm.events[:step]
-        #event.options[:error] = 'step_error'
+
+        # TODO: make a config option to not go to the error state. Useful to not error-state when testing
+        event.options[:error] = 'step_error'
         @options[:transitions].each do |t|
           event.transitions(t)
         end

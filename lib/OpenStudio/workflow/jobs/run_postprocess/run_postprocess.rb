@@ -19,8 +19,6 @@
 
 # Run precanned post processing to extract object functions
 # TODO: I hear that measures can step on each other if not run in their own directory
-# TODO: isnt' openstudio already loaded? Why include it again
-require 'openstudio'
 
 require 'csv'
 class RunPostprocess
@@ -63,7 +61,30 @@ class RunPostprocess
 
     run_extract_objective_functions
 
+    cleanup
+
     @results
+  end
+
+  def cleanup
+    # TODO: use Dir glob instead of pathname
+    require 'pathname'
+    require 'fileutils'
+    paths_to_rm = []
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.idf")
+    paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
+    paths_to_rm << Pathname.glob("#{@run_directory}/EnergyPlus")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.so")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.epw")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.idd")
+    # paths_to_rm << Pathname.glob("*.audit")
+    # paths_to_rm << Pathname.glob("*.bnd")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.mtd")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.rdd")
+    paths_to_rm << Pathname.glob("#{@run_directory}/packaged_measures")
+    paths_to_rm.each { |p| FileUtils.rm_rf(p) }
   end
 
   def run_extract_objective_functions

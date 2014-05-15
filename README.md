@@ -53,6 +53,7 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 
 * There are currently several hard coded workflow options
 * Must use OpenStudio with Ruby 2.0 support
+* Using MongoDB as the Adapter requires a command line zip (gnuzip) utility
 
 ### Todos
 
@@ -63,6 +64,7 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 * Implement MongoDB Adapter
 * Implement remaining Adapter states (i.e. communicate success, communicate failure etc
 * Add a results adapter to return a string as the last call based on the source of the call. (e.g. R, command line, C++, etc).
+* Implemnet a logger in the Adapters, right now they are unable to log
 
 ## Contributing
 

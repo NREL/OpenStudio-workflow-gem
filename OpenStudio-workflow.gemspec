@@ -24,4 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'aasm', '~> 3.1.1'
   spec.add_runtime_dependency 'multi_json', '~> 1.10.0'
   spec.add_runtime_dependency 'colored', '~> 1.2'
+  spec.add_runtime_dependency 'facter', '~> 2.0.1'
 end

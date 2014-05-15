@@ -22,6 +22,7 @@ require 'pp'
 require 'multi_json'
 require 'colored'
 require 'fileutils'
+require 'facter'
 
 require_relative 'workflow/version'
 require_relative 'workflow/multi_delegator'
@@ -40,11 +41,11 @@ module OpenStudio
     extend self
 
     # Create a new workflow instance using the defined adapter and UUID
-    def load(adapter_name, uuid_or_run_dir, options={})
+    def load(adapter_name, run_directory, options={})
       defaults = {adapter_options: {}}
       options = defaults.merge(options)
       adapter = load_adapter adapter_name, options[:adapter_options]
-      run_klass = OpenStudio::Workflow::Run.new(adapter, uuid_or_run_dir, options)
+      run_klass = OpenStudio::Workflow::Run.new(adapter, run_directory, options)
       # return the run class
       run_klass
     end

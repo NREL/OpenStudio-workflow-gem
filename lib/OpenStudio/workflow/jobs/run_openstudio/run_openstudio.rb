@@ -17,9 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# TODO: move 'require openstudio' to another location as it is globally required
 # TODO: I hear that measures can step on each other if not run in their own directory
-require 'openstudio'
 
 class RunOpenstudio
   CRASH_ON_NO_WORKFLOW_VARIABLE = false
@@ -43,6 +41,7 @@ class RunOpenstudio
     @model = nil
     @model_idf = nil
     @analysis_json = nil
+    # TODO: rename datapoint_json to just datapoint
     @datapoint_json = nil
     @output_attributes = []
     @report_measures = []
@@ -59,13 +58,12 @@ class RunOpenstudio
     # get json from database
 
     @logger.info "Retrieving datapoint and problem"
-    @analysis_json = @adapter.get_problem(@directory, @options)
     @datapoint_json = @adapter.get_datapoint(@directory, @options)
+    @analysis_json = @adapter.get_problem(@directory, @options)
 
     if @analysis_json && @analysis_json[:analysis]
       @model = load_seed_model
       load_weather_file
-
 
       apply_measures(:openstudio_measure)
       translate_to_energyplus
@@ -182,7 +180,6 @@ class RunOpenstudio
       @model.getFacility
       @model.getBuilding
       forward_translator = OpenStudio::EnergyPlus::ForwardTranslator.new
-      # puts "starting forward translator #{Time.now}"
       @model_idf = forward_translator.translateModel(@model)
       b = Time.now
       @logger.info "Translate object to energyplus IDF took #{b.to_f - a.to_f}"

@@ -8,7 +8,6 @@
         "internal_ip_address": "192.168.33.11",
         "ip_address": "192.168.33.11",
         "name": "Autocreated on worker: 4f0b5de0-babf-0131-609d-080027880ca6",
-        "openstudio_datapoint_file_name": "/mnt/openstudio/analysis_1b66e240-babf-0131-ec2f-14109fdf0b37/data_point_4f0b5de0-babf-0131-609d-080027880ca6.zip",
         "output": null,
         "run_end_time": "2014-05-10T22:22:12+00:00",
         "run_start_time": "2014-05-10T22:21:10+00:00",

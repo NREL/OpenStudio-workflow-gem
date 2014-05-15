@@ -30,7 +30,7 @@ module OpenStudio
         end
 
         # Tell the system that the process has started
-        def communicate_started(directory)
+        def communicate_started(directory, options = {})
           # Watch out for namespace conflicts (::Time is okay but Time is OpenStudio::Time)
           File.open("#{directory}/started.job", 'w') { |f| f << "Started Workflow #{::Time.now}" }
         end
@@ -79,7 +79,6 @@ module OpenStudio
         def communicate_results(directory, results)
           if results.is_a? Hash
             File.open("#{directory}/datapoint_out.json", 'w') { |f| f << MultiJson.dump(results, pretty: true) }
-            pp "I am a hash and will do soemthing with it"
           else
             pp "Unknown datapoint result type. Please handle #{results.class}"
             #data_point_json_path = OpenStudio::Path.new(run_dir) / OpenStudio::Path.new('data_point_out.json')
@@ -97,12 +96,12 @@ module OpenStudio
           # noop
         end
 
-        # Fot the local adapter send back a handle to a file to append the data. For this adapter
+        # For the local adapter send back a handle to a file to append the data. For this adapter
         # the log messages are likely to be the same as the run.log messages.
         # TODO: do we really want two local logs from the Local adapter? One is in the run dir and the other is in the root
         def get_logger(directory)
-          @log_file ||= File.open("#{directory}/local_adapter.log", "w")
-          @log_file
+          @log ||= File.open("#{directory}/local_adapter.log", "w")
+          @log
         end
 
       end

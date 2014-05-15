@@ -26,7 +26,7 @@ module OpenStudio
 
       def initialize(options={})
         @options = options
-        pp "i have no options #{@options}"
+        @log = nil
       end
 
       #class << self
@@ -36,20 +36,16 @@ module OpenStudio
         instance.load(filename, options)
       end
 
+      def communicate_started(id, options = {})
+        instance.communicate_started id
+      end
+
       def get_datapoint(id, options={})
         instance.get_datapoint id, options
       end
 
       def get_problem(id, options = {})
         instance.get_problem id, options
-      end
-
-      def get_logger(id)
-        instance.get_logger id
-      end
-
-      def communicate_started(id)
-        instance.communicate_started id
       end
 
       def communicate_results(id, results)
@@ -64,7 +60,9 @@ module OpenStudio
         instance.communicate_failure id
       end
 
-      #end
+      def get_logger(file)
+        instance.get_logger file
+      end
     end
   end
 end

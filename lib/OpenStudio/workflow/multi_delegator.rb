@@ -19,6 +19,14 @@
 
 require 'logger'
 
+class Logger
+  def format_message(severity, datetime, progname, msg)
+    #"#{datetime} (#{$$}) #{msg}\n"
+    #"#{datetime}: #{msg}\n"
+    "[%s %s] %s\n" % [ datetime.strftime("%H:%M:%S.%6N"), severity, msg ]
+  end
+end
+
 # Class to allow multiple logging paths
 class MultiDelegator
   def initialize(*targets)

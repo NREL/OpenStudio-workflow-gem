@@ -66,12 +66,16 @@ module OpenStudio
       #        independent of the adapter that is being used. Note that the simulation will actually run in 'run'
       def initialize(adapter, directory, options = {})
         @adapter = adapter
+
         @directory = directory
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
+
         defaults = {transitions: default_transition, jobs: {}}
         @options = defaults.merge(options)
+
         @error = false
+
         @job_results = {}
 
         # By default blow away the entire run directory every time and recreate it
@@ -138,7 +142,7 @@ module OpenStudio
         # Make sure to set the instance variable @error to true in order to stop the :step
         # event from being fired.
         @error = true
-        @logger.error "Found error during #{aasm.current_state} with message #{args}"
+        @logger.error "Found error in state '#{aasm.current_state}' with message #{args}}"
 
         # Call the error_out event to transition to the :errored state
         error_out

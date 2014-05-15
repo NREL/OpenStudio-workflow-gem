@@ -33,7 +33,9 @@ class RunPreflight
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
-    @adapter.communicate_started @directory
+
+
+    @adapter.communicate_started @directory, @options
 
     # Add the moment this does nothing.
 

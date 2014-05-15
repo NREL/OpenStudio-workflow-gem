@@ -6,6 +6,7 @@ cookbook "yum-epel"
 cookbook "gdebi"
 cookbook "build-essential"
 cookbook "ruby_build"
+cookbook "zip"
 
 cookbook "openstudio", github: 'NREL-cookbooks/openstudio', protocol: 'ssh'
 cookbook "energyplus", github: 'NREL-cookbooks/energyplus', protocol: 'ssh'

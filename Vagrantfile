@@ -31,14 +31,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 :version_revision => "74c3859219"
             }
         },
- 	:mongodb => {
-		:install_method => "10gen",
-	        :package_version => "2.4.10"
-	}
+        :mongodb => {
+            :install_method => "10gen",
+            :package_version => "2.4.10"
+        }
     }
     chef.run_list = [
         "recipe[openstudio::default]",
-	"recipe[mongodb::default]"
+        "recipe[mongodb::default]",
+	"recipe[zip::default]"
     ]
   end
 end

@@ -20,8 +20,10 @@ end
 
 group :test do
   gem "rspec", "~> 2.14"
+end
+
+group :ci do
   gem "ci_reporter", "~> 1.9.2"
-  gem "ruby-graphviz"
   gem 'rubocop', require: false
   gem 'rubocop-checkstyle_formatter', require: false
 end

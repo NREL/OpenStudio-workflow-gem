@@ -75,7 +75,13 @@ Depending on what adapter is being tested it may be preferable to skip installin
 
     bundle install --without mongo
 
-Run `rspec` and make sure everything is passing
+On Windows it is recommended to bundle without mongo nor ci as they may require native extensions.
+
+    bundle install --without mongo ci
+
+### Testing
+
+Run `rspec` or `rake` to execute the tests.
 
 ## Contributing
 

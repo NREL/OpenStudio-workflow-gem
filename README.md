@@ -69,6 +69,14 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 * More tests!
 * ~~Add xml workflow item~~
 
+## Testing and Development
+
+Depending on what adapter is being tested it may be preferable to skip installing various gems.  This can be done by calling
+
+    bundle install --without mongo
+
+Run `rspec` and make sure everything is passing
+
 ## Contributing
 
 1. Fork it ( https://github.com/NREL/OpenStudio-workflow/fork )
@@ -79,4 +87,3 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 
 ## Development
 
-Run `rspec` and make sure everything is passing

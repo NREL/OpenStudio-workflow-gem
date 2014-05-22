@@ -88,9 +88,11 @@ module OpenStudio
             @datapoint.internal_ip_address = internal_ip_address
             # @datapoint.server_information = instance_information
           else
-            # TODO: add hostname via the facter gem (and anything else?)
-            @datapoint.ip_address = Facter.fact(:ipaddress).value
-            @datapoint.internal_ip_address = Facter.fact(:hostname).value
+            if Gem.loaded_specs["facter"]
+              # TODO: add hostname via the facter gem (and anything else?)
+              @datapoint.ip_address = Facter.fact(:ipaddress).value
+              @datapoint.internal_ip_address = Facter.fact(:hostname).value
+            end
           end
 
           @datapoint.save!

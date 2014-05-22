@@ -57,6 +57,7 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 
 ### Todos
 
+* Read the analysis.json file to determine the states that are going to run instead of (or inaddition to) passing them into the constructor
 * Implement better error handling with custom exception classes
 * Dynamically add other "states" to the workflow
 * Change into the right directory when running measures

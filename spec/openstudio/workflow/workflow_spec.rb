@@ -27,11 +27,41 @@ describe 'OpenStudio::Workflow' do
       dp.save!
       a.save!
     end
+
+    # Load in the local_ex2 example as well.
+    dp_json_filename = 'spec/files/local_ex2/datapoint_1.json'
+    analysis_filename = 'spec/files/local_ex2/analysis_1.json'
+    if File.exist?(dp_json_filename) && File.exist?(analysis_filename)
+      dp_json = MultiJson.load(File.read(dp_json_filename), symbolize_keys: true)
+      analysis_json = MultiJson.load(File.read(analysis_filename), symbolize_keys: true)
+      dp = DataPoint.create(dp_json[:data_point])
+      a = Analysis.create(analysis_json[:analysis])
+      dp.save!
+      a.save!
+    end
   end
 
-  it 'create a local file adapater' do
+  it 'should run a local file adapater in legacy mode' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ex1'
+    options = {
+        problem_filename: 'analysis_1.json',
+        datapoint_filename: 'datapoint_1.json',
+        measures_root_path: '../example_models',
+        use_monthly_reports: true
+    }
+    k = OpenStudio::Workflow.load 'Local', run_dir, options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq 'analysis_1.json'
+    expect(k.options[:datapoint_filename]).to eq 'datapoint_1.json'
+    expect(k.directory).to eq run_dir
+    expect(k.run).to eq :finished
+    expect(k.final_state).to eq :finished
+  end
+
+  it 'should run a local file with minimum format' do
+    # for local, it uses the rundir as the uuid
+    run_dir = './spec/files/local_ex2'
     options = {
         problem_filename: 'analysis_1.json',
         datapoint_filename: 'datapoint_1.json',
@@ -55,7 +85,7 @@ describe 'OpenStudio::Workflow' do
     expect(k.final_state).to be :errored
   end
 
-  it 'create a mongo file adapater' do
+  it 'should create a mongo file adapater and run the verbose format' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/mongo_ex1'
     options = {
@@ -70,6 +100,21 @@ describe 'OpenStudio::Workflow' do
     expect(k.final_state).to eq :finished
   end
 
+  it 'should create a mongo file adapater and run the concise format' do
+    # for local, it uses the rundir as the uuid
+    run_dir = './spec/files/mongo_ex3'
+    options = {
+        datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
+        measures_root_path: '../example_models',
+        use_monthly_reports: true
+    }
+    k = OpenStudio::Workflow.load 'Mongo', run_dir, options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.directory).to eq run_dir
+    expect(k.run).to eq :finished
+    expect(k.final_state).to eq :finished
+  end
+  
   it 'should add a new state and transition' do
     transitions = OpenStudio::Workflow::Run.default_transition
     transitions[1][:to] = :xml

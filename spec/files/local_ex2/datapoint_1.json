@@ -1,7 +1,8 @@
 {
     "data_point": {
-        "_id": "4f0b5de0-babf-0131-609d-080027880ca6",
-        "analysis_id": "1b66e240-babf-0131-ec2f-14109fdf0b37",
+        "_id": "f348e59a-e1c3-11e3-8b68-0800200c9a66",
+        "uuid": "f348e59a-e1c3-11e3-8b68-0800200c9a66",
+        "analysis_id": "e7ba85c0-e1c3-11e3-8b68-0800200c9a66",
         "set_variable_values": {
             "d25b7290-babe-0131-ebca-14109fdf0b37": 25.449938617921802,
             "d25a1940-babe-0131-ebc1-14109fdf0b37": 26.375007197907237,

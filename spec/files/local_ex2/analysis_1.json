@@ -1,6 +1,6 @@
 {
     "analysis": {
-        "_id": "1b66e240-babf-0131-ec2f-14109fdf0b37",
+        "_id": "e7ba85c0-e1c3-11e3-8b68-0800200c9a66",
         "output_variables": [
             {
                 "display_name": "Total Natural Gas",
@@ -404,7 +404,7 @@
             "file_type": "OSM",
             "path": "../example_models/seed/seed.osm"
         },
-        "uuid": "1b66e240-babf-0131-ec2f-14109fdf0b37",
+        "uuid": "e7ba85c0-e1c3-11e3-8b68-0800200c9a66",
         "weather_file": {
             "file_type": "EPW",
             "path": "../example_models/weather/in.epw"

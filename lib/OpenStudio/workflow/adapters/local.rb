@@ -78,7 +78,7 @@ module OpenStudio
 
         def communicate_results(directory, results)
           if results.is_a? Hash
-            File.open("#{directory}/datapoint_out.json", 'w') { |f| f << MultiJson.dump(results, pretty: true) }
+            File.open("#{directory}/datapoint_out.json", 'w') { |f| f << ::MultiJson.dump(results, :pretty => true) }
           else
             pp "Unknown datapoint result type. Please handle #{results.class}"
             #data_point_json_path = OpenStudio::Path.new(run_dir) / OpenStudio::Path.new('data_point_out.json')

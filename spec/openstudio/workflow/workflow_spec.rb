@@ -114,7 +114,7 @@ describe 'OpenStudio::Workflow' do
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
   end
-  
+
   it 'should add a new state and transition' do
     transitions = OpenStudio::Workflow::Run.default_transition
     transitions[1][:to] = :xml

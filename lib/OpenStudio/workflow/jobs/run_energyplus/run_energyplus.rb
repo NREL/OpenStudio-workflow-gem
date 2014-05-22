@@ -23,8 +23,16 @@ class RunEnergyplus
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, adapter, options = {})
+    
+    energyplus_path = nil
+    if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
+      energyplus_path = 'C:/EnergyPlus-8-1-0'
+    else
+      energyplus_path ='/usr/local/EnergyPlus-8-1-0'
+    end
+    
     defaults = {
-        energyplus_path: '/usr/local/EnergyPlus-8-1-0'
+      energyplus_path: energyplus_path
     }
     @options = defaults.merge(options)
 

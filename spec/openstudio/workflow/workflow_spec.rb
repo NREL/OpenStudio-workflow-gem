@@ -3,42 +3,49 @@ require 'spec_helper'
 
 describe 'OpenStudio::Workflow' do
   before :all do
-    require 'mongoid'
-    require 'mongoid_paperclip'
-    require 'delayed_job_mongoid'
-    base_path = "#{File.expand_path(File.join(File.dirname(__FILE__), '../../../lib/OpenStudio/workflow/adapters/mongo'))}"
+  
+    begin
+      require 'mongoid'
+      require 'mongoid_paperclip'
+      require 'delayed_job_mongoid'
+      base_path = "#{File.expand_path(File.join(File.dirname(__FILE__), '../../../lib/OpenStudio/workflow/adapters/mongo'))}"
 
-    Dir["#{base_path}/models/*.rb"].each { |f| require f }
-    Mongoid.load!("#{base_path}/mongoid.yml", :development)
+      Dir["#{base_path}/models/*.rb"].each { |f| require f }
+      Mongoid.load!("#{base_path}/mongoid.yml", :development)
 
-    # Delete all the records
-    DataPoint.delete_all
-    Analysis.delete_all
+      # Delete all the records
+      DataPoint.delete_all
+      Analysis.delete_all
 
-    # TODO: make this a factory!
-    # read in the data_point
-    dp_json_filename = 'spec/files/local_ex1/datapoint_1.json'
-    analysis_filename = 'spec/files/local_ex1/analysis_1.json'
-    if File.exist?(dp_json_filename) && File.exist?(analysis_filename)
-      dp_json = MultiJson.load(File.read(dp_json_filename), symbolize_keys: true)
-      analysis_json = MultiJson.load(File.read(analysis_filename), symbolize_keys: true)
-      dp = DataPoint.create(dp_json[:data_point])
-      a = Analysis.create(analysis_json[:analysis])
-      dp.save!
-      a.save!
+      # TODO: make this a factory!
+      # read in the data_point
+      dp_json_filename = 'spec/files/local_ex1/datapoint_1.json'
+      analysis_filename = 'spec/files/local_ex1/analysis_1.json'
+      if File.exist?(dp_json_filename) && File.exist?(analysis_filename)
+        dp_json = MultiJson.load(File.read(dp_json_filename), symbolize_keys: true)
+        analysis_json = MultiJson.load(File.read(analysis_filename), symbolize_keys: true)
+        dp = DataPoint.create(dp_json[:data_point])
+        a = Analysis.create(analysis_json[:analysis])
+        dp.save!
+        a.save!
+      end
+      
+      # Load in the local_ex2 example as well.
+      dp_json_filename = 'spec/files/local_ex2/datapoint_1.json'
+      analysis_filename = 'spec/files/local_ex2/analysis_1.json'
+      if File.exist?(dp_json_filename) && File.exist?(analysis_filename)
+        dp_json = MultiJson.load(File.read(dp_json_filename), symbolize_keys: true)
+        analysis_json = MultiJson.load(File.read(analysis_filename), symbolize_keys: true)
+        dp = DataPoint.create(dp_json[:data_point])
+        a = Analysis.create(analysis_json[:analysis])
+        dp.save!
+        a.save!
+      end
+    
+    rescue LoadError 
+      puts "No Mongo"
     end
 
-    # Load in the local_ex2 example as well.
-    dp_json_filename = 'spec/files/local_ex2/datapoint_1.json'
-    analysis_filename = 'spec/files/local_ex2/analysis_1.json'
-    if File.exist?(dp_json_filename) && File.exist?(analysis_filename)
-      dp_json = MultiJson.load(File.read(dp_json_filename), symbolize_keys: true)
-      analysis_json = MultiJson.load(File.read(analysis_filename), symbolize_keys: true)
-      dp = DataPoint.create(dp_json[:data_point])
-      a = Analysis.create(analysis_json[:analysis])
-      dp.save!
-      a.save!
-    end
   end
 
   it 'should run a local file adapater in legacy mode' do

@@ -5,6 +5,7 @@ gemspec
 
 gem 'uuid'
 gem 'zip'
+gem 'facter', require: false
 
 group :mongo do
   gem 'mongoid', '~> 3.1.6'

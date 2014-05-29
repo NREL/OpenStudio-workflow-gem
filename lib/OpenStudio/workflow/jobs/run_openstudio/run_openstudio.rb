@@ -67,7 +67,7 @@ class RunOpenstudio
       apply_measures(:energyplus_measure)
 
       # TODO: naming convention for the output attribute files
-      @logger.info "Measure output attributes are #{@output_attributes}"
+      @logger.info "Measure output attributes JSON is #{@output_attributes}"
       File.open("#{@run_directory}/#{self.class.name.downcase}_measure_attributes.json", 'w') {
           |f| f << JSON.pretty_generate(@output_attributes)
       }
@@ -128,7 +128,6 @@ class RunOpenstudio
         # assume that the seed model has been placed in the directory
         baseline_model_path = File.expand_path(
             File.join(@directory, @analysis_json[:analysis][:seed][:path]))
-
       else
         fail 'No seed model path in JSON defined'
       end
@@ -164,7 +163,6 @@ class RunOpenstudio
       if @analysis_json[:analysis][:weather_file][:path]
         weather_filename = File.expand_path(
             File.join(@directory, @analysis_json[:analysis][:weather_file][:path]))
-
       else
         fail 'No weather file path defined'
       end
@@ -196,7 +194,7 @@ class RunOpenstudio
     end
   end
 
-  def apply_arguments(argument, argument_map)
+  def apply_arguments(argument_map, argument)
     success = true
 
     if argument[:value]
@@ -210,14 +208,16 @@ class RunOpenstudio
     else
       fail "Value for argument '#{argument[:name]}' not set in argument list" if CRASH_ON_NO_WORKFLOW_VARIABLE
       @logger.warn "Value for argument '#{argument[:name]}' not set in argument list therefore will use default"
-      success = false
+      #success = false
+
+      # TODO: what is the fail case (success = false?)
     end
 
     success
   end
 
   # Apply the variable values to the measure argument map object
-  def apply_variables(variable, argument_map)
+  def apply_variables(argument_map, variable)
     success = true
 
     # save the uuid of the variable
@@ -239,7 +239,7 @@ class RunOpenstudio
           else
             fail "[ERROR] Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object" if CRASH_ON_NO_WORKFLOW_VARIABLE
             @logger.warn "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
-            success = false
+            # success = false
           end
         else
           fail 'No block for set_variable_values in data point record'
@@ -265,7 +265,9 @@ class RunOpenstudio
 
     require measure_file_path
     measure = Object.const_get(measure_name).new
+    @logger.info "Loaded in measure #{measure}"
     runner = OpenStudio::Ruleset::OSRunner.new
+    result = nil
 
     arguments = measure.arguments(@model)
 
@@ -275,36 +277,53 @@ class RunOpenstudio
       argument_map[v.name] = v.clone
     end
 
-    @logger.info "Iterating over arguments for workflow item #{workflow_item[:name]}"
+    @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
     if workflow_item[:arguments]
       workflow_item[:arguments].each do |argument|
-        success = apply_arguments(argument, argument_map)
-        break unless success
+        success = apply_arguments(argument_map, argument)
+        fail "could not set arguments" unless success
       end
     end
 
-    @logger.info "Iterating over variables for workflow item #{workflow_item[:name]}"
+    @logger.info "Iterating over variables for workflow item '#{workflow_item[:name]}'"
     if workflow_item[:variables]
       workflow_item[:variables].each do |variable|
-        apply_variables(variable, argument_map)
+        success = apply_variables(argument_map, variable)
+        fail "could not set variables" unless success
       end
     end
 
-    if workflow_item['measure_type'] == 'RubyMeasure'
-      measure.run(@model, runner, argument_map)
-    elsif workflow_item['measure_type'] == 'EnergyPlusMeasure'
-      measure.run(@model_idf, runner, argument_map)
-    elsif workflow_item['measure_type'] == 'ReportingMeasure'
-      report_measures << measure
+    begin
+      if workflow_item[:measure_type] == 'RubyMeasure'
+        @logger.info "Running runner for '#{workflow_item[:name]}'"
+        measure.run(@model, runner, argument_map)
+        @logger.info "Finished runner for '#{workflow_item[:name]}'"
+      elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
+        measure.run(@model_idf, runner, argument_map)
+      elsif workflow_item[:measure_type] == 'ReportingMeasure'
+        report_measures << measure
+      end
+    rescue Exception => e
+      log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+      fail log_message
     end
-    result = runner.result
 
-    @logger.info result.initialCondition.get.logMessage, true unless result.initialCondition.empty?
-    @logger.info result.finalCondition.get.logMessage, true unless result.finalCondition.empty?
+    begin
+      result = runner.result
 
-    result.warnings.each { |w| @logger.info w.logMessage, true }
-    result.errors.each { |w| @logger.info w.logMessage, true }
-    result.info.each { |w| @logger.info w.logMessage, true }
+      @logger.error result
+      @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
+      @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?
+
+      result.warnings.each { |w| @logger.info w.logMessage }
+      result.errors.each { |w| @logger.info w.logMessage }
+      result.info.each { |w| @logger.info w.logMessage }
+    rescue Exception => e
+      log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+      fail log_message
+    end
+
+
     begin
       # TODO: associate this with the measure that was just run
       @output_attributes << JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)

@@ -196,7 +196,7 @@ class RunPostprocess
     measure_result.info.each { |w| @logger.info w.logMessage }
 
     report_json = JSON.parse(OpenStudio.toJSON(measure_result.attributes), symbolize_names: true)
-    @logger.info "JSON file is #{report_json}"
+    @logger.info "Standard Report JSON file is #{report_json}"
     File.open("#{@run_directory}/standard_report.json", 'w') { |f| f << JSON.pretty_generate(report_json) }
 
 

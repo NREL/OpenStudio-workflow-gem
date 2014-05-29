@@ -11,13 +11,15 @@ class RotateBuilding < OpenStudio::Ruleset::ModelUserScript
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
     #make an argument for your name
-    relative_building_rotation = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("relative_building_rotation",true)
+    relative_building_rotation = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("relative_building_rotation", true)
     relative_building_rotation.setDisplayName("Number of Degrees to Rotate Building (positive value is clockwise).")
     relative_building_rotation.setDefaultValue(90.0)
     args << relative_building_rotation
 
     return args
-  end #end the arguments method
+  end
+
+  #end the arguments method
 
   #define what happens when the measure is run
   def run(model, runner, user_arguments)
@@ -29,7 +31,7 @@ class RotateBuilding < OpenStudio::Ruleset::ModelUserScript
     end
 
     #assign the user inputs to variables
-    relative_building_rotation = runner.getDoubleArgumentValue("relative_building_rotation",user_arguments)
+    relative_building_rotation = runner.getDoubleArgumentValue("relative_building_rotation", user_arguments)
 
     #check the relative_building_rotation for reasonableness
     if relative_building_rotation > 360 or relative_building_rotation < -360
@@ -39,6 +41,7 @@ class RotateBuilding < OpenStudio::Ruleset::ModelUserScript
 
     #reporting initial condition of model
     building = model.getBuilding
+    runner.registerValue("orientation_initial", building.northAxis)
     runner.registerInitialCondition("The building's initial rotation was #{building.northAxis} degrees.")
 
     #report as not applicable if effective relative rotation is 0
@@ -65,6 +68,7 @@ class RotateBuilding < OpenStudio::Ruleset::ModelUserScript
     end
 
     #reporting final condition of model
+    runner.registerValue("orientation_final", building.northAxis)
     runner.registerFinalCondition("The building's final rotation is #{building.northAxis} degrees.")
 
     return true

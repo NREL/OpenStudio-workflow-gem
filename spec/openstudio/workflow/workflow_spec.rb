@@ -107,7 +107,7 @@ describe 'OpenStudio::Workflow' do
     expect(k.final_state).to eq :finished
   end
 
-  it 'should create a mongo file adapater and run the concise format' do
+  it 'should create a mongo file adapater and run the concise format', mongo: true do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/mongo_ex3'
     options = {

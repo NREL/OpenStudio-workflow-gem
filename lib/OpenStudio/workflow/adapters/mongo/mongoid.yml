@@ -1,7 +1,7 @@
 development:
   sessions:
     default:
-      database: os_dev
+      database: workflow-test
       hosts:
         - localhost:27017
       options:
@@ -10,7 +10,7 @@ development:
 production:
   sessions:
     default:
-      database: os_prod
+      database: workflow-test
       hosts:
         - localhost:27017
       options:

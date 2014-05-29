@@ -25,9 +25,11 @@ module OpenStudio
 
       #attr_accessor :state
       attr_reader :options
+      attr_reader :adapter
       attr_reader :directory
       attr_reader :run_directory
       attr_reader :final_state
+      attr_reader :job_results
 
       # Create a nice name for the state object instead of aasm
       alias state aasm
@@ -47,7 +49,7 @@ module OpenStudio
       # The default states for the workflow.  Note that the states of :queued of :finished need
       # to exist for all cases.
       def self.default_states
-        # TODO: replace this with some sort of dymanic store
+        # TODO: replace this with some sort of dynamic store
         [
             {state: :queued, :options => {initial: true}},
             {state: :preflight, :options => {after_enter: :run_preflight}},
@@ -123,6 +125,7 @@ module OpenStudio
           if @job_results[:run_postprocess]
             # these are the results that need to be sent back to adapter
             @logger.info "Sending the results back to the adapter"
+            @logger.info "Sending communicate_results the following options #{@job_results}"
             @adapter.communicate_results @directory, @job_results[:run_postprocess]
           end
         ensure
@@ -248,8 +251,6 @@ module OpenStudio
         klass = Object.const_get(klass_name).new(@directory, @logger, @adapter, get_job_options)
         klass
       end
-
-
     end
   end
 end

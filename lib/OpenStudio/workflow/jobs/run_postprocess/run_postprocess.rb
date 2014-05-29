@@ -59,7 +59,7 @@ class RunPostprocess
 
     run_packaged_measures
 
-    run_extract_objective_functions
+    run_extract_inputs_and_outputs
 
     cleanup
 
@@ -87,19 +87,28 @@ class RunPostprocess
     paths_to_rm.each { |p| FileUtils.rm_rf(p) }
   end
 
-  def run_extract_objective_functions
+  def run_extract_inputs_and_outputs
+    # Inputs are in the measure_attributes.json file
+    if File.exist?("#{@run_directory}/measure_attributes.json")
+      @results = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
+    end
+
+    if File.exist?("#{@run_directory}/standard_report.json")
+      @results[:standard_report] = JSON.parse(File.read("#{@run_directory}/standard_report.json"), symbolize_names: true)
+    end
+
     # Initialize the objective function variable
     @objective_functions = {}
     if File.exist?("#{@run_directory}/eplustbl.json")
-      @results = JSON.parse(File.read("#{@run_directory}/eplustbl.json"), symbolize_names: true)
+      @results[:standard_report_old] = JSON.parse(File.read("#{@run_directory}/eplustbl.json"), symbolize_names: true)
       @logger.info "Analysis JSON Output Variables are: #{@analysis_json[:analysis][:output_variables]}"
       # Save the objective functions to the object for sending back to the simulation executive
       @analysis_json[:analysis][:output_variables].each do |variable|
         # determine which ones are the objective functions (code smell: todo: use enumerator)
         if variable[:objective_function]
           @logger.info "Found objective function for #{variable[:name]}"
-          if @results[variable[:name].to_sym]
-            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[variable[:name].to_sym]
+          if @results[:standard_report_old][variable[:name].to_sym]
+            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[:standard_report_old][variable[:name].to_sym]
             if variable[:objective_function_target]
               @logger.info "Found objective function target for #{variable[:name]}"
               @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
@@ -196,9 +205,11 @@ class RunPostprocess
     measure_result.info.each { |w| @logger.info w.logMessage }
 
     report_json = JSON.parse(OpenStudio.toJSON(measure_result.attributes), symbolize_names: true)
-    @logger.info "Standard Report JSON file is #{report_json}"
-    File.open("#{@run_directory}/standard_report.json", 'w') { |f| f << JSON.pretty_generate(report_json) }
 
+    # only grab the attributes
+    standard_report = report_json[:attributes]
+    @logger.info "Standard Report JSON file is #{standard_report}"
+    File.open("#{@run_directory}/standard_report.json", 'w') { |f| f << JSON.pretty_generate(standard_report) }
 
     @logger.info 'Finished OpenStudio Post Processing'
   end

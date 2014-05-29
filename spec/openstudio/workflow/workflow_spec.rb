@@ -3,7 +3,7 @@ require 'spec_helper'
 
 describe 'OpenStudio::Workflow' do
   before :all do
-  
+
     begin
       require 'mongoid'
       require 'mongoid_paperclip'
@@ -29,7 +29,7 @@ describe 'OpenStudio::Workflow' do
         dp.save!
         a.save!
       end
-      
+
       # Load in the local_ex2 example as well.
       dp_json_filename = 'spec/files/local_ex2/datapoint_1.json'
       analysis_filename = 'spec/files/local_ex2/analysis_1.json'
@@ -41,8 +41,8 @@ describe 'OpenStudio::Workflow' do
         dp.save!
         a.save!
       end
-    
-    rescue LoadError 
+
+    rescue LoadError
       puts "No Mongo"
     end
 
@@ -116,10 +116,23 @@ describe 'OpenStudio::Workflow' do
         use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
+
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.directory).to eq run_dir
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
+
+    # First test the database?
+    if k.adapter.is_a? OpenStudio::Workflow::Adapters::Mongo
+      expect(k.adapter.datapoint[:results]).to_not be_nil
+      expect(k.adapter.datapoint[:results][:standard_report_old][:total_energy]).to be_within(10).of(321.26)
+    end
+
+    expect(k.job_results).to be_a Hash
+    expect(k.job_results[:run_postprocess][:lighting_loads_user_customized_name][:lighting_power_reduction_percent]).to be_within(1).of(26.375)
+    # expect(k.job_results[:run_postprocess][:standard_report][:total_building_area]).to be_within(1).of(26.375)
+    expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
+    expect(k.job_results[:run_postprocess][:standard_report_old][:total_energy]).to be_within(10).of(321.26)
   end
 
   it 'should add a new state and transition' do

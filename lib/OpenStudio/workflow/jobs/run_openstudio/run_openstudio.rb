@@ -41,7 +41,7 @@ class RunOpenstudio
     @analysis_json = nil
     # TODO: rename datapoint_json to just datapoint
     @datapoint_json = nil
-    @output_attributes = []
+    @output_attributes = {}
     @report_measures = []
     @measure_type_lookup = {
         :openstudio_measure => 'RubyMeasure',
@@ -68,7 +68,7 @@ class RunOpenstudio
 
       # TODO: naming convention for the output attribute files
       @logger.info "Measure output attributes JSON is #{@output_attributes}"
-      File.open("#{@run_directory}/#{self.class.name.downcase}_measure_attributes.json", 'w') {
+      File.open("#{@run_directory}/measure_attributes.json", 'w') {
           |f| f << JSON.pretty_generate(@output_attributes)
       }
     end
@@ -311,7 +311,6 @@ class RunOpenstudio
     begin
       result = runner.result
 
-      @logger.error result
       @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
       @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?
 
@@ -323,11 +322,10 @@ class RunOpenstudio
       fail log_message
     end
 
-
     begin
       # TODO: associate this with the measure that was just run
       measure_attributes = JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)
-      @output_attributes << {:"#{workflow_item[:name]}" => measure_attributes[:attributes]}
+      @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
     rescue Exception => e
       log_message = "TODO: #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       @logger.warn log_message

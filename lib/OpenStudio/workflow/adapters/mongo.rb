@@ -34,6 +34,8 @@ module OpenStudio
       end
 
       class Mongo < Adapter
+        attr_reader :datapoint
+
         def initialize(options={})
           super
 

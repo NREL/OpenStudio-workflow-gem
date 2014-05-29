@@ -326,7 +326,8 @@ class RunOpenstudio
 
     begin
       # TODO: associate this with the measure that was just run
-      @output_attributes << JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)
+      measure_attributes = JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)
+      @output_attributes << {:"#{workflow_item[:name]}" => measure_attributes[:attributes]}
     rescue Exception => e
       log_message = "TODO: #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       @logger.warn log_message

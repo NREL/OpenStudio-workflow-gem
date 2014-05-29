@@ -133,8 +133,8 @@
                     "measure_definition_uuid": "d2193ce0-babe-0131-eb69-14109fdf0b37",
                     "measure_definition_version_uuid": "d2195940-babe-0131-eb6a-14109fdf0b37",
                     "measure_type": "RubyMeasure",
-                    "name": "reduce_lighting_loads_by_percentage",
-                    "display_name": "Reduce Lighting Loads by Percentage",
+                    "name": "lighting_loads_user_customized_name",
+                    "display_name": "Lighting Loads User Customized Display Name",
                     "uuid": "d2585220-babe-0131-ebb8-14109fdf0b37",
                     "variables": [
                         {

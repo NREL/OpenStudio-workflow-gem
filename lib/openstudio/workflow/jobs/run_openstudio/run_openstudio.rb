@@ -25,7 +25,7 @@ class RunOpenstudio
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, adapter, options = {})
-    defaults = {format: 'hash', use_monthly_reports: false, measures_root_path: '.'}
+    defaults = {format: 'hash', use_monthly_reports: false, analysis_root_path: '.'}
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -127,7 +127,7 @@ class RunOpenstudio
 
         # assume that the seed model has been placed in the directory
         baseline_model_path = File.expand_path(
-            File.join(@directory, @analysis_json[:analysis][:seed][:path]))
+            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:seed][:path]))
       else
         fail 'No seed model path in JSON defined'
       end
@@ -162,7 +162,7 @@ class RunOpenstudio
     elsif @analysis_json[:analysis][:weather_file]
       if @analysis_json[:analysis][:weather_file][:path]
         weather_filename = File.expand_path(
-            File.join(@directory, @analysis_json[:analysis][:weather_file][:path]))
+            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path]))
       else
         fail 'No weather file path defined'
       end
@@ -260,7 +260,7 @@ class RunOpenstudio
 
     @logger.info "Loading measure in relative path #{measure_path}"
     measure_file_path = File.expand_path(
-        File.join(@directory, @options[:measures_root_path], measure_path, 'measure.rb'))
+        File.join(@options[:analysis_root_path], measure_path, 'measure.rb'))
     fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
 
     require measure_file_path

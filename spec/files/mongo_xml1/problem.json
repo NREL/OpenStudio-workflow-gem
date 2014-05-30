@@ -4082,7 +4082,7 @@
     "samples": null,
     "seed": {
         "file_type": "XML",
-        "path": "./seed/base_model.xml"
+        "path": "seed/base_model.xml"
     },
     "seed_zip_content_type": "application/zip",
     "seed_zip_file_name": "medium_office.zip",
@@ -4098,6 +4098,6 @@
     "version_uuid": null,
     "weather_file": {
         "file_type": "EPW",
-        "path": "./weather/CAN_BC_Vancouver.718920_CWEC.ddy"
+        "path": "weather/CAN_BC_Vancouver.718920_CWEC.ddy"
     }
 }}

@@ -27,9 +27,10 @@ module OpenStudio
           @dp = datapoint_model
           @dp.sdp_log_file ||= []
         end
+
         def write(msg)
-           @dp.sdp_log_file << msg.gsub('\n','')
-           @dp.save!
+          @dp.sdp_log_file << msg.gsub('\n', '')
+          @dp.save!
         end
       end
 
@@ -108,14 +109,17 @@ module OpenStudio
 
           # convert to JSON for the workflow - and rearrange the version (fix THIS)
           datapoint_hash = {}
-          if @datapoint
+          unless @datapoint.nil?
             datapoint_hash[:data_point] = @datapoint.as_document.to_hash
             # TODO: Can i remove this openstudio_version stuff?
             #datapoint_hash[:openstudio_version] = datapoint_hash[:openstudio_version]
 
             # TODO: need to figure out how to get symbols from mongo.
             datapoint_hash = MultiJson.load(MultiJson.dump(datapoint_hash, pretty: true), symbolize_keys: true)
+          else
+            fail "Could not find datapoint"
           end
+
           datapoint_hash
         end
 
@@ -126,7 +130,11 @@ module OpenStudio
 
           get_datapoint(directory, options) unless @datapoint
 
-          analysis = @datapoint.analysis.as_document.to_hash
+          if @datapoint
+            analysis = @datapoint.analysis.as_document.to_hash
+          else
+            fail "Cannot retrieve problem because datapoint was nil"
+          end
 
           analysis_hash = {}
           if analysis

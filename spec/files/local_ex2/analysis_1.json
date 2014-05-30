@@ -402,12 +402,12 @@
         "project_id": "d26f3c30-babe-0131-c2cf-080027880ca6",
         "seed": {
             "file_type": "OSM",
-            "path": "../example_models/seed/seed.osm"
+            "path": "seed/seed.osm"
         },
         "uuid": "e7ba85c0-e1c3-11e3-8b68-0800200c9a66",
         "weather_file": {
             "file_type": "EPW",
-            "path": "../example_models/weather/in.epw"
+            "path": "weather/in.epw"
         }
     }
 }

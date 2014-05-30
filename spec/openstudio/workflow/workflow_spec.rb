@@ -54,7 +54,7 @@ describe 'OpenStudio::Workflow' do
     options = {
         problem_filename: 'analysis_1.json',
         datapoint_filename: 'datapoint_1.json',
-        measures_root_path: '../example_models',
+        analysis_root_path: 'spec/files/example_models',
         use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
@@ -72,7 +72,7 @@ describe 'OpenStudio::Workflow' do
     options = {
         problem_filename: 'analysis_1.json',
         datapoint_filename: 'datapoint_1.json',
-        measures_root_path: '../example_models',
+        analysis_root_path: 'spec/files/example_models',
         use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
@@ -97,7 +97,7 @@ describe 'OpenStudio::Workflow' do
     run_dir = './spec/files/mongo_ex1'
     options = {
         datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
-        measures_root_path: '../example_models',
+        analysis_root_path: 'spec/files/example_models',
         use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
@@ -112,7 +112,7 @@ describe 'OpenStudio::Workflow' do
     run_dir = './spec/files/mongo_ex3'
     options = {
         datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
-        measures_root_path: '../example_models',
+        analysis_root_path: 'spec/files/example_models',
         use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
@@ -147,9 +147,11 @@ describe 'OpenStudio::Workflow' do
 
     states = OpenStudio::Workflow::Run.default_states
     states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
-    options = {transitions: transitions,
-               states: states,
-               measures_root_path: '.'}
+    options = {
+        transitions: transitions,
+        states: states,
+        analysis_root_path: 'spec/files/example_models'
+    }
     run_dir = './spec/files/mongo_xml1'
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run

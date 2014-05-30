@@ -171,7 +171,7 @@ class RunPostprocess
     fail "Packaged measure does not exist for #{measure_file_path}" unless File.exist?(measure_file_path)
 
     #measure_file_path = File.expand_path(
-    #    File.join(@directory, @options[:measures_root_path], measure_path, 'measure.rb'))
+    #    File.join(@directory, @options[:analysis_root_path], measure_path, 'measure.rb'))
     #fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
 
     require measure_file_path

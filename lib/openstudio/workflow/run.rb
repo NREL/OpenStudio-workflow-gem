@@ -125,7 +125,7 @@ module OpenStudio
           if @job_results[:run_postprocess]
             # these are the results that need to be sent back to adapter
             @logger.info "Sending the results back to the adapter"
-            @logger.info "Sending communicate_results the following options #{@job_results}"
+            #@logger.info "Sending communicate_results the following options #{@job_results}"
             @adapter.communicate_results @directory, @job_results[:run_postprocess]
           end
         ensure

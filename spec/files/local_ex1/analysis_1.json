@@ -616,7 +616,7 @@
         "version_uuid": null,
         "weather_file": {
             "file_type": "EPW",
-            "path": "../example_models/weather/in.epw"
+            "path": "weather/in.epw"
         }
     }
 }

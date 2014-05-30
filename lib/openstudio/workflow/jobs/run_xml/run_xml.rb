@@ -25,7 +25,7 @@ class RunXml
   CRASH_ON_NO_WORKFLOW_VARIABLE = FALSE
   # RunXml
   def initialize(directory, logger, adapter, options = {})
-    defaults = {use_monthly_reports: false, xml_library_root_path: '.'}
+    defaults = {use_monthly_reports: false, xml_library_file: '.'}
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -146,7 +146,7 @@ class RunXml
     @logger.info 'Starting XML to OSM translation'
 
     # TODO move the analysis dir to a general setting
-    require "#{@directory}/lib/openstudio_xml/main"
+    require @options[:xml_library_file]
     @logger.info "The weather file is #{@weather_filename}"
     osxt = Main.new(@weather_directory, @space_lib_path)
     osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, true)
@@ -178,7 +178,7 @@ class RunXml
 
           @logger.info "Loading measure in relative path #{measure_path}"
           measure_file_path = File.expand_path(
-              File.join(@directory, @options[:analysis_root_path], measure_path, 'measure.rb'))
+              File.join(@options[:analysis_root_path], measure_path, 'measure.rb'))
           fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
 
           require measure_file_path

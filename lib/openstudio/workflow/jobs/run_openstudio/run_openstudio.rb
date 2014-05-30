@@ -265,7 +265,6 @@ class RunOpenstudio
 
     require measure_file_path
     measure = Object.const_get(measure_name).new
-    @logger.info "Loaded in measure #{measure}"
     runner = OpenStudio::Ruleset::OSRunner.new
     result = nil
 

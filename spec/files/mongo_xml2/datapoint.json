@@ -1,0 +1,16 @@
+{
+    "data_point": {
+        "_id": "80690410-ca64-0131-482b-080027880ca6",
+        "analysis_id": "70ecb8a0-ca64-0131-f774-14109fdf0b37",
+        "set_variable_values": {
+            "70ed9070-ca64-0131-f777-14109fdf0b37": "USA_MD_Baltimore-Washington.Intl.AP.724060_TMY3.epw",
+            "70ee0b50-ca64-0131-f77a-14109fdf0b37": 10,
+            "70ee55e0-ca64-0131-f77c-14109fdf0b37": 4,
+            "70eeab40-ca64-0131-f77e-14109fdf0b37": 3
+        },
+        "uuid": "41c13c80-be26-0131-a32d-080027880ca6"
+    }
+}
+
+
+

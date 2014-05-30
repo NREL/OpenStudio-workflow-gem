@@ -25,7 +25,7 @@ class RunXml
   CRASH_ON_NO_WORKFLOW_VARIABLE = FALSE
   # RunXml
   def initialize(directory, logger, adapter, options = {})
-    defaults = {use_monthly_reports: false, analysis_root_path: '.', xml_library_file: '.'}
+    defaults = {use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb'}
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -37,7 +37,8 @@ class RunXml
 
     # initialize instance variables that are needed in the perform section
     @weather_filename = nil
-    @weather_directory = File.join(@options[:analysis_root_path], "weather")
+    @weather_directory = File.expand_path(File.join(@options[:analysis_root_path], "weather"))
+    @logger.info "Weather directory is: #{@weather_directory}"
     @model_xml = nil
     @model = nil
     @model_idf = nil
@@ -149,8 +150,14 @@ class RunXml
     require @options[:xml_library_file]
 
     @logger.info "The weather file is #{@weather_filename}"
-    osxt = Main.new(@weather_directory, @space_lib_path)
-    osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, true)
+    begin
+      osxt = Main.new(@weather_directory, @space_lib_path)
+      osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, true)
+    rescue Exception => e
+      log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+      fail log_message
+    end
+
     if osm
       osm_filename = "#{@run_directory}/xml_out.osm"
       File.open(osm_filename, 'w') { |f| f << osm }

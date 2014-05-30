@@ -8,9 +8,11 @@ describe 'OpenStudio::Workflow' do
       require 'mongoid'
       require 'mongoid_paperclip'
       require 'delayed_job_mongoid'
-      base_path = "#{File.expand_path(File.join(File.dirname(__FILE__), '../../../lib/openstudio/workflow/adapters/mongo'))}"
+      base_path = File.expand_path('spec/files/mongoid')
 
-      Dir["#{base_path}/models/*.rb"].each { |f| require f }
+      puts "Base path for mongoid models is: #{base_path}"
+
+      Dir["#{base_path}/models/*.rb"].each { |f| puts f; require f }
       Mongoid.load!("#{base_path}/mongoid.yml", :development)
 
       # Delete all the records
@@ -98,7 +100,10 @@ describe 'OpenStudio::Workflow' do
     options = {
         datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
         analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true
+        use_monthly_reports: true,
+        adapter_options: {
+            mongoid_path: './spec/files/mongoid',
+        }
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
@@ -113,7 +118,10 @@ describe 'OpenStudio::Workflow' do
     options = {
         datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
         analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true
+        use_monthly_reports: true,
+        adapter_options: {
+            mongoid_path: './spec/files/mongoid',
+        }
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
 
@@ -152,6 +160,7 @@ describe 'OpenStudio::Workflow' do
         states: states,
         analysis_root_path: 'spec/files/example_models'
     }
+    pp options
     run_dir = './spec/files/mongo_xml1'
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run

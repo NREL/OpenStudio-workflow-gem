@@ -8,7 +8,7 @@ describe 'OpenStudio::Workflow' do
       require 'mongoid'
       require 'mongoid_paperclip'
       require 'delayed_job_mongoid'
-      base_path = "#{File.expand_path(File.join(File.dirname(__FILE__), '../../../lib/OpenStudio/workflow/adapters/mongo'))}"
+      base_path = "#{File.expand_path(File.join(File.dirname(__FILE__), '../../../lib/openstudio/workflow/adapters/mongo'))}"
 
       Dir["#{base_path}/models/*.rb"].each { |f| require f }
       Mongoid.load!("#{base_path}/mongoid.yml", :development)

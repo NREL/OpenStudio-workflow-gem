@@ -22,6 +22,7 @@ require 'pp'
 require 'multi_json'
 require 'colored'
 require 'fileutils'
+require 'json' # needed for a single pretty generate call
 
 begin
   require 'facter'

@@ -99,16 +99,16 @@ class RunPostprocess
 
     # Initialize the objective function variable
     @objective_functions = {}
-    if File.exist?("#{@run_directory}/eplustbl.json")
-      @results[:standard_report_old] = JSON.parse(File.read("#{@run_directory}/eplustbl.json"), symbolize_names: true)
+    if File.exist?("#{@run_directory}/standard_report_legacy.json")
+      @results[:standard_report_legacy] = JSON.parse(File.read("#{@run_directory}/standard_report_legacy.json"), symbolize_names: true)
       @logger.info "Analysis JSON Output Variables are: #{@analysis_json[:analysis][:output_variables]}"
       # Save the objective functions to the object for sending back to the simulation executive
       @analysis_json[:analysis][:output_variables].each do |variable|
         # determine which ones are the objective functions (code smell: todo: use enumerator)
         if variable[:objective_function]
           @logger.info "Found objective function for #{variable[:name]}"
-          if @results[:standard_report_old][variable[:name].to_sym]
-            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[:standard_report_old][variable[:name].to_sym]
+          if @results[:standard_report_legacy][variable[:name].to_sym]
+            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[:standard_report_legacy][variable[:name].to_sym]
             if variable[:objective_function_target]
               @logger.info "Found objective function target for #{variable[:name]}"
               @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
@@ -231,7 +231,7 @@ class RunPostprocess
       @logger.info 'Saving results to json'
 
       # save out results
-      File.open("#{@run_directory}/eplustbl.json", 'w') { |f| f << JSON.pretty_generate(results) }
+      File.open("#{@run_directory}/standard_report_legacy.json", 'w') { |f| f << JSON.pretty_generate(results) }
     end
   end
 

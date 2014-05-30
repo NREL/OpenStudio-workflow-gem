@@ -7,6 +7,9 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.require_version ">= 1.5.0"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  is_windows = (RUBY_PLATFORM =~ /mswin|mingw|cygwin/)
+  use_nfs = !is_windows
+
   config.vm.hostname = "openstudio-workflow"
   config.omnibus.chef_version = :latest
 
@@ -18,6 +21,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.network :private_network, type: 'dhcp' 
   config.vm.network "forwarded_port", guest: 27017, host: 27018
+  config.vm.synced_folder ".", "/data/openstudio-workflow", :nfs => use_nfs
+  if File.exist? "../assetscore-openstudio"
+    config.vm.synced_folder "../assetscore-openstudio", "/data/assetscore-openstudio", :nfs => use_nfs
+  end
+
   config.vm.provider :virtualbox do |p|
     nc = 1
     p.customize ["modifyvm", :id, "--memory", nc*2048, "--cpus", nc]

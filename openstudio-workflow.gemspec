@@ -5,6 +5,7 @@ require 'OpenStudio/workflow/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'openstudio-workflow'
+  s.platform         = Gem::Platform::RUBY
   spec.version       = OpenStudio::Workflow::VERSION
   spec.authors       = ['Nicholas Long']
   spec.email         = ['nicholas.long@nrel.gov']

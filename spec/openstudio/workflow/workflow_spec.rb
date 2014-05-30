@@ -158,7 +158,7 @@ describe 'OpenStudio::Workflow' do
     options = {
         transitions: transitions,
         states: states,
-        analysis_root_path: './spec/files/mongo_xml1',
+        analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
         xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
     }
     pp options

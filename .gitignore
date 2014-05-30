@@ -32,7 +32,6 @@ spec/files/*/StandardReports
 spec/files/*/datapoint_out.json
 spec/files/*/*.zip
 spec/files/*/reports
-spec/files/*/lib
 spec/files/*/measures
 spec/files/*/weather
 spec/files/*/seed

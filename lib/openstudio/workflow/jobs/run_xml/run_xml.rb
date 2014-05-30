@@ -25,7 +25,7 @@ class RunXml
   CRASH_ON_NO_WORKFLOW_VARIABLE = FALSE
   # RunXml
   def initialize(directory, logger, adapter, options = {})
-    defaults = {use_monthly_reports: false, xml_library_file: '.'}
+    defaults = {use_monthly_reports: false, analysis_root_path: '.', xml_library_file: '.'}
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -37,7 +37,7 @@ class RunXml
 
     # initialize instance variables that are needed in the perform section
     @weather_filename = nil
-    @weather_directory = File.join(@directory,"weather")
+    @weather_directory = File.join(@options[:analysis_root_path], "weather")
     @model_xml = nil
     @model = nil
     @model_idf = nil
@@ -62,7 +62,6 @@ class RunXml
     @datapoint_json = @adapter.get_datapoint(@directory, @options)
     @analysis_json = @adapter.get_problem(@directory, @options)
 
-    @space_lib_path = File.expand_path("#{@directory}/lib/openstudio_xml/space_types")
     if @analysis_json && @analysis_json[:analysis]
       @model_xml = load_xml_model
       @weather_filename = load_weather_file
@@ -93,7 +92,7 @@ class RunXml
 
         # assume that the seed model has been placed in the directory
         baseline_model_path = File.expand_path(
-            File.join(@directory, @analysis_json[:analysis][:seed][:path]))
+            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:seed][:path]))
 
         if File.exist? baseline_model_path
           @logger.info "Reading in baseline model #{baseline_model_path}"
@@ -122,7 +121,7 @@ class RunXml
         # This last(4) needs to be cleaned up.  Why don't we know the path of the file?
         # assume that the seed model has been placed in the directory
         weather_filename = File.expand_path(
-            File.join(@directory, @analysis_json[:analysis][:weather_file][:path]))
+            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path]))
         unless File.exist?(weather_filename)
           @logger.warn "Could not find weather file for simulation #{weather_filename}. Will continue because may change"
         end
@@ -145,8 +144,10 @@ class RunXml
 
     @logger.info 'Starting XML to OSM translation'
 
-    # TODO move the analysis dir to a general setting
+    # set the lib path first -- very specific for this applciation right now
+    @space_lib_path = File.expand_path("#{File.dirname(@options[:xml_library_file])}/space_types")
     require @options[:xml_library_file]
+
     @logger.info "The weather file is #{@weather_filename}"
     osxt = Main.new(@weather_directory, @space_lib_path)
     osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, true)

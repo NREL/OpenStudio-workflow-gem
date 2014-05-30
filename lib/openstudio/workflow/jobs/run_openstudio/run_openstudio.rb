@@ -66,7 +66,6 @@ class RunOpenstudio
       translate_to_energyplus
       apply_measures(:energyplus_measure)
 
-      # TODO: naming convention for the output attribute files
       @logger.info "Measure output attributes JSON is #{@output_attributes}"
       File.open("#{@run_directory}/measure_attributes.json", 'w') {
           |f| f << JSON.pretty_generate(@output_attributes)
@@ -322,7 +321,6 @@ class RunOpenstudio
     end
 
     begin
-      # TODO: associate this with the measure that was just run
       measure_attributes = JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)
       @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
     rescue Exception => e

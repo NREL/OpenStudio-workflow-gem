@@ -45,7 +45,7 @@ class RunXml
     @analysis_json = nil
     # TODO: rename datapoint_json to just datapoint
     @datapoint_json = nil
-    @output_attributes = []
+    @output_attributes = {}
     @report_measures = []
     @measure_type_lookup = {
         :openstudio_measure => 'RubyMeasure',
@@ -69,9 +69,8 @@ class RunXml
 
       apply_xml_measures
 
-      # TODO: naming convention for the output attribute files
-      @logger.info "Measure output attributes are #{@output_attributes}"
-      File.open("#{@run_directory}/#{self.class.name.downcase}_measure_attributes.json", 'w') {
+      @logger.info "XML measure output attributes JSON is #{@output_attributes}"
+      File.open("#{@run_directory}/measure_attributes_xml.json", 'w') {
           |f| f << JSON.pretty_generate(@output_attributes)
       }
     end
@@ -214,7 +213,6 @@ class RunXml
             end
           end
 
-          variables_found = false
           @logger.info "iterate over variables for workflow item #{wf[:name]}"
           if wf[:variables]
             wf[:variables].each do |wf_var|
@@ -246,7 +244,6 @@ class RunXml
                         @logger.warn "VERY SPECIFIC case to change the location to #{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}"
                         @weather_filename = @datapoint_json[:data_point][:set_variable_values][variable_uuid]
                       end
-                      variables_found = true
                     else
                       @logger.info "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
                       fail "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object" if CRASH_ON_NO_WORKFLOW_VARIABLE
@@ -263,10 +260,11 @@ class RunXml
           end
 
           # Run the XML Measure
-          xml_changed = measure.run(@model_xml, nil, args) if variables_found
+          xml_changed = measure.run(@model_xml, nil, args)
 
           # save the JSON with the changed values
           # the measure has to implement the "results_to_json" method
+          @output_attributes[wf[:name].to_sym] = measure.variable_values
           measure.results_to_json("#{@run_directory}/#{wf[:name]}_results.json")
 
           # TODO: do we want to do this?

@@ -88,9 +88,16 @@ class RunPostprocess
   end
 
   def run_extract_inputs_and_outputs
+    # For xml, the measure attributes are in the measure_attributes_xml.json file
+    if File.exist?("#{@run_directory}/measure_attributes_xml.json")
+      temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes_xml.json"), symbolize_names: true)
+      @results.merge!(temp_json)
+    end
+
     # Inputs are in the measure_attributes.json file
     if File.exist?("#{@run_directory}/measure_attributes.json")
-      @results = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
+      temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
+      @results.merge!(temp_json)
     end
 
     if File.exist?("#{@run_directory}/standard_report.json")
@@ -417,7 +424,7 @@ class RunPostprocess
     tbl_data << add_data4(sql_file, "RowName='September'", 'Total Electricity Sep (J)', nil, nil)
     tbl_data << add_data4(sql_file, "RowName='October'", 'Total Electricity Oct (J)', nil, nil)
     tbl_data << add_data4(sql_file, "RowName='November'", 'Total Electricity Nov (J)', nil, nil)
-    tbl_data << add_data4(sql_file, "RowName='December'", 'Total Electricity Dec (J)', nil, nil)# close SQL file
+    tbl_data << add_data4(sql_file, "RowName='December'", 'Total Electricity Dec (J)', nil, nil) # close SQL file
     sql_file.close
     # transpose data
     tbl_rows = tbl_data.transpose

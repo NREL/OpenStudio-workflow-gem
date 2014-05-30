@@ -169,4 +169,33 @@ describe 'OpenStudio::Workflow' do
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
   end
+
+  it 'should create a new datapoint based on a list' do
+    run_dir = './spec/files/dynamically_created'
+    dp_uuid = "random_datapoint_uuid"
+    options = {
+        datapoint_id: dp_uuid,
+        analysis_root_path: run_dir,
+        adapter_options: {
+            mongoid_path: './spec/files/mongoid'
+        }
+    }
+    k = OpenStudio::Workflow.load 'Mongo', run_dir, options
+
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.directory).to eq run_dir
+    expect(File.exist?(k.directory)).to be_true
+
+    # TODO: eventually move this into a method to handle the creation
+    # if this is mongo adapter, then it will have the models loaded
+    dp = DataPoint.find_or_create_by(uuid: dp_uuid)
+    expect(dp.id).to eq(dp_uuid)
+
+    # check for logging
+    k.logger.info "Test log message"
+    expect(dp.sdp_log_file.last).not_to include "Test log message"
+    dp.reload
+    expect(dp.sdp_log_file.last).to include "Test log message"
+
+  end
 end

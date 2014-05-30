@@ -23,13 +23,15 @@ module OpenStudio
     class Run
       include AASM
 
-      #attr_accessor :state
+      attr_accessor :logger
+
       attr_reader :options
       attr_reader :adapter
       attr_reader :directory
       attr_reader :run_directory
       attr_reader :final_state
       attr_reader :job_results
+
 
       # Create a nice name for the state object instead of aasm
       alias state aasm
@@ -97,7 +99,7 @@ module OpenStudio
           @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file)
         end
 
-        @logger.info "Initializing diretory #{@directory} for simulation with options #{@options}"
+        @logger.info "Initializing directory #{@directory} for simulation with options #{@options}"
 
         super()
 

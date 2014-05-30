@@ -30,9 +30,9 @@ rescue LoadError => e
   puts 'Could not load Facter. Will not be able to save the IP address to the log'.red
 end
 
-require_relative 'workflow/version'
-require_relative 'workflow/multi_delegator'
-require_relative 'workflow/run'
+require 'openstudio/workflow/version'
+require 'openstudio/workflow/multi_delegator'
+require 'openstudio/workflow/run'
 
 begin
   require 'openstudio'

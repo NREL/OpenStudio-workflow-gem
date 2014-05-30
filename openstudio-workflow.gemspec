@@ -3,28 +3,29 @@ $:.unshift lib unless $:.include?(lib)
 
 require 'openstudio/workflow/version'
 
-Gem::Specification.new do |spec|
-  spec.name          = 'openstudio-workflow'
-  spec.version       = OpenStudio::Workflow::VERSION
-  spec.platform      = Gem::Platform::RUBY
-  spec.authors       = ['Nicholas Long']
-  spec.email         = ['nicholas.long@nrel.gov']
-  spec.summary       = %q{Workflow Manager}
-  spec.description   = %q{Run OpenStudio based simulations using EnergyPlus}
-  spec.homepage      = 'https://github.com/NREL/OpenStudio-workflow-gem'
-  spec.license       = 'LGPL'
+Gem::Specification.new do |s|
+  s.name = 'openstudio-workflow'
+  s.version = OpenStudio::Workflow::VERSION
+  s.platform = Gem::Platform::RUBY
+  s.authors = ['Nicholas Long']
+  s.email = ['nicholas.long@nrel.gov']
+  s.summary = %q{Workflow Manager}
+  s.description = %q{Run OpenStudio based simulations using EnergyPlus}
+  s.homepage = 'https://github.com/NREL/OpenStudio-workflow-gem'
+  s.license = 'LGPL'
 
-  spec.files         = Dir.glob("lib/**/*") + %w(README.md CHANGELOG.md Rakefile)
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-  spec.require_paths = ['lib']
+  s.required_ruby_version = ">= 1.9.3"
 
-  spec.add_development_dependency 'bundler', '~> 1.6'
-  spec.add_development_dependency 'rake'
+  s.files = Dir.glob("lib/**/*") + %w(README.md CHANGELOG.md Rakefile)
+  #s.test_files = Dir.glob("spec/**/*")
+  s.require_path = 'lib'
 
-  spec.add_runtime_dependency 'aasm', '~> 3.1.1'
-  spec.add_runtime_dependency 'multi_json', '~> 1.10.0'
-  spec.add_runtime_dependency 'colored', '~> 1.2'
+  s.add_development_dependency 'bundler', '~> 1.6'
+  s.add_development_dependency 'rake'
+
+  s.add_runtime_dependency 'aasm', '~> 3.1.1'
+  s.add_runtime_dependency 'multi_json', '~> 1.10.0'
+  s.add_runtime_dependency 'colored', '~> 1.2'
 
   # Don't require facter until we can figure out how to install this easy on windows
   #spec.add_runtime_dependency 'facter', '~> 2.0.1'

@@ -1,12 +1,12 @@
-# coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'OpenStudio/workflow/version'
+
+require 'openstudio/workflow/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'openstudio-workflow'
-  s.platform         = Gem::Platform::RUBY
   spec.version       = OpenStudio::Workflow::VERSION
+  spec.platform      = Gem::Platform::RUBY
   spec.authors       = ['Nicholas Long']
   spec.email         = ['nicholas.long@nrel.gov']
   spec.summary       = %q{Workflow Manager}

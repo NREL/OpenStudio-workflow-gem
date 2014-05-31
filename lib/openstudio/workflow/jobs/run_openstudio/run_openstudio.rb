@@ -63,7 +63,9 @@ class RunOpenstudio
       load_weather_file
 
       apply_measures(:openstudio_measure)
+
       translate_to_energyplus
+
       apply_measures(:energyplus_measure)
 
       @logger.info "Measure output attributes JSON is #{@output_attributes}"

@@ -71,7 +71,7 @@ class RunPostprocess
     require 'pathname'
     require 'fileutils'
     paths_to_rm = []
-    paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")
+    #paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.idf")
     paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
@@ -215,7 +215,6 @@ class RunPostprocess
 
     # only grab the attributes
     standard_report = report_json[:attributes]
-    @logger.info "Standard Report JSON file is #{standard_report}"
     File.open("#{@run_directory}/standard_report.json", 'w') { |f| f << JSON.pretty_generate(standard_report) }
 
     @logger.info 'Finished OpenStudio Post Processing'

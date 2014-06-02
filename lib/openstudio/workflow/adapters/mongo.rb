@@ -177,9 +177,10 @@ module OpenStudio
 
           #@logger.info 'Saving EnergyPlus JSON file'
           if results
-            @datapoint.results ? @datapoint.results.merge!(eplus_json) : @datapoint.results = results
+            @datapoint.results ? @datapoint.results.merge!(results) : @datapoint.results = results
           end
           result = @datapoint.save! # redundant because next method calls save too.
+
           if result
             #@logger.info 'Successfully saved result to database'
           else

@@ -267,9 +267,6 @@ class RunXml
           @output_attributes[wf[:name].to_sym] = measure.variable_values
           measure.results_to_json("#{@run_directory}/#{wf[:name]}_results.json")
 
-          # TODO: do we want to do this?
-          #ros.communicate_intermediate_result(measure.variable_values)
-
           @logger.info "Finished applying measure workflow #{wf[:name]} with change flag set to '#{xml_changed}'"
         end
       end

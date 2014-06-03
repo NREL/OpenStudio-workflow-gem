@@ -21,6 +21,8 @@
 # TODO: I hear that measures can step on each other if not run in their own directory
 
 require 'csv'
+require 'ostruct'
+
 class RunPostprocess
 
   def initialize(directory, logger, adapter, options = {})
@@ -63,9 +65,8 @@ class RunPostprocess
     
     @logger.info "Objective Function JSON is #{@objective_functions}"
     obj_fun_file = "#{@directory}/objectives.json"
-    File.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
+    FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
     File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
-
 
     cleanup
 
@@ -114,14 +115,17 @@ class RunPostprocess
     @objective_functions = {}
     if File.exist?("#{@run_directory}/standard_report_legacy.json")
       @results[:standard_report_legacy] = JSON.parse(File.read("#{@run_directory}/standard_report_legacy.json"), symbolize_names: true)
+
       @logger.info "Analysis JSON Output Variables are: #{@analysis_json[:analysis][:output_variables]}"
       # Save the objective functions to the object for sending back to the simulation executive
+
       @analysis_json[:analysis][:output_variables].each do |variable|
         # determine which ones are the objective functions (code smell: todo: use enumerator)
         if variable[:objective_function]
           @logger.info "Found objective function for #{variable[:name]}"
-          if @results[:standard_report_legacy][variable[:name].to_sym]
-            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[:standard_report_legacy][variable[:name].to_sym]
+          k, v = variable[:name].split('.')
+          if @results[k.to_sym][v.to_sym]
+            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
             if variable[:objective_function_target]
               @logger.info "Found objective function target for #{variable[:name]}"
               @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
@@ -130,7 +134,7 @@ class RunPostprocess
               @logger.info "Found scaling factor for #{variable[:name]}"
               @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = variable[:scaling_factor].to_f
             end
-            if variable['objective_function_group']
+            if variable[:objective_function_group]
               @logger.info "Found objective function group for #{variable[:name]}"
               @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
             end

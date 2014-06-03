@@ -141,11 +141,18 @@ describe 'OpenStudio::Workflow' do
     expect(k.job_results).to be_a Hash
     expect(k.job_results[:run_postprocess][:lighting_loads_user_customized_name][:lighting_power_reduction_percent]).to be_within(1).of(26.375)
     # expect(k.job_results[:run_postprocess][:standard_report][:total_building_area]).to be_within(1).of(26.375)
-    expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
+    #expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
     expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
 
-    expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
+    #expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
     expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
+
+    expect(File.exist?("#{run_dir}/objectives.json")).to eq true
+    objs = JSON.parse(File.read("#{run_dir}/objectives.json"), :symbolize_keys => true)
+    expect(objs['objective_function_1']).to be_within(10).of(182)
+    expect(objs['objective_function_target_1']).to be_within(1).of(1234)
+    expect(objs['objective_function_group_2']).to eq(4)
+
   end
 
   it 'should add a new state and transition' do

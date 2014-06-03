@@ -35,3 +35,4 @@ spec/files/*/reports
 spec/files/*/measures
 spec/files/*/weather
 spec/files/*/seed
+spec/files/*/*.json

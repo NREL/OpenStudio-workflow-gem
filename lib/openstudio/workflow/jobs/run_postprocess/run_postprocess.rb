@@ -61,8 +61,8 @@ class RunPostprocess
 
     run_extract_inputs_and_outputs
     
-    @logger.info "Objective Function JSON is #{objective_functions}"
-    obj_fun_file = "#{directory}/objectives.json"
+    @logger.info "Objective Function JSON is #{@objective_functions}"
+    obj_fun_file = "#{@directory}/objectives.json"
     File.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
     File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
 

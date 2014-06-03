@@ -60,7 +60,7 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 * Read the analysis.json file to determine the states that are going to run instead of (or inaddition to) passing them into the constructor
 * Implement better error handling with custom exception classes
 * Implement a different measure directory, seed model directory, and weather file directory option
-* Dynamically add other "states" to the workflow
+* ~Dynamically add other "states" to the workflow~
 * Create and change into a unique directory when running measures
 * ~~Implement Error State~~
 * ~~Implement MongoDB Adapter~~
@@ -68,7 +68,6 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 * Add a results adapter to return a string as the last call based on the source of the call. (e.g. R, command line, C++, etc).
 * Implement a logger in the Adapters, right now they are unable to log
 * Hook up the measure groups based workflows
-* More tests!
 * ~~Add xml workflow item~~
 
 ## Testing and Development

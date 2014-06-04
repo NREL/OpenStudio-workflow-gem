@@ -202,7 +202,7 @@ class RunOpenstudio
       @logger.info "Setting argument value #{argument[:name]} to #{argument[:value]}"
 
       v = argument_map[argument[:name]]
-      fail 'Could not find argument map in measure' unless v
+      fail "Could not find argument map in measure for '#{argument[:name]}' with value '#{argument[:value]}'" unless v
       value_set = v.setValue(argument[:value])
       fail "Could not set argument #{argument[:name]} of value #{argument[:value]} on model" unless value_set
       argument_map[argument[:name]] = v.clone
@@ -276,6 +276,7 @@ class RunOpenstudio
     arguments.each do |v|
       argument_map[v.name] = v.clone
     end
+    @logger.info "Argument map for measure is #{argument_map}"
 
     @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
     if workflow_item[:arguments]

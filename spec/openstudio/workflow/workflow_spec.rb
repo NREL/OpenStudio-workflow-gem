@@ -209,22 +209,22 @@ describe 'OpenStudio::Workflow' do
             mongoid_path: './spec/files/mongoid'
         }
     }
-    k = OpenStudio::Workflow.load 'Mongo', run_dir, options
+    k = OpenStudio::Workflow.load 'Mongo', "#{run_dir}/#{dp_uuid}", options
 
     expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.directory).to eq run_dir
+    expect(k.directory).to eq "#{run_dir}/#{dp_uuid}"
     expect(File.exist?(k.directory)).to be_true
 
-    # TODO: eventually move this into a method to handle the creation
+    # TODO: move this into a method to handle the creation
     # if this is mongo adapter, then it will have the models loaded
     dp = DataPoint.find_or_create_by(uuid: dp_uuid)
-    expect(dp.id).to eq(dp_uuid)
+    expect(dp.save!).to be_true
+    expect(dp.id).to eq dp_uuid
 
     # check for logging
     k.logger.info "Test log message"
     expect(dp.sdp_log_file.last).not_to include "Test log message"
     dp.reload
     expect(dp.sdp_log_file.last).to include "Test log message"
-
   end
 end

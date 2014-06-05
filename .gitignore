@@ -36,3 +36,4 @@ spec/files/*/measures
 spec/files/*/weather
 spec/files/*/seed
 spec/files/*/*.json
+spec/files/dynamically_created/*

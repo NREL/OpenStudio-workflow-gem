@@ -134,9 +134,9 @@ class RunPostprocess
       @results.merge!(temp_json)
     end
 
-    # Inputs are in the measure_attributes.json file
+    # Inputs are in the reporting_measure_attributes.jsonfile
     if File.exist?("#{@run_directory}/reporting_measure_attributes.json")
-      temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
+      temp_json = JSON.parse(File.read("#{@run_directory}/reporting_measure_attributes.json"), symbolize_names: true)
       @results.merge!(temp_json)
     end
 

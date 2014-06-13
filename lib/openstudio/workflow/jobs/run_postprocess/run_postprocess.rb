@@ -148,7 +148,7 @@ class RunPostprocess
     if File.exist?("#{@run_directory}/standard_report_legacy.json")
       @results[:standard_report_legacy] = JSON.parse(File.read("#{@run_directory}/standard_report_legacy.json"), symbolize_names: true)
 
-      @logger.info "Analysis JSON Output Variables are: #{@analysis_json[:analysis][:output_variables]}"
+      @logger.info "Iterating over Analysis JSON Output Variables"
       # Save the objective functions to the object for sending back to the simulation executive
 
       @analysis_json[:analysis][:output_variables].each do |variable|

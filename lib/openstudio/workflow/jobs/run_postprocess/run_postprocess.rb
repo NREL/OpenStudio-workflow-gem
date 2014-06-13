@@ -302,11 +302,12 @@ class RunPostprocess
 
   # TODO: THis is uglier than the one below! sorry.
   def run_monthly_postprocess
-    # sql_query method
     def sql_query(sql, report_name, query)
       val = nil
       result = sql.execAndReturnFirstDouble("SELECT Value FROM TabularDataWithStrings WHERE ReportName='#{report_name}' AND #{query}")
-      if result
+      if result.empty?
+        @logger.info "Query for run_standard_postprocess failed for #{query}"
+      else
         begin
           val = result.get
         rescue Exception => e
@@ -314,6 +315,7 @@ class RunPostprocess
           val = nil
         end
       end
+
       val
     end
 
@@ -499,11 +501,12 @@ class RunPostprocess
 
   # TODO: This is ugly.  Move this out of here entirely and into a reporting measure if we need it at all
   def run_standard_postprocess
-    # sql_query method
     def sql_query(sql, report_name, query)
       val = nil
       result = sql.execAndReturnFirstDouble("SELECT Value FROM TabularDataWithStrings WHERE ReportName='#{report_name}' AND #{query}")
-      if result
+      if result.empty?
+        @logger.info "Query for run_standard_postprocess failed for #{query}"
+      else
         begin
           val = result.get
         rescue Exception => e
@@ -511,6 +514,7 @@ class RunPostprocess
           val = nil
         end
       end
+
       val
     end
 

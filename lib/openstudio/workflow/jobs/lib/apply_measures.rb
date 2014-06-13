@@ -118,7 +118,7 @@ module OpenStudio
         arguments.each do |v|
           argument_map[v.name] = v.clone
         end
-        @logger.info "Argument map for measure is #{argument_map}"
+        #@logger.info "Argument map for measure is #{argument_map}"
 
         @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
         if workflow_item[:arguments]

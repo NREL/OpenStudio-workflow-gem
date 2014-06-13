@@ -40,6 +40,8 @@ class RunOpenstudio
     # initialize instance variables that are needed in the perform section
     @model = nil
     @model_idf = nil
+    @initial_weather_file = nil
+    @weather_file_path = nil
     @analysis_json = nil
     # TODO: rename datapoint_json to just datapoint
     @datapoint_json = nil
@@ -58,6 +60,7 @@ class RunOpenstudio
 
     if @analysis_json && @analysis_json[:analysis]
       @model = load_seed_model
+
       load_weather_file
 
       apply_measures(:openstudio_measure)
@@ -65,6 +68,15 @@ class RunOpenstudio
       translate_to_energyplus
 
       apply_measures(:energyplus_measure)
+
+      # check if the weather file has changed. This is cheesy for now. Should have a default measure that
+      # always sets the weather file so that it can be better controlled
+      updated_weather_file = get_weather_file_from_model
+      unless updated_weather_file == @initial_weather_file
+        # reset the result hash so the future processes know which weather file to run
+        @logger.info "Updating the weather file result to be #{updated_weather_file }"
+        @results[:weather_filename] = "#{@weather_file_path}/#{updated_weather_file}"
+      end
 
       @logger.info "Saving measure output attributes JSON"
       File.open("#{@run_directory}/measure_attributes.json", 'w') {
@@ -153,6 +165,8 @@ class RunOpenstudio
 
   # Save the weather file to the instance variable
   def load_weather_file
+    @initial_weather_file = get_weather_file_from_model
+
     weather_filename = nil
     if @options[:run_xml] && @options[:run_xml][:weather_filename]
       if File.exist? @options[:run_xml][:weather_filename]
@@ -162,6 +176,7 @@ class RunOpenstudio
       if @analysis_json[:analysis][:weather_file][:path]
         weather_filename = File.expand_path(
             File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path]))
+        @weather_file_path = File.dirname(weather_filename)
       else
         fail 'No weather file path defined'
       end
@@ -176,6 +191,20 @@ class RunOpenstudio
     @results[:weather_filename] = weather_filename
 
     weather_filename
+  end
+
+  def get_weather_file_from_model
+    wf = nil
+    # grab the weather file out of the OSM if it exists
+    if @model.weatherFile.empty?
+      @logger.info "No weather file in model"
+    else
+      # this is the weather file from the OSM model
+      wf = File.basename(@model.weatherFile.get.path.get.to_s)
+      @logger.info "Model weather file is #{wf}" # unless model.weatherFile.empty?
+    end
+
+    wf
   end
 
   # Forward translate to energyplus

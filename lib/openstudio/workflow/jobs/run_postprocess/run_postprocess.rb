@@ -306,7 +306,7 @@ class RunPostprocess
       val = nil
       result = sql.execAndReturnFirstDouble("SELECT Value FROM TabularDataWithStrings WHERE ReportName='#{report_name}' AND #{query}")
       if result.empty?
-        @logger.info "Query for run_standard_postprocess failed for #{query}"
+        @logger.warn "Query for run_monthly_postprocess failed for #{query}"
       else
         begin
           val = result.get
@@ -505,7 +505,7 @@ class RunPostprocess
       val = nil
       result = sql.execAndReturnFirstDouble("SELECT Value FROM TabularDataWithStrings WHERE ReportName='#{report_name}' AND #{query}")
       if result.empty?
-        @logger.info "Query for run_standard_postprocess failed for #{query}"
+        @logger.warn "Query for run_standard_postprocess failed for #{query}"
       else
         begin
           val = result.get

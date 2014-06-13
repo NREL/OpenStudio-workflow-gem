@@ -144,7 +144,7 @@ module OpenStudio
           elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
             measure.run(@model_idf, runner, argument_map)
           elsif workflow_item[:measure_type] == 'ReportingMeasure'
-            measure.run(@model, runner, argument_map)
+            measure.run(runner, argument_map)
           end
         rescue Exception => e
           log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

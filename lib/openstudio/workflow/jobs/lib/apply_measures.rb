@@ -111,7 +111,14 @@ module OpenStudio
         runner = OpenStudio::Ruleset::OSRunner.new
         result = nil
 
-        arguments = measure.arguments(@model)
+        arguments = nil
+        if workflow_item[:measure_type] == 'RubyMeasure'
+          arguments = measure.arguments(@model)
+        elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
+          arguments = measure.arguments(@model)
+        elsif workflow_item[:measure_type] == 'ReportingMeasure'
+          arguments = measure.arguments
+        end
 
         # Create argument map and initialize all the arguments
         argument_map = OpenStudio::Ruleset::OSArgumentMap.new

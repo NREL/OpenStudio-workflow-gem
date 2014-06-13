@@ -10,7 +10,7 @@ class StandardReports < OpenStudio::Ruleset::ReportingUserScript
   end
 
   #define the arguments that the user will input
-  def arguments()
+  def arguments
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
     return args
@@ -31,7 +31,7 @@ class StandardReports < OpenStudio::Ruleset::ReportingUserScript
     super(runner, user_arguments)
 
     #use the built-in error checking
-    if not runner.validateUserArguments(arguments(), user_arguments)
+    if not runner.validateUserArguments(arguments, user_arguments)
       return false
     end
     
@@ -39,7 +39,6 @@ class StandardReports < OpenStudio::Ruleset::ReportingUserScript
     min_version_feature1 = OpenStudio::VersionString.new("1.2.3")
 
     # get the last model and sql file
-
     model = runner.lastOpenStudioModel
     if model.empty?
       runner.registerError("Cannot find last model.")

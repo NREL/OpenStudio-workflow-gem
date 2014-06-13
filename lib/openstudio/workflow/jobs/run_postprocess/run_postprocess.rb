@@ -21,7 +21,12 @@
 # TODO: I hear that measures can step on each other if not run in their own directory
 
 require 'csv'
+require 'ostruct'
+
 class RunPostprocess
+
+  # Mixin the MeasureApplication module to apply measures
+  include OpenStudio::Workflow::ApplyMeasures
 
   def initialize(directory, logger, adapter, options = {})
     defaults = {}
@@ -31,6 +36,7 @@ class RunPostprocess
     @adapter = adapter
     @logger = logger
     @results = {}
+    @output_attributes = {}
 
     # TODO: we shouldn't have to keep loading this file if we need it. It should be availabe for any job.
     # TODO: passing in the options everytime is ridiculuous
@@ -39,7 +45,9 @@ class RunPostprocess
     @logger.info "#{self.class} passed the following options #{@options}"
 
     @model = load_model @options[:run_openstudio][:osm]
+
     # TODO: should read the name of the sql output file via the :run_openstudio options hash
+    # I want to reiterate that this is cheezy!
     @sql_filename = "#{@run_directory}/eplusout.sql"
     fail "EnergyPlus SQL file did not exist #{@sql_filename}" unless File.exist? @sql_filename
 
@@ -48,26 +56,43 @@ class RunPostprocess
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.info "RunPostProcess Retrieving datapoint and problem"
 
-    if @options[:use_monthly_reports]
-      run_monthly_postprocess
-    else
-      run_standard_postprocess
+    begin
+      @datapoint_json = @adapter.get_datapoint(@directory, @options)
+      @analysis_json = @adapter.get_problem(@directory, @options)
+
+      if @options[:use_monthly_reports]
+        run_monthly_postprocess
+      else
+        run_standard_postprocess
+      end
+
+      translate_csv_to_json
+
+      run_packaged_measures
+
+      if @analysis_json && @analysis_json[:analysis]
+        apply_measures(:reporting_measure)
+      end
+
+      @logger.info "Saving reporting measures output attributes JSON"
+      File.open("#{@run_directory}/reporting_measure_attributes.json", 'w') {
+          |f| f << JSON.pretty_generate(@output_attributes)
+      }
+
+      run_extract_inputs_and_outputs
+
+      @logger.info "Objective Function JSON is #{@objective_functions}"
+      obj_fun_file = "#{@directory}/objectives.json"
+      FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
+      File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
+
+      cleanup
+    rescue Exception => e
+      log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+      fail log_message
     end
-
-    translate_csv_to_json
-
-    run_packaged_measures
-
-    run_extract_inputs_and_outputs
-    
-    @logger.info "Objective Function JSON is #{@objective_functions}"
-    obj_fun_file = "#{@directory}/objectives.json"
-    File.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
-    File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
-
-
-    cleanup
 
     @results
   end
@@ -78,8 +103,10 @@ class RunPostprocess
     require 'fileutils'
     paths_to_rm = []
     #paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")
+    #paths_to_rm << Pathname.glob("#{@run_directory}/*.idf") # keep the idfs
     paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
-    paths_to_rm << Pathname.glob("#{@run_directory}/*.idf")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.eso")
+    paths_to_rm << Pathname.glob("#{@run_directory}/*.mtr")
     paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
     paths_to_rm << Pathname.glob("#{@run_directory}/EnergyPlus")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.so")
@@ -95,6 +122,7 @@ class RunPostprocess
 
   def run_extract_inputs_and_outputs
     # For xml, the measure attributes are in the measure_attributes_xml.json file
+    # TODO: somehow pass the metadata around on which JSONs to suck into the database
     if File.exist?("#{@run_directory}/measure_attributes_xml.json")
       temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes_xml.json"), symbolize_names: true)
       @results.merge!(temp_json)
@@ -106,6 +134,12 @@ class RunPostprocess
       @results.merge!(temp_json)
     end
 
+    # Inputs are in the reporting_measure_attributes.jsonfile
+    if File.exist?("#{@run_directory}/reporting_measure_attributes.json")
+      temp_json = JSON.parse(File.read("#{@run_directory}/reporting_measure_attributes.json"), symbolize_names: true)
+      @results.merge!(temp_json)
+    end
+
     if File.exist?("#{@run_directory}/standard_report.json")
       @results[:standard_report] = JSON.parse(File.read("#{@run_directory}/standard_report.json"), symbolize_names: true)
     end
@@ -114,32 +148,61 @@ class RunPostprocess
     @objective_functions = {}
     if File.exist?("#{@run_directory}/standard_report_legacy.json")
       @results[:standard_report_legacy] = JSON.parse(File.read("#{@run_directory}/standard_report_legacy.json"), symbolize_names: true)
-      @logger.info "Analysis JSON Output Variables are: #{@analysis_json[:analysis][:output_variables]}"
+
+      @logger.info "Iterating over Analysis JSON Output Variables"
       # Save the objective functions to the object for sending back to the simulation executive
+
       @analysis_json[:analysis][:output_variables].each do |variable|
         # determine which ones are the objective functions (code smell: todo: use enumerator)
         if variable[:objective_function]
-          @logger.info "Found objective function for #{variable[:name]}"
-          if @results[:standard_report_legacy][variable[:name].to_sym]
-            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[:standard_report_legacy][variable[:name].to_sym]
-            if variable[:objective_function_target]
-              @logger.info "Found objective function target for #{variable[:name]}"
-              @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
-            end
-            if variable[:scaling_factor]
-              @logger.info "Found scaling factor for #{variable[:name]}"
-              @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = variable[:scaling_factor].to_f
-            end
-            if variable['objective_function_group']
-              @logger.info "Found objective function group for #{variable[:name]}"
-              @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
+          @logger.info "Looking for objective function #{variable[:name]}"
+          # TODO: move this to cleaner logic. Use ostruct?
+          if variable[:name].include? '.'
+            k, v = variable[:name].split('.')
+            if @results[k.to_sym][v.to_sym]
+              @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
+              if variable[:objective_function_target]
+                @logger.info "Found objective function target for #{variable[:name]}"
+                @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
+              end
+              if variable[:scaling_factor]
+                @logger.info "Found scaling factor for #{variable[:name]}"
+                @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = variable[:scaling_factor].to_f
+              end
+              if variable[:objective_function_group]
+                @logger.info "Found objective function group for #{variable[:name]}"
+                @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
+              end
+            else
+              @logger.info "No results for objective function #{variable[:name]}"
+              @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
+              @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
+              @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
+              @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = nil
             end
           else
-            # objective_functions[variable['name']] = nil
-            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
-            @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
-            @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
-            @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = nil
+            # variable name is not nested -- this is for legacy purposes and should be deleted 9/30/2014
+            if @results[variable[:name]]
+              @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
+              if variable[:objective_function_target]
+                @logger.info "Found objective function target for #{variable[:name]}"
+                @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
+              end
+              if variable[:scaling_factor]
+                @logger.info "Found scaling factor for #{variable[:name]}"
+                @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = variable[:scaling_factor].to_f
+              end
+              if variable[:objective_function_group]
+                @logger.info "Found objective function group for #{variable[:name]}"
+                @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
+              end
+            else
+              @logger.info "No results for objective function #{variable[:name]}"
+              @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
+              @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
+              @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
+              @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = nil
+            end
           end
         end
       end
@@ -168,8 +231,7 @@ class RunPostprocess
     model
   end
 
-# TODO: loop of the workflow and run any other reporting measures
-# Run the prepackaged measures in the Gem.
+  # Run the prepackaged measures in the Gem.
   def run_packaged_measures
     @logger.info "Running packaged reporting measures"
 
@@ -249,11 +311,12 @@ class RunPostprocess
 
   # TODO: THis is uglier than the one below! sorry.
   def run_monthly_postprocess
-    # sql_query method
     def sql_query(sql, report_name, query)
       val = nil
       result = sql.execAndReturnFirstDouble("SELECT Value FROM TabularDataWithStrings WHERE ReportName='#{report_name}' AND #{query}")
-      if result
+      if result.empty?
+        @logger.warn "Query for run_monthly_postprocess failed for #{query}"
+      else
         begin
           val = result.get
         rescue Exception => e
@@ -261,6 +324,7 @@ class RunPostprocess
           val = nil
         end
       end
+
       val
     end
 
@@ -446,11 +510,12 @@ class RunPostprocess
 
   # TODO: This is ugly.  Move this out of here entirely and into a reporting measure if we need it at all
   def run_standard_postprocess
-    # sql_query method
     def sql_query(sql, report_name, query)
       val = nil
       result = sql.execAndReturnFirstDouble("SELECT Value FROM TabularDataWithStrings WHERE ReportName='#{report_name}' AND #{query}")
-      if result
+      if result.empty?
+        @logger.warn "Query for run_standard_postprocess failed for #{query}"
+      else
         begin
           val = result.get
         rescue Exception => e
@@ -458,6 +523,7 @@ class RunPostprocess
           val = nil
         end
       end
+
       val
     end
 

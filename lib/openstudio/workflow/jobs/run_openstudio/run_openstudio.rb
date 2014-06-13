@@ -19,7 +19,9 @@
 
 # TODO: I hear that measures can step on each other if not run in their own directory
 class RunOpenstudio
-  CRASH_ON_NO_WORKFLOW_VARIABLE = false
+
+  # Mixin the MeasureApplication module to apply measures
+  include OpenStudio::Workflow::ApplyMeasures
 
   # Initialize
   # param directory: base directory where the simulation files are prepared
@@ -38,16 +40,14 @@ class RunOpenstudio
     # initialize instance variables that are needed in the perform section
     @model = nil
     @model_idf = nil
+    @initial_weather_file = nil
+    @weather_file_path = nil
     @analysis_json = nil
     # TODO: rename datapoint_json to just datapoint
     @datapoint_json = nil
     @output_attributes = {}
     @report_measures = []
-    @measure_type_lookup = {
-        :openstudio_measure => 'RubyMeasure',
-        :energyplus_measure => 'EnergyPlusMeasure',
-        :reporting_measure => 'ReportingMeasure'
-    }
+
   end
 
   def perform
@@ -60,6 +60,7 @@ class RunOpenstudio
 
     if @analysis_json && @analysis_json[:analysis]
       @model = load_seed_model
+
       load_weather_file
 
       apply_measures(:openstudio_measure)
@@ -68,7 +69,16 @@ class RunOpenstudio
 
       apply_measures(:energyplus_measure)
 
-      @logger.info "Measure output attributes JSON is #{@output_attributes}"
+      # check if the weather file has changed. This is cheesy for now. Should have a default measure that
+      # always sets the weather file so that it can be better controlled
+      updated_weather_file = get_weather_file_from_model
+      unless updated_weather_file == @initial_weather_file
+        # reset the result hash so the future processes know which weather file to run
+        @logger.info "Updating the weather file result to be #{updated_weather_file }"
+        @results[:weather_filename] = "#{@weather_file_path}/#{updated_weather_file}"
+      end
+
+      @logger.info "Saving measure output attributes JSON"
       File.open("#{@run_directory}/measure_attributes.json", 'w') {
           |f| f << JSON.pretty_generate(@output_attributes)
       }
@@ -155,6 +165,8 @@ class RunOpenstudio
 
   # Save the weather file to the instance variable
   def load_weather_file
+    @initial_weather_file = get_weather_file_from_model
+
     weather_filename = nil
     if @options[:run_xml] && @options[:run_xml][:weather_filename]
       if File.exist? @options[:run_xml][:weather_filename]
@@ -164,6 +176,7 @@ class RunOpenstudio
       if @analysis_json[:analysis][:weather_file][:path]
         weather_filename = File.expand_path(
             File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path]))
+        @weather_file_path = File.dirname(weather_filename)
       else
         fail 'No weather file path defined'
       end
@@ -180,6 +193,20 @@ class RunOpenstudio
     weather_filename
   end
 
+  def get_weather_file_from_model
+    wf = nil
+    # grab the weather file out of the OSM if it exists
+    if @model.weatherFile.empty?
+      @logger.info "No weather file in model"
+    else
+      # this is the weather file from the OSM model
+      wf = File.basename(@model.weatherFile.get.path.get.to_s)
+      @logger.info "Model weather file is #{wf}" # unless model.weatherFile.empty?
+    end
+
+    wf
+  end
+
   # Forward translate to energyplus
   def translate_to_energyplus
     if @model_idf.nil?
@@ -192,153 +219,6 @@ class RunOpenstudio
       @model_idf = forward_translator.translateModel(@model)
       b = Time.now
       @logger.info "Translate object to energyplus IDF took #{b.to_f - a.to_f}"
-    end
-  end
-
-  def apply_arguments(argument_map, argument)
-    success = true
-
-    if argument[:value]
-      @logger.info "Setting argument value #{argument[:name]} to #{argument[:value]}"
-
-      v = argument_map[argument[:name]]
-      fail 'Could not find argument map in measure' unless v
-      value_set = v.setValue(argument[:value])
-      fail "Could not set argument #{argument[:name]} of value #{argument[:value]} on model" unless value_set
-      argument_map[argument[:name]] = v.clone
-    else
-      fail "Value for argument '#{argument[:name]}' not set in argument list" if CRASH_ON_NO_WORKFLOW_VARIABLE
-      @logger.warn "Value for argument '#{argument[:name]}' not set in argument list therefore will use default"
-      #success = false
-
-      # TODO: what is the fail case (success = false?)
-    end
-
-    success
-  end
-
-  # Apply the variable values to the measure argument map object
-  def apply_variables(argument_map, variable)
-    success = true
-
-    # save the uuid of the variable
-    variable_uuid = variable[:uuid].to_sym
-    if variable[:argument]
-      variable_name = variable[:argument][:name]
-
-      # Get the value from the data point json that was set via R / Problem Formulation
-      if @datapoint_json[:data_point]
-        if @datapoint_json[:data_point][:set_variable_values]
-          if @datapoint_json[:data_point][:set_variable_values][variable_uuid]
-            @logger.info "Setting variable '#{variable_name}' to #{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}"
-            v = argument_map[variable_name]
-            fail 'Could not find argument map in measure' unless v
-            variable_value = @datapoint_json[:data_point][:set_variable_values][variable_uuid]
-            value_set = v.setValue(variable_value)
-            fail "Could not set variable '#{variable_name}' of value #{variable_value} on model" unless value_set
-            argument_map[variable_name] = v.clone
-          else
-            fail "[ERROR] Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object" if CRASH_ON_NO_WORKFLOW_VARIABLE
-            @logger.warn "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
-            # success = false
-          end
-        else
-          fail 'No block for set_variable_values in data point record'
-        end
-      else
-        fail 'No block for data_point in data_point record'
-      end
-    else
-      fail "Variable '#{variable_name}' is defined but no argument is present"
-    end
-
-    success
-  end
-
-  def apply_measure(workflow_item)
-    measure_path = workflow_item[:measure_definition_directory]
-    measure_name = workflow_item[:measure_definition_class_name]
-
-    @logger.info "Loading measure in relative path #{measure_path}"
-    measure_file_path = File.expand_path(
-        File.join(@options[:analysis_root_path], measure_path, 'measure.rb'))
-    fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
-
-    require measure_file_path
-    measure = Object.const_get(measure_name).new
-    runner = OpenStudio::Ruleset::OSRunner.new
-    result = nil
-
-    arguments = measure.arguments(@model)
-
-    # Create argument map and initialize all the arguments
-    argument_map = OpenStudio::Ruleset::OSArgumentMap.new
-    arguments.each do |v|
-      argument_map[v.name] = v.clone
-    end
-
-    @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
-    if workflow_item[:arguments]
-      workflow_item[:arguments].each do |argument|
-        success = apply_arguments(argument_map, argument)
-        fail "could not set arguments" unless success
-      end
-    end
-
-    @logger.info "Iterating over variables for workflow item '#{workflow_item[:name]}'"
-    if workflow_item[:variables]
-      workflow_item[:variables].each do |variable|
-        success = apply_variables(argument_map, variable)
-        fail "could not set variables" unless success
-      end
-    end
-
-    begin
-      if workflow_item[:measure_type] == 'RubyMeasure'
-        @logger.info "Running runner for '#{workflow_item[:name]}'"
-        measure.run(@model, runner, argument_map)
-        @logger.info "Finished runner for '#{workflow_item[:name]}'"
-      elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
-        measure.run(@model_idf, runner, argument_map)
-      elsif workflow_item[:measure_type] == 'ReportingMeasure'
-        report_measures << measure
-      end
-    rescue Exception => e
-      log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      fail log_message
-    end
-
-    begin
-      result = runner.result
-
-      @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
-      @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?
-
-      result.warnings.each { |w| @logger.info w.logMessage }
-      result.errors.each { |w| @logger.info w.logMessage }
-      result.info.each { |w| @logger.info w.logMessage }
-    rescue Exception => e
-      log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      fail log_message
-    end
-
-    begin
-      measure_attributes = JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)
-      @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
-    rescue Exception => e
-      log_message = "TODO: #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      @logger.warn log_message
-    end
-  end
-
-  def apply_measures(measure_type)
-    if @analysis_json[:analysis][:problem] && @analysis_json[:analysis][:problem][:workflow]
-      @logger.info "Applying measures for #{@measure_type_lookup[measure_type]}"
-      @analysis_json[:analysis][:problem][:workflow].each do |wf|
-        next unless wf[:measure_type] == @measure_type_lookup[measure_type]
-
-        apply_measure(wf)
-      end
     end
   end
 end

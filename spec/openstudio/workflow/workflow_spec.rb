@@ -155,27 +155,27 @@ describe 'OpenStudio::Workflow' do
 
   end
 
-  it 'should add a new state and transition' do
-    transitions = OpenStudio::Workflow::Run.default_transition
-    transitions[1][:to] = :xml
-    transitions.insert(2, {from: :xml, to: :openstudio})
-
-    states = OpenStudio::Workflow::Run.default_states
-    states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
-    options = {
-        transitions: transitions,
-        states: states,
-        analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
-        xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
-    }
-    pp options
-    run_dir = './spec/files/mongo_xml1'
-    k = OpenStudio::Workflow.load 'Local', run_dir, options
-    expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.directory).to eq run_dir
-    expect(k.run).to eq :finished
-    expect(k.final_state).to eq :finished
-  end
+  # it 'should add a new state and transition' do
+  #   transitions = OpenStudio::Workflow::Run.default_transition
+  #   transitions[1][:to] = :xml
+  #   transitions.insert(2, {from: :xml, to: :openstudio})
+  #
+  #   states = OpenStudio::Workflow::Run.default_states
+  #   states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
+  #   options = {
+  #       transitions: transitions,
+  #       states: states,
+  #       analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
+  #       xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
+  #   }
+  #   pp options
+  #   run_dir = './spec/files/mongo_xml1'
+  #   k = OpenStudio::Workflow.load 'Local', run_dir, options
+  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
+  #   expect(k.directory).to eq run_dir
+  #   expect(k.run).to eq :finished
+  #   expect(k.final_state).to eq :finished
+  # end
 
   it 'should add a new state and transition with geometry manipulation' do
     transitions = OpenStudio::Workflow::Run.default_transition

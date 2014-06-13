@@ -20,7 +20,7 @@
 # TODO: I hear that measures can step on each other if not run in their own directory
 class RunOpenstudio
 
-  # Mixin the MeasureApplication module to apply measures to the instance variable of @model
+  # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
   # Initialize

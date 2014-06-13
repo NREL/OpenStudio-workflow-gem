@@ -25,6 +25,9 @@ require 'ostruct'
 
 class RunPostprocess
 
+  # Mixin the MeasureApplication module to apply measures
+  include OpenStudio::Workflow::ApplyMeasures
+
   def initialize(directory, logger, adapter, options = {})
     defaults = {}
     @options = defaults.merge(options)
@@ -41,6 +44,7 @@ class RunPostprocess
     @logger.info "#{self.class} passed the following options #{@options}"
 
     @model = load_model @options[:run_openstudio][:osm]
+
     # TODO: should read the name of the sql output file via the :run_openstudio options hash
     @sql_filename = "#{@run_directory}/eplusout.sql"
     fail "EnergyPlus SQL file did not exist #{@sql_filename}" unless File.exist? @sql_filename
@@ -50,25 +54,39 @@ class RunPostprocess
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.info "RunPostProcess Retrieving datapoint and problem"
 
-    if @options[:use_monthly_reports]
-      run_monthly_postprocess
-    else
-      run_standard_postprocess
+    begin
+      @datapoint_json = @adapter.get_datapoint(@directory, @options)
+      @analysis_json = @adapter.get_problem(@directory, @options)
+
+      if @options[:use_monthly_reports]
+        run_monthly_postprocess
+      else
+        run_standard_postprocess
+      end
+
+      translate_csv_to_json
+
+      run_packaged_measures
+
+      if @analysis_json && @analysis_json[:analysis]
+        apply_measures(:reporting_measure)
+      end
+
+      run_extract_inputs_and_outputs
+
+      @logger.info "Objective Function JSON is #{@objective_functions}"
+      obj_fun_file = "#{@directory}/objectives.json"
+      FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
+      File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
+
+      cleanup
+
+    rescue Exception => e
+      log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+      fail log_message
     end
-
-    translate_csv_to_json
-
-    run_packaged_measures
-
-    run_extract_inputs_and_outputs
-    
-    @logger.info "Objective Function JSON is #{@objective_functions}"
-    obj_fun_file = "#{@directory}/objectives.json"
-    FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
-    File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
-
-    cleanup
 
     @results
   end
@@ -124,28 +142,54 @@ class RunPostprocess
       @analysis_json[:analysis][:output_variables].each do |variable|
         # determine which ones are the objective functions (code smell: todo: use enumerator)
         if variable[:objective_function]
-          @logger.info "Found objective function for #{variable[:name]}"
-          k, v = variable[:name].split('.')
-          if @results[k.to_sym][v.to_sym]
-            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
-            if variable[:objective_function_target]
-              @logger.info "Found objective function target for #{variable[:name]}"
-              @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
-            end
-            if variable[:scaling_factor]
-              @logger.info "Found scaling factor for #{variable[:name]}"
-              @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = variable[:scaling_factor].to_f
-            end
-            if variable[:objective_function_group]
-              @logger.info "Found objective function group for #{variable[:name]}"
-              @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
+          @logger.info "Looking for objective function #{variable[:name]}"
+          # TODO: move this to cleaner logic. Use ostruct?
+          if variable[:name].include? '.'
+            k, v = variable[:name].split('.')
+            if @results[k.to_sym][v.to_sym]
+              @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
+              if variable[:objective_function_target]
+                @logger.info "Found objective function target for #{variable[:name]}"
+                @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
+              end
+              if variable[:scaling_factor]
+                @logger.info "Found scaling factor for #{variable[:name]}"
+                @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = variable[:scaling_factor].to_f
+              end
+              if variable[:objective_function_group]
+                @logger.info "Found objective function group for #{variable[:name]}"
+                @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
+              end
+            else
+              @logger.info "No results for objective function #{variable[:name]}"
+              @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
+              @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
+              @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
+              @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = nil
             end
           else
-            # objective_functions[variable['name']] = nil
-            @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
-            @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
-            @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
-            @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = nil
+            # variable name is not nested -- this is for legacy purposes and should be deleted 9/30/2014
+            if @results[variable[:name]]
+              @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
+              if variable[:objective_function_target]
+                @logger.info "Found objective function target for #{variable[:name]}"
+                @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
+              end
+              if variable[:scaling_factor]
+                @logger.info "Found scaling factor for #{variable[:name]}"
+                @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = variable[:scaling_factor].to_f
+              end
+              if variable[:objective_function_group]
+                @logger.info "Found objective function group for #{variable[:name]}"
+                @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
+              end
+            else
+              @logger.info "No results for objective function #{variable[:name]}"
+              @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
+              @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
+              @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
+              @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = nil
+            end
           end
         end
       end
@@ -174,8 +218,11 @@ class RunPostprocess
     model
   end
 
-# TODO: loop of the workflow and run any other reporting measures
-# Run the prepackaged measures in the Gem.
+  def run_reporting_measures
+
+  end
+
+  # Run the prepackaged measures in the Gem.
   def run_packaged_measures
     @logger.info "Running packaged reporting measures"
 

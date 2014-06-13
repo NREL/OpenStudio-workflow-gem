@@ -124,7 +124,7 @@ module OpenStudio
         if workflow_item[:arguments]
           workflow_item[:arguments].each do |argument|
             success = apply_arguments(argument_map, argument)
-            fail "could not set arguments" unless success
+            fail "Could not set arguments" unless success
           end
         end
 
@@ -132,7 +132,7 @@ module OpenStudio
         if workflow_item[:variables]
           workflow_item[:variables].each do |variable|
             success = apply_variables(argument_map, variable)
-            fail "could not set variables" unless success
+            fail "Could not set variables" unless success
           end
         end
 
@@ -144,7 +144,7 @@ module OpenStudio
           elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
             measure.run(@model_idf, runner, argument_map)
           elsif workflow_item[:measure_type] == 'ReportingMeasure'
-            report_measures << measure
+            measure.run(@model, runner, argument_map)
           end
         rescue Exception => e
           log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

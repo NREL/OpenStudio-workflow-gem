@@ -36,6 +36,7 @@ class RunPostprocess
     @adapter = adapter
     @logger = logger
     @results = {}
+    @output_attributes = {}
 
     # TODO: we shouldn't have to keep loading this file if we need it. It should be availabe for any job.
     # TODO: passing in the options everytime is ridiculuous
@@ -74,6 +75,11 @@ class RunPostprocess
         apply_measures(:reporting_measure)
       end
 
+      @logger.info "Saving reporting measures output attributes JSON"
+      File.open("#{@run_directory}/reporting_measure_attributes.json", 'w') {
+          |f| f << JSON.pretty_generate(@output_attributes)
+      }
+
       run_extract_inputs_and_outputs
 
       @logger.info "Objective Function JSON is #{@objective_functions}"
@@ -82,7 +88,6 @@ class RunPostprocess
       File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
 
       cleanup
-
     rescue Exception => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       fail log_message
@@ -116,6 +121,7 @@ class RunPostprocess
 
   def run_extract_inputs_and_outputs
     # For xml, the measure attributes are in the measure_attributes_xml.json file
+    # TODO: somehow pass the metadata around on which JSONs to suck into the database
     if File.exist?("#{@run_directory}/measure_attributes_xml.json")
       temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes_xml.json"), symbolize_names: true)
       @results.merge!(temp_json)
@@ -123,6 +129,12 @@ class RunPostprocess
 
     # Inputs are in the measure_attributes.json file
     if File.exist?("#{@run_directory}/measure_attributes.json")
+      temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
+      @results.merge!(temp_json)
+    end
+
+    # Inputs are in the measure_attributes.json file
+    if File.exist?("#{@run_directory}/reporting_measure_attributes.json")
       temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
       @results.merge!(temp_json)
     end
@@ -216,10 +228,6 @@ class RunPostprocess
     end
 
     model
-  end
-
-  def run_reporting_measures
-
   end
 
   # Run the prepackaged measures in the Gem.

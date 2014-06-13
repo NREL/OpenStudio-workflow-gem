@@ -23,7 +23,7 @@
 #   @model : the OpenStudio model on which to apply measures
 #   @datapoint_json : the datapoint JSON
 #   @anlaysis_json : the analysis JSON
-
+#   @output_attributes : hash to store any output attributes
 module OpenStudio
   module Workflow
     module ApplyMeasures

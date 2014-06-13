@@ -66,7 +66,7 @@ class RunOpenstudio
 
       apply_measures(:energyplus_measure)
 
-      @logger.info "Measure output attributes JSON is #{@output_attributes}"
+      @logger.info "Saving measure output attributes JSON"
       File.open("#{@run_directory}/measure_attributes.json", 'w') {
           |f| f << JSON.pretty_generate(@output_attributes)
       }

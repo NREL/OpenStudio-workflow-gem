@@ -47,6 +47,7 @@ class RunPostprocess
     @model = load_model @options[:run_openstudio][:osm]
 
     # TODO: should read the name of the sql output file via the :run_openstudio options hash
+    # I want to reiterate that this is cheezy!
     @sql_filename = "#{@run_directory}/eplusout.sql"
     fail "EnergyPlus SQL file did not exist #{@sql_filename}" unless File.exist? @sql_filename
 

@@ -24,6 +24,8 @@
 #   @datapoint_json : the datapoint JSON
 #   @anlaysis_json : the analysis JSON
 #   @output_attributes : hash to store any output attributes
+#   @sql_filename : needed for reporting measures
+
 module OpenStudio
   module Workflow
     module ApplyMeasures
@@ -151,6 +153,10 @@ module OpenStudio
           elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
             measure.run(@model_idf, runner, argument_map)
           elsif workflow_item[:measure_type] == 'ReportingMeasure'
+            # This is silly, set the last model and last sqlfile instead of passing it into the measure.run method
+            runner.setLastOpenStudioModel(@model)
+            runner.setLastEnergyPlusSqlFilePath(@sql_filename)
+
             measure.run(runner, argument_map)
           end
         rescue Exception => e

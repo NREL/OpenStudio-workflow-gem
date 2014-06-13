@@ -33,6 +33,7 @@ end
 require 'openstudio/workflow/version'
 require 'openstudio/workflow/multi_delegator'
 require 'openstudio/workflow/run'
+require 'openstudio/workflow/jobs/lib/apply_measures'
 
 begin
   require 'openstudio'

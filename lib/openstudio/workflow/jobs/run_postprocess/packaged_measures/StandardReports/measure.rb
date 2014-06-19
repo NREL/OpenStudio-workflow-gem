@@ -180,7 +180,7 @@ class StandardReports < OpenStudio::Ruleset::ReportingUserScript
     html_out = renderer.result(binding)
 
     # write html file to the "report folder"
-    FileUtils.mkdir_p '../reports')
+    FileUtils.mkdir_p '../reports'
     html_out_path = '../reports/standard_report.html'
 
     File.open(html_out_path, 'w') do |file|

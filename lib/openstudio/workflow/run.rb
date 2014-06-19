@@ -110,18 +110,13 @@ module OpenStudio
       # run the simulations.
       # TODO: add a catch if any job fails; TODO: make a block method to provide feedback
       def run
-        @logger.info "Starting workflow"
+        @logger.info "Starting workflow in #{@directory}"
         begin
           while self.state.current_state != :finished && !@error
             self.step
           end
 
-          @logger.info "Finished workflow"
-
-          if @error
-            # need to tell the system that this failed
-            @adapter.communicate_failure @directory
-          end
+          @logger.info 'Finished workflow - communicating results and zipping files'
 
           # TODO: this should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
           if @job_results[:run_postprocess]
@@ -131,8 +126,13 @@ module OpenStudio
             @adapter.communicate_results @directory, @job_results[:run_postprocess]
           end
         ensure
-          @adapter.communicate_complete @directory
-          @logger.info "Running workflow from #{__FILE__} complete"
+          if @error
+            @adapter.communicate_failure @directory
+          else
+            @adapter.communicate_complete @directory
+          end
+
+          @logger.info 'Workflow complete'
 
           # TODO: define the outputs and figure out how to show it correctory
           obj_function_array ||= ['NA']

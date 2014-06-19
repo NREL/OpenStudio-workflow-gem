@@ -30,9 +30,6 @@ module OpenStudio
   module Workflow
     module ApplyMeasures
 
-      # TODO: can we remove this?
-      CRASH_ON_NO_WORKFLOW_VARIABLE = false
-
       MEASURE_TYPES = {
           :openstudio_measure => 'RubyMeasure',
           :energyplus_measure => 'EnergyPlusMeasure',
@@ -51,7 +48,6 @@ module OpenStudio
           fail "Could not set argument #{argument[:name]} of value #{argument[:value]} on model" unless value_set
           argument_map[argument[:name]] = v.clone
         else
-          fail "Value for argument '#{argument[:name]}' not set in argument list" if CRASH_ON_NO_WORKFLOW_VARIABLE
           @logger.warn "Value for argument '#{argument[:name]}' not set in argument list therefore will use default"
           #success = false
 
@@ -82,8 +78,8 @@ module OpenStudio
                 fail "Could not set variable '#{variable_name}' of value #{variable_value} on model" unless value_set
                 argument_map[variable_name] = v.clone
               else
-                fail "[ERROR] Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object" if CRASH_ON_NO_WORKFLOW_VARIABLE
-                @logger.warn "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
+                fail "[ERROR] Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
+                #@logger.error "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
                 # success = false
               end
             else

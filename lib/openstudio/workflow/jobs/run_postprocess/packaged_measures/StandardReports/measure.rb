@@ -1,4 +1,5 @@
 require 'erb'
+require 'fileutils'
 
 #start the measure
 class StandardReports < OpenStudio::Ruleset::ReportingUserScript
@@ -167,23 +168,21 @@ class StandardReports < OpenStudio::Ruleset::ReportingUserScript
     #runner.registerInfo("This building is named #{building_name}.")
 
     # read in template
-    html_in_path = "#{File.dirname(__FILE__)}/resources/report.html.in"
+    html_in_path = "#{File.dirname(__FILE__)}/resources/report.html.erb"
     if File.exist?(html_in_path)
         html_in_path = html_in_path
     else
-        html_in_path = "#{File.dirname(__FILE__)}/report.html.in"
-    end
-    html_in = ""
-    File.open(html_in_path, 'r') do |file|
-      html_in = file.read
+        html_in_path = "#{File.dirname(__FILE__)}/report.html.erb"
     end
 
     # configure template with variable values
-    renderer = ERB.new(html_in)
+    renderer = ERB.new(File.read(html_in_path))
     html_out = renderer.result(binding)
 
-    # write html file
-    html_out_path = 'report.html'
+    # write html file to the "report folder"
+    FileUtils.mkdir_p '../reports')
+    html_out_path = '../reports/standard_report.html'
+
     File.open(html_out_path, 'w') do |file|
       file << html_out
       

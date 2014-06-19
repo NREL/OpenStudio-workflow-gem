@@ -1,1 +1,0 @@
-Mongo test using local_ex2

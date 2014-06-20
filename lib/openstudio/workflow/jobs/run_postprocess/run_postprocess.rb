@@ -174,7 +174,7 @@ class RunPostprocess
                 @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
               end
             else
-              @logger.info "No results for objective function #{variable[:name]}"
+              @logger.warning "No results for objective function #{variable[:name]}"
               @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
               @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
               @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
@@ -197,7 +197,7 @@ class RunPostprocess
                 @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
               end
             else
-              @logger.info "No results for objective function #{variable[:name]}"
+              @logger.warning "No results for objective function #{variable[:name]}"
               @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
               @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
               @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil

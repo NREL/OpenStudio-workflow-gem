@@ -167,8 +167,13 @@ module OpenStudio
           @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
           @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?
 
-          result.warnings.each { |w| @logger.info w.logMessage }
-          result.errors.each { |w| @logger.info w.logMessage }
+          result.warnings.each { |w| @logger.warning w.logMessage }
+          an_error = false
+          result.errors.each do |w|
+            @logger.error w.logMessage
+            an_error = true
+          end
+          fail "Measure #{measure_name} reported an error, check log" if an_error
           result.info.each { |w| @logger.info w.logMessage }
         rescue Exception => e
           log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

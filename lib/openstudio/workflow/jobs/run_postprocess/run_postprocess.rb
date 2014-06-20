@@ -174,7 +174,7 @@ class RunPostprocess
                 @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
               end
             else
-              @logger.warning "No results for objective function #{variable[:name]}"
+              @logger.warn "No results for objective function #{variable[:name]}"
               @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
               @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
               @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
@@ -197,7 +197,7 @@ class RunPostprocess
                 @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
               end
             else
-              @logger.warning "No results for objective function #{variable[:name]}"
+              @logger.warn "No results for objective function #{variable[:name]}"
               @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
               @objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
               @objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
@@ -231,7 +231,7 @@ class RunPostprocess
     model
   end
 
-  # Run the prepackaged measures in the Gem.
+  # Run the prepackaged measures in the Gem. # TODO: Move this to use the "apply measure method in the mixin"
   def run_packaged_measures
     @logger.info "Running packaged reporting measures"
 
@@ -275,9 +275,14 @@ class RunPostprocess
     @logger.info measure_result.initialCondition.get.logMessage unless measure_result.initialCondition.empty?
     @logger.info measure_result.finalCondition.get.logMessage unless measure_result.finalCondition.empty?
 
-    measure_result.warnings.each { |w| @logger.info w.logMessage }
-    measure_result.errors.each { |w| @logger.info w.logMessage }
-    measure_result.info.each { |w| @logger.info w.logMessage }
+    measure_result.warnings.each { |w| @logger.warn w.logMessage }
+    an_error = false
+    measure_result.errors.each do |w|
+      @logger.error w.logMessage
+      an_error = true
+    end
+    fail "Measure #{measure_name} reported an error, check log" if an_error
+    measure_result.info.each { |w| @logger.warn w.logMessage }
 
     report_json = JSON.parse(OpenStudio.toJSON(measure_result.attributes), symbolize_names: true)
 

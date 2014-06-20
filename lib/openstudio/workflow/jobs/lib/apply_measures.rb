@@ -167,7 +167,7 @@ module OpenStudio
           @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
           @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?
 
-          result.warnings.each { |w| @logger.warning w.logMessage }
+          result.warnings.each { |w| @logger.warn w.logMessage }
           an_error = false
           result.errors.each do |w|
             @logger.error w.logMessage

@@ -81,7 +81,7 @@ describe 'OpenStudio::Workflow' do
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.options[:problem_filename]).to eq 'analysis_1.json'
     expect(k.options[:datapoint_filename]).to eq 'datapoint_1.json'
-    expect(k.directory).to eq run_dir
+    expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
   end

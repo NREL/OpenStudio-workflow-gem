@@ -99,9 +99,10 @@ module OpenStudio
         measure_path = workflow_item[:measure_definition_directory]
         measure_name = workflow_item[:measure_definition_class_name]
 
-        @logger.info "Loading measure in relative path #{measure_path}"
+        @logger.info "Apply measure running in #{Dir.pwd}"
         measure_file_path = File.expand_path(
             File.join(@options[:analysis_root_path], measure_path, 'measure.rb'))
+        @logger.info "Loading Measure from #{measure_file_path}"
         fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
 
         require measure_file_path
@@ -185,11 +186,19 @@ module OpenStudio
 
       def apply_measures(measure_type)
         if @analysis_json[:analysis][:problem] && @analysis_json[:analysis][:problem][:workflow]
-          @logger.info "Applying measures for #{MEASURE_TYPES[measure_type]}"
-          @analysis_json[:analysis][:problem][:workflow].each do |wf|
-            next unless wf[:measure_type] == MEASURE_TYPES[measure_type]
+          current_dir = Dir.pwd
+          begin
+            @logger.info "Applying measures for #{MEASURE_TYPES[measure_type]}"
+            @analysis_json[:analysis][:problem][:workflow].each do |wf|
+              next unless wf[:measure_type] == MEASURE_TYPES[measure_type]
 
-            apply_measure(wf)
+              measure_working_directory = "#{@run_directory}/#{wf[:measure_definition_class_name]}"
+              FileUtils.mkdir_p measure_working_directory
+              Dir.chdir measure_working_directory
+              apply_measure(wf)
+            end
+          ensure
+            Dir.chdir current_dir
           end
         end
       end

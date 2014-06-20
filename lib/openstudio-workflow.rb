@@ -23,6 +23,7 @@ require 'multi_json'
 require 'colored'
 require 'fileutils'
 require 'json' # needed for a single pretty generate call
+require 'pathname'
 
 begin
   require 'facter'
@@ -51,6 +52,20 @@ module OpenStudio
     def load(adapter_name, run_directory, options={})
       defaults = {adapter_options: {}}
       options = defaults.merge(options)
+
+      # Convert various paths to absolute paths
+      if options[:adapter_options] && options[:adapter_options][:mongoid_path] &&
+          (Pathname.new options[:adapter_options][:mongoid_path]).absolute? == false
+        options[:adapter_options][:mongoid_path] = File.expand_path options[:adapter_options][:mongoid_path]
+      end
+      if options[:analysis_root_path] &&
+          (Pathname.new options[:analysis_root_path]).absolute? == false
+        options[:analysis_root_path] = File.expand_path options[:analysis_root_path]
+      end
+      unless (Pathname.new run_directory).absolute?
+        # relateive to wherever you are running the script
+        run_directory = File.expand_path run_directory
+      end
       adapter = load_adapter adapter_name, options[:adapter_options]
       run_klass = OpenStudio::Workflow::Run.new(adapter, run_directory, options)
       # return the run class

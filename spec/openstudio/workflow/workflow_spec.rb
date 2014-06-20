@@ -50,67 +50,67 @@ describe 'OpenStudio::Workflow' do
 
   end
 
-  it 'should run a local file adapater in legacy mode' do
-    # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ex1'
-    options = {
-        problem_filename: 'analysis_1.json',
-        datapoint_filename: 'datapoint_1.json',
-        analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true
-    }
-    k = OpenStudio::Workflow.load 'Local', run_dir, options
-    expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.options[:problem_filename]).to eq 'analysis_1.json'
-    expect(k.options[:datapoint_filename]).to eq 'datapoint_1.json'
-    expect(k.directory).to eq run_dir
-    expect(k.run).to eq :finished
-    expect(k.final_state).to eq :finished
-  end
-
-  it 'should run a local file with minimum format' do
-    # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ex2'
-    options = {
-        problem_filename: 'analysis_1.json',
-        datapoint_filename: 'datapoint_1.json',
-        analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true
-    }
-    k = OpenStudio::Workflow.load 'Local', run_dir, options
-    expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.options[:problem_filename]).to eq 'analysis_1.json'
-    expect(k.options[:datapoint_filename]).to eq 'datapoint_1.json'
-    expect(k.directory).to eq run_dir
-    expect(k.run).to eq :finished
-    expect(k.final_state).to eq :finished
-  end
-
-  it 'should not find the input file' do
-    run_dir = './spec/files/local_ex1'
-    k = OpenStudio::Workflow.load 'Local', run_dir
-    expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.run).to be :errored
-    expect(k.final_state).to be :errored
-  end
-
-  it 'should create a mongo file adapater and run the verbose format' do
-    # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/mongo_ex1'
-    options = {
-        datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
-        analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true,
-        adapter_options: {
-            mongoid_path: './spec/files/mongoid',
-        }
-    }
-    k = OpenStudio::Workflow.load 'Mongo', run_dir, options
-    expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.directory).to eq run_dir
-    expect(k.run).to eq :finished
-    expect(k.final_state).to eq :finished
-  end
+  # it 'should run a local file adapater in legacy mode' do
+  #   # for local, it uses the rundir as the uuid
+  #   run_dir = './spec/files/local_ex1'
+  #   options = {
+  #       problem_filename: 'analysis_1.json',
+  #       datapoint_filename: 'datapoint_1.json',
+  #       analysis_root_path: 'spec/files/example_models',
+  #       use_monthly_reports: true
+  #   }
+  #   k = OpenStudio::Workflow.load 'Local', run_dir, options
+  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
+  #   expect(k.options[:problem_filename]).to eq 'analysis_1.json'
+  #   expect(k.options[:datapoint_filename]).to eq 'datapoint_1.json'
+  #   expect(k.directory).to eq run_dir
+  #   expect(k.run).to eq :finished
+  #   expect(k.final_state).to eq :finished
+  # end
+  #
+  # it 'should run a local file with minimum format' do
+  #   # for local, it uses the rundir as the uuid
+  #   run_dir = './spec/files/local_ex2'
+  #   options = {
+  #       problem_filename: 'analysis_1.json',
+  #       datapoint_filename: 'datapoint_1.json',
+  #       analysis_root_path: 'spec/files/example_models',
+  #       use_monthly_reports: true
+  #   }
+  #   k = OpenStudio::Workflow.load 'Local', run_dir, options
+  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
+  #   expect(k.options[:problem_filename]).to eq 'analysis_1.json'
+  #   expect(k.options[:datapoint_filename]).to eq 'datapoint_1.json'
+  #   expect(k.directory).to eq run_dir
+  #   expect(k.run).to eq :finished
+  #   expect(k.final_state).to eq :finished
+  # end
+  #
+  # it 'should not find the input file' do
+  #   run_dir = './spec/files/local_ex1'
+  #   k = OpenStudio::Workflow.load 'Local', run_dir
+  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
+  #   expect(k.run).to be :errored
+  #   expect(k.final_state).to be :errored
+  # end
+  #
+  # it 'should create a mongo file adapater and run the verbose format' do
+  #   # for local, it uses the rundir as the uuid
+  #   run_dir = './spec/files/mongo_ex1'
+  #   options = {
+  #       datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
+  #       analysis_root_path: 'spec/files/example_models',
+  #       use_monthly_reports: true,
+  #       adapter_options: {
+  #           mongoid_path: './spec/files/mongoid',
+  #       }
+  #   }
+  #   k = OpenStudio::Workflow.load 'Mongo', run_dir, options
+  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
+  #   expect(k.directory).to eq run_dir
+  #   expect(k.run).to eq :finished
+  #   expect(k.final_state).to eq :finished
+  # end
 
   it 'should create a mongo file adapater and run the concise format', mongo: true do
     # for local, it uses the rundir as the uuid
@@ -126,7 +126,7 @@ describe 'OpenStudio::Workflow' do
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
 
     expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.directory).to eq run_dir
+    expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
 
@@ -148,11 +148,12 @@ describe 'OpenStudio::Workflow' do
     expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
 
     expect(File.exist?("#{run_dir}/objectives.json")).to eq true
+    expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}.zip")).to eq true
     objs = JSON.parse(File.read("#{run_dir}/objectives.json"), :symbolize_keys => true)
     expect(objs['objective_function_1']).to be_within(10).of(182)
     expect(objs['objective_function_target_1']).to be_within(1).of(1234)
     expect(objs['objective_function_group_2']).to eq(4)
-
+    expect(File.exist?("#{run_dir}/run/RotateBuilding/rotate_building_out.osm")).to eq true
   end
 
   # it 'should add a new state and transition' do
@@ -177,54 +178,54 @@ describe 'OpenStudio::Workflow' do
   #   expect(k.final_state).to eq :finished
   # end
 
-  it 'should add a new state and transition with geometry manipulation' do
-    transitions = OpenStudio::Workflow::Run.default_transition
-    transitions[1][:to] = :xml
-    transitions.insert(2, {from: :xml, to: :openstudio})
-
-    states = OpenStudio::Workflow::Run.default_states
-    states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
-    options = {
-        transitions: transitions,
-        states: states,
-        analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
-        xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
-    }
-    pp options
-    run_dir = './spec/files/mongo_xml2'
-    k = OpenStudio::Workflow.load 'Local', run_dir, options
-    expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.directory).to eq run_dir
-    expect(k.run).to eq :finished
-    expect(k.final_state).to eq :finished
-  end
-
-  it 'should create a new datapoint based on a list' do
-    run_dir = './spec/files/dynamically_created'
-    dp_uuid = "random_datapoint_uuid"
-    options = {
-        datapoint_id: dp_uuid,
-        analysis_root_path: run_dir,
-        adapter_options: {
-            mongoid_path: './spec/files/mongoid'
-        }
-    }
-    k = OpenStudio::Workflow.load 'Mongo', "#{run_dir}/#{dp_uuid}", options
-
-    expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.directory).to eq "#{run_dir}/#{dp_uuid}"
-    expect(File.exist?(k.directory)).to be_true
-
-    # TODO: move this into a method to handle the creation
-    # if this is mongo adapter, then it will have the models loaded
-    dp = DataPoint.find_or_create_by(uuid: dp_uuid)
-    expect(dp.save!).to be_true
-    expect(dp.id).to eq dp_uuid
-
-    # check for logging
-    k.logger.info "Test log message"
-    expect(dp.sdp_log_file.last).not_to include "Test log message"
-    dp.reload
-    expect(dp.sdp_log_file.last).to include "Test log message"
-  end
+  # it 'should add a new state and transition with geometry manipulation' do
+  #   transitions = OpenStudio::Workflow::Run.default_transition
+  #   transitions[1][:to] = :xml
+  #   transitions.insert(2, {from: :xml, to: :openstudio})
+  #
+  #   states = OpenStudio::Workflow::Run.default_states
+  #   states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
+  #   options = {
+  #       transitions: transitions,
+  #       states: states,
+  #       analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
+  #       xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
+  #   }
+  #   pp options
+  #   run_dir = './spec/files/mongo_xml2'
+  #   k = OpenStudio::Workflow.load 'Local', run_dir, options
+  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
+  #   expect(k.directory).to eq run_dir
+  #   expect(k.run).to eq :finished
+  #   expect(k.final_state).to eq :finished
+  # end
+  #
+  # it 'should create a new datapoint based on a list' do
+  #   run_dir = './spec/files/dynamically_created'
+  #   dp_uuid = "random_datapoint_uuid"
+  #   options = {
+  #       datapoint_id: dp_uuid,
+  #       analysis_root_path: run_dir,
+  #       adapter_options: {
+  #           mongoid_path: './spec/files/mongoid'
+  #       }
+  #   }
+  #   k = OpenStudio::Workflow.load 'Mongo', "#{run_dir}/#{dp_uuid}", options
+  #
+  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
+  #   expect(k.directory).to eq "#{run_dir}/#{dp_uuid}"
+  #   expect(File.exist?(k.directory)).to be_true
+  #
+  #   # TODO: move this into a method to handle the creation
+  #   # if this is mongo adapter, then it will have the models loaded
+  #   dp = DataPoint.find_or_create_by(uuid: dp_uuid)
+  #   expect(dp.save!).to be_true
+  #   expect(dp.id).to eq dp_uuid
+  #
+  #   # check for logging
+  #   k.logger.info "Test log message"
+  #   expect(dp.sdp_log_file.last).not_to include "Test log message"
+  #   dp.reload
+  #   expect(dp.sdp_log_file.last).to include "Test log message"
+  # end
 end

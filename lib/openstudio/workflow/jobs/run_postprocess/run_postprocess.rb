@@ -116,7 +116,7 @@ class RunPostprocess
         File.open("#{@directory}/reports/eplustbl.html", 'w') { |f| f << html }
       end
     end
-    
+
     # Also, find any "report.html" files
     Dir["#{@run_directory}/*/report.html"].each do |report|
       # get the parent directory of the file and snake case it
@@ -125,21 +125,24 @@ class RunPostprocess
       FileUtils.move report, "#{@directory}/reports/#{measure_class_name}.html"
     end
 
+    # Remove empty directories in run folder
+    Dir["#{@run_directory}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w[ . .. ]).empty? }.each { |d| Dir.rmdir d }
+
     paths_to_rm = []
-    #paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")
-    #paths_to_rm << Pathname.glob("#{@run_directory}/*.idf") # keep the idfs
+    # paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")
+    # paths_to_rm << Pathname.glob("#{@run_directory}/*.idf") # keep the idfs
+    # paths_to_rm << Pathname.glob("*.audit")
+    # paths_to_rm << Pathname.glob("*.bnd")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.eso")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.mtr")
-    paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
-    paths_to_rm << Pathname.glob("#{@run_directory}/EnergyPlus")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.so")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.epw")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.idd")
-    # paths_to_rm << Pathname.glob("*.audit")
-    # paths_to_rm << Pathname.glob("*.bnd")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.mtd")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.rdd")
+    paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
+    paths_to_rm << Pathname.glob("#{@run_directory}/EnergyPlus")
     paths_to_rm << Pathname.glob("#{@run_directory}/packaged_measures")
     paths_to_rm.each { |p| FileUtils.rm_rf(p) }
   end

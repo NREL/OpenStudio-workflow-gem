@@ -112,75 +112,6 @@ describe 'OpenStudio::Workflow' do
     expect(k.final_state).to eq :finished
   end
 
-  it 'should create a mongo file adapater and run the concise format', mongo: true do
-    # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/mongo_ex3'
-    options = {
-        datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
-        analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true,
-        adapter_options: {
-            mongoid_path: './spec/files/mongoid',
-        }
-    }
-    k = OpenStudio::Workflow.load 'Mongo', run_dir, options
-
-    expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.directory).to eq File.expand_path(run_dir)
-    expect(k.run).to eq :finished
-    expect(k.final_state).to eq :finished
-
-    # First test the database
-    if k.adapter.is_a? OpenStudio::Workflow::Adapters::Mongo
-      expect(k.adapter.datapoint[:results]).to_not be_nil
-      expect(k.adapter.datapoint[:results][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
-      expect(k.adapter.datapoint[:results][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
-    end
-
-    # Look at the results in teh job_results hash
-    expect(k.job_results).to be_a Hash
-    expect(k.job_results[:run_postprocess][:lighting_loads_user_customized_name][:lighting_power_reduction_percent]).to be_within(1).of(26.375)
-    # expect(k.job_results[:run_postprocess][:standard_report][:total_building_area]).to be_within(1).of(26.375)
-    #expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
-    expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
-
-    #expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
-    expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
-
-    expect(File.exist?("#{run_dir}/objectives.json")).to eq true
-    expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}.zip")).to eq true
-    objs = JSON.parse(File.read("#{run_dir}/objectives.json"), :symbolize_keys => true)
-    expect(objs['objective_function_1']).to be_within(10).of(182)
-    expect(objs['objective_function_target_1']).to be_within(1).of(1234)
-    expect(objs['objective_function_group_2']).to eq(4)
-    expect(File.exist?("#{run_dir}/run/RotateBuilding/rotate_building_out.osm")).to eq true
-    expect(File.exist?("#{run_dir}/run/StandardReports/report.html")).to eq false
-    expect(File.exist?("#{run_dir}/reports/eplustbl.html")).to eq true
-    expect(File.exist?("#{run_dir}/reports/standard_reports.html")).to eq true
-  end
-
-  # it 'should add a new state and transition' do
-  #   transitions = OpenStudio::Workflow::Run.default_transition
-  #   transitions[1][:to] = :xml
-  #   transitions.insert(2, {from: :xml, to: :openstudio})
-  #
-  #   states = OpenStudio::Workflow::Run.default_states
-  #   states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
-  #   options = {
-  #       transitions: transitions,
-  #       states: states,
-  #       analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
-  #       xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
-  #   }
-  #   pp options
-  #   run_dir = './spec/files/mongo_xml1'
-  #   k = OpenStudio::Workflow.load 'Local', run_dir, options
-  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
-  #   expect(k.directory).to eq run_dir
-  #   expect(k.run).to eq :finished
-  #   expect(k.final_state).to eq :finished
-  # end
-
   it 'should add a new state and transition with geometry manipulation' do
     transitions = OpenStudio::Workflow::Run.default_transition
     transitions[1][:to] = :xml
@@ -231,4 +162,76 @@ describe 'OpenStudio::Workflow' do
     dp.reload
     expect(dp.sdp_log_file.last).to include "Test log message"
   end
+
+  it 'should create a mongo file adapater and run the concise format', mongo: true do
+    # for local, it uses the rundir as the uuid
+    run_dir = './spec/files/mongo_ex3'
+    options = {
+        datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
+        analysis_root_path: 'spec/files/example_models',
+        use_monthly_reports: true,
+        adapter_options: {
+            mongoid_path: './spec/files/mongoid',
+        }
+    }
+    k = OpenStudio::Workflow.load 'Mongo', run_dir, options
+
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :finished
+    expect(k.final_state).to eq :finished
+
+    # First test the database
+    if k.adapter.is_a? OpenStudio::Workflow::Adapters::Mongo
+      expect(k.adapter.datapoint[:results]).to_not be_nil
+      expect(k.adapter.datapoint[:results][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
+      expect(k.adapter.datapoint[:results][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
+    end
+
+    # Look at the results in teh job_results hash
+    expect(k.job_results).to be_a Hash
+    expect(k.job_results[:run_postprocess][:lighting_loads_user_customized_name][:lighting_power_reduction_percent]).to be_within(1).of(26.375)
+    # expect(k.job_results[:run_postprocess][:standard_report][:total_building_area]).to be_within(1).of(26.375)
+    #expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
+    expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
+
+    #expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
+    expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
+
+    expect(File.exist?("#{run_dir}/objectives.json")).to eq true
+    expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}.zip")).to eq true
+    objs = JSON.parse(File.read("#{run_dir}/objectives.json"), :symbolize_keys => true)
+    expect(objs['objective_function_1']).to be_within(10).of(182)
+    expect(objs['objective_function_target_1']).to be_within(1).of(1234)
+    expect(objs['objective_function_group_2']).to eq(4)
+    expect(File.exist?("#{run_dir}/run/RotateBuilding/rotate_building_out.osm")).to eq true
+    expect(File.exist?("#{run_dir}/run/StandardReports/report.html")).to eq false
+    expect(File.exist?("#{run_dir}/reports/eplustbl.html")).to eq true
+    expect(File.exist?("#{run_dir}/reports/standard_reports.html")).to eq true
+    expect(Dir.exist?("#{run_dir}/run/SetWindowToWallRatioByFacade")).to eq false
+  end
+
+  # it 'should add a new state and transition' do
+  #   transitions = OpenStudio::Workflow::Run.default_transition
+  #   transitions[1][:to] = :xml
+  #   transitions.insert(2, {from: :xml, to: :openstudio})
+  #
+  #   states = OpenStudio::Workflow::Run.default_states
+  #   states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
+  #   options = {
+  #       transitions: transitions,
+  #       states: states,
+  #       analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
+  #       xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
+  #   }
+  #   pp options
+  #   run_dir = './spec/files/mongo_xml1'
+  #   k = OpenStudio::Workflow.load 'Local', run_dir, options
+  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
+  #   expect(k.directory).to eq run_dir
+  #   expect(k.run).to eq :finished
+  #   expect(k.final_state).to eq :finished
+  # end
+
+
 end

@@ -96,96 +96,112 @@ module OpenStudio
       end
 
       def apply_measure(workflow_item)
-        measure_path = workflow_item[:measure_definition_directory]
-        measure_name = workflow_item[:measure_definition_class_name]
-
-        @logger.info "Apply measure running in #{Dir.pwd}"
-        measure_file_path = File.expand_path(
-            File.join(@options[:analysis_root_path], measure_path, 'measure.rb'))
-        @logger.info "Loading Measure from #{measure_file_path}"
-        fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
-
-        require measure_file_path
-        measure = Object.const_get(measure_name).new
-        runner = OpenStudio::Ruleset::OSRunner.new
-        result = nil
-
-        arguments = nil
-        if workflow_item[:measure_type] == 'RubyMeasure'
-          arguments = measure.arguments(@model)
-        elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
-          arguments = measure.arguments(@model)
-        elsif workflow_item[:measure_type] == 'ReportingMeasure'
-          arguments = measure.arguments
-        end
-
-        # Create argument map and initialize all the arguments
-        argument_map = OpenStudio::Ruleset::OSArgumentMap.new
-        arguments.each do |v|
-          argument_map[v.name] = v.clone
-        end
-        #@logger.info "Argument map for measure is #{argument_map}"
-
-        @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
-        if workflow_item[:arguments]
-          workflow_item[:arguments].each do |argument|
-            success = apply_arguments(argument_map, argument)
-            fail "Could not set arguments" unless success
-          end
-        end
-
-        @logger.info "Iterating over variables for workflow item '#{workflow_item[:name]}'"
-        if workflow_item[:variables]
-          workflow_item[:variables].each do |variable|
-            success = apply_variables(argument_map, variable)
-            fail "Could not set variables" unless success
-          end
-        end
-
+        current_dir = Dir.pwd
         begin
+          measure_working_directory = "#{@run_directory}/#{workflow_item[:measure_definition_class_name]}"
+
+          @logger.info "Creating run directory to #{measure_working_directory}"
+          FileUtils.mkdir_p measure_working_directory
+          Dir.chdir measure_working_directory
+
+          measure_path = workflow_item[:measure_definition_directory]
+          measure_name = workflow_item[:measure_definition_class_name]
+          @logger.info "Apply measure running in #{Dir.pwd}"
+
+          measure_file_path = nil
+          if (Pathname.new measure_path).absolute?
+            measure_file_path = measure_path
+          else
+            measure_file_path = File.expand_path(File.join(@options[:analysis_root_path], measure_path, 'measure.rb'))
+          end
+
+          @logger.info "Loading Measure from #{measure_file_path}"
+          fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
+
+          require measure_file_path
+          measure = Object.const_get(measure_name).new
+          runner = OpenStudio::Ruleset::OSRunner.new
+          result = nil
+
+          arguments = nil
           if workflow_item[:measure_type] == 'RubyMeasure'
-            @logger.info "Running runner for '#{workflow_item[:name]}'"
-            measure.run(@model, runner, argument_map)
-            @logger.info "Finished runner for '#{workflow_item[:name]}'"
+            arguments = measure.arguments(@model)
           elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
-            measure.run(@model_idf, runner, argument_map)
+            arguments = measure.arguments(@model)
           elsif workflow_item[:measure_type] == 'ReportingMeasure'
-            # This is silly, set the last model and last sqlfile instead of passing it into the measure.run method
-            runner.setLastOpenStudioModel(@model)
-            runner.setLastEnergyPlusSqlFilePath(@sql_filename)
-
-            measure.run(runner, argument_map)
+            arguments = measure.arguments
           end
-        rescue Exception => e
-          log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-          fail log_message
-        end
 
-        begin
-          result = runner.result
-
-          @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
-          @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?
-
-          result.warnings.each { |w| @logger.warn w.logMessage }
-          an_error = false
-          result.errors.each do |w|
-            @logger.error w.logMessage
-            an_error = true
+          # Create argument map and initialize all the arguments
+          argument_map = OpenStudio::Ruleset::OSArgumentMap.new
+          arguments.each do |v|
+            argument_map[v.name] = v.clone
           end
-          fail "Measure #{measure_name} reported an error, check log" if an_error
-          result.info.each { |w| @logger.info w.logMessage }
-        rescue Exception => e
-          log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-          fail log_message
-        end
+          #@logger.info "Argument map for measure is #{argument_map}"
 
-        begin
-          measure_attributes = JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)
-          @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
-        rescue Exception => e
-          log_message = "TODO: #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-          @logger.warn log_message
+          @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
+          if workflow_item[:arguments]
+            workflow_item[:arguments].each do |argument|
+              success = apply_arguments(argument_map, argument)
+              fail "Could not set arguments" unless success
+            end
+          end
+
+          @logger.info "Iterating over variables for workflow item '#{workflow_item[:name]}'"
+          if workflow_item[:variables]
+            workflow_item[:variables].each do |variable|
+              success = apply_variables(argument_map, variable)
+              fail "Could not set variables" unless success
+            end
+          end
+
+          begin
+            if workflow_item[:measure_type] == 'RubyMeasure'
+              @logger.info "Running runner for '#{workflow_item[:name]}'"
+              measure.run(@model, runner, argument_map)
+              @logger.info "Finished runner for '#{workflow_item[:name]}'"
+            elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
+              measure.run(@model_idf, runner, argument_map)
+            elsif workflow_item[:measure_type] == 'ReportingMeasure'
+              # This is silly, set the last model and last sqlfile instead of passing it into the measure.run method
+              runner.setLastOpenStudioModel(@model)
+              runner.setLastEnergyPlusSqlFilePath(@sql_filename)
+
+              measure.run(runner, argument_map)
+            end
+          rescue Exception => e
+            log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+            fail log_message
+          end
+
+          begin
+            result = runner.result
+
+            @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
+            @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?
+
+            result.warnings.each { |w| @logger.warn w.logMessage }
+            an_error = false
+            result.errors.each do |w|
+              @logger.error w.logMessage
+              an_error = true
+            end
+            fail "Measure #{measure_name} reported an error, check log" if an_error
+            result.info.each { |w| @logger.info w.logMessage }
+          rescue Exception => e
+            log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+            fail log_message
+          end
+
+          begin
+            measure_attributes = JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)
+            @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
+          rescue Exception => e
+            log_message = "TODO: #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+            @logger.warn log_message
+          end
+        ensure
+          Dir.chdir current_dir
         end
       end
 
@@ -197,9 +213,6 @@ module OpenStudio
             @analysis_json[:analysis][:problem][:workflow].each do |wf|
               next unless wf[:measure_type] == MEASURE_TYPES[measure_type]
 
-              measure_working_directory = "#{@run_directory}/#{wf[:measure_definition_class_name]}"
-              FileUtils.mkdir_p measure_working_directory
-              Dir.chdir measure_working_directory
               apply_measure(wf)
             end
           ensure

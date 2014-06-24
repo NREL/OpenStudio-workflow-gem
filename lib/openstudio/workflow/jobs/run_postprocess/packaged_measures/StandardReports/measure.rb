@@ -179,9 +179,8 @@ class StandardReports < OpenStudio::Ruleset::ReportingUserScript
     renderer = ERB.new(File.read(html_in_path))
     html_out = renderer.result(binding)
 
-    # write html file to the "report folder"
-    FileUtils.mkdir_p '../reports'
-    html_out_path = '../reports/standard_report.html'
+    # write html file
+    html_out_path = './report.html'
 
     File.open(html_out_path, 'w') do |file|
       file << html_out

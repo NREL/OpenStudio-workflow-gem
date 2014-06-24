@@ -98,9 +98,33 @@ class RunPostprocess
   end
 
   def cleanup
-    # TODO: use Dir glob instead of pathname
-    require 'pathname'
-    require 'fileutils'
+    # move any of the reporting file to the 'reports' directory for serverside access
+    eplus_search_path = nil
+    FileUtils.mkdir_p "#{@directory}/reports"
+
+    # try to find the energyplus result file
+    eplus_html = "#{@run_directory}/eplustbl.htm"
+    unless File.exist? eplus_html
+      eplus_html = Dir["#{analysis_dir}/*EnergyPlus*/eplustbl.htm"].last || nil
+    end
+
+    if eplus_html
+      if File.exist? eplus_html
+        # do some encoding on the html if possible
+        html = File.read(eplus_html)
+        html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
+        File.open("#{@directory}/reports/eplustbl.html", 'w') { |f| f << html }
+      end
+    end
+    
+    # Also, find any "report.html" files
+    Dir["#{@run_directory}/*/report.html"].each do |report|
+      # get the parent directory of the file and snake case it
+      # do i need to force encoding on this as well?
+      measure_class_name = File.basename(File.dirname(report)).snake_case
+      FileUtils.move report, "#{@directory}/reports/#{measure_class_name}.html"
+    end
+
     paths_to_rm = []
     #paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")
     #paths_to_rm << Pathname.glob("#{@run_directory}/*.idf") # keep the idfs
@@ -138,10 +162,6 @@ class RunPostprocess
     if File.exist?("#{@run_directory}/reporting_measure_attributes.json")
       temp_json = JSON.parse(File.read("#{@run_directory}/reporting_measure_attributes.json"), symbolize_names: true)
       @results.merge!(temp_json)
-    end
-
-    if File.exist?("#{@run_directory}/standard_report.json")
-      @results[:standard_report] = JSON.parse(File.read("#{@run_directory}/standard_report.json"), symbolize_names: true)
     end
 
     # Initialize the objective function variable
@@ -231,66 +251,21 @@ class RunPostprocess
     model
   end
 
-  # Run the prepackaged measures in the Gem. # TODO: Move this to use the "apply measure method in the mixin"
+  # Run the prepackaged measures in the Gem.
   def run_packaged_measures
-    @logger.info "Running packaged reporting measures"
+    # configure the workflow item json to pass
+    workflow_item = {
+        display_name: 'Standard Reports',
+        measure_definition_directory: File.expand_path(File.join(File.dirname(__FILE__), 'packaged_measures', 'StandardReports', 'measure.rb')),
+        measure_definition_class_name: "StandardReports",
+        measure_type: 'ReportingMeasure',
+        name: 'standard_reports'
+    }
+    @logger.info 'Running packaged reporting measures'
 
-    # HARD CODE the running of the report measure
-    measure_path = 'packaged_measures'
-    measure_name = 'StandardReports'
+    apply_measure(workflow_item)
 
-    # when full workflow then do this
-    # require "#{File.expand_path(File.join(File.dirname(__FILE__), '..', measure_path, measure_name, 'measure'))}"
-    measure_file_path = File.expand_path(File.join(File.dirname(__FILE__), measure_path, measure_name, 'measure.rb'))
-    @logger.info "Loading measure in relative path #{measure_path}"
-    fail "Packaged measure does not exist for #{measure_file_path}" unless File.exist?(measure_file_path)
-
-    #measure_file_path = File.expand_path(
-    #    File.join(@directory, @options[:analysis_root_path], measure_path, 'measure.rb'))
-    #fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
-
-    require measure_file_path
-    measure = Object.const_get(measure_name).new
-    runner = OpenStudio::Ruleset::OSRunner.new
-
-    @logger.info "Run directory for post process: #{@run_directory}"
-    runner.setLastOpenStudioModel(@model)
-    runner.setLastEnergyPlusSqlFilePath(@sql_filename)
-
-    # create a new directory before running
-    measure_run_dir = "#{@directory}/#{measure_name}"
-    @logger.info "Running measure in #{measure_run_dir}"
-    FileUtils.mkdir_p(measure_run_dir)
-    current_dir = Dir.pwd
-    begin
-      Dir.chdir(measure_run_dir)
-      argument_map = OpenStudio::Ruleset::OSArgumentMap.new
-      @logger.info "Calling run on measure"
-      measure.run(runner, argument_map)
-      measure_result = runner.result
-    ensure
-      Dir.chdir(current_dir)
-    end
-
-    @logger.info measure_result.initialCondition.get.logMessage unless measure_result.initialCondition.empty?
-    @logger.info measure_result.finalCondition.get.logMessage unless measure_result.finalCondition.empty?
-
-    measure_result.warnings.each { |w| @logger.warn w.logMessage }
-    an_error = false
-    measure_result.errors.each do |w|
-      @logger.error w.logMessage
-      an_error = true
-    end
-    fail "Measure #{measure_name} reported an error, check log" if an_error
-    measure_result.info.each { |w| @logger.warn w.logMessage }
-
-    report_json = JSON.parse(OpenStudio.toJSON(measure_result.attributes), symbolize_names: true)
-
-    # only grab the attributes
-    standard_report = report_json[:attributes]
-    File.open("#{@run_directory}/standard_report.json", 'w') { |f| f << JSON.pretty_generate(standard_report) }
-
-    @logger.info 'Finished OpenStudio Post Processing'
+    @logger.info 'Finished Running Packaged Measures'
   end
 
   def translate_csv_to_json

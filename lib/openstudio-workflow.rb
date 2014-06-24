@@ -44,6 +44,17 @@ rescue LoadError => e
   puts 'OpenStudio did not load, but most functionality is still available. Will try to continue...'.red
 end
 
+# some core extensions
+class String
+  def snake_case
+    self.gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
+  end
+end
+
 module OpenStudio
   module Workflow
     extend self

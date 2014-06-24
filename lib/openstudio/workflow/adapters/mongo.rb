@@ -216,6 +216,7 @@ module OpenStudio
 
         # TODO: this uses a system call to zip results at the moment
         def zip_results(analysis_dir, analysis_type = 'workflow')
+          current_dir = Dir.pwd
           # create zip file using a system call
           #@logger.info "Zipping up Analysis Directory #{analysis_dir}"
           if File.directory? analysis_dir

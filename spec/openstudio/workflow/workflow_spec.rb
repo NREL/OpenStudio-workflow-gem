@@ -154,7 +154,7 @@ describe 'OpenStudio::Workflow' do
     expect(objs['objective_function_target_1']).to be_within(1).of(1234)
     expect(objs['objective_function_group_2']).to eq(4)
     expect(File.exist?("#{run_dir}/run/RotateBuilding/rotate_building_out.osm")).to eq true
-    expect(File.exist?("#{run_dir}/run/StandardReports/report.html")).to eq true
+    expect(File.exist?("#{run_dir}/run/StandardReports/report.html")).to eq false
     expect(File.exist?("#{run_dir}/reports/eplustbl.html")).to eq true
     expect(File.exist?("#{run_dir}/reports/standard_reports.html")).to eq true
   end

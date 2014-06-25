@@ -69,7 +69,7 @@ module OpenStudio
           # Get the value from the data point json that was set via R / Problem Formulation
           if @datapoint_json[:data_point]
             if @datapoint_json[:data_point][:set_variable_values]
-              if @datapoint_json[:data_point][:set_variable_values][variable_uuid]
+              unless @datapoint_json[:data_point][:set_variable_values][variable_uuid].nil?
                 @logger.info "Setting variable '#{variable_name}' to #{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}"
                 v = argument_map[variable_name]
                 fail 'Could not find argument map in measure' unless v

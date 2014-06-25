@@ -19,6 +19,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #config.vm.box = "centos64-nrel-x86_64"
   #config.vm.box_url = "http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130731.box"
 
+  config.vm.network :private_network, ip: "192.168.34.10"
   config.vm.network :private_network, type: 'dhcp' 
   config.vm.network "forwarded_port", guest: 27017, host: 27018
   config.vm.synced_folder ".", "/data/openstudio-workflow", :nfs => use_nfs

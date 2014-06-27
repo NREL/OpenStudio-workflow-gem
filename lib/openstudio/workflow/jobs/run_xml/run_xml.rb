@@ -22,7 +22,6 @@ require 'libxml'
 # This actually belongs as another class that gets added as a state dynamically
 class RunXml
 
-  CRASH_ON_NO_WORKFLOW_VARIABLE = FALSE
   # RunXml
   def initialize(directory, logger, adapter, options = {})
     defaults = {use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb'}
@@ -231,7 +230,7 @@ class RunXml
                 # Get the value from the data point json that was set via R / Problem Formulation
                 if @datapoint_json[:data_point]
                   if @datapoint_json[:data_point][:set_variable_values]
-                    if @datapoint_json[:data_point][:set_variable_values][variable_uuid]
+                    unless @datapoint_json[:data_point][:set_variable_values][variable_uuid].nil?
                       @logger.info "Setting variable #{variable_name} to #{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}"
 
                       args[wf_var[:argument][:name].to_sym] = @datapoint_json[:data_point][:set_variable_values][variable_uuid]
@@ -245,9 +244,7 @@ class RunXml
                         @weather_filename = @datapoint_json[:data_point][:set_variable_values][variable_uuid]
                       end
                     else
-                      @logger.info "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
-                      fail "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object" if CRASH_ON_NO_WORKFLOW_VARIABLE
-                      break
+                      fail "[ERROR] Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
                     end
                   else
                     fail 'No block for set_variable_values in data point record'

@@ -74,11 +74,8 @@ module OpenStudio
                 'os-worker-1' => '192.168.33.11',
                 'os-worker-2' => '192.168.33.12'
             }
-            @datapoint.hostname = Socket.gethostname
             @datapoint.ip_address = map[Socket.gethostname]
             @datapoint.internal_ip_address = @datapoint.ip_address
-
-            # TODO: add back in the instance id
           else
             if Gem.loaded_specs["facter"]
               # Check if we are on amazon
@@ -89,7 +86,6 @@ module OpenStudio
                 @datapoint.ip_address = m['public-ipv4'] ? m['public-ipv4'] : 'unknown'
                 @datapoint.internal_ip_address = m['local-ipv4'] ? m['local-ipv4'] : 'unknown'
               else
-                #@datapoint.hostname = m['hostname'] ? m['hostname'] : 'unknown'
                 @datapoint.ip_address = Facter.fact(:ipaddress).value
                 @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
               end

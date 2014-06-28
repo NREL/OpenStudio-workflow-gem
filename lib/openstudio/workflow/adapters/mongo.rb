@@ -86,15 +86,10 @@ module OpenStudio
                 # must be on amazon
                 m = Facter.fact(:ec2_metadata).value
 
-                @datapoint.hostname = m['public-hostname'] ? m['public-hostname'] : 'unknown'
-                # TODO: figure out how to version this because the models can be out of state
-                #@datapoint.local_hostname = m['local-hostname'] ? m['local-hostname'] : 'unknown'
                 @datapoint.ip_address = m['public-ipv4'] ? m['public-ipv4'] : 'unknown'
                 @datapoint.internal_ip_address = m['local-ipv4'] ? m['local-ipv4'] : 'unknown'
-                @datapoint.ami_id = m['ami-id'] ? m['ami-id'] : 'unknown'
-                @datapoint.instance_id = m['instance-id'] ? m['instance-id'] : 'unknown'
               else
-                @datapoint.hostname = m['hostname'] ? m['hostname'] : 'unknown'
+                #@datapoint.hostname = m['hostname'] ? m['hostname'] : 'unknown'
                 @datapoint.ip_address = Facter.fact(:ipaddress).value
                 @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
               end

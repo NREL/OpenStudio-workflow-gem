@@ -62,7 +62,7 @@ module OpenStudio
           @datapoint.run_start_time = ::Time.now
 
 
-          # TODO: use a different method to determine if this is an amazon account
+          # TODO: Get Facter to play well on windows and replace 'socket'
           # TODO: use the ComputeNode model to pull out the information so that we can reuse the methods
           # Determine what the IP address is of the worker node and save in the data point
           require 'socket'
@@ -74,27 +74,30 @@ module OpenStudio
                 'os-worker-1' => '192.168.33.11',
                 'os-worker-2' => '192.168.33.12'
             }
+            @datapoint.hostname = Socket.gethostname
             @datapoint.ip_address = map[Socket.gethostname]
             @datapoint.internal_ip_address = @datapoint.ip_address
 
             # TODO: add back in the instance id
-          elsif Socket.gethostname =~ /instance-data.ec2.internal.*/i
-            # On amazon, you have to hit an API to determine the IP address because
-            # of the internal/external ip addresses
-
-            # NL: add the suppress
-            public_ip_address = `curl -sL http://169.254.169.254/latest/meta-data/public-ipv4`
-            internal_ip_address = `curl -sL http://169.254.169.254/latest/meta-data/local-ipv4`
-            # instance_information = `curl -sL http://169.254.169.254/latest/meta-data/instance-id`
-            # instance_information = `curl -sL http://169.254.169.254/latest/meta-data/ami-id`
-            @datapoint.ip_address = public_ip_address
-            @datapoint.internal_ip_address = internal_ip_address
-            # @datapoint.server_information = instance_information
           else
             if Gem.loaded_specs["facter"]
-              # TODO: add hostname via the facter gem (and anything else?)
-              @datapoint.ip_address = Facter.fact(:ipaddress).value
-              @datapoint.internal_ip_address = Facter.fact(:hostname).value
+              # Check if we are on amazon
+              if Facter.fact(:ec2_metadata)
+                # must be on amazon
+                m = Facter.fact(:ec2_metadata).value
+
+                @datapoint.hostname = m['public-hostname'] ? m['public-hostname'] : 'unknown'
+                # TODO: figure out how to version this because the models can be out of state
+                #@datapoint.local_hostname = m['local-hostname'] ? m['local-hostname'] : 'unknown'
+                @datapoint.ip_address = m['public-ipv4'] ? m['public-ipv4'] : 'unknown'
+                @datapoint.internal_ip_address = m['local-ipv4'] ? m['local-ipv4'] : 'unknown'
+                @datapoint.ami_id = m['ami-id'] ? m['ami-id'] : 'unknown'
+                @datapoint.instance_id = m['instance-id'] ? m['instance-id'] : 'unknown'
+              else
+                @datapoint.hostname = m['hostname'] ? m['hostname'] : 'unknown'
+                @datapoint.ip_address = Facter.fact(:ipaddress).value
+                @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
+              end
             end
           end
 

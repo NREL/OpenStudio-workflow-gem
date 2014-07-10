@@ -7,6 +7,9 @@ gem 'uuid'
 gem 'zip'
 gem 'facter', require: false
 
+# profiling should always be available
+gem 'ruby-prof', '~> 0.15.1'
+
 group :mongo do
   gem 'mongoid', '~> 3.1.6'
   gem 'paperclip', '~> 4.1.1'

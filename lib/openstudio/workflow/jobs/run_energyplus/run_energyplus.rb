@@ -92,7 +92,7 @@ class RunEnergyplus
       @logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
       File.open('stdout-expandobject', 'w') do |file|
-        IO.popen('ExpandObjects') do |io|
+        IO.popen('./ExpandObjects') do |io|
           while (line = io.gets)
             file << line
           end
@@ -107,7 +107,7 @@ class RunEnergyplus
 
       # create stdout
       File.open('stdout-energyplus', 'w') do |file|
-        IO.popen('EnergyPlus') do |io|
+        IO.popen('./EnergyPlus') do |io|
           while (line = io.gets)
             file << line
           end

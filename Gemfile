@@ -20,11 +20,11 @@ group :xml do
 end
 
 group :test do
-  gem "rspec", "~> 2.14"
+  gem 'rspec', '~> 2.14'
 end
 
 group :ci do
-  gem "ci_reporter", "~> 1.9.2"
-  gem 'rubocop', require: false
-  gem 'rubocop-checkstyle_formatter', require: false
+  gem 'ci_reporter', '~> 1.9.2'
+  gem 'rubocop'
+  gem 'rubocop-checkstyle_formatter'
 end

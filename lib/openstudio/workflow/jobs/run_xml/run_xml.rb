@@ -68,7 +68,7 @@ class RunXml
 
       apply_xml_measures
 
-      @logger.info "XML measure output attributes JSON is #{@output_attributes}"
+      #@logger.debug "XML measure output attributes JSON is #{@output_attributes}"
       File.open("#{@run_directory}/measure_attributes_xml.json", 'w') {
           |f| f << JSON.pretty_generate(@output_attributes)
       }

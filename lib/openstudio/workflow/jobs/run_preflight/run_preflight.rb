@@ -17,10 +17,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-
 # Run Prelight job to prepare the directory for simulations.
 class RunPreflight
-
   def initialize(directory, logger, adapter, options = {})
     defaults = {}
     @options = defaults.merge(options)
@@ -28,12 +26,10 @@ class RunPreflight
     @adapter = adapter
     @results = {}
     @logger = logger
-
   end
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
-
 
     @adapter.communicate_started @directory, @options
 

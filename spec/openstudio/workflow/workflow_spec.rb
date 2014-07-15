@@ -45,7 +45,7 @@ describe 'OpenStudio::Workflow' do
       end
 
     rescue LoadError
-      puts "No Mongo"
+      puts 'No Mongo'
     end
 
   end
@@ -54,16 +54,16 @@ describe 'OpenStudio::Workflow' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ex1'
     options = {
-        problem_filename: 'analysis_1.json',
-        datapoint_filename: 'datapoint_1.json',
-        analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true
+      problem_filename: 'analysis_1.json',
+      datapoint_filename: 'datapoint_1.json',
+      analysis_root_path: 'spec/files/example_models',
+      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.options[:problem_filename]).to eq 'analysis_1.json'
     expect(k.options[:datapoint_filename]).to eq 'datapoint_1.json'
-    expect(k.directory).to eq  File.expand_path(run_dir)
+    expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
   end
@@ -72,10 +72,10 @@ describe 'OpenStudio::Workflow' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ex2'
     options = {
-        problem_filename: 'analysis_1.json',
-        datapoint_filename: 'datapoint_1.json',
-        analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true
+      problem_filename: 'analysis_1.json',
+      datapoint_filename: 'datapoint_1.json',
+      analysis_root_path: 'spec/files/example_models',
+      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
@@ -98,16 +98,16 @@ describe 'OpenStudio::Workflow' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/mongo_ex1'
     options = {
-        datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
-        analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true,
-        adapter_options: {
-            mongoid_path: './spec/files/mongoid',
-        }
+      datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
+      analysis_root_path: 'spec/files/example_models',
+      use_monthly_reports: true,
+      adapter_options: {
+        mongoid_path: './spec/files/mongoid',
+      }
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.directory).to eq  File.expand_path(run_dir)
+    expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
   end
@@ -136,13 +136,13 @@ describe 'OpenStudio::Workflow' do
 
   it 'should create a new datapoint based on a list' do
     run_dir = './spec/files/dynamically_created'
-    dp_uuid = "random_datapoint_uuid"
+    dp_uuid = 'random_datapoint_uuid'
     options = {
-        datapoint_id: dp_uuid,
-        analysis_root_path: run_dir,
-        adapter_options: {
-            mongoid_path: './spec/files/mongoid'
-        }
+      datapoint_id: dp_uuid,
+      analysis_root_path: run_dir,
+      adapter_options: {
+        mongoid_path: './spec/files/mongoid'
+      }
     }
     k = OpenStudio::Workflow.load 'Mongo', "#{run_dir}/#{dp_uuid}", options
 
@@ -157,22 +157,22 @@ describe 'OpenStudio::Workflow' do
     expect(dp.id).to eq dp_uuid
 
     # check for logging
-    k.logger.info "Test log message"
-    expect(dp.sdp_log_file.last).not_to include "Test log message"
+    k.logger.info 'Test log message'
+    expect(dp.sdp_log_file.last).not_to include 'Test log message'
     dp.reload
-    expect(dp.sdp_log_file.last).to include "Test log message"
+    expect(dp.sdp_log_file.last).to include 'Test log message'
   end
 
   it 'should create a mongo file adapater and run the concise format', mongo: true do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/mongo_ex3'
     options = {
-        datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
-        analysis_root_path: 'spec/files/example_models',
-        use_monthly_reports: true,
-        adapter_options: {
-            mongoid_path: './spec/files/mongoid',
-        }
+      datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
+      analysis_root_path: 'spec/files/example_models',
+      use_monthly_reports: true,
+      adapter_options: {
+        mongoid_path: './spec/files/mongoid',
+      }
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
 
@@ -192,15 +192,15 @@ describe 'OpenStudio::Workflow' do
     expect(k.job_results).to be_a Hash
     expect(k.job_results[:run_postprocess][:lighting_loads_user_customized_name][:lighting_power_reduction_percent]).to be_within(1).of(26.375)
     # expect(k.job_results[:run_postprocess][:standard_report][:total_building_area]).to be_within(1).of(26.375)
-    #expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
+    # expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
     expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
 
-    #expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
+    # expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
     expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
 
     expect(File.exist?("#{run_dir}/objectives.json")).to eq true
     expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}.zip")).to eq true
-    objs = JSON.parse(File.read("#{run_dir}/objectives.json"), :symbolize_keys => true)
+    objs = JSON.parse(File.read("#{run_dir}/objectives.json"), symbolize_keys: true)
     expect(objs['objective_function_1']).to be_within(10).of(182)
     expect(objs['objective_function_target_1']).to be_within(1).of(1234)
     expect(objs['objective_function_group_2']).to eq(4)
@@ -232,6 +232,5 @@ describe 'OpenStudio::Workflow' do
   #   expect(k.run).to eq :finished
   #   expect(k.final_state).to eq :finished
   # end
-
 
 end

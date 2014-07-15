@@ -32,19 +32,18 @@ module OpenStudio
       attr_reader :final_state
       attr_reader :job_results
 
-
       # Create a nice name for the state object instead of aasm
-      alias state aasm
+      alias_method :state, :aasm
 
       # load the transitions
       def self.default_transition
         # TODO: replace these with dynamic states from a config file of some sort
         [
-            {from: :queued, to: :preflight},
-            {from: :preflight, to: :openstudio},
-            {from: :openstudio, to: :energyplus},
-            {from: :energyplus, to: :postprocess},
-            {from: :postprocess, to: :finished},
+          { from: :queued, to: :preflight },
+          { from: :preflight, to: :openstudio },
+          { from: :openstudio, to: :energyplus },
+          { from: :energyplus, to: :postprocess },
+          { from: :postprocess, to: :finished },
         ]
       end
 
@@ -53,13 +52,13 @@ module OpenStudio
       def self.default_states
         # TODO: replace this with some sort of dynamic store
         [
-            {state: :queued, :options => {initial: true}},
-            {state: :preflight, :options => {after_enter: :run_preflight}},
-            {state: :openstudio, :options => {after_enter: :run_openstudio}},
-            {state: :energyplus, :options => {after_enter: :run_energyplus}},
-            {state: :postprocess, :options => {after_enter: :run_postprocess}},
-            {state: :finished},
-            {state: :errored}
+          { state: :queued, options: { initial: true } },
+          { state: :preflight, options: { after_enter: :run_preflight } },
+          { state: :openstudio, options: { after_enter: :run_openstudio } },
+          { state: :energyplus, options: { after_enter: :run_energyplus } },
+          { state: :postprocess, options: { after_enter: :run_postprocess } },
+          { state: :finished },
+          { state: :errored }
         ]
       end
 
@@ -75,9 +74,9 @@ module OpenStudio
         @run_directory = "#{@directory}/run"
 
         defaults = {
-            transitions: OpenStudio::Workflow::Run.default_transition,
-            states: OpenStudio::Workflow::Run.default_states,
-            jobs: {}
+          transitions: OpenStudio::Workflow::Run.default_transition,
+          states: OpenStudio::Workflow::Run.default_states,
+          jobs: {}
         }
         @options = defaults.merge(options)
 
@@ -90,7 +89,7 @@ module OpenStudio
         FileUtils.mkdir_p(@run_directory)
 
         # There is a namespace conflict when OpenStudio is loaded: be careful!
-        log_file = File.open("#{@run_directory}/run.log", "a")
+        log_file = File.open("#{@run_directory}/run.log", 'a')
 
         l = @adapter.get_logger @directory, @options
         if l
@@ -112,8 +111,8 @@ module OpenStudio
       def run
         @logger.info "Starting workflow in #{@directory}"
         begin
-          while self.state.current_state != :finished && !@error
-            self.step
+          while state.current_state != :finished && !@error
+            step
           end
 
           @logger.info 'Finished workflow - communicating results and zipping files'
@@ -121,8 +120,8 @@ module OpenStudio
           # TODO: this should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
           if @job_results[:run_postprocess]
             # these are the results that need to be sent back to adapter
-            @logger.info "Sending the results back to the adapter"
-            #@logger.info "Sending communicate_results the following options #{@job_results}"
+            @logger.info 'Sending the results back to the adapter'
+            # @logger.info "Sending communicate_results the following options #{@job_results}"
             @adapter.communicate_results @directory, @job_results[:run_postprocess]
           end
         ensure
@@ -208,7 +207,7 @@ module OpenStudio
       # a single event of :step which steps through the transitions defined in the Hash in default_transitions
       # and calls the actions defined in the states in the Hash of default_states
       def machine
-        @logger.info "Initializing state machine"
+        @logger.info 'Initializing state machine'
         @options[:states].each do |s|
           s[:options] ? o = s[:options] : o = {}
           OpenStudio::Workflow::Run.aasm.states << AASM::State.new(s[:state], self.class, o)
@@ -228,18 +227,18 @@ module OpenStudio
         # Add in special event to error_out the state machine
         new_event = OpenStudio::Workflow::Run.aasm.event(:error_out)
         event = OpenStudio::Workflow::Run.aasm.events[:error_out]
-        event.transitions(:to => :errored)
+        event.transitions(to: :errored)
       end
 
       # Get any options that may have been sent into the class defining the workflow step
       def get_job_options
         result = {}
-        #if @options[:jobs].has_key?(state.current_state)
-        #logger.info "Retrieving job options from the @options array for #{state.current_state}"
+        # if @options[:jobs].has_key?(state.current_state)
+        # logger.info "Retrieving job options from the @options array for #{state.current_state}"
         #  result = @options[:jobs][state.current_state]
-        #end
+        # end
 
-        #result
+        # result
 
         # TODO fix this so that it gets the base config options plus its job options. Need to
         # also merge in all the former job results.

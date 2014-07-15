@@ -47,10 +47,10 @@ end
 # some core extensions
 class String
   def snake_case
-    self.gsub(/::/, '/').
-        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-        gsub(/([a-z\d])([A-Z])/,'\1_\2').
-        tr("-", "_").
+    gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
+        gsub(/([a-z\d])([A-Z])/, '\1_\2').
+        tr('-', '_').
         downcase
   end
 end
@@ -60,8 +60,8 @@ module OpenStudio
     extend self
 
     # Create a new workflow instance using the defined adapter and UUID
-    def load(adapter_name, run_directory, options={})
-      defaults = {adapter_options: {}}
+    def load(adapter_name, run_directory, options = {})
+      defaults = { adapter_options: {} }
       options = defaults.merge(options)
 
       # Convert various paths to absolute paths
@@ -85,10 +85,10 @@ module OpenStudio
 
     private
 
-    def load_adapter(name, adapter_options={})
+    def load_adapter(name, adapter_options = {})
       require "openstudio/workflow/adapters/#{name.downcase}"
       klass_name = name.to_s.split('_').map(&:capitalize) * ''
-      #pp "#{klass_name} is the adapter class name"
+      # pp "#{klass_name} is the adapter class name"
       klass = OpenStudio::Workflow::Adapters.const_get(klass_name).new(adapter_options)
       klass
     end

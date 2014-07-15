@@ -24,7 +24,6 @@ require 'csv'
 require 'ostruct'
 
 class RunPostprocess
-
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
@@ -56,7 +55,7 @@ class RunPostprocess
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
-    @logger.info "RunPostProcess Retrieving datapoint and problem"
+    @logger.info 'RunPostProcess Retrieving datapoint and problem'
 
     begin
       @datapoint_json = @adapter.get_datapoint(@directory, @options)
@@ -76,10 +75,10 @@ class RunPostprocess
         apply_measures(:reporting_measure)
       end
 
-      @logger.info "Saving reporting measures output attributes JSON"
-      File.open("#{@run_directory}/reporting_measure_attributes.json", 'w') {
+      @logger.info 'Saving reporting measures output attributes JSON'
+      File.open("#{@run_directory}/reporting_measure_attributes.json", 'w') do
           |f| f << JSON.pretty_generate(@output_attributes)
-      }
+      end
 
       run_extract_inputs_and_outputs
 
@@ -89,9 +88,9 @@ class RunPostprocess
       File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(@objective_functions) }
 
       cleanup
-    rescue Exception => e
+    rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      fail log_message
+      raise log_message
     end
 
     @results
@@ -126,7 +125,7 @@ class RunPostprocess
     end
 
     # Remove empty directories in run folder
-    Dir["#{@run_directory}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w[ . .. ]).empty? }.each { |d| Dir.rmdir d }
+    Dir["#{@run_directory}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w(. ..)).empty? }.each { |d| Dir.rmdir d }
 
     paths_to_rm = []
     # paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")
@@ -172,7 +171,7 @@ class RunPostprocess
     if File.exist?("#{@run_directory}/standard_report_legacy.json")
       @results[:standard_report_legacy] = JSON.parse(File.read("#{@run_directory}/standard_report_legacy.json"), symbolize_names: true)
 
-      @logger.info "Iterating over Analysis JSON Output Variables"
+      @logger.info 'Iterating over Analysis JSON Output Variables'
       # Save the objective functions to the object for sending back to the simulation executive
 
       @analysis_json[:analysis][:output_variables].each do |variable|
@@ -234,7 +233,7 @@ class RunPostprocess
 
   private
 
-# Load in the OpenStudio model. It is required for postprocessing
+  # Load in the OpenStudio model. It is required for postprocessing
   def load_model(filename)
     model = nil
     @logger.info 'Loading model'
@@ -258,11 +257,11 @@ class RunPostprocess
   def run_packaged_measures
     # configure the workflow item json to pass
     workflow_item = {
-        display_name: 'Standard Reports',
-        measure_definition_directory: File.expand_path(File.join(File.dirname(__FILE__), 'packaged_measures', 'StandardReports', 'measure.rb')),
-        measure_definition_class_name: "StandardReports",
-        measure_type: 'ReportingMeasure',
-        name: 'standard_reports'
+      display_name: 'Standard Reports',
+      measure_definition_directory: File.expand_path(File.join(File.dirname(__FILE__), 'packaged_measures', 'StandardReports', 'measure.rb')),
+      measure_definition_class_name: 'StandardReports',
+      measure_type: 'ReportingMeasure',
+      name: 'standard_reports'
     }
     @logger.info 'Running packaged reporting measures'
 
@@ -302,7 +301,7 @@ class RunPostprocess
       else
         begin
           val = result.get
-        rescue Exception => e
+        rescue => e
           @logger.info "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
           val = nil
         end
@@ -384,13 +383,13 @@ class RunPostprocess
       if val.nil?
         val = 0
 
-        ["INTERIORLIGHTS:ELECTRICITY", "EXTERIORLIGHTS:ELECTRICITY", "INTERIOREQUIPMENT:ELECTRICITY", "EXTERIOREQUIPMENT:ELECTRICITY",
-         "FANS:ELECTRICITY", "PUMPS:ELECTRICITY", "HEATING:ELECTRICITY", "COOLING:ELECTRICITY", "HEATREJECTION:ELECTRICITY",
-         "HUMIDIFIER:ELECTRICITY", "HEATRECOVERY:ELECTRICITY", "WATERSYSTEMS:ELECTRICITY", "COGENERATION:ELECTRICITY", "REFRIGERATION:ELECTRICITY"].each do |end_use|
+        ['INTERIORLIGHTS:ELECTRICITY', 'EXTERIORLIGHTS:ELECTRICITY', 'INTERIOREQUIPMENT:ELECTRICITY', 'EXTERIOREQUIPMENT:ELECTRICITY',
+         'FANS:ELECTRICITY', 'PUMPS:ELECTRICITY', 'HEATING:ELECTRICITY', 'COOLING:ELECTRICITY', 'HEATREJECTION:ELECTRICITY',
+         'HUMIDIFIER:ELECTRICITY', 'HEATRECOVERY:ELECTRICITY', 'WATERSYSTEMS:ELECTRICITY', 'COGENERATION:ELECTRICITY', 'REFRIGERATION:ELECTRICITY'].each do |end_use|
 
           tmp_query = query + " AND ColumnName='#{end_use}'"
           tmp_val = sql_query(sql, 'BUILDING ENERGY PERFORMANCE - ELECTRICITY', tmp_query)
-          val += tmp_val if not tmp_val.nil?
+          val += tmp_val unless tmp_val.nil?
         end
       end
 
@@ -490,7 +489,6 @@ class RunPostprocess
     end
   end
 
-
   # TODO: This is ugly.  Move this out of here entirely and into a reporting measure if we need it at all
   def run_standard_postprocess
     def sql_query(sql, report_name, query)
@@ -501,7 +499,7 @@ class RunPostprocess
       else
         begin
           val = result.get
-        rescue Exception => e
+        rescue => e
           @logger.info "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
           val = nil
         end
@@ -537,7 +535,7 @@ class RunPostprocess
       hash['data']['variables'] << values_hash
     end
 
-# add results from sql method
+    # add results from sql method
     def add_data(sql, query, hdr, area, val)
       row = []
       val = sql_query(sql, 'AnnualBuildingUtilityPerformanceSummary', query) if val.nil?
@@ -549,7 +547,6 @@ class RunPostprocess
       end
       row
     end
-
 
     # open sql file
     sql_file = OpenStudio::SqlFile.new(@sql_filename)
@@ -598,7 +595,5 @@ class RunPostprocess
         csv << row
       end
     end
-
   end
-
 end

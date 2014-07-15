@@ -21,10 +21,9 @@ require 'libxml'
 
 # This actually belongs as another class that gets added as a state dynamically
 class RunXml
-
   # RunXml
   def initialize(directory, logger, adapter, options = {})
-    defaults = {use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb'}
+    defaults = { use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb' }
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -36,7 +35,7 @@ class RunXml
 
     # initialize instance variables that are needed in the perform section
     @weather_filename = nil
-    @weather_directory = File.expand_path(File.join(@options[:analysis_root_path], "weather"))
+    @weather_directory = File.expand_path(File.join(@options[:analysis_root_path], 'weather'))
     @logger.info "Weather directory is: #{@weather_directory}"
     @model_xml = nil
     @model = nil
@@ -47,18 +46,17 @@ class RunXml
     @output_attributes = {}
     @report_measures = []
     @measure_type_lookup = {
-        :openstudio_measure => 'RubyMeasure',
-        :energyplus_measure => 'EnergyPlusMeasure',
-        :reporting_measure => 'ReportingMeasure'
+      openstudio_measure: 'RubyMeasure',
+      energyplus_measure: 'EnergyPlusMeasure',
+      reporting_measure: 'ReportingMeasure'
     }
   end
-
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
     @logger.info "Current directory is #{@directory}"
 
-    @logger.info "Retrieving datapoint and problem"
+    @logger.info 'Retrieving datapoint and problem'
     @datapoint_json = @adapter.get_datapoint(@directory, @options)
     @analysis_json = @adapter.get_problem(@directory, @options)
 
@@ -68,10 +66,10 @@ class RunXml
 
       apply_xml_measures
 
-      #@logger.debug "XML measure output attributes JSON is #{@output_attributes}"
-      File.open("#{@run_directory}/measure_attributes_xml.json", 'w') {
+      # @logger.debug "XML measure output attributes JSON is #{@output_attributes}"
+      File.open("#{@run_directory}/measure_attributes_xml.json", 'w') do
           |f| f << JSON.pretty_generate(@output_attributes)
-      }
+      end
     end
 
     create_osm_from_xml
@@ -125,7 +123,6 @@ class RunXml
           @logger.warn "Could not find weather file for simulation #{weather_filename}. Will continue because may change"
         end
 
-
       else
         fail 'No weather file path defined'
       end
@@ -151,9 +148,9 @@ class RunXml
     begin
       osxt = Main.new(@weather_directory, @space_lib_path)
       osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, true)
-    rescue Exception => e
+    rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      fail log_message
+      raise log_message
     end
 
     if osm
@@ -167,7 +164,7 @@ class RunXml
 
     @results[:osm_filename] = File.expand_path(osm_filename)
     @results[:xml_filename] = File.expand_path(xml_filename)
-    @results[:weather_filename] = File.expand_path(File.join(@weather_directory,@weather_filename))
+    @results[:weather_filename] = File.expand_path(File.join(@weather_directory, @weather_filename))
   end
 
   def apply_xml_measures
@@ -268,6 +265,5 @@ class RunXml
         end
       end
     end
-
   end
 end

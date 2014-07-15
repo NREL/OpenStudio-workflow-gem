@@ -182,7 +182,7 @@ class RunPostprocess
           # TODO: move this to cleaner logic. Use ostruct?
           if variable[:name].include? '.'
             k, v = variable[:name].split('.')
-            if @results[k.to_sym][v.to_sym]
+            if @results.key?(k.to_sym) && @results[k.to_sym][v.to_sym]
               @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
               if variable[:objective_function_target]
                 @logger.info "Found objective function target for #{variable[:name]}"
@@ -204,7 +204,7 @@ class RunPostprocess
               @objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = nil
             end
           else
-            # variable name is not nested -- this is for legacy purposes and should be deleted 9/30/2014
+            # variable name is not nested with the '.' -- this is for legacy purposes and should be deleted on 9/30/2014
             if @results[variable[:name]]
               @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
               if variable[:objective_function_target]

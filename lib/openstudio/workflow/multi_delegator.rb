@@ -20,10 +20,10 @@
 require 'logger'
 
 class Logger
-  def format_message(severity, datetime, progname, msg)
-    #"#{datetime} (#{$$}) #{msg}\n"
-    #"#{datetime}: #{msg}\n"
-    "[%s %s] %s\n" % [ datetime.strftime("%H:%M:%S.%6N"), severity, msg ]
+  def format_message(severity, datetime, _progname, msg)
+    # "#{datetime} (#{$$}) #{msg}\n"
+    # "#{datetime}: #{msg}\n"
+    "[%s %s] %s\n" % [datetime.strftime('%H:%M:%S.%6N'), severity, msg]
   end
 end
 
@@ -43,6 +43,6 @@ class MultiDelegator
   end
 
   class <<self
-    alias to new
+    alias_method :to, :new
   end
 end

@@ -29,11 +29,10 @@
 module OpenStudio
   module Workflow
     module ApplyMeasures
-
       MEASURE_TYPES = {
-          :openstudio_measure => 'RubyMeasure',
-          :energyplus_measure => 'EnergyPlusMeasure',
-          :reporting_measure => 'ReportingMeasure'
+        openstudio_measure: 'RubyMeasure',
+        energyplus_measure: 'EnergyPlusMeasure',
+        reporting_measure: 'ReportingMeasure'
       }
 
       def apply_arguments(argument_map, argument)
@@ -49,7 +48,7 @@ module OpenStudio
           argument_map[argument[:name]] = v.clone
         else
           @logger.warn "Value for argument '#{argument[:name]}' not set in argument list therefore will use default"
-          #success = false
+          # success = false
 
           # TODO: what is the fail case (success = false?)
         end
@@ -79,7 +78,7 @@ module OpenStudio
                 argument_map[variable_name] = v.clone
               else
                 fail "[ERROR] Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
-                #@logger.error "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
+                # @logger.error "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
                 # success = false
               end
             else
@@ -137,13 +136,13 @@ module OpenStudio
           arguments.each do |v|
             argument_map[v.name] = v.clone
           end
-          #@logger.info "Argument map for measure is #{argument_map}"
+          # @logger.info "Argument map for measure is #{argument_map}"
 
           @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
           if workflow_item[:arguments]
             workflow_item[:arguments].each do |argument|
               success = apply_arguments(argument_map, argument)
-              fail "Could not set arguments" unless success
+              fail 'Could not set arguments' unless success
             end
           end
 
@@ -151,7 +150,7 @@ module OpenStudio
           if workflow_item[:variables]
             workflow_item[:variables].each do |variable|
               success = apply_variables(argument_map, variable)
-              fail "Could not set variables" unless success
+              fail 'Could not set variables' unless success
             end
           end
 
@@ -169,9 +168,9 @@ module OpenStudio
 
               measure.run(runner, argument_map)
             end
-          rescue Exception => e
+          rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-            fail log_message
+            raise log_message
           end
 
           begin
@@ -188,15 +187,15 @@ module OpenStudio
             end
             fail "Measure #{measure_name} reported an error, check log" if an_error
             result.info.each { |w| @logger.info w.logMessage }
-          rescue Exception => e
+          rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-            fail log_message
+            raise log_message
           end
 
           begin
-            measure_attributes = JSON.parse(OpenStudio::toJSON(result.attributes), symbolize_names: true)
+            measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
             @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
-          rescue Exception => e
+          rescue => e
             log_message = "TODO: #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             @logger.warn log_message
           end

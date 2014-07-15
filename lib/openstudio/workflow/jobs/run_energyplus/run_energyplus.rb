@@ -18,19 +18,17 @@
 ######################################################################
 
 class RunEnergyplus
-
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, adapter, options = {})
-    
     energyplus_path = nil
     if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
       energyplus_path = 'C:/EnergyPlus-8-1-0'
     else
-      energyplus_path ='/usr/local/EnergyPlus-8-1-0'
+      energyplus_path = '/usr/local/EnergyPlus-8-1-0'
     end
-    
+
     defaults = {
       energyplus_path: energyplus_path
     }
@@ -64,8 +62,8 @@ class RunEnergyplus
     end
 
     # Need to check the in.idf and in.osm
-    #FileUtils.copy(options[:osm], "#{@run_directory}/in.osm")
-    #FileUtils.copy(options[:idf], "#{@run_directory}/in.idf")
+    # FileUtils.copy(options[:osm], "#{@run_directory}/in.osm")
+    # FileUtils.copy(options[:idf], "#{@run_directory}/in.idf")
 
     # can't create symlinks because the /vagrant mount is actually a windows mount
     @logger.info "Copying EnergyPlus files to run directory: #{@run_directory}"
@@ -114,7 +112,7 @@ class RunEnergyplus
         end
       end
 
-    rescue Exception => e
+    rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       @logger.error log_message
     ensure

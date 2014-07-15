@@ -37,7 +37,7 @@ module OpenStudio
       class Mongo < Adapter
         attr_reader :datapoint
 
-        def initialize(options={})
+        def initialize(options = {})
           super
 
           require 'mongoid'
@@ -52,7 +52,7 @@ module OpenStudio
         end
 
         # Tell the system that the process has started
-        def communicate_started(directory, options={})
+        def communicate_started(directory, options = {})
           # Watch out for namespace conflicts (::Time is okay but Time is OpenStudio::Time)
           File.open("#{directory}/started.job", 'w') { |f| f << "Started Workflow #{::Time.now}" }
 
@@ -60,7 +60,6 @@ module OpenStudio
           @datapoint.status = 'started'
           @datapoint.status_message = ''
           @datapoint.run_start_time = ::Time.now
-
 
           # TODO: Get Facter to play well on windows and replace 'socket'
           # TODO: use the ComputeNode model to pull out the information so that we can reuse the methods
@@ -70,14 +69,14 @@ module OpenStudio
             # Maybe use this in the future: /sbin/ifconfig eth1|grep inet|head -1|sed 's/\:/ /'|awk '{print $3}'
             # Must be on vagrant and just use the hostname to do a lookup
             map = {
-                'os-server' => '192.168.33.10',
-                'os-worker-1' => '192.168.33.11',
-                'os-worker-2' => '192.168.33.12'
+              'os-server' => '192.168.33.10',
+              'os-worker-1' => '192.168.33.11',
+              'os-worker-2' => '192.168.33.12'
             }
             @datapoint.ip_address = map[Socket.gethostname]
             @datapoint.internal_ip_address = @datapoint.ip_address
           else
-            if Gem.loaded_specs["facter"]
+            if Gem.loaded_specs['facter']
               # Check if we are on amazon
               if Facter.fact(:ec2_metadata)
                 # must be on amazon
@@ -96,7 +95,7 @@ module OpenStudio
         end
 
         # Get the data point from the path
-        def get_datapoint(directory, options={})
+        def get_datapoint(_directory, options = {})
           # TODO : make this a conditional on when to create one vs when to error out.
           # keep @datapoint as the model instance
           @datapoint = DataPoint.find_or_create_by(uuid: options[:datapoint_id])
@@ -106,12 +105,12 @@ module OpenStudio
           unless @datapoint.nil?
             datapoint_hash[:data_point] = @datapoint.as_document.to_hash
             # TODO: Can i remove this openstudio_version stuff?
-            #datapoint_hash[:openstudio_version] = datapoint_hash[:openstudio_version]
+            # datapoint_hash[:openstudio_version] = datapoint_hash[:openstudio_version]
 
             # TODO: need to figure out how to get symbols from mongo.
             datapoint_hash = MultiJson.load(MultiJson.dump(datapoint_hash, pretty: true), symbolize_keys: true)
           else
-            fail "Could not find datapoint"
+            fail 'Could not find datapoint'
           end
 
           datapoint_hash
@@ -119,7 +118,7 @@ module OpenStudio
 
         # TODO: cleanup these options.  Make them part of the class. They are just unwieldly here.
         def get_problem(directory, options = {})
-          defaults = {format: 'json'}
+          defaults = { format: 'json' }
           options = defaults.merge(options)
 
           get_datapoint(directory, options) unless @datapoint
@@ -127,7 +126,7 @@ module OpenStudio
           if @datapoint
             analysis = @datapoint.analysis.as_document.to_hash
           else
-            fail "Cannot retrieve problem because datapoint was nil"
+            fail 'Cannot retrieve problem because datapoint was nil'
           end
 
           analysis_hash = {}
@@ -141,11 +140,11 @@ module OpenStudio
           analysis_hash
         end
 
-        def communicate_intermediate_result(directory)
+        def communicate_intermediate_result(_directory)
           # noop
         end
 
-        def communicate_complete(directory)
+        def communicate_complete(_directory)
           @datapoint.run_end_time = ::Time.now
           @datapoint.status = 'completed'
           @datapoint.status_message = 'completed normal'
@@ -169,21 +168,21 @@ module OpenStudio
         def communicate_results(directory, results)
           zip_results(directory, 'workflow')
 
-          #@logger.info 'Saving EnergyPlus JSON file'
+          # @logger.info 'Saving EnergyPlus JSON file'
           if results
             @datapoint.results ? @datapoint.results.merge!(results) : @datapoint.results = results
           end
           result = @datapoint.save! # redundant because next method calls save too.
 
           if result
-            #@logger.info 'Successfully saved result to database'
+            # @logger.info 'Successfully saved result to database'
           else
-            #@logger.error 'ERROR saving result to database'
+            # @logger.error 'ERROR saving result to database'
           end
         end
 
         # TODO: can this be deprecated in favor a checking the class?
-        def communicate_results_json(eplus_json, analysis_dir)
+        def communicate_results_json(_eplus_json, _analysis_dir)
           # noop
         end
 
@@ -193,7 +192,7 @@ module OpenStudio
         end
 
         # TODO: Implement the writing to the mongo_db for logging
-        def get_logger(directory, options={})
+        def get_logger(directory, options = {})
           # get the datapoint object
           get_datapoint(directory, options) unless @datapoint
           @log = OpenStudio::Workflow::Adapters::MongoLog.new(@datapoint)
@@ -209,10 +208,10 @@ module OpenStudio
         end
 
         # TODO: this uses a system call to zip results at the moment
-        def zip_results(analysis_dir, analysis_type = 'workflow')
+        def zip_results(analysis_dir, _analysis_type = 'workflow')
           current_dir = Dir.pwd
           # create zip file using a system call
-          #@logger.info "Zipping up Analysis Directory #{analysis_dir}"
+          # @logger.info "Zipping up Analysis Directory #{analysis_dir}"
           if File.directory? analysis_dir
             Dir.chdir(analysis_dir)
             `zip -9 -r --exclude=*.rb* data_point_#{@datapoint.uuid}.zip .`
@@ -220,7 +219,7 @@ module OpenStudio
 
           # zip up only the reports folder
           report_dir = "#{analysis_dir}"
-          #@logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
+          # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
           if File.directory? report_dir
             Dir.chdir(report_dir)
             `zip -r data_point_#{@datapoint.uuid}_reports.zip reports`

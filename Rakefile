@@ -12,7 +12,7 @@ require 'rake'
 require 'rspec/core'
 require 'rspec/core/rake_task'
 
-#require 'rubocop/rake_task'
+# require 'rubocop/rake_task'
 RSpec::Core::RakeTask.new(:spec) do |spec|
   spec.rspec_opts = %w(--format progress --format CI::Reporter::RSpec)
   spec.pattern = FileList['spec/**/*_spec.rb']

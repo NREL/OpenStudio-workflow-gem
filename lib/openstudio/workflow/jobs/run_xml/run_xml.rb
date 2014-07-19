@@ -23,7 +23,7 @@ require 'libxml'
 class RunXml
   # RunXml
   def initialize(directory, logger, adapter, options = {})
-    defaults = { use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb' }
+    defaults = {use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb'}
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -46,9 +46,9 @@ class RunXml
     @output_attributes = {}
     @report_measures = []
     @measure_type_lookup = {
-      openstudio_measure: 'RubyMeasure',
-      energyplus_measure: 'EnergyPlusMeasure',
-      reporting_measure: 'ReportingMeasure'
+        openstudio_measure: 'RubyMeasure',
+        energyplus_measure: 'EnergyPlusMeasure',
+        reporting_measure: 'ReportingMeasure'
     }
   end
 
@@ -64,11 +64,17 @@ class RunXml
       @model_xml = load_xml_model
       @weather_filename = load_weather_file
 
-      apply_xml_measures
+      begin
+        apply_xml_measures
+      rescue => e
+        log_message = "Exception during 'apply_xml_measure' with #{e.message}, #{e.backtrace.join("\n")}"
+        fail log_message
+      end
 
       # @logger.debug "XML measure output attributes JSON is #{@output_attributes}"
       File.open("#{@run_directory}/measure_attributes_xml.json", 'w') do
-          |f| f << JSON.pretty_generate(@output_attributes)
+      |f|
+        f << JSON.pretty_generate(@output_attributes)
       end
     end
 

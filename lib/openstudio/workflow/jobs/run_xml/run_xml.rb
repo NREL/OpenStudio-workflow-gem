@@ -153,7 +153,7 @@ class RunXml
     @logger.info "The weather file is #{@weather_filename}"
     begin
       osxt = Main.new(@weather_directory, @space_lib_path)
-      osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, true)
+      osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, false, true)
     rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       raise log_message

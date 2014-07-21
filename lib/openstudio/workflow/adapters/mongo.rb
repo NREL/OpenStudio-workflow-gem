@@ -64,30 +64,49 @@ module OpenStudio
           # TODO: Get Facter to play well on windows and replace 'socket'
           # TODO: use the ComputeNode model to pull out the information so that we can reuse the methods
           # Determine what the IP address is of the worker node and save in the data point
-          require 'socket'
-          if Socket.gethostname =~ /os-.*/
-            # Maybe use this in the future: /sbin/ifconfig eth1|grep inet|head -1|sed 's/\:/ /'|awk '{print $3}'
-            # Must be on vagrant and just use the hostname to do a lookup
-            map = {
-              'os-server' => '192.168.33.10',
-              'os-worker-1' => '192.168.33.11',
-              'os-worker-2' => '192.168.33.12'
-            }
-            @datapoint.ip_address = map[Socket.gethostname]
-            @datapoint.internal_ip_address = @datapoint.ip_address
-          else
-            if Gem.loaded_specs['facter']
-              # Check if we are on amazon
-              if Facter.fact(:ec2_metadata)
-                # must be on amazon
-                m = Facter.fact(:ec2_metadata).value
 
-                @datapoint.ip_address = m['public-ipv4'] ? m['public-ipv4'] : 'unknown'
-                @datapoint.internal_ip_address = m['local-ipv4'] ? m['local-ipv4'] : 'unknown'
-              else
-                @datapoint.ip_address = Facter.fact(:ipaddress).value
-                @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
+          retries = 0
+          begin
+            require 'socket'
+            if Socket.gethostname =~ /os-.*/
+              # Maybe use this in the future: /sbin/ifconfig eth1|grep inet|head -1|sed 's/\:/ /'|awk '{print $3}'
+              # Must be on vagrant and just use the hostname to do a lookup
+              map = {
+                  'os-server' => '192.168.33.10',
+                  'os-worker-1' => '192.168.33.11',
+                  'os-worker-2' => '192.168.33.12'
+              }
+              @datapoint.ip_address = map[Socket.gethostname]
+              @datapoint.internal_ip_address = @datapoint.ip_address
+            else
+              if Gem.loaded_specs['facter']
+                # Check if we are on amazon
+                if Facter.fact(:ec2_metadata)
+                  # must be on amazon
+                  m = Facter.fact(:ec2_metadata).value
+
+                  @datapoint.ip_address = m['public-ipv4'] ? m['public-ipv4'] : 'unknown'
+                  @datapoint.internal_ip_address = m['local-ipv4'] ? m['local-ipv4'] : 'unknown'
+                else
+                  @datapoint.ip_address = Facter.fact(:ipaddress).value
+                  @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
+                end
               end
+            end
+          rescue => e
+            # catch any exceptions. It appears that if a new instance of amazon starts, then it is likely that
+            # the Facter for AWS may not be initialized yet. Retry after waiting for 15 seconds if this happens.
+            # If this fails out, then the only issue with this is that the data point won't be downloaded because
+            # the worker node is not known
+
+            # retry just in case
+            if retries < 3
+              retries += 1
+              sleep 15
+              retry
+            else
+              fail 'could not find Facter based data for worker node'
+              # just do nothing for now
             end
           end
 
@@ -118,7 +137,7 @@ module OpenStudio
 
         # TODO: cleanup these options.  Make them part of the class. They are just unwieldly here.
         def get_problem(directory, options = {})
-          defaults = { format: 'json' }
+          defaults = {format: 'json'}
           options = defaults.merge(options)
 
           get_datapoint(directory, options) unless @datapoint

@@ -148,12 +148,12 @@ describe 'OpenStudio::Workflow' do
 
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.directory).to eq File.expand_path("#{run_dir}/#{dp_uuid}")
-    expect(File.exist?(k.directory)).to be_true
+    expect(File.exist?(k.directory)).to be true
 
     # TODO: move this into a method to handle the creation
     # if this is mongo adapter, then it will have the models loaded
     dp = DataPoint.find_or_create_by(uuid: dp_uuid)
-    expect(dp.save!).to be_true
+    expect(dp.save!).to be true
     expect(dp.id).to eq dp_uuid
 
     # check for logging

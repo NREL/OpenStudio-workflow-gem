@@ -145,15 +145,17 @@ class RunXml
     @model_xml.save(xml_filename)
 
     @logger.info 'Starting XML to OSM translation'
-
-    # set the lib path first -- very specific for this applciation right now
-    @space_lib_path = File.expand_path("#{File.dirname(@options[:xml_library_file])}/space_types")
-    require @options[:xml_library_file]
-
-    @logger.info "The weather file is #{@weather_filename}"
     begin
+      # set the lib path first -- very specific for this application right now
+      @space_lib_path = File.expand_path("#{File.dirname(@options[:xml_library_file])}/space_types")
+      require @options[:xml_library_file]
+
+      @logger.info "The weather file is #{@weather_filename}"
+
       osxt = Main.new(@weather_directory, @space_lib_path)
+      # def process(as_xml, ideal_loads=false, optimized_model=false, return_objects=false)
       osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, false, true)
+      #return [model, idf_model, zones_xml, building_name, weather_file]
     rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       raise log_message

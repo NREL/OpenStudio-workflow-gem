@@ -100,12 +100,12 @@ module OpenStudio
             # the worker node is not known
 
             # retry just in case
-            if retries < 3
+            if retries < 30  # try for up to 5 minutes
               retries += 1
-              sleep 15
+              sleep 10
               retry
             else
-              fail 'could not find Facter based data for worker node'
+              fail "could not find Facter based data for worker node after #{retries} retries with message #{e.message}"
               # just do nothing for now
             end
           end

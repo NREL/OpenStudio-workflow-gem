@@ -136,10 +136,6 @@
                             "version_uuid": "d21d4690-babe-0131-eb7d-14109fdf0b37"
                         }
                     ],
-                    "bcl_measure_directory": "./measures/ReduceLightingLoadsByPercentage",
-                    "bcl_measure_class_name": "ReduceLightingLoadsByPercentage",
-                    "bcl_measure_uuid": "d2190300-babe-0131-eb67-14109fdf0b37",
-                    "bcl_measure_version_uuid": "d2191e60-babe-0131-eb68-14109fdf0b37",
                     "measure_definition_directory": "./measures/ReduceLightingLoadsByPercentage",
                     "measure_definition_class_name": "ReduceLightingLoadsByPercentage",
                     "measure_definition_uuid": "d2193ce0-babe-0131-eb69-14109fdf0b37",
@@ -202,10 +198,6 @@
                 },
                 {
                     "arguments": null,
-                    "bcl_measure_directory": "./measures/RotateBuilding",
-                    "bcl_measure_class_name": "RotateBuilding",
-                    "bcl_measure_uuid": "d21d6860-babe-0131-eb7e-14109fdf0b37",
-                    "bcl_measure_version_uuid": "d21d84d0-babe-0131-eb7f-14109fdf0b37",
                     "measure_definition_directory": "./measures/RotateBuilding",
                     "measure_definition_class_name": "RotateBuilding",
                     "measure_definition_uuid": "d21da2a0-babe-0131-eb80-14109fdf0b37",
@@ -296,10 +288,6 @@
                             "version_uuid": "d224f910-babe-0131-eb91-14109fdf0b37"
                         }
                     ],
-                    "bcl_measure_directory": "./measures/IncreaseInsulationRValueForExteriorWalls",
-                    "bcl_measure_class_name": "IncreaseInsulationRValueForExteriorWalls",
-                    "bcl_measure_uuid": "d21e6340-babe-0131-eb85-14109fdf0b37",
-                    "bcl_measure_version_uuid": "d21e81a0-babe-0131-eb86-14109fdf0b37",
                     "measure_definition_directory": "./measures/IncreaseInsulationRValueForExteriorWalls",
                     "measure_definition_class_name": "IncreaseInsulationRValueForExteriorWalls",
                     "measure_definition_uuid": "d21e9d60-babe-0131-eb87-14109fdf0b37",
@@ -390,10 +378,6 @@
                             "version_uuid": "d229bd30-babe-0131-eba1-14109fdf0b37"
                         }
                     ],
-                    "bcl_measure_directory": "./measures/IncreaseInsulationRValueForRoofs",
-                    "bcl_measure_class_name": "IncreaseInsulationRValueForRoofs",
-                    "bcl_measure_uuid": "d225d590-babe-0131-eb92-14109fdf0b37",
-                    "bcl_measure_version_uuid": "d2261ac0-babe-0131-eb93-14109fdf0b37",
                     "measure_definition_directory": "./measures/IncreaseInsulationRValueForRoofs",
                     "measure_definition_class_name": "IncreaseInsulationRValueForRoofs",
                     "measure_definition_uuid": "d22664c0-babe-0131-eb94-14109fdf0b37",
@@ -408,7 +392,6 @@
                                 "display_name": "Roof Insulation R-value",
                                 "machine_name": "roof_insulation_r_value",
                                 "name": "r_value",
-                                "required": false,
                                 "uuid": "d25c4d40-babe-0131-ebd1-14109fdf0b37",
                                 "version_uuid": "d2272c00-babe-0131-eb99-14109fdf0b37"
                             },
@@ -489,10 +472,6 @@
                             "version_uuid": "d22ce9b0-babe-0131-ebac-14109fdf0b37"
                         }
                     ],
-                    "bcl_measure_directory": "./measures/SetWindowToWallRatioByFacade",
-                    "bcl_measure_class_name": "SetWindowToWallRatioByFacade",
-                    "bcl_measure_uuid": "d229e6b0-babe-0131-eba2-14109fdf0b37",
-                    "bcl_measure_version_uuid": "d22a0d50-babe-0131-eba3-14109fdf0b37",
                     "measure_definition_directory": "./measures/SetWindowToWallRatioByFacade",
                     "measure_definition_class_name": "SetWindowToWallRatioByFacade",
                     "measure_definition_uuid": "d22a4210-babe-0131-eba4-14109fdf0b37",
@@ -574,10 +553,6 @@
                             "version_uuid": "d22f3ca0-babe-0131-ebb6-14109fdf0b37"
                         }
                     ],
-                    "bcl_measure_directory": "./measures/XcelEDATariffSelectionandModelSetup",
-                    "bcl_measure_class_name": "XcelEDATariffSelectionandModelSetup",
-                    "bcl_measure_uuid": "d22d2740-babe-0131-ebad-14109fdf0b37",
-                    "bcl_measure_version_uuid": "d22d6550-babe-0131-ebae-14109fdf0b37",
                     "measure_definition_directory": "./measures/XcelEDATariffSelectionandModelSetup",
                     "measure_definition_class_name": "XcelEDATariffSelectionandModelSetup",
                     "measure_definition_uuid": "d22d9c80-babe-0131-ebaf-14109fdf0b37",

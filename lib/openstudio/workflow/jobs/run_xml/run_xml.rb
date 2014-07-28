@@ -221,12 +221,12 @@ class RunXml
           if wf[:variables]
             wf[:variables].each do |wf_var|
               # Argument hash in workflow looks like the following
-              # "argument": {
-              #    "display_name": "Window-To-Wall Ratio",
-              #    "machine_name": "window_to_wall_ratio",
-              #    "name": "value",
-              #    "uuid": "a0618d15-bb0b-4494-a72f-8ad628693a7e",
-              #    "version_uuid": "b33cf6b0-f1aa-4706-afab-9470e6bd1912"
+              # argument: {
+              #     display_name: "Window-To-Wall Ratio",
+              #     display_name_short: "Window-To-Wall Ratio",
+              #     name: "value",
+              #     value_type: "double",
+              #     uuid: "27909cb0-f8c9-0131-9b05-14109fdf0b37"
               # },
               variable_uuid = wf_var[:uuid].to_sym # this is what the variable value is set to
               if wf_var[:argument]
@@ -236,10 +236,10 @@ class RunXml
                 if @datapoint_json[:data_point]
                   if @datapoint_json[:data_point][:set_variable_values]
                     unless @datapoint_json[:data_point][:set_variable_values][variable_uuid].nil?
-                      @logger.info "Setting variable #{variable_name} to #{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}"
+                      @logger.info "Setting variable '#{variable_name}' to '#{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}'"
 
                       args[wf_var[:argument][:name].to_sym] = @datapoint_json[:data_point][:set_variable_values][variable_uuid]
-                      args["#{wf_var[:argument][:name]}_machine_name".to_sym] = wf_var[:argument][:machine_name]
+                      args["#{wf_var[:argument][:name]}_machine_name".to_sym] = wf_var[:argument][:display_name].snake_case
                       args["#{wf_var[:argument][:name]}_type".to_sym] = wf_var[:value_type] if wf_var[:value_type]
                       @logger.info "Setting the machine name for argument '#{wf_var[:argument][:name]}' to '#{args["#{wf_var[:argument][:name]}_machine_name".to_sym]}'"
 

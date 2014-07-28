@@ -118,11 +118,13 @@ class RunPostprocess
 
     # Also, find any "report.html" files
     Dir["#{@run_directory}/*/report*.*"].each do |report|
-      file_ext = File.extname(report)
       # get the parent directory of the file and snake case it
       # do i need to force encoding on this as well?
       measure_class_name = File.basename(File.dirname(report)).snake_case
-      FileUtils.move report, "#{@directory}/reports/#{measure_class_name}#{file_ext}"
+      file_ext = File.extname(report)
+      append_str = File.basename(report, '.*').gsub('report', '')
+      new_file_name = "#{@directory}/reports/#{measure_class_name}#{append_str}#{file_ext}"
+      FileUtils.move report, new_file_name
     end
 
     # Remove empty directories in run folder

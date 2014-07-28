@@ -155,6 +155,7 @@ module OpenStudio
           end
 
           begin
+            @logger.info "Calling measure.run for '#{workflow_item[:name]}'"
             if workflow_item[:measure_type] == 'RubyMeasure'
               @logger.info "Running runner for '#{workflow_item[:name]}'"
               measure.run(@model, runner, argument_map)
@@ -175,6 +176,7 @@ module OpenStudio
 
           begin
             result = runner.result
+            @logger.info "Running of measure '#{workflow_item[:name]}' completed. Post-processing measure output"
 
             @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
             @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?

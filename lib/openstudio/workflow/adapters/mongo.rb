@@ -241,7 +241,7 @@ module OpenStudio
           # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
           if File.directory? report_dir
             Dir.chdir(report_dir)
-            `zip -r data_point_#{@datapoint.uuid}_reports.zip reports`
+            `zip -9 -r data_point_#{@datapoint.uuid}_reports.zip reports`
           end
           Dir.chdir(current_dir)
         end

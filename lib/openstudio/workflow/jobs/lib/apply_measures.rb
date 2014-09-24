@@ -38,7 +38,7 @@ module OpenStudio
       def apply_arguments(argument_map, argument)
         success = true
 
-        if argument[:value]
+        unless argument[:value].nil?
           @logger.info "Setting argument value #{argument[:name]} to #{argument[:value]}"
 
           v = argument_map[argument[:name]]

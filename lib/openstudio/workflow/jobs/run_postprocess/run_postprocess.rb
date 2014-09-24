@@ -104,7 +104,7 @@ class RunPostprocess
     # try to find the energyplus result file
     eplus_html = "#{@run_directory}/eplustbl.htm"
     unless File.exist? eplus_html
-      eplus_html = Dir["#{analysis_dir}/*EnergyPlus*/eplustbl.htm"].last || nil
+      eplus_html = Dir["#{@directory}/*EnergyPlus*/eplustbl.htm"].last || nil
     end
 
     if eplus_html

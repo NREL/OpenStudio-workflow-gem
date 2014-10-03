@@ -2,6 +2,7 @@ AllCops:
   Exclude:
     - 'measures/**/*'
     - 'spec/files/**/measures/**/*'
+    - '**/measures.rb'
     - 'Vagrantfile'
 
 inherit_from: .rubocop_todo.yml

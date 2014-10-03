@@ -3,6 +3,7 @@ AllCops:
     - 'measures/**/*'
     - 'spec/files/**/measures/**/*'
     - '**/measures.rb'
+    - 'spec/files/mongoid/models/**/*'
     - 'Vagrantfile'
 
 inherit_from: .rubocop_todo.yml

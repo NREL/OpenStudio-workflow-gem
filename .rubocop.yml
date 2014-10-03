@@ -1,6 +1,8 @@
 AllCops:
   Exclude:
-    - 'documentation/**/*'
+    - 'measures/**/*'
+    - 'spec/files/**/measures/**/*'
+    - 'Vagrantfile'
 
 inherit_from: .rubocop_todo.yml
 
@@ -25,32 +27,32 @@ Lint/UnreachableCode:
 Lint/UselessAssignment:
   Enabled: true
 
-# ==================== Styles ====================
+# ==================== Styles / Metrics====================
 # Offense count: 4
-Style/BlockNesting:
+Metrics/BlockNesting:
   Max: 4
 
 # Offense count: 18
 # Configuration parameters: CountComments.
-Style/ClassLength:
+Metrics/ClassLength:
   Max: 500
 
 # Offense count: 27
-Style/CyclomaticComplexity:
+Metrics/CyclomaticComplexity:
   Max: 48
 
 # Offense count: 974
-Style/LineLength:
+Metrics/LineLength:
   Max: 1200
 
 # Offense count: 87
 # Configuration parameters: CountComments.
-Style/MethodLength:
+Metrics/MethodLength:
   Max: 350
 
 # Offense count: 1
 # Configuration parameters: CountKeywordArgs.
-Style/ParameterLists:
+Metrics/ParameterLists:
   Max: 8
 
 # ==================== Disabled on Purpose ====================
@@ -108,3 +110,28 @@ Style/Next:
 Style/SpecialGlobalVars:
   Enabled: false
 
+# More Changes per DLM -- pulled from https://github.com/bbatsov/rubocop/blob/master/config/enabled.yml
+Style/RedundantReturn:
+  Description: 'Do not use return where it is not required.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-explicit-return'
+  Enabled: false
+
+Style/NumericLiterals:
+  Description: 'Add underscores to large numeric literals to improve readability.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#underscores-in-numerics'
+  Enabled: false
+
+Lint/UnusedBlockArgument:
+  Description: 'Checks for unused block arguments.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#underscore-unused-vars'
+  Enabled: false
+
+Lint/UnusedMethodArgument:
+  Description: 'Checks for unused method arguments.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#underscore-unused-vars'
+  Enabled: false
+
+Lint/UselessAssignment:
+  Description: 'Checks for useless assignment to a local variable.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#underscore-unused-vars'
+  Enabled: false

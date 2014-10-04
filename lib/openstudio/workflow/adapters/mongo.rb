@@ -72,9 +72,9 @@ module OpenStudio
               # Maybe use this in the future: /sbin/ifconfig eth1|grep inet|head -1|sed 's/\:/ /'|awk '{print $3}'
               # Must be on vagrant and just use the hostname to do a lookup
               map = {
-                  'os-server' => '192.168.33.10',
-                  'os-worker-1' => '192.168.33.11',
-                  'os-worker-2' => '192.168.33.12'
+                'os-server' => '192.168.33.10',
+                'os-worker-1' => '192.168.33.11',
+                'os-worker-2' => '192.168.33.12'
               }
               @datapoint.ip_address = map[Socket.gethostname]
               @datapoint.internal_ip_address = @datapoint.ip_address
@@ -105,7 +105,7 @@ module OpenStudio
               sleep 10
               retry
             else
-              fail "could not find Facter based data for worker node after #{retries} retries with message #{e.message}"
+              raise "could not find Facter based data for worker node after #{retries} retries with message #{e.message}"
               # just do nothing for now
             end
           end
@@ -137,7 +137,7 @@ module OpenStudio
 
         # TODO: cleanup these options.  Make them part of the class. They are just unwieldly here.
         def get_problem(directory, options = {})
-          defaults = {format: 'json'}
+          defaults = { format: 'json' }
           options = defaults.merge(options)
 
           get_datapoint(directory, options) unless @datapoint

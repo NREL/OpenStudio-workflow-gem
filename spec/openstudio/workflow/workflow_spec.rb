@@ -102,7 +102,7 @@ describe 'OpenStudio::Workflow' do
       analysis_root_path: 'spec/files/example_models',
       use_monthly_reports: true,
       adapter_options: {
-        mongoid_path: './spec/files/mongoid',
+        mongoid_path: './spec/files/mongoid'
       }
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
@@ -171,7 +171,7 @@ describe 'OpenStudio::Workflow' do
       analysis_root_path: 'spec/files/example_models',
       use_monthly_reports: true,
       adapter_options: {
-        mongoid_path: './spec/files/mongoid',
+        mongoid_path: './spec/files/mongoid'
       }
     }
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options

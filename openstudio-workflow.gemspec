@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.authors = ['Nicholas Long']
   s.email = ['nicholas.long@nrel.gov']
-  s.summary = %q(Workflow Manager)
-  s.description = %q(Run OpenStudio based simulations using EnergyPlus)
+  s.summary = 'Workflow Manager'
+  s.description = 'Run OpenStudio based simulations using EnergyPlus'
   s.homepage = 'https://github.com/NREL/OpenStudio-workflow-gem'
   s.license = 'LGPL'
 

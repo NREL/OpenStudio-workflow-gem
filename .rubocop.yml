@@ -2,7 +2,7 @@ AllCops:
   Exclude:
     - 'measures/**/*'
     - 'spec/files/**/measures/**/*'
-    - '**/measures.rb'
+    - '**/measure.rb'
     - 'spec/files/mongoid/models/**/*'
     - 'Vagrantfile'
 

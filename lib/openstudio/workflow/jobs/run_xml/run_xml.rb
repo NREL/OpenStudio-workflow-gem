@@ -23,7 +23,7 @@ require 'libxml'
 class RunXml
   # RunXml
   def initialize(directory, logger, adapter, options = {})
-    defaults = {use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb'}
+    defaults = { use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb' }
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -46,9 +46,9 @@ class RunXml
     @output_attributes = {}
     @report_measures = []
     @measure_type_lookup = {
-        openstudio_measure: 'RubyMeasure',
-        energyplus_measure: 'EnergyPlusMeasure',
-        reporting_measure: 'ReportingMeasure'
+      openstudio_measure: 'RubyMeasure',
+      energyplus_measure: 'EnergyPlusMeasure',
+      reporting_measure: 'ReportingMeasure'
     }
   end
 
@@ -68,7 +68,7 @@ class RunXml
         apply_xml_measures
       rescue => e
         log_message = "Exception during 'apply_xml_measure' with #{e.message}, #{e.backtrace.join("\n")}"
-        fail log_message
+        raise log_message
       end
 
       # @logger.debug "XML measure output attributes JSON is #{@output_attributes}"
@@ -155,7 +155,7 @@ class RunXml
       osxt = Main.new(@weather_directory, @space_lib_path)
       # def process(as_xml, ideal_loads=false, optimized_model=false, return_objects=false)
       osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, false, true)
-      #return [model, idf_model, zones_xml, building_name, weather_file]
+      # return [model, idf_model, zones_xml, building_name, weather_file]
     rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       raise log_message

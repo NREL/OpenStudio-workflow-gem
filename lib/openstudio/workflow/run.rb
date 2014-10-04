@@ -43,7 +43,7 @@ module OpenStudio
           { from: :preflight, to: :openstudio },
           { from: :openstudio, to: :energyplus },
           { from: :energyplus, to: :postprocess },
-          { from: :postprocess, to: :finished },
+          { from: :postprocess, to: :finished }
         ]
       end
 

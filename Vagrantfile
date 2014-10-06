@@ -23,7 +23,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Every Vagrant virtual environment requires a box to build off of.
     package.vm.box = "ubuntu/trusty64"
 
-    package.vm.network :private_network, ip: "192.168.34.10"
+    #package.vm.network :private_network, ip: "192.168.34.10"
     package.vm.network :private_network, type: 'dhcp'
     package.vm.network "forwarded_port", guest: 27017, host: 27018
     package.vm.synced_folder ".", "/data/openstudio-workflow", :nfs => use_nfs
@@ -37,13 +37,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     source.omnibus.chef_version = :latest
 
     source.vm.provider :virtualbox do |p|
-      nc = 2
+      nc = 4
       p.customize ["modifyvm", :id, "--memory", nc*2048, "--cpus", nc]
     end
     # Every Vagrant virtual environment requires a box to build off of.
     source.vm.box = "ubuntu/trusty64"
 
-    source.vm.network :private_network, ip: "192.168.34.11"
+    #source.vm.network :private_network, ip: "192.168.34.11"
     source.vm.network :private_network, type: 'dhcp'
     source.vm.network "forwarded_port", guest: 27017, host: 27018
     source.vm.synced_folder ".", "/data/openstudio-workflow", :nfs => use_nfs

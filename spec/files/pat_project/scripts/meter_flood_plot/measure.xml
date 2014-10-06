@@ -1,0 +1,74 @@
+<measure>
+  <schema_version>3.0</schema_version>
+  <name>meter_flood_plot</name>
+  <uid>1ce1e77e-993b-4719-8f03-9b21261a3c6a</uid>
+  <version_id>fa2339e5-bb64-4d80-a419-bd1ec70ccbc1</version_id>
+  <xml_checksum>2C8A3EEF</xml_checksum>
+  <class_name>MeterFloodPlot</class_name>
+  <display_name>Meter Flood Plot</display_name>
+  <description>This measures generates a flood plot of the requested meter.</description>
+  <modeler_description>This measure can create a flood plot of any Output:Meter with hourly frequency.</modeler_description>
+  <arguments>
+    <argument>
+      <name>meter_name</name>
+      <display_name>Meter Name</display_name>
+      <description>Available meter names may be found in the .mdd file produced by EnergyPlus.</description>
+      <type>String</type>
+      <required>true</required>
+      <model_dependent>true</model_dependent>
+      <default_value>Electricity:Facility</default_value>
+    </argument>
+  </arguments>
+  <provenances/>
+  <tags>
+    <tag>Reporting.QAQC</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Measure Type</name>
+      <value>ReportingMeasure</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Uses SketchUp API</name>
+      <value>false</value>
+      <datatype>boolean</datatype>
+    </attribute>
+  </attributes>
+  <files>
+    <file>
+      <filename>example_model.osm</filename>
+      <filetype>osm</filetype>
+      <usage_type>test</usage_type>
+      <checksum>4D4C61B5</checksum>
+    </file>
+    <file>
+      <filename>meter_flood_plot_test.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>D7138415</checksum>
+    </file>
+    <file>
+      <filename>USA_CO_Golden-NREL.724666_TMY3.epw</filename>
+      <filetype>epw</filetype>
+      <usage_type>test</usage_type>
+      <checksum>BDF687C1</checksum>
+    </file>
+    <file>
+      <filename>report.html.in</filename>
+      <filetype>in</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>56C9B159</checksum>
+    </file>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>1.2.0</identifier>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>9758B9B8</checksum>
+    </file>
+  </files>
+</measure>

@@ -7,6 +7,7 @@ cookbook "gdebi"
 cookbook "build-essential"
 cookbook "ruby_build"
 cookbook "zip"
+cookbook "mongodb"
 
 cookbook "openstudio", github: 'NREL-cookbooks/openstudio', protocol: 'ssh'
 cookbook "energyplus", github: 'NREL-cookbooks/energyplus', protocol: 'ssh'
@@ -14,5 +15,4 @@ cookbook "energyplus", github: 'NREL-cookbooks/energyplus', protocol: 'ssh'
 cookbook "ark", github: 'NREL-cookbooks/ark', protocol: 'ssh'
 #cookbook "ark", path: '../ark'
 cookbook "rbenv", github: 'NREL-cookbooks/rbenv', protocol: 'ssh'
-cookbook "mongodb", github: 'NREL-cookbooks/mongodb', protocol: 'ssh'
 

@@ -85,7 +85,25 @@ describe 'OpenStudio::Workflow' do
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
   end
-
+  
+  it 'should run a local file with pat format' do
+    # for local, it uses the rundir as the uuid
+    run_dir = './spec/files/pat_project'
+    options = {
+      is_pat: true,
+      problem_filename: 'formulation.json',
+      datapoint_filename: 'data_point_ae141b16-fc3b-48ba-b0b8-e7a7fccdb050.json',
+      analysis_root_path: 'spec/files/pat_project'
+    }
+    k = OpenStudio::Workflow.load 'Local', run_dir, options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq 'formulation.json'
+    expect(k.options[:datapoint_filename]).to eq 'data_point_ae141b16-fc3b-48ba-b0b8-e7a7fccdb050.json'
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :finished
+    expect(k.final_state).to eq :finished
+  end
+  
   it 'should not find the input file' do
     run_dir = './spec/files/local_ex1'
     k = OpenStudio::Workflow.load 'Local', run_dir

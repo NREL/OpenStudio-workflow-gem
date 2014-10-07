@@ -42,7 +42,8 @@ module OpenStudio
           { from: :queued, to: :preflight },
           { from: :preflight, to: :openstudio },
           { from: :openstudio, to: :energyplus },
-          { from: :energyplus, to: :postprocess },
+          { from: :energyplus, to: :reporting_measures },
+          { from: :reporting_measures, to: :postprocess },
           { from: :postprocess, to: :finished }
         ]
       end
@@ -54,14 +55,39 @@ module OpenStudio
         [
           { state: :queued, options: { initial: true } },
           { state: :preflight, options: { after_enter: :run_preflight } },
-          { state: :openstudio, options: { after_enter: :run_openstudio } },
+          { state: :openstudio, options: { after_enter: :run_openstudio } }, # TODO: this should be run_openstudio_measures and run_energyplus_measures
           { state: :energyplus, options: { after_enter: :run_energyplus } },
+          { state: :reporting_measures, options: { after_enter: :run_reporting_measures } },
           { state: :postprocess, options: { after_enter: :run_postprocess } },
           { state: :finished },
           { state: :errored }
         ]
       end
-
+      
+      # transitions for pat job
+      def self.pat_transition
+        # TODO: replace these with dynamic states from a config file of some sort
+        [
+          { from: :queued, to: :preflight },
+          { from: :preflight, to: :runmanager },
+          { from: :runmanager, to: :postprocess },
+          { from: :postprocess, to: :finished }
+        ]
+      end      
+      
+      # states for pat job
+      def self.pat_states
+        # TODO: replace this with some sort of dynamic store
+        [
+          { state: :queued, options: { initial: true } },
+          { state: :preflight, options: { after_enter: :run_preflight } },
+          { state: :runmanager, options: { after_enter: :run_runmanager } },
+          { state: :postprocess, options: { after_enter: :run_postprocess } },
+          { state: :finished },
+          { state: :errored }
+        ]
+      end
+      
       # initialize a new run class
       #
       # @param adapter an instance of the adapter class
@@ -73,11 +99,20 @@ module OpenStudio
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
 
-        defaults = {
-          transitions: OpenStudio::Workflow::Run.default_transition,
-          states: OpenStudio::Workflow::Run.default_states,
-          jobs: {}
-        }
+        defaults = nil
+        if options[:is_pat]
+          defaults = {
+            transitions: OpenStudio::Workflow::Run.pat_transition,
+            states: OpenStudio::Workflow::Run.pat_states,
+            jobs: {}
+          }        
+        else
+          defaults = {
+            transitions: OpenStudio::Workflow::Run.default_transition,
+            states: OpenStudio::Workflow::Run.default_states,
+            jobs: {}
+          }
+        end
         @options = defaults.merge(options)
 
         @error = false
@@ -172,7 +207,25 @@ module OpenStudio
         # TODO: save the resulting filenames to an array
         @job_results[__method__.to_sym] = klass.perform
       end
+      
+      # run a pat file using runmanager
+      def run_runmanager
+        @logger.info "Running #{__method__}"
+        klass = get_run_class(__method__)
 
+        # TODO: save the resulting filenames to an array
+        @job_results[__method__.to_sym] = klass.perform
+      end
+      
+      # run reporting measures
+      def run_reporting_measures
+        @logger.info "Running #{__method__}"
+        klass = get_run_class(__method__)
+
+        # TODO: save the resulting filenames to an array
+        @job_results[__method__.to_sym] = klass.perform
+      end
+      
       def run_postprocess
         @logger.info "Running #{__method__}"
         klass = get_run_class(__method__)

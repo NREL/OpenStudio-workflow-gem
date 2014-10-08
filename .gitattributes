@@ -1,0 +1,4 @@
+Gemfile text eol=lf
+Gemfile.lock text eol=lf
+*.sh text eol=lf
+*.erb text eol=lf

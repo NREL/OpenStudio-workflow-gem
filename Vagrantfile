@@ -47,7 +47,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     source.vm.network :private_network, type: 'dhcp'
     source.vm.network "forwarded_port", guest: 27017, host: 27018
     source.vm.synced_folder ".", "/data/openstudio-workflow", :nfs => use_nfs
-    source.vm.synced_folder "../openstudio", "/home/vagrant/openstudio", :nfs => use_nfs
+    #source.vm.synced_folder "../openstudio", "/home/vagrant/openstudio", :nfs => use_nfs
     if File.exist? "../assetscore-openstudio"
       source.vm.synced_folder "../assetscore-openstudio", "/data/assetscore-openstudio", :nfs => use_nfs
     end

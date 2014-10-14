@@ -121,15 +121,15 @@ module OpenStudio
 
           # convert to JSON for the workflow - and rearrange the version (fix THIS)
           datapoint_hash = {}
-          unless @datapoint.nil?
+          if @datapoint.nil?
+            fail 'Could not find datapoint'
+          else
             datapoint_hash[:data_point] = @datapoint.as_document.to_hash
             # TODO: Can i remove this openstudio_version stuff?
             # datapoint_hash[:openstudio_version] = datapoint_hash[:openstudio_version]
 
             # TODO: need to figure out how to get symbols from mongo.
             datapoint_hash = MultiJson.load(MultiJson.dump(datapoint_hash, pretty: true), symbolize_keys: true)
-          else
-            fail 'Could not find datapoint'
           end
 
           datapoint_hash

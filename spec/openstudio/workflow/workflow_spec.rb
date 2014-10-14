@@ -12,7 +12,7 @@ describe 'OpenStudio::Workflow' do
 
       puts "Base path for mongoid models is: #{base_path}"
 
-      Dir["#{base_path}/models/*.rb"].each { |f| puts f; require f }
+      Dir["#{base_path}/models/*.rb"].each { |f| require f }
       Mongoid.load!("#{base_path}/mongoid.yml", :development)
 
       # Delete all the records

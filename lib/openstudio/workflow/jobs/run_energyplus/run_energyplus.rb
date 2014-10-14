@@ -111,7 +111,6 @@ class RunEnergyplus
           end
         end
       end
-
     rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       @logger.error log_message

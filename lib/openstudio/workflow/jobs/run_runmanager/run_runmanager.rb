@@ -165,19 +165,23 @@ class RunRunmanager
 
         @logger.info 'Waiting for simulation to finish'
 
-        # Get some introspection on what the current running job is. For now just
-        # look at the directories that are being generated
-        job_dirs = []
-        while run_manager.workPending
-          sleep 1
-          OpenStudio::Application.instance.processEvents
+        if false
+          # Get some introspection on what the current running job is. For now just
+          # look at the directories that are being generated
+          job_dirs = []
+          while run_manager.workPending
+            sleep 1
+            OpenStudio::Application.instance.processEvents
 
-          # check if there are any new folders that were creates
-          temp_dirs = Dir[File.join(@run_directory.to_s, '*/')].map { |d| d.split('/').pop }.sort
-          if (temp_dirs + job_dirs).uniq != job_dirs
-            @logger.info "#{(temp_dirs - job_dirs).join(",")}"
-            job_dirs = temp_dirs
+            # check if there are any new folders that were creates
+            temp_dirs = Dir[File.join(@run_directory.to_s, '*/')].map { |d| d.split('/').pop }.sort
+            if (temp_dirs + job_dirs).uniq != job_dirs
+              @logger.info "#{(temp_dirs - job_dirs).join(",")}"
+              job_dirs = temp_dirs
+            end
           end
+        else
+          run_manager.waitForFinished
         end
 
         @logger.info 'Simulation finished'

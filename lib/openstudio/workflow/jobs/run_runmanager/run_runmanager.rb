@@ -81,6 +81,12 @@ class RunRunmanager
         
         require 'openstudio'
         
+        if @datapoint_json[:openstudio_version].nil?
+          if @analysis_json[:openstudio_version]
+            @datapoint_json[:openstudio_version] = @analysis_json[:openstudio_version]
+          end
+        end
+        
         # set up log file
         logSink = OpenStudio::FileLogSink.new(@run_directory / OpenStudio::Path.new('openstudio.log'))
         logSink.setLogLevel(OpenStudio::Debug)
@@ -114,7 +120,7 @@ class RunRunmanager
         loadResult = OpenStudio::Analysis.loadJSON(JSON.pretty_generate(@datapoint_json))
         if loadResult.analysisObject.empty?
           loadResult.errors.each { |error|
-            log.warn error.logMessage
+            @logger.warn error.logMessage
           }
           fail 'Unable to load data point json.'
         end

@@ -100,14 +100,15 @@ If you are testing changes to OpenStudio source code and want to test these on t
 * vagrant ssh source
 * sudo apt-get install dpkg-dev git cmake-curses-gui qt5-default libqt5webkit5-dev libboost1.55-all-dev swig ruby2.0 libssl-dev libxt-dev doxygen graphviz
 * sudo ln -s /usr/lib/x86_64-linux-gnu/libruby-2.0.so.2.0.0 /usr/lib/x86_64-linux-gnu/libruby.so.2.0
-* sudo su
-* wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key|apt-key add -
-* apt-add-repository 'deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.5 main'
-* exit
-* echo 'export CC=/usr/bin/clang' >> ~/.bashrc
-* echo 'export CXX=/usr/bin/clang++' >> ~/.bashrc
-* source ~/.bashrc
-* cd /home/vagrant
+** Install clang (OPTIONAL):
+** wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key|sudo apt-key add -
+** sudo apt-add-repository 'deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.5 main'
+** sudo apt-get update
+** sudo apt-get install clang-3.5 
+** echo 'export CC=/usr/bin/clang-3.5' >> ~/.bashrc
+** echo 'export CXX=/usr/bin/clang++-3.5' >> ~/.bashrc
+** source ~/.bashrc
+** cd /home/vagrant
 * git clone https://github.com/NREL/OpenStudio.git openstudio
 * cd openstudio
 * git checkout your_branch_name

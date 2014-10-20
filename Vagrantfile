@@ -45,7 +45,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     #source.vm.network :private_network, ip: "192.168.34.11"
     source.vm.network :private_network, type: 'dhcp'
-    source.vm.network "forwarded_port", guest: 27017, host: 27018
+    source.vm.network "forwarded_port", guest: 27017, host: 27019
     source.vm.synced_folder ".", "/data/openstudio-workflow", :nfs => use_nfs
     #source.vm.synced_folder "../openstudio", "/home/vagrant/openstudio", :nfs => use_nfs
     if File.exist? "../assetscore-openstudio"
@@ -55,20 +55,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision :chef_solo do |chef|
     chef.json = {
-        :openstudio_default => {
-            :version => "1.5.0",
+        :openstudio => {
+            :version => "1.5.1",
             :installer => {
-                :version_revision => "78d7c6dca9",
+                :version_revision => "297c509238",
                 :platform => "Linux-Ruby2.0"
             }
         },
-        :openstudio => {
+        :openstudio_new => {
             :version => '1.5.1',
             :installer => {
                 :origin => 'url',
-                :version_revision => '7030f5401a',
-                :download_url => 'https://github.com/NREL/OpenStudio/releases/download/v1.5.1-workflow-test2',
-                :download_filename => 'OpenStudio-1.5.1.7030f5401a-Linux.deb'
+                :version_revision => '297c509238',
+                :download_url => 'http://developer.nrel.gov/downloads/buildings/openstudio/builds/1.5.1',
+                :download_filename => 'OpenStudio-1.5.1.297c509238-Linux-Ruby2.0.deb'
             }
         },
         :mongodb => {

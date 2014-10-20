@@ -202,19 +202,20 @@ describe 'OpenStudio::Workflow' do
     # First test the database
     if k.adapter.is_a? OpenStudio::Workflow::Adapters::Mongo
       expect(k.adapter.datapoint[:results]).to_not be_nil
+      expect(k.adapter.datapoint[:results][:standard_report_legacy]).to_not be_nil
       expect(k.adapter.datapoint[:results][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
       expect(k.adapter.datapoint[:results][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
     end
 
     # Look at the results in teh job_results hash
     expect(k.job_results).to be_a Hash
-    expect(k.job_results[:run_postprocess][:lighting_loads_user_customized_name][:lighting_power_reduction_percent]).to be_within(1).of(26.375)
+    expect(k.job_results[:run_reporting_measures][:lighting_loads_user_customized_name][:lighting_power_reduction_percent]).to be_within(1).of(26.375)
     # expect(k.job_results[:run_postprocess][:standard_report][:total_building_area]).to be_within(1).of(26.375)
     # expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
-    expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
+    expect(k.job_results[:run_reporting_measures][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
 
     # expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
-    expect(k.job_results[:run_postprocess][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
+    expect(k.job_results[:run_reporting_measures][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
 
     expect(File.exist?("#{run_dir}/objectives.json")).to eq true
     expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}.zip")).to eq true

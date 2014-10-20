@@ -98,26 +98,26 @@ class RunReportingMeasures
   def run_extract_inputs_and_outputs
     # For xml, the measure attributes are in the measure_attributes_xml.json file
     # TODO: somehow pass the metadata around on which JSONs to suck into the database
-    if File.exist?("#{@run_directory}/measure_attributes_xml.json")
+    if File.exist? "#{@run_directory}/measure_attributes_xml.json"
       temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes_xml.json"), symbolize_names: true)
-      @results.merge!(temp_json)
+      @results.merge! temp_json
     end
 
     # Inputs are in the measure_attributes.json file
-    if File.exist?("#{@run_directory}/measure_attributes.json")
+    if File.exist? "#{@run_directory}/measure_attributes.json"
       temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
-      @results.merge!(temp_json)
+      @results.merge! temp_json
     end
 
     # Inputs are in the reporting_measure_attributes.jsonfile
-    if File.exist?("#{@run_directory}/reporting_measure_attributes.json")
+    if File.exist? "#{@run_directory}/reporting_measure_attributes.json"
       temp_json = JSON.parse(File.read("#{@run_directory}/reporting_measure_attributes.json"), symbolize_names: true)
-      @results.merge!(temp_json)
+      @results.merge! temp_json
     end
 
     # Initialize the objective function variable
     @objective_functions = {}
-    if File.exist?("#{@run_directory}/standard_report_legacy.json")
+    if File.exist? "#{@run_directory}/standard_report_legacy.json"
       @results[:standard_report_legacy] = JSON.parse(File.read("#{@run_directory}/standard_report_legacy.json"), symbolize_names: true)
 
       @logger.info 'Iterating over Analysis JSON Output Variables'

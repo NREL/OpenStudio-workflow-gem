@@ -153,11 +153,12 @@ module OpenStudio
           @logger.info 'Finished workflow - communicating results and zipping files'
 
           # TODO: this should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
-          if @job_results[:run_postprocess]
+          # or @job_results[:run_reporting_measures]
+          if @job_results[:run_reporting_measures]
             # these are the results that need to be sent back to adapter
             @logger.info 'Sending the results back to the adapter'
             # @logger.info "Sending communicate_results the following options #{@job_results}"
-            @adapter.communicate_results @directory, @job_results[:run_postprocess]
+            @adapter.communicate_results @directory, @job_results[:run_reporting_measures]
           end
         ensure
           if @error

@@ -63,7 +63,7 @@ module OpenStudio
           { state: :errored }
         ]
       end
-      
+
       # transitions for pat job
       def self.pat_transition
         # TODO: replace these with dynamic states from a config file of some sort
@@ -73,8 +73,8 @@ module OpenStudio
           { from: :runmanager, to: :postprocess },
           { from: :postprocess, to: :finished }
         ]
-      end      
-      
+      end
+
       # states for pat job
       def self.pat_states
         # TODO: replace this with some sort of dynamic store
@@ -87,7 +87,7 @@ module OpenStudio
           { state: :errored }
         ]
       end
-      
+
       # initialize a new run class
       #
       # @param adapter an instance of the adapter class
@@ -105,7 +105,7 @@ module OpenStudio
             transitions: OpenStudio::Workflow::Run.pat_transition,
             states: OpenStudio::Workflow::Run.pat_states,
             jobs: {}
-          }        
+          }
         else
           defaults = {
             transitions: OpenStudio::Workflow::Run.default_transition,
@@ -134,6 +134,7 @@ module OpenStudio
         end
 
         @logger.info "Initializing directory #{@directory} for simulation with options #{@options}"
+        @logger.info "OpenStudio loaded: '#{$openstudio_gem}'"
 
         super()
 
@@ -208,7 +209,7 @@ module OpenStudio
         # TODO: save the resulting filenames to an array
         @job_results[__method__.to_sym] = klass.perform
       end
-      
+
       # run a pat file using runmanager
       def run_runmanager
         @logger.info "Running #{__method__}"
@@ -217,7 +218,7 @@ module OpenStudio
         # TODO: save the resulting filenames to an array
         @job_results[__method__.to_sym] = klass.perform
       end
-      
+
       # run reporting measures
       def run_reporting_measures
         @logger.info "Running #{__method__}"
@@ -226,7 +227,7 @@ module OpenStudio
         # TODO: save the resulting filenames to an array
         @job_results[__method__.to_sym] = klass.perform
       end
-      
+
       def run_postprocess
         @logger.info "Running #{__method__}"
         klass = get_run_class(__method__)

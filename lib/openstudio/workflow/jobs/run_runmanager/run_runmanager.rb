@@ -76,6 +76,8 @@ class RunRunmanager
       @logger.info "@analysis_json = #{@analysis_json}"
       @logger.info "@datapoint_json[:openstudio_version] = #{@datapoint_json[:openstudio_version]}"
       @logger.info "@analysis_json[:openstudio_version] = #{@analysis_json[:openstudio_version]}"
+      @logger.info "@analysis_json[:analysis] = #{@analysis_json[:analysis]}"
+      @logger.info "@analysis_json[:analysis][:openstudio_version] = #{@analysis_json[:analysis][:openstudio_version]}"
       
       #@results[:weather_filename]
       #File.open("#{@run_directory}/measure_attributes.json", 'w') do
@@ -85,8 +87,10 @@ class RunRunmanager
       if @analysis_json && @datapoint_json
         
         if @datapoint_json[:openstudio_version].nil?
-          if @analysis_json[:openstudio_version]
+          if @analysis_json[:openstudio_version] && not @analysis_json[:openstudio_version].nil?
             @datapoint_json[:openstudio_version] = @analysis_json[:openstudio_version]
+          elsif @analysis_json[:analysis] && @analysis_json[:analysis][:openstudio_version] && not @analysis_json[:analysis][:openstudio_version].nil?
+            @datapoint_json[:openstudio_version] = @analysis_json[:analysis][:openstudio_version]
           end
         end
         

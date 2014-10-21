@@ -17,6 +17,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+require 'openstudio'
+        
 # TODO: I hear that measures can step on each other if not run in their own directory
 class RunRunmanager
   # Mixin the MeasureApplication module to apply measures
@@ -70,16 +72,17 @@ class RunRunmanager
       @datapoint_json = @adapter.get_datapoint(@directory.to_s, @options)
       @analysis_json = @adapter.get_problem(@directory.to_s, @options)
       
+      @logger.info "@datapoint_json = #{@datapoint_json}"
+      @logger.info "@analysis_json = #{@analysis_json}"
+      @logger.info "@datapoint_json[:openstudio_version] = #{@datapoint_json[:openstudio_version]}"
+      @logger.info "@analysis_json[:openstudio_version] = #{@analysis_json[:openstudio_version]}"
+      
       #@results[:weather_filename]
       #File.open("#{@run_directory}/measure_attributes.json", 'w') do
       #    |f| f << JSON.pretty_generate(@output_attributes)
       #end
         
       if @analysis_json && @datapoint_json
-        
-        @logger.info 'Loading OpenStudio'
-        
-        require 'openstudio'
         
         if @datapoint_json[:openstudio_version].nil?
           if @analysis_json[:openstudio_version]
@@ -89,7 +92,8 @@ class RunRunmanager
         
         # set up log file
         logSink = OpenStudio::FileLogSink.new(@run_directory / OpenStudio::Path.new('openstudio.log'))
-        logSink.setLogLevel(OpenStudio::Debug)
+        #logSink.setLogLevel(OpenStudio::Debug)
+        logSink.setLogLevel(OpenStudio::Trace)
         OpenStudio::Logger.instance.standardOutLogger.disable
 
         @logger.info 'Parsing Analysis JSON input'
@@ -195,6 +199,8 @@ class RunRunmanager
         @results = JSON.parse(data_point.toJSON)
         
         fail 'Simulation Failed' if data_point.failed
+      else
+        fail 'Could not find analysis_json and datapoint_json'
       end
       
     rescue => e

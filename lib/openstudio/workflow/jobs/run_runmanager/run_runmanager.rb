@@ -85,13 +85,19 @@ class RunRunmanager
       #end
         
       if @analysis_json && @datapoint_json
+      
+        if @analysis_json[:openstudio_version].nil?
+          if @analysis_json[:analysis] && @analysis_json[:analysis][:openstudio_version]
+            @analysis_json[:openstudio_version] = @analysis_json[:analysis][:openstudio_version]
+          end
+        end
         
         if @datapoint_json[:openstudio_version].nil?
           if @analysis_json[:analysis] && @analysis_json[:analysis][:openstudio_version]
             @datapoint_json[:openstudio_version] = @analysis_json[:analysis][:openstudio_version]
           end
         end
-        
+
         # set up log file
         logSink = OpenStudio::FileLogSink.new(@run_directory / OpenStudio::Path.new('openstudio.log'))
         #logSink.setLogLevel(OpenStudio::Debug)

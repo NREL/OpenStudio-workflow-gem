@@ -82,7 +82,7 @@ class RunPostprocess
       file_ext = File.extname(report)
       append_str = File.basename(report, '.*').gsub('report', '')
       new_file_name = "#{@directory}/reports/#{measure_class_name}#{append_str}#{file_ext}"
-      FileUtils.move report, new_file_name
+      FileUtils.copy report, new_file_name
     end
 
     # Remove empty directories in run folder

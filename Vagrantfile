@@ -32,27 +32,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  config.vm.define "source", autostart: false do |source|
-    source.vm.hostname = "openstudio-workflow-source"
-    source.omnibus.chef_version = :latest
-
-    source.vm.provider :virtualbox do |p|
-      nc = 4
-      p.customize ["modifyvm", :id, "--memory", nc*2048, "--cpus", nc]
-    end
-    # Every Vagrant virtual environment requires a box to build off of.
-    source.vm.box = "ubuntu/trusty64"
-
-    #source.vm.network :private_network, ip: "192.168.34.11"
-    source.vm.network :private_network, type: 'dhcp'
-    source.vm.network "forwarded_port", guest: 27017, host: 27019
-    source.vm.synced_folder ".", "/data/openstudio-workflow", :nfs => use_nfs
-    #source.vm.synced_folder "../openstudio", "/home/vagrant/openstudio", :nfs => use_nfs
-    if File.exist? "../assetscore-openstudio"
-      source.vm.synced_folder "../assetscore-openstudio", "/data/assetscore-openstudio", :nfs => use_nfs
-    end
-  end
-
   config.vm.provision :chef_solo do |chef|
     chef.json = {
         :openstudio => {

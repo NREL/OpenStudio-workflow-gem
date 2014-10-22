@@ -106,5 +106,4 @@ class RunPostprocess
     paths_to_rm << Pathname.glob("#{@run_directory}/packaged_measures")
     paths_to_rm.each { |p| FileUtils.rm_rf(p) }
   end
-
 end

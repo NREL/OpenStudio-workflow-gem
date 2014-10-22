@@ -18,7 +18,7 @@
 ######################################################################
 
 require 'openstudio'
-        
+
 # TODO: I hear that measures can step on each other if not run in their own directory
 class RunRunmanager
   # Mixin the MeasureApplication module to apply measures
@@ -36,11 +36,11 @@ class RunRunmanager
     end
 
     defaults = {
-      analysis_root_path: '.',
-      energyplus_path: energyplus_path
-    } 
+        analysis_root_path: '.',
+        energyplus_path: energyplus_path
+    }
     @options = defaults.merge(options)
-    
+
     @analysis_root_path = OpenStudio::Path.new(options[:analysis_root_path])
     @directory = OpenStudio::Path.new(directory)
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -65,33 +65,33 @@ class RunRunmanager
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
     @logger.info "Current directory is #{@directory}"
-    
+
     begin
 
       @logger.info 'Retrieving datapoint and problem'
       @datapoint_json = @adapter.get_datapoint(@directory.to_s, @options)
       @analysis_json = @adapter.get_problem(@directory.to_s, @options)
-      
+
       @logger.info "@datapoint_json = #{@datapoint_json}"
       @logger.info "@analysis_json = #{@analysis_json}"
       @logger.info "@datapoint_json[:openstudio_version] = #{@datapoint_json[:openstudio_version]}"
       @logger.info "@analysis_json[:openstudio_version] = #{@analysis_json[:openstudio_version]}"
       @logger.info "@analysis_json[:analysis] = #{@analysis_json[:analysis]}"
       @logger.info "@analysis_json[:analysis][:openstudio_version] = #{@analysis_json[:analysis][:openstudio_version]}"
-      
+
       #@results[:weather_filename]
       #File.open("#{@run_directory}/measure_attributes.json", 'w') do
       #    |f| f << JSON.pretty_generate(@output_attributes)
       #end
-        
+
       if @analysis_json && @datapoint_json
-      
+
         if @analysis_json[:openstudio_version].nil?
           if @analysis_json[:analysis] && @analysis_json[:analysis][:openstudio_version]
             @analysis_json[:openstudio_version] = @analysis_json[:analysis][:openstudio_version]
           end
         end
-        
+
         if @datapoint_json[:openstudio_version].nil?
           if @analysis_json[:analysis] && @analysis_json[:analysis][:openstudio_version]
             @datapoint_json[:openstudio_version] = @analysis_json[:analysis][:openstudio_version]
@@ -121,7 +121,7 @@ class RunRunmanager
         # fix up paths
         @logger.info 'Fix Paths'
         analysis.updateInputPathData(loadResult.projectDir, @analysis_root_path)
-        
+
         # save for reference only
         analysis_options = OpenStudio::Analysis::AnalysisSerializationOptions.new(@analysis_root_path)
         analysis.saveJSON(@run_directory / OpenStudio::Path.new('formulation_final.json'), analysis_options, true)
@@ -140,7 +140,7 @@ class RunRunmanager
         analysis.addDataPoint(data_point) # also hooks up real copy of problem
 
         @logger.info 'Creating RunManager'
-        
+
         # create a RunManager
         run_manager_path = @run_directory / OpenStudio::Path.new('run.db')
         run_manager = OpenStudio::Runmanager::RunManager.new(run_manager_path, true, false, false)
@@ -151,7 +151,7 @@ class RunRunmanager
         params = OpenStudio::Runmanager::JobParams.new
         params.append('cleanoutfiles', 'standard')
         workflow.add(params)
-        
+
         tools = OpenStudio::Runmanager::ConfigOptions.makeTools(OpenStudio::Path.new(@options[:energyplus_path]),
                                                                 OpenStudio::Path.new,
                                                                 OpenStudio::Path.new,
@@ -201,16 +201,19 @@ class RunRunmanager
         # use the completed job to populate data_point with results
         @logger.info 'Updating OpenStudio DataPoint object'
         analysis.problem.updateDataPoint(data_point, job)
-        
+
         @logger.info data_point
-        
-        @results = JSON.parse(data_point.toJSON)
-        
+
+        @results = { pat_data_point: ::MultiJson.load(data_point.toJSON, symbolize_names: true) }
+
+        # Savet this to the directory for debugging purposes
+        File.open("#{@run_directory}/data_point_result.json", 'w') { |f| f << MultiJson.dump(@results, pretty: true) }
+
         fail 'Simulation Failed' if data_point.failed
       else
         fail 'Could not find analysis_json and datapoint_json'
       end
-      
+
     rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       fail log_message

@@ -205,6 +205,7 @@ module OpenStudio
           # get the datapoint object
           get_datapoint(directory, options) unless @datapoint
           @log = OpenStudio::Workflow::Adapters::MongoLog.new(@datapoint)
+
           @log
         end
 
@@ -216,7 +217,7 @@ module OpenStudio
           DataPoint.find_or_create_by(uuid: uuid)
         end
 
-        # TODO: this uses a system call to zip results at the moment
+        # TODO: this uses a system call to zip results at the moment, replace with rubylib
         def zip_results(directory, _analysis_type = 'workflow')
           current_dir = Dir.pwd
           begin

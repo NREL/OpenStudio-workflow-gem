@@ -155,10 +155,12 @@ module OpenStudio
 
           # TODO: this should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
           # or @job_results[:run_reporting_measures]
-          if @job_results[:run_reporting_measures]
-            # these are the results that need to be sent back to adapter
-            @logger.info 'Sending the results back to the adapter'
-            # @logger.info "Sending communicate_results the following options #{@job_results}"
+          # these are the results that need to be sent back to adapter
+          if @job_results[:run_runmanager]
+            @logger.info 'Sending the run_runmananger results back to the adapter'
+            @adapter.communicate_results @directory, @job_results[:run_runmanager]
+          elsif @job_results[:run_reporting_measures]
+            @logger.info 'Sending the reporting measuers results back to the adapter'
             @adapter.communicate_results @directory, @job_results[:run_reporting_measures]
           end
         ensure

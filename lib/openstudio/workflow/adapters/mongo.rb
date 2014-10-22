@@ -72,9 +72,9 @@ module OpenStudio
               # Maybe use this in the future: /sbin/ifconfig eth1|grep inet|head -1|sed 's/\:/ /'|awk '{print $3}'
               # Must be on vagrant and just use the hostname to do a lookup
               map = {
-                'os-server' => '192.168.33.10',
-                'os-worker-1' => '192.168.33.11',
-                'os-worker-2' => '192.168.33.12'
+                  'os-server' => '192.168.33.10',
+                  'os-worker-1' => '192.168.33.11',
+                  'os-worker-2' => '192.168.33.12'
               }
               @datapoint.ip_address = map[Socket.gethostname]
               @datapoint.internal_ip_address = @datapoint.ip_address
@@ -100,7 +100,7 @@ module OpenStudio
             # the worker node is not known
 
             # retry just in case
-            if retries < 30  # try for up to 5 minutes
+            if retries < 30 # try for up to 5 minutes
               retries += 1
               sleep 10
               retry
@@ -137,7 +137,7 @@ module OpenStudio
 
         # TODO: cleanup these options.  Make them part of the class. They are just unwieldly here.
         def get_problem(directory, options = {})
-          defaults = { format: 'json' }
+          defaults = {format: 'json'}
           options = defaults.merge(options)
 
           get_datapoint(directory, options) unless @datapoint
@@ -200,16 +200,6 @@ module OpenStudio
           end
         end
 
-        # TODO: can this be deprecated in favor a checking the class?
-        def communicate_results_json(_eplus_json, _analysis_dir)
-          # noop
-        end
-
-        # TODO: not needed anymore i think...
-        def reload
-          # noop
-        end
-
         # TODO: Implement the writing to the mongo_db for logging
         def get_logger(directory, options = {})
           # get the datapoint object
@@ -227,23 +217,25 @@ module OpenStudio
         end
 
         # TODO: this uses a system call to zip results at the moment
-        def zip_results(analysis_dir, _analysis_type = 'workflow')
+        def zip_results(directory, _analysis_type = 'workflow')
           current_dir = Dir.pwd
-          # create zip file using a system call
-          # @logger.info "Zipping up Analysis Directory #{analysis_dir}"
-          if File.directory? analysis_dir
-            Dir.chdir(analysis_dir)
-            `zip -9 -r --exclude=*.rb* data_point_#{@datapoint.uuid}.zip .`
-          end
+          begin
+            # create zip file using a system call
+            # @logger.info "Zipping up data point #{analysis_dir}"
+            if File.directory? directory
+              Dir.chdir(directory)
+              `zip -9 -r --exclude=*.rb* data_point_#{@datapoint.uuid}.zip .`
+            end
 
-          # zip up only the reports folder
-          report_dir = "#{analysis_dir}"
-          # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
-          if File.directory? report_dir
-            Dir.chdir(report_dir)
-            `zip -9 -r data_point_#{@datapoint.uuid}_reports.zip reports`
+            # zip up only the reports folder
+            report_dir = "reports"
+            # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
+            if File.directory? report_dir
+              `zip -9 -r data_point_#{@datapoint.uuid}_reports.zip reports`
+            end
+          ensure
+            Dir.chdir(current_dir)
           end
-          Dir.chdir(current_dir)
         end
       end
     end

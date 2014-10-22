@@ -88,20 +88,24 @@ describe 'OpenStudio::Workflow' do
   
   it 'should run a local file with pat format' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/pat_project'
+    run_dir = './spec/files/pat_project/data_point_469b52c3-4aae-4cdd-b580-5c9494eefa11'
     options = {
       is_pat: true,
-      problem_filename: 'formulation.json',
-      datapoint_filename: 'data_point_469b52c3-4aae-4cdd-b580-5c9494eefa11/data_point.json',
+      problem_filename: '../formulation.json',
+      datapoint_filename: 'data_point.json',
       analysis_root_path: 'spec/files/pat_project'
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.options[:problem_filename]).to eq 'formulation.json'
-    expect(k.options[:datapoint_filename]).to eq 'data_point_469b52c3-4aae-4cdd-b580-5c9494eefa11/data_point.json'
+    expect(k.options[:problem_filename]).to eq '../formulation.json'
+    expect(k.options[:datapoint_filename]).to eq 'data_point.json'
     expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
+
+    expect(File.exist?("#{run_dir}/data_point.zip")).to eq true
+    expect(File.exist?("#{run_dir}/data_point_reports.zip")).to eq true
+
   end
   
   it 'should not find the input file' do
@@ -219,6 +223,7 @@ describe 'OpenStudio::Workflow' do
 
     expect(File.exist?("#{run_dir}/objectives.json")).to eq true
     expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}.zip")).to eq true
+    expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}_reports.zip")).to eq true
     objs = JSON.parse(File.read("#{run_dir}/objectives.json"), symbolize_keys: true)
     expect(objs['objective_function_1']).to be_within(10).of(182)
     expect(objs['objective_function_target_1']).to be_within(1).of(1234)

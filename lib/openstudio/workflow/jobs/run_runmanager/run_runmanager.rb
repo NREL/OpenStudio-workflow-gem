@@ -72,13 +72,6 @@ class RunRunmanager
       @datapoint_json = @adapter.get_datapoint(@directory.to_s, @options)
       @analysis_json = @adapter.get_problem(@directory.to_s, @options)
 
-      @logger.info "@datapoint_json = #{@datapoint_json}"
-      @logger.info "@analysis_json = #{@analysis_json}"
-      @logger.info "@datapoint_json[:openstudio_version] = #{@datapoint_json[:openstudio_version]}"
-      @logger.info "@analysis_json[:openstudio_version] = #{@analysis_json[:openstudio_version]}"
-      @logger.info "@analysis_json[:analysis] = #{@analysis_json[:analysis]}"
-      @logger.info "@analysis_json[:analysis][:openstudio_version] = #{@analysis_json[:analysis][:openstudio_version]}"
-
       #@results[:weather_filename]
       #File.open("#{@run_directory}/measure_attributes.json", 'w') do
       #    |f| f << JSON.pretty_generate(@output_attributes)
@@ -87,14 +80,20 @@ class RunRunmanager
       if @analysis_json && @datapoint_json
 
         if @analysis_json[:openstudio_version].nil?
+          @logger.info 'analysis_json missing openstudio_version'
           if @analysis_json[:analysis] && @analysis_json[:analysis][:openstudio_version]
-            @analysis_json[:openstudio_version] = @analysis_json[:analysis][:openstudio_version]
+            version = @analysis_json[:analysis][:openstudio_version]
+            @logger.info "setting analysis_json openstudio_version to '#{version}'"
+            @analysis_json[:openstudio_version] = version
           end
         end
 
         if @datapoint_json[:openstudio_version].nil?
+          @logger.info 'datapoint_json missing openstudio_version'
           if @analysis_json[:analysis] && @analysis_json[:analysis][:openstudio_version]
-            @datapoint_json[:openstudio_version] = @analysis_json[:analysis][:openstudio_version]
+            version = @analysis_json[:analysis][:openstudio_version]
+            @logger.info "setting datapoint_json openstudio_version to '#{version}'"
+            @datapoint_json[:openstudio_version] = version
           end
         end
 

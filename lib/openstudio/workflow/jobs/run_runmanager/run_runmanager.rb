@@ -36,8 +36,8 @@ class RunRunmanager
     end
 
     defaults = {
-        analysis_root_path: '.',
-        energyplus_path: energyplus_path
+      analysis_root_path: '.',
+      energyplus_path: energyplus_path
     }
     @options = defaults.merge(options)
 
@@ -72,10 +72,10 @@ class RunRunmanager
       @datapoint_json = @adapter.get_datapoint(@directory.to_s, @options)
       @analysis_json = @adapter.get_problem(@directory.to_s, @options)
 
-      #@results[:weather_filename]
-      #File.open("#{@run_directory}/measure_attributes.json", 'w') do
+      # @results[:weather_filename]
+      # File.open("#{@run_directory}/measure_attributes.json", 'w') do
       #    |f| f << JSON.pretty_generate(@output_attributes)
-      #end
+      # end
 
       if @analysis_json && @datapoint_json
 
@@ -99,7 +99,7 @@ class RunRunmanager
 
         # set up log file
         logSink = OpenStudio::FileLogSink.new(@run_directory / OpenStudio::Path.new('openstudio.log'))
-        #logSink.setLogLevel(OpenStudio::Debug)
+        # logSink.setLogLevel(OpenStudio::Debug)
         logSink.setLogLevel(OpenStudio::Trace)
         OpenStudio::Logger.instance.standardOutLogger.disable
 
@@ -187,7 +187,7 @@ class RunRunmanager
             # check if there are any new folders that were creates
             temp_dirs = Dir[File.join(@run_directory.to_s, '*/')].map { |d| d.split('/').pop }.sort
             if (temp_dirs + job_dirs).uniq != job_dirs
-              @logger.info "#{(temp_dirs - job_dirs).join(",")}"
+              @logger.info "#{(temp_dirs - job_dirs).join(',')}"
               job_dirs = temp_dirs
             end
           end
@@ -215,10 +215,9 @@ class RunRunmanager
 
     rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      fail log_message
+      raise log_message
     end
 
     @results
   end
-
 end

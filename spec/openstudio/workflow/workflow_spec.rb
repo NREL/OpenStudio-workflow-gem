@@ -84,7 +84,7 @@ describe 'OpenStudio::Workflow' do
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
   end
-  
+
   it 'should run a local file with pat format' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/pat_project/data_point_469b52c3-4aae-4cdd-b580-5c9494eefa11'
@@ -106,7 +106,7 @@ describe 'OpenStudio::Workflow' do
     expect(File.exist?("#{run_dir}/data_point_reports.zip")).to eq true
 
   end
-  
+
   it 'should not find the input file' do
     run_dir = './spec/files/local_ex1'
     k = OpenStudio::Workflow.load 'Local', run_dir

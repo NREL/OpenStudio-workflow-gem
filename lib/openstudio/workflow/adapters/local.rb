@@ -108,7 +108,7 @@ module OpenStudio
             end
 
             # zip up only the reports folder
-            report_dir = "reports"
+            report_dir = 'reports'
             # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
             if File.directory? report_dir
               `zip -9 -r data_point_reports.zip reports`

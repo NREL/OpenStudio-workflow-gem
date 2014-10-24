@@ -20,6 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       nc = 1
       p.customize ["modifyvm", :id, "--memory", nc*2048, "--cpus", nc]
     end
+
     # Every Vagrant virtual environment requires a box to build off of.
     package.vm.box = "ubuntu/trusty64"
 
@@ -68,7 +69,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.run_list = [
         "recipe[openstudio]",
         "recipe[mongodb]",
-	      "recipe[zip]"
+	"recipe[zip]"
     ]
   end
 end

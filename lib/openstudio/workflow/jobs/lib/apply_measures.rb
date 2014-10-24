@@ -95,8 +95,11 @@ module OpenStudio
       end
 
       def apply_measure(workflow_item)
+        @logger.info "Starting #{__method__} for #{workflow_item[:name]}"
+        start_time = ::Time.now
         current_dir = Dir.pwd
         begin
+
           measure_working_directory = "#{@run_directory}/#{workflow_item[:measure_definition_class_name]}"
 
           @logger.info "Creating run directory to #{measure_working_directory}"
@@ -157,9 +160,7 @@ module OpenStudio
           begin
             @logger.info "Calling measure.run for '#{workflow_item[:name]}'"
             if workflow_item[:measure_type] == 'RubyMeasure'
-              @logger.info "Running runner for '#{workflow_item[:name]}'"
               measure.run(@model, runner, argument_map)
-              @logger.info "Finished runner for '#{workflow_item[:name]}'"
             elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
               measure.run(@model_idf, runner, argument_map)
             elsif workflow_item[:measure_type] == 'ReportingMeasure'
@@ -169,6 +170,7 @@ module OpenStudio
 
               measure.run(runner, argument_map)
             end
+            @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message
@@ -203,6 +205,7 @@ module OpenStudio
           end
         ensure
           Dir.chdir current_dir
+          @logger.info "Finished #{__method__} for #{workflow_item[:name]} in #{::Time.now - start_time} s"
         end
       end
 

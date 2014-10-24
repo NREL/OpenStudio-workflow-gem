@@ -114,22 +114,27 @@ module OpenStudio
         end
 
         # Get the data point from the path
-        def get_datapoint(_directory, options = {})
+        def get_datapoint(directory, options = {})
           # TODO : make this a conditional on when to create one vs when to error out.
           # keep @datapoint as the model instance
           @datapoint = DataPoint.find_or_create_by(uuid: options[:datapoint_id])
 
           # convert to JSON for the workflow - and rearrange the version (fix THIS)
           datapoint_hash = {}
-          unless @datapoint.nil?
+          if @datapoint.nil?
+            fail 'Could not find datapoint'
+          else
             datapoint_hash[:data_point] = @datapoint.as_document.to_hash
             # TODO: Can i remove this openstudio_version stuff?
             # datapoint_hash[:openstudio_version] = datapoint_hash[:openstudio_version]
 
             # TODO: need to figure out how to get symbols from mongo.
-            datapoint_hash = MultiJson.load(MultiJson.dump(datapoint_hash, pretty: true), symbolize_keys: true)
-          else
-            fail 'Could not find datapoint'
+            datapoint_hash = MultiJson.load(MultiJson.dump(datapoint_hash), symbolize_keys: true)
+
+            # save to disk for inspection
+            save_dp = File.join(directory, 'data_point.json')
+            FileUtils.rm_f save_dp if File.exist? save_dp
+            File.open(save_dp, 'w') { |f| f << MultiJson.dump(datapoint_hash, pretty: true) }
           end
 
           datapoint_hash

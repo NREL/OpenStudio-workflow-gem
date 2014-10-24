@@ -10,12 +10,11 @@ gem 'facter', require: false
 # profiling should always be available
 gem 'ruby-prof', '~> 0.15.1'
 
-group :mongo do
-  gem 'mongoid', '~> 3.1.6'
-  gem 'paperclip', '~> 4.1.1'
-  gem 'mongoid-paperclip', require: 'mongoid_paperclip'
-  gem 'delayed_job_mongoid'
-end
+# always install these dependencies
+gem 'mongoid', '~> 3.1.6'
+gem 'paperclip', '~> 4.1.1'
+gem 'mongoid-paperclip', require: 'mongoid_paperclip'
+gem 'delayed_job_mongoid'
 
 group :xml do
   gem 'libxml-ruby'

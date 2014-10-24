@@ -74,7 +74,7 @@ module OpenStudio
         options[:analysis_root_path] = File.expand_path options[:analysis_root_path]
       end
       unless (Pathname.new run_directory).absolute?
-        # relateive to wherever you are running the script
+        # relative to wherever you are running the script
         run_directory = File.expand_path run_directory
       end
       adapter = load_adapter adapter_name, options[:adapter_options]

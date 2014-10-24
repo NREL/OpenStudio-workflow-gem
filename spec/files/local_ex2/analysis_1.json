@@ -295,7 +295,6 @@
                                 "display_name": "Roof Insulation R-value",
                                 "machine_name": "roof_insulation_r_value",
                                 "name": "r_value",
-                                "required": false,
                                 "uuid": "d25c4d40-babe-0131-ebd1-14109fdf0b37",
                                 "version_uuid": "d2272c00-babe-0131-eb99-14109fdf0b37"
                             },

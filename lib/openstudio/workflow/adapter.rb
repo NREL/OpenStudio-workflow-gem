@@ -21,26 +21,25 @@
 module OpenStudio
   module Workflow
     class Adapter
-
       attr_accessor :options
 
-      def initialize(options={})
+      def initialize(options = {})
         @options = options
         @log = nil
       end
 
-      #class << self
-      #attr_reader :problem
+      # class << self
+      # attr_reader :problem
 
-      def load(filename, options={})
+      def load(filename, options = {})
         instance.load(filename, options)
       end
 
-      def communicate_started(id, options = {})
+      def communicate_started(id, _options = {})
         instance.communicate_started id
       end
 
-      def get_datapoint(id, options={})
+      def get_datapoint(id, options = {})
         instance.get_datapoint id, options
       end
 
@@ -60,7 +59,7 @@ module OpenStudio
         instance.communicate_failure id
       end
 
-      def get_logger(file, options={})
+      def get_logger(file, options = {})
         instance.get_logger file, options
       end
     end

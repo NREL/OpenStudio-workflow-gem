@@ -19,7 +19,6 @@
 
 # TODO: I hear that measures can step on each other if not run in their own directory
 class RunOpenstudio
-
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
@@ -27,7 +26,7 @@ class RunOpenstudio
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, adapter, options = {})
-    defaults = {format: 'hash', use_monthly_reports: false, analysis_root_path: '.'}
+    defaults = { format: 'hash', use_monthly_reports: false, analysis_root_path: '.' }
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -47,14 +46,13 @@ class RunOpenstudio
     @datapoint_json = nil
     @output_attributes = {}
     @report_measures = []
-
   end
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
     @logger.info "Current directory is #{@directory}"
 
-    @logger.info "Retrieving datapoint and problem"
+    @logger.info 'Retrieving datapoint and problem'
     @datapoint_json = @adapter.get_datapoint(@directory, @options)
     @analysis_json = @adapter.get_problem(@directory, @options)
 
@@ -78,10 +76,10 @@ class RunOpenstudio
         @results[:weather_filename] = "#{@weather_file_path}/#{updated_weather_file}"
       end
 
-      @logger.info "Saving measure output attributes JSON"
-      File.open("#{@run_directory}/measure_attributes.json", 'w') {
+      @logger.info 'Saving measure output attributes JSON'
+      File.open("#{@run_directory}/measure_attributes.json", 'w') do
           |f| f << JSON.pretty_generate(@output_attributes)
-      }
+      end
     end
 
     save_osm_and_idf
@@ -157,7 +155,7 @@ class RunOpenstudio
         fail "Seed model '#{baseline_model_path}' did not exist"
       end
     else
-      fail "No baseline/seed model found"
+      fail 'No baseline/seed model found'
     end
 
     model
@@ -197,7 +195,7 @@ class RunOpenstudio
     wf = nil
     # grab the weather file out of the OSM if it exists
     if @model.weatherFile.empty?
-      @logger.info "No weather file in model"
+      @logger.info 'No weather file in model'
     else
       # this is the weather file from the OSM model
       wf = File.basename(@model.weatherFile.get.path.get.to_s)

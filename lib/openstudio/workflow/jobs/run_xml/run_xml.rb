@@ -21,11 +21,9 @@ require 'libxml'
 
 # This actually belongs as another class that gets added as a state dynamically
 class RunXml
-
-  CRASH_ON_NO_WORKFLOW_VARIABLE = FALSE
   # RunXml
   def initialize(directory, logger, adapter, options = {})
-    defaults = {use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb'}
+    defaults = { use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb' }
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -37,7 +35,7 @@ class RunXml
 
     # initialize instance variables that are needed in the perform section
     @weather_filename = nil
-    @weather_directory = File.expand_path(File.join(@options[:analysis_root_path], "weather"))
+    @weather_directory = File.expand_path(File.join(@options[:analysis_root_path], 'weather'))
     @logger.info "Weather directory is: #{@weather_directory}"
     @model_xml = nil
     @model = nil
@@ -48,18 +46,17 @@ class RunXml
     @output_attributes = {}
     @report_measures = []
     @measure_type_lookup = {
-        :openstudio_measure => 'RubyMeasure',
-        :energyplus_measure => 'EnergyPlusMeasure',
-        :reporting_measure => 'ReportingMeasure'
+      openstudio_measure: 'RubyMeasure',
+      energyplus_measure: 'EnergyPlusMeasure',
+      reporting_measure: 'ReportingMeasure'
     }
   end
-
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
     @logger.info "Current directory is #{@directory}"
 
-    @logger.info "Retrieving datapoint and problem"
+    @logger.info 'Retrieving datapoint and problem'
     @datapoint_json = @adapter.get_datapoint(@directory, @options)
     @analysis_json = @adapter.get_problem(@directory, @options)
 
@@ -67,12 +64,18 @@ class RunXml
       @model_xml = load_xml_model
       @weather_filename = load_weather_file
 
-      apply_xml_measures
+      begin
+        apply_xml_measures
+      rescue => e
+        log_message = "Exception during 'apply_xml_measure' with #{e.message}, #{e.backtrace.join("\n")}"
+        raise log_message
+      end
 
-      @logger.info "XML measure output attributes JSON is #{@output_attributes}"
-      File.open("#{@run_directory}/measure_attributes_xml.json", 'w') {
-          |f| f << JSON.pretty_generate(@output_attributes)
-      }
+      # @logger.debug "XML measure output attributes JSON is #{@output_attributes}"
+      File.open("#{@run_directory}/measure_attributes_xml.json", 'w') do
+      |f|
+        f << JSON.pretty_generate(@output_attributes)
+      end
     end
 
     create_osm_from_xml
@@ -126,7 +129,6 @@ class RunXml
           @logger.warn "Could not find weather file for simulation #{weather_filename}. Will continue because may change"
         end
 
-
       else
         fail 'No weather file path defined'
       end
@@ -143,18 +145,20 @@ class RunXml
     @model_xml.save(xml_filename)
 
     @logger.info 'Starting XML to OSM translation'
-
-    # set the lib path first -- very specific for this applciation right now
-    @space_lib_path = File.expand_path("#{File.dirname(@options[:xml_library_file])}/space_types")
-    require @options[:xml_library_file]
-
-    @logger.info "The weather file is #{@weather_filename}"
     begin
+      # set the lib path first -- very specific for this application right now
+      @space_lib_path = File.expand_path("#{File.dirname(@options[:xml_library_file])}/space_types")
+      require @options[:xml_library_file]
+
+      @logger.info "The weather file is #{@weather_filename}"
+
       osxt = Main.new(@weather_directory, @space_lib_path)
-      osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, true)
-    rescue Exception => e
+      # def process(as_xml, ideal_loads=false, optimized_model=false, return_objects=false)
+      osm, idf, new_xml, building_name, weather_file = osxt.process(@model_xml.to_s, false, false, true)
+      # return [model, idf_model, zones_xml, building_name, weather_file]
+    rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      fail log_message
+      raise log_message
     end
 
     if osm
@@ -168,7 +172,7 @@ class RunXml
 
     @results[:osm_filename] = File.expand_path(osm_filename)
     @results[:xml_filename] = File.expand_path(xml_filename)
-    @results[:weather_filename] = File.expand_path(File.join(@weather_directory,@weather_filename))
+    @results[:weather_filename] = File.expand_path(File.join(@weather_directory, @weather_filename))
   end
 
   def apply_xml_measures
@@ -217,12 +221,12 @@ class RunXml
           if wf[:variables]
             wf[:variables].each do |wf_var|
               # Argument hash in workflow looks like the following
-              # "argument": {
-              #    "display_name": "Window-To-Wall Ratio",
-              #    "machine_name": "window_to_wall_ratio",
-              #    "name": "value",
-              #    "uuid": "a0618d15-bb0b-4494-a72f-8ad628693a7e",
-              #    "version_uuid": "b33cf6b0-f1aa-4706-afab-9470e6bd1912"
+              # argument: {
+              #     display_name: "Window-To-Wall Ratio",
+              #     display_name_short: "Window-To-Wall Ratio",
+              #     name: "value",
+              #     value_type: "double",
+              #     uuid: "27909cb0-f8c9-0131-9b05-14109fdf0b37"
               # },
               variable_uuid = wf_var[:uuid].to_sym # this is what the variable value is set to
               if wf_var[:argument]
@@ -231,11 +235,11 @@ class RunXml
                 # Get the value from the data point json that was set via R / Problem Formulation
                 if @datapoint_json[:data_point]
                   if @datapoint_json[:data_point][:set_variable_values]
-                    if @datapoint_json[:data_point][:set_variable_values][variable_uuid]
-                      @logger.info "Setting variable #{variable_name} to #{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}"
+                    unless @datapoint_json[:data_point][:set_variable_values][variable_uuid].nil?
+                      @logger.info "Setting variable '#{variable_name}' to '#{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}'"
 
                       args[wf_var[:argument][:name].to_sym] = @datapoint_json[:data_point][:set_variable_values][variable_uuid]
-                      args["#{wf_var[:argument][:name]}_machine_name".to_sym] = wf_var[:argument][:machine_name]
+                      args["#{wf_var[:argument][:name]}_machine_name".to_sym] = wf_var[:argument][:display_name].snake_case
                       args["#{wf_var[:argument][:name]}_type".to_sym] = wf_var[:value_type] if wf_var[:value_type]
                       @logger.info "Setting the machine name for argument '#{wf_var[:argument][:name]}' to '#{args["#{wf_var[:argument][:name]}_machine_name".to_sym]}'"
 
@@ -245,9 +249,7 @@ class RunXml
                         @weather_filename = @datapoint_json[:data_point][:set_variable_values][variable_uuid]
                       end
                     else
-                      @logger.info "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
-                      fail "Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object" if CRASH_ON_NO_WORKFLOW_VARIABLE
-                      break
+                      fail "[ERROR] Value for variable '#{variable_name}:#{variable_uuid}' not set in datapoint object"
                     end
                   else
                     fail 'No block for set_variable_values in data point record'
@@ -271,6 +273,5 @@ class RunXml
         end
       end
     end
-
   end
 end

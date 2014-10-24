@@ -23,6 +23,7 @@ require 'multi_json'
 require 'colored'
 require 'fileutils'
 require 'json' # needed for a single pretty generate call
+require 'pathname'
 
 begin
   require 'facter'
@@ -43,14 +44,39 @@ rescue LoadError => e
   puts 'OpenStudio did not load, but most functionality is still available. Will try to continue...'.red
 end
 
+# some core extensions
+class String
+  def snake_case
+    gsub(/::/, '/')
+        .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+        .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+        .tr(' -', '__')
+        .downcase
+  end
+end
+
 module OpenStudio
   module Workflow
     extend self
 
     # Create a new workflow instance using the defined adapter and UUID
-    def load(adapter_name, run_directory, options={})
-      defaults = {adapter_options: {}}
+    def load(adapter_name, run_directory, options = {})
+      defaults = { adapter_options: {} }
       options = defaults.merge(options)
+
+      # Convert various paths to absolute paths
+      if options[:adapter_options] && options[:adapter_options][:mongoid_path] &&
+          (Pathname.new options[:adapter_options][:mongoid_path]).absolute? == false
+        options[:adapter_options][:mongoid_path] = File.expand_path options[:adapter_options][:mongoid_path]
+      end
+      if options[:analysis_root_path] &&
+          (Pathname.new options[:analysis_root_path]).absolute? == false
+        options[:analysis_root_path] = File.expand_path options[:analysis_root_path]
+      end
+      unless (Pathname.new run_directory).absolute?
+        # relative to wherever you are running the script
+        run_directory = File.expand_path run_directory
+      end
       adapter = load_adapter adapter_name, options[:adapter_options]
       run_klass = OpenStudio::Workflow::Run.new(adapter, run_directory, options)
       # return the run class
@@ -59,10 +85,10 @@ module OpenStudio
 
     private
 
-    def load_adapter(name, adapter_options={})
+    def load_adapter(name, adapter_options = {})
       require "openstudio/workflow/adapters/#{name.downcase}"
       klass_name = name.to_s.split('_').map(&:capitalize) * ''
-      #pp "#{klass_name} is the adapter class name"
+      # pp "#{klass_name} is the adapter class name"
       klass = OpenStudio::Workflow::Adapters.const_get(klass_name).new(adapter_options)
       klass
     end

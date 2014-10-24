@@ -76,10 +76,6 @@
                         "version_uuid": "0ee8b520-be26-0131-f4f0-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0ee781b0-be26-0131-f4e9-14109fdf0b37",
-                "bcl_measure_version_uuid": "0ee7b760-be26-0131-f4ea-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0ee7e620-be26-0131-f4eb-14109fdf0b37",
@@ -94,7 +90,6 @@
                             "display_name": "Location",
                             "machine_name": "location",
                             "name": "value",
-                            "required": false,
                             "uuid": "10966520-be26-0131-f715-14109fdf0b37",
                             "version_uuid": "0ee92060-be26-0131-f4f2-14109fdf0b37"
                         },
@@ -129,10 +124,6 @@
             },
             {
                 "arguments": null,
-                "bcl_measure_directory": "./measures/set_building_geometry",
-                "bcl_measure_class_name": "SetBuildingGeometry",
-                "bcl_measure_uuid": "0ee9b2d0-be26-0131-f4f5-14109fdf0b37",
-                "bcl_measure_version_uuid": "0ee9d3f0-be26-0131-f4f6-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_building_geometry",
                 "measure_definition_class_name": "SetBuildingGeometry",
                 "measure_definition_uuid": "0ee9f680-be26-0131-f4f7-14109fdf0b37",
@@ -281,10 +272,6 @@
                         "version_uuid": "0eed08e0-be26-0131-f509-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0eeb8da0-be26-0131-f500-14109fdf0b37",
-                "bcl_measure_version_uuid": "0eebadb0-be26-0131-f501-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0eebdad0-be26-0131-f502-14109fdf0b37",
@@ -366,10 +353,6 @@
                         "version_uuid": "0eef0d00-be26-0131-f514-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0eed6d60-be26-0131-f50b-14109fdf0b37",
-                "bcl_measure_version_uuid": "0eed9880-be26-0131-f50c-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0eedc6c0-be26-0131-f50d-14109fdf0b37",
@@ -451,10 +434,6 @@
                         "version_uuid": "0ef1a630-be26-0131-f51f-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0eefb430-be26-0131-f516-14109fdf0b37",
-                "bcl_measure_version_uuid": "0eefec10-be26-0131-f517-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0ef02470-be26-0131-f518-14109fdf0b37",
@@ -536,10 +515,6 @@
                         "version_uuid": "0ef43f00-be26-0131-f52a-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0ef21d90-be26-0131-f521-14109fdf0b37",
-                "bcl_measure_version_uuid": "0ef24e50-be26-0131-f522-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0ef272b0-be26-0131-f523-14109fdf0b37",
@@ -621,10 +596,6 @@
                         "version_uuid": "0ef71270-be26-0131-f535-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0ef4dbb0-be26-0131-f52c-14109fdf0b37",
-                "bcl_measure_version_uuid": "0ef51200-be26-0131-f52d-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0ef54c70-be26-0131-f52e-14109fdf0b37",
@@ -724,10 +695,6 @@
                         "version_uuid": "0efb4b30-be26-0131-f544-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_static_and_variable",
-                "bcl_measure_class_name": "SetXPathStaticAndVariable",
-                "bcl_measure_uuid": "0ef7a330-be26-0131-f537-14109fdf0b37",
-                "bcl_measure_version_uuid": "0ef7d870-be26-0131-f538-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_static_and_variable",
                 "measure_definition_class_name": "SetXPathStaticAndVariable",
                 "measure_definition_uuid": "0ef808f0-be26-0131-f539-14109fdf0b37",
@@ -830,10 +797,6 @@
                         "version_uuid": "0effa890-be26-0131-f552-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0efc8890-be26-0131-f549-14109fdf0b37",
-                "bcl_measure_version_uuid": "0efd39c0-be26-0131-f54a-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0efdb6e0-be26-0131-f54b-14109fdf0b37",
@@ -915,10 +878,6 @@
                         "version_uuid": "0f03b420-be26-0131-f55d-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f0079e0-be26-0131-f554-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f00ae70-be26-0131-f555-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f00e6b0-be26-0131-f556-14109fdf0b37",
@@ -1027,10 +986,6 @@
                         "version_uuid": "0f08ba50-be26-0131-f56e-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f04b560-be26-0131-f55f-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f051ad0-be26-0131-f560-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f0544f0-be26-0131-f561-14109fdf0b37",
@@ -1181,10 +1136,6 @@
                         "version_uuid": "0f10c0b0-be26-0131-f585-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f0b3460-be26-0131-f576-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f0b5740-be26-0131-f577-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f0b8300-be26-0131-f578-14109fdf0b37",
@@ -1335,10 +1286,6 @@
                         "version_uuid": "0f14ad70-be26-0131-f59c-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f121c70-be26-0131-f58d-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f124500-be26-0131-f58e-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f126ff0-be26-0131-f58f-14109fdf0b37",
@@ -1489,10 +1436,6 @@
                         "version_uuid": "0f18cf20-be26-0131-f5b3-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f162c80-be26-0131-f5a4-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f164f30-be26-0131-f5a5-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f167860-be26-0131-f5a6-14109fdf0b37",
@@ -1643,10 +1586,6 @@
                         "version_uuid": "0f1d1600-be26-0131-f5ca-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f1a4e70-be26-0131-f5bb-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f1a7c30-be26-0131-f5bc-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f1aa090-be26-0131-f5bd-14109fdf0b37",
@@ -1797,10 +1736,6 @@
                         "version_uuid": "0f25a670-be26-0131-f5e1-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f226bc0-be26-0131-f5d2-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f229ff0-be26-0131-f5d3-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f22c9d0-be26-0131-f5d4-14109fdf0b37",
@@ -1951,10 +1886,6 @@
                         "version_uuid": "0f2b6c00-be26-0131-f5f8-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f284cc0-be26-0131-f5e9-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f292630-be26-0131-f5ea-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f2971f0-be26-0131-f5eb-14109fdf0b37",
@@ -2105,10 +2036,6 @@
                         "version_uuid": "0f2f7aa0-be26-0131-f60f-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f2d1eb0-be26-0131-f600-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f2d3ee0-be26-0131-f601-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f2d6060-be26-0131-f602-14109fdf0b37",
@@ -2259,10 +2186,6 @@
                         "version_uuid": "0f333350-be26-0131-f626-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f30d220-be26-0131-f617-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f30fc10-be26-0131-f618-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f3125f0-be26-0131-f619-14109fdf0b37",
@@ -2413,10 +2336,6 @@
                         "version_uuid": "0f3745a0-be26-0131-f63d-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_two_static_and_variable",
-                "bcl_measure_class_name": "SetXPathTwoStaticAndVariable",
-                "bcl_measure_uuid": "0f34c360-be26-0131-f62e-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f34e420-be26-0131-f62f-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_two_static_and_variable",
                 "measure_definition_class_name": "SetXPathTwoStaticAndVariable",
                 "measure_definition_uuid": "0f3507d0-be26-0131-f630-14109fdf0b37",
@@ -2540,10 +2459,6 @@
                         "version_uuid": "0f3a6e60-be26-0131-f64e-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f38ebf0-be26-0131-f645-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f391bc0-be26-0131-f646-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f394280-be26-0131-f647-14109fdf0b37",
@@ -2625,10 +2540,6 @@
                         "version_uuid": "0f3c9950-be26-0131-f659-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f3ae560-be26-0131-f650-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f3b1720-be26-0131-f651-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f3b4a30-be26-0131-f652-14109fdf0b37",
@@ -2728,10 +2639,6 @@
                         "version_uuid": "0f405020-be26-0131-f668-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_static_and_variable",
-                "bcl_measure_class_name": "SetXPathStaticAndVariable",
-                "bcl_measure_uuid": "0f3d0140-be26-0131-f65b-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f3d2ca0-be26-0131-f65c-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_static_and_variable",
                 "measure_definition_class_name": "SetXPathStaticAndVariable",
                 "measure_definition_uuid": "0f3d52b0-be26-0131-f65d-14109fdf0b37",
@@ -2834,10 +2741,6 @@
                         "version_uuid": "0f45e070-be26-0131-f676-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f418190-be26-0131-f66d-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f41ba30-be26-0131-f66e-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f42f850-be26-0131-f66f-14109fdf0b37",
@@ -2919,10 +2822,6 @@
                         "version_uuid": "0f484ea0-be26-0131-f681-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f4660b0-be26-0131-f678-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f4697b0-be26-0131-f679-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f46c450-be26-0131-f67a-14109fdf0b37",
@@ -3004,10 +2903,6 @@
                         "version_uuid": "0f4c9370-be26-0131-f68c-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f4997c0-be26-0131-f683-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f49dbb0-be26-0131-f684-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f4a0480-be26-0131-f685-14109fdf0b37",
@@ -3089,10 +2984,6 @@
                         "version_uuid": "0f4f0c00-be26-0131-f697-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f4d1020-be26-0131-f68e-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f4d6190-be26-0131-f68f-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f4da330-be26-0131-f690-14109fdf0b37",
@@ -3174,10 +3065,6 @@
                         "version_uuid": "0f51d3a0-be26-0131-f6a2-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f4f6ce0-be26-0131-f699-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f4f9b20-be26-0131-f69a-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f4fd6b0-be26-0131-f69b-14109fdf0b37",
@@ -3259,10 +3146,6 @@
                         "version_uuid": "0f551340-be26-0131-f6ad-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f52bca0-be26-0131-f6a4-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f52f320-be26-0131-f6a5-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f532d40-be26-0131-f6a6-14109fdf0b37",
@@ -3344,10 +3227,6 @@
                         "version_uuid": "0f59ed00-be26-0131-f6b8-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f559a70-be26-0131-f6af-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f55daf0-be26-0131-f6b0-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f562790-be26-0131-f6b1-14109fdf0b37",
@@ -3429,10 +3308,6 @@
                         "version_uuid": "0f5d1cc0-be26-0131-f6c3-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f5a9cb0-be26-0131-f6ba-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f5af660-be26-0131-f6bb-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f5b4290-be26-0131-f6bc-14109fdf0b37",
@@ -3514,10 +3389,6 @@
                         "version_uuid": "0f666830-be26-0131-f6ce-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f5dc0b0-be26-0131-f6c5-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f5e03d0-be26-0131-f6c6-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f5e9660-be26-0131-f6c7-14109fdf0b37",
@@ -3599,10 +3470,6 @@
                         "version_uuid": "0f691df0-be26-0131-f6d9-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f671280-be26-0131-f6d0-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f674120-be26-0131-f6d1-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f676b20-be26-0131-f6d2-14109fdf0b37",
@@ -3684,10 +3551,6 @@
                         "version_uuid": "0f6bcae0-be26-0131-f6e4-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f699580-be26-0131-f6db-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f69c310-be26-0131-f6dc-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f6a28d0-be26-0131-f6dd-14109fdf0b37",
@@ -3769,10 +3632,6 @@
                         "version_uuid": "0f6f92c0-be26-0131-f6ef-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f6c5ef0-be26-0131-f6e6-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f6cb940-be26-0131-f6e7-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f6d0a50-be26-0131-f6e8-14109fdf0b37",
@@ -3854,10 +3713,6 @@
                         "version_uuid": "0f733c60-be26-0131-f6fa-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f70ac40-be26-0131-f6f1-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f70e670-be26-0131-f6f2-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f711e90-be26-0131-f6f3-14109fdf0b37",
@@ -3939,10 +3794,6 @@
                         "version_uuid": "0f769240-be26-0131-f705-14109fdf0b37"
                     }
                 ],
-                "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                "bcl_measure_class_name": "SetXPathSingleVariable",
-                "bcl_measure_uuid": "0f73ba70-be26-0131-f6fc-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f73f4f0-be26-0131-f6fd-14109fdf0b37",
                 "measure_definition_directory": "./measures/set_x_path_single_variable",
                 "measure_definition_class_name": "SetXPathSingleVariable",
                 "measure_definition_uuid": "0f743d40-be26-0131-f6fe-14109fdf0b37",
@@ -3957,7 +3808,6 @@
                             "display_name": "Economizer",
                             "machine_name": "economizer",
                             "name": "value",
-                            "required": false,
                             "uuid": "10bd5040-be26-0131-f819-14109fdf0b37",
                             "version_uuid": "0f771010-be26-0131-f707-14109fdf0b37"
                         },
@@ -4009,10 +3859,6 @@
             },
             {
                 "arguments": null,
-                "bcl_measure_directory": "./measures/rotate_building",
-                "bcl_measure_class_name": "RotateBuilding",
-                "bcl_measure_uuid": "0f77a810-be26-0131-f70a-14109fdf0b37",
-                "bcl_measure_version_uuid": "0f77d650-be26-0131-f70b-14109fdf0b37",
                 "measure_definition_directory": "./measures/rotate_building",
                 "measure_definition_class_name": "RotateBuilding",
                 "measure_definition_uuid": "0f780440-be26-0131-f70c-14109fdf0b37",

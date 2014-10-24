@@ -86,10 +86,6 @@
                             "version_uuid": "6fa43a40-ca64-0131-f75d-14109fdf0b37"
                         }
                     ],
-                    "bcl_measure_directory": "./measures/set_x_path_single_variable",
-                    "bcl_measure_class_name": "SetXPathSingleVariable",
-                    "bcl_measure_uuid": "6fa33240-ca64-0131-f756-14109fdf0b37",
-                    "bcl_measure_version_uuid": "6fa36160-ca64-0131-f757-14109fdf0b37",
                     "display_name": "Location",
                     "measure_definition_directory": "./measures/set_x_path_single_variable",
                     "measure_definition_class_name": "SetXPathSingleVariable",
@@ -103,7 +99,6 @@
                                 "display_name": "Location",
                                 "machine_name": "location",
                                 "name": "value",
-                                "required": false,
                                 "uuid": "70edb960-ca64-0131-f778-14109fdf0b37",
                                 "version_uuid": "6fa49b90-ca64-0131-f75f-14109fdf0b37"
                             },
@@ -139,10 +134,6 @@
                 },
                 {
                     "arguments": null,
-                    "bcl_measure_directory": "./measures/set_building_geometry",
-                    "bcl_measure_class_name": "SetBuildingGeometry",
-                    "bcl_measure_uuid": "6fa52130-ca64-0131-f762-14109fdf0b37",
-                    "bcl_measure_version_uuid": "6fa541b0-ca64-0131-f763-14109fdf0b37",
                     "display_name": "Change Geometry",
                     "measure_definition_directory": "./measures/set_building_geometry",
                     "measure_definition_class_name": "SetBuildingGeometry",
@@ -156,7 +147,6 @@
                                 "display_name": "Aspect Ratio Multiplier",
                                 "machine_name": "aspect_ratio_multiplier",
                                 "name": "aspect_ratio_multiplier",
-                                "required": false,
                                 "uuid": "70ee2ee0-ca64-0131-f77b-14109fdf0b37",
                                 "version_uuid": "6fa63110-ca64-0131-f769-14109fdf0b37"
                             },
@@ -204,7 +194,6 @@
                                 "display_name": "Floor Plate Area Multiplier",
                                 "machine_name": "floor_plate_area_multiplier",
                                 "name": "floor_plate_multiplier",
-                                "required": false,
                                 "uuid": "70ee7e40-ca64-0131-f77d-14109fdf0b37",
                                 "version_uuid": "6fa6ea10-ca64-0131-f76d-14109fdf0b37"
                             },
@@ -252,7 +241,6 @@
                                 "display_name": "Square Footage Multiplier",
                                 "machine_name": "square_footage_multiplier",
                                 "name": "square_footage_multiplier",
-                                "required": false,
                                 "uuid": "70eed400-ca64-0131-f77f-14109fdf0b37",
                                 "version_uuid": "6fa77af0-ca64-0131-f771-14109fdf0b37"
                             },

@@ -1,90 +1,86 @@
-#see the URL below for information on how to write OpenStuido measures
+# see the URL below for information on how to write OpenStuido measures
 # http://openstudio.nrel.gov/openstudio-measure-writing-guide
 
-#Query the user to select Xcel tariffs for consideration (a list of Boolean inputs, one for each tariff) and analysis period length only
-#   only going to let people choose 1 electric and 1 gas rate for now 
-#TODO	Remove all existing tariffs
+# Query the user to select Xcel tariffs for consideration (a list of Boolean inputs, one for each tariff) and analysis period length only
+#   only going to let people choose 1 electric and 1 gas rate for now
+# TODO	Remove all existing tariffs
 #   this is difficult to do in workspace, and not likely necessary.  Skipping for first version
-#Add selected Xcel tariffs
-#Set timestep to demand window
-#TODO	Set economic parameters such as discount rate, etc to hard coded values (current NIST values for 2012)
+# Add selected Xcel tariffs
+# Set timestep to demand window
+# TODO	Set economic parameters such as discount rate, etc to hard coded values (current NIST values for 2012)
 
-
-
-
-#start the measure
+# start the measure
 class XcelEDATariffSelectionandModelSetup < OpenStudio::Ruleset::WorkspaceUserScript
-  
-  #define the name that a user will see, this method may be deprecated as
-  #the display name in PAT comes from the name field in measure.xml
+  # define the name that a user will see, this method may be deprecated as
+  # the display name in PAT comes from the name field in measure.xml
   def name
-    return "XcelEDATariffSelectionandModelSetup"
+    'XcelEDATariffSelectionandModelSetup'
   end
-  
-  #define the arguments that the user will input
-  def arguments(workspace)
-    args = OpenStudio::Ruleset::OSArgumentVector.new
- 
-    #make an argument for the electric tariff
-    elec_chs = OpenStudio::StringVector.new
-    elec_chs << "Residential General"
-    elec_chs << "Commercial"
-    elec_chs << "Primary General"
-    elec_chs << "Secondary General Low Load Factor"
-    elec_chs << "Secondary General"
-    elec_chs << "Secondary Photovoltaic Time-of-Use"
-    elec_chs << "Transmission General"        
-    elec_chs << "Non-Xcel Commercial"
-    elec_chs << "Non-Xcel Primary General"
-    elec_chs << "Non-Xcel Secondary General Low Load Factor"
-    elec_chs << "Non-Xcel Secondary General"
-    elec_chs << "Non-Xcel Transmission General"
-    elec_tar = OpenStudio::Ruleset::OSArgument::makeChoiceArgument('elec_tar', elec_chs, true)
-    elec_tar.setDisplayName("Select an Electricity Tariff.")
-    elec_tar.setDefaultValue("Secondary General")
-    args << elec_tar
-    
-    #make an argument for the gas tariff
-    gas_chs = OpenStudio::StringVector.new    
-    gas_chs << "Residential Gas" 
-    gas_chs << "Small CG"
-    gas_chs << "Large CG"
-    gas_chs << "Interruptible Industrial G"
-    gas_chs << "Non-Xcel Gas Firm"
-    gas_chs << "Non-Xcel Gas Interruptible"
-    gas_tar = OpenStudio::Ruleset::OSArgument::makeChoiceArgument('gas_tar', gas_chs, true)
-    gas_tar.setDisplayName("Select a Gas Tariff.")
-    gas_tar.setDefaultValue("Large CG")
-    args << gas_tar
-    
-    return args
-  end #end the arguments method
 
-  #define what happens when the measure is run
+  # define the arguments that the user will input
+  def arguments(_workspace)
+    args = OpenStudio::Ruleset::OSArgumentVector.new
+
+    # make an argument for the electric tariff
+    elec_chs = OpenStudio::StringVector.new
+    elec_chs << 'Residential General'
+    elec_chs << 'Commercial'
+    elec_chs << 'Primary General'
+    elec_chs << 'Secondary General Low Load Factor'
+    elec_chs << 'Secondary General'
+    elec_chs << 'Secondary Photovoltaic Time-of-Use'
+    elec_chs << 'Transmission General'
+    elec_chs << 'Non-Xcel Commercial'
+    elec_chs << 'Non-Xcel Primary General'
+    elec_chs << 'Non-Xcel Secondary General Low Load Factor'
+    elec_chs << 'Non-Xcel Secondary General'
+    elec_chs << 'Non-Xcel Transmission General'
+    elec_tar = OpenStudio::Ruleset::OSArgument.makeChoiceArgument('elec_tar', elec_chs, true)
+    elec_tar.setDisplayName('Select an Electricity Tariff.')
+    elec_tar.setDefaultValue('Secondary General')
+    args << elec_tar
+
+    # make an argument for the gas tariff
+    gas_chs = OpenStudio::StringVector.new
+    gas_chs << 'Residential Gas'
+    gas_chs << 'Small CG'
+    gas_chs << 'Large CG'
+    gas_chs << 'Interruptible Industrial G'
+    gas_chs << 'Non-Xcel Gas Firm'
+    gas_chs << 'Non-Xcel Gas Interruptible'
+    gas_tar = OpenStudio::Ruleset::OSArgument.makeChoiceArgument('gas_tar', gas_chs, true)
+    gas_tar.setDisplayName('Select a Gas Tariff.')
+    gas_tar.setDefaultValue('Large CG')
+    args << gas_tar
+
+    args
+  end # end the arguments method
+
+  # define what happens when the measure is run
   def run(workspace, runner, user_arguments)
     super(workspace, runner, user_arguments)
-    
-    #use the built-in error checking 
-    if not runner.validateUserArguments(arguments(workspace), user_arguments)
+
+    # use the built-in error checking
+    unless runner.validateUserArguments(arguments(workspace), user_arguments)
       return false
     end
 
-    #assign the user inputs to variables
-    elec_tar = runner.getStringArgumentValue("elec_tar",user_arguments)
-    gas_tar = runner.getStringArgumentValue("gas_tar",user_arguments)
+    # assign the user inputs to variables
+    elec_tar = runner.getStringArgumentValue('elec_tar', user_arguments)
+    gas_tar = runner.getStringArgumentValue('gas_tar', user_arguments)
 
-    #import the tariffs
-    [elec_tar,gas_tar].each do |tar|
-    
-      #load the idf file containing the electric tariff
+    # import the tariffs
+    [elec_tar, gas_tar].each do |tar|
+
+      # load the idf file containing the electric tariff
       tar_path = OpenStudio::Path.new("#{File.dirname(__FILE__)}/resources/#{tar}.idf")
-      tar_file = OpenStudio::IdfFile::load(tar_path)
+      tar_file = OpenStudio::IdfFile.load(tar_path)
 
-      #in OpenStudio PAT in 1.1.0 and earlier all resource files are moved up a directory.
-      #below is a temporary workaround for this before issuing an error.
+      # in OpenStudio PAT in 1.1.0 and earlier all resource files are moved up a directory.
+      # below is a temporary workaround for this before issuing an error.
       if tar_file.empty?
         tar_path = OpenStudio::Path.new("#{File.dirname(__FILE__)}/#{tar}.idf")
-        tar_file = OpenStudio::IdfFile::load(tar_path)
+        tar_file = OpenStudio::IdfFile.load(tar_path)
       end
 
       if tar_file.empty?
@@ -93,44 +89,43 @@ class XcelEDATariffSelectionandModelSetup < OpenStudio::Ruleset::WorkspaceUserSc
       else
         tar_file = tar_file.get
       end
-  
 
-      #add the schedule type limits
-      workspace.addObjects(tar_file.getObjectsByType("ScheduleTypeLimits".to_IddObjectType))	
-  
-      #add the schedules
-      workspace.addObjects(tar_file.getObjectsByType("Schedule:Compact".to_IddObjectType))
-        
-      #add the tariffs
-      workspace.addObjects(tar_file.getObjectsByType("UtilityCost:Tariff".to_IddObjectType))
-      
-      #add the simple charges
-      workspace.addObjects(tar_file.getObjectsByType("UtilityCost:Charge:Simple".to_IddObjectType))
-      
-      #add the block charges
-      workspace.addObjects(tar_file.getObjectsByType("UtilityCost:Charge:Block".to_IddObjectType))
-    
-      #let the user know what happened
+      # add the schedule type limits
+      workspace.addObjects(tar_file.getObjectsByType('ScheduleTypeLimits'.to_IddObjectType))
+
+      # add the schedules
+      workspace.addObjects(tar_file.getObjectsByType('Schedule:Compact'.to_IddObjectType))
+
+      # add the tariffs
+      workspace.addObjects(tar_file.getObjectsByType('UtilityCost:Tariff'.to_IddObjectType))
+
+      # add the simple charges
+      workspace.addObjects(tar_file.getObjectsByType('UtilityCost:Charge:Simple'.to_IddObjectType))
+
+      # add the block charges
+      workspace.addObjects(tar_file.getObjectsByType('UtilityCost:Charge:Block'.to_IddObjectType))
+
+      # let the user know what happened
       runner.registerInfo("added a tariff named #{tar}")
-    
+
     end
-    
-    #set the simulation timestep to 15min (4 per hour) to match the demand window of the tariffs
-    if not workspace.getObjectsByType("Timestep".to_IddObjectType).empty?
-      workspace.getObjectsByType("Timestep".to_IddObjectType)[0].setString(0,"4")
-      runner.registerInfo("set the simulation timestep to 15 min to match the demand window of the tariffs")
+
+    # set the simulation timestep to 15min (4 per hour) to match the demand window of the tariffs
+    if not workspace.getObjectsByType('Timestep'.to_IddObjectType).empty?
+      workspace.getObjectsByType('Timestep'.to_IddObjectType)[0].setString(0, '4')
+      runner.registerInfo('set the simulation timestep to 15 min to match the demand window of the tariffs')
     else
-      runner.registerError("there was no timestep object to alter")
+      runner.registerError('there was no timestep object to alter')
     end
-    
-    #remove any existing lifecycle cost parameters
-    workspace.getObjectsByType("LifeCycleCost:Parameters".to_IddObjectType).each do |object|
+
+    # remove any existing lifecycle cost parameters
+    workspace.getObjectsByType('LifeCycleCost:Parameters'.to_IddObjectType).each do |object|
       runner.registerInfo("removed existing lifecycle parameters named #{object.name}")
       workspace.removeObjects([object.handle])
     end
-    
-    #and replace with the FEMP ones
-    life_cycle_params_string = "    
+
+    # and replace with the FEMP ones
+    life_cycle_params_string = "
     LifeCycleCost:Parameters,
       FEMP LifeCycle Cost Parameters,         !- Name
       EndOfYear,                              !- Discounting Convention
@@ -144,19 +139,18 @@ class XcelEDATariffSelectionandModelSetup < OpenStudio::Ruleset::WorkspaceUserSc
       2011,                                   !- Service Date Year
       25,                                     !- Length of Study Period in Years
       ,                                       !- Tax rate
-      None;                                   !- Depreciation Method	  
-    "  
-    life_cycle_params = OpenStudio::IdfObject::load(life_cycle_params_string).get
+      None;                                   !- Depreciation Method
+    "
+    life_cycle_params = OpenStudio::IdfObject.load(life_cycle_params_string).get
     workspace.addObject(life_cycle_params)
     runner.registerInfo("added lifecycle cost parameters named #{life_cycle_params.name}")
-  
-  
-    #remove any existing lifecycle cost parameters
-    workspace.getObjectsByType("LifeCycleCost:UsePriceEscalation".to_IddObjectType).each do |object|
+
+    # remove any existing lifecycle cost parameters
+    workspace.getObjectsByType('LifeCycleCost:UsePriceEscalation'.to_IddObjectType).each do |object|
       runner.registerInfo("removed existing fuel escalation rates named #{object.name}")
       workspace.removeObjects([object.handle])
-    end  
-  
+    end
+
     elec_escalation_string = "
     LifeCycleCost:UsePriceEscalation,
       U.S. Avg  Commercial-Electricity,       !- Name
@@ -194,9 +188,9 @@ class XcelEDATariffSelectionandModelSetup < OpenStudio::Ruleset::WorkspaceUserSc
       0.9769,                                 !- Year Escalation 29
       0.9773;                                 !- Year Escalation 30
     "
-    elec_escalation = OpenStudio::IdfObject::load(elec_escalation_string).get
-    workspace.addObject(elec_escalation)  
-    runner.registerInfo("added fuel escalation rates named #{elec_escalation.name}")    
+    elec_escalation = OpenStudio::IdfObject.load(elec_escalation_string).get
+    workspace.addObject(elec_escalation)
+    runner.registerInfo("added fuel escalation rates named #{elec_escalation.name}")
 
     fuel_oil_1_escalation_string = "
     LifeCycleCost:UsePriceEscalation,
@@ -235,11 +229,11 @@ class XcelEDATariffSelectionandModelSetup < OpenStudio::Ruleset::WorkspaceUserSc
       1.3706,                                 !- Year Escalation 29
       1.3743;                                 !- Year Escalation 30
     "
-    fuel_oil_1_escalation = OpenStudio::IdfObject::load(fuel_oil_1_escalation_string).get
+    fuel_oil_1_escalation = OpenStudio::IdfObject.load(fuel_oil_1_escalation_string).get
     workspace.addObject(fuel_oil_1_escalation)
-    runner.registerInfo("added fuel escalation rates named #{fuel_oil_1_escalation.name}")    
-      
-    fuel_oil_2_escalation_string = "  
+    runner.registerInfo("added fuel escalation rates named #{fuel_oil_1_escalation.name}")
+
+    fuel_oil_2_escalation_string = "
     LifeCycleCost:UsePriceEscalation,
       U.S. Avg  Commercial-Residual Oil,      !- Name
       FuelOil#2,                              !- Resource
@@ -276,10 +270,10 @@ class XcelEDATariffSelectionandModelSetup < OpenStudio::Ruleset::WorkspaceUserSc
       1.2591,                                 !- Year Escalation 29
       1.2638;                                 !- Year Escalation 30
     "
-    fuel_oil_2_escalation = OpenStudio::IdfObject::load(fuel_oil_2_escalation_string).get
+    fuel_oil_2_escalation = OpenStudio::IdfObject.load(fuel_oil_2_escalation_string).get
     workspace.addObject(fuel_oil_2_escalation)
-    runner.registerInfo("added fuel escalation rates named #{fuel_oil_2_escalation.name}") 
-      
+    runner.registerInfo("added fuel escalation rates named #{fuel_oil_2_escalation.name}")
+
     nat_gas_escalation_string = "
     LifeCycleCost:UsePriceEscalation,
       U.S. Avg  Commercial-Natural gas,       !- Name
@@ -317,11 +311,11 @@ class XcelEDATariffSelectionandModelSetup < OpenStudio::Ruleset::WorkspaceUserSc
       1.2938,                                 !- Year Escalation 29
       1.3115;                                 !- Year Escalation 30
     "
-    nat_gas_escalation = OpenStudio::IdfObject::load(nat_gas_escalation_string).get
-    workspace.addObject(nat_gas_escalation) 
-    runner.registerInfo("added fuel escalation rates named #{nat_gas_escalation.name}")     
-    
-    coal_escalation_string = "  
+    nat_gas_escalation = OpenStudio::IdfObject.load(nat_gas_escalation_string).get
+    workspace.addObject(nat_gas_escalation)
+    runner.registerInfo("added fuel escalation rates named #{nat_gas_escalation.name}")
+
+    coal_escalation_string = "
     LifeCycleCost:UsePriceEscalation,
       U.S. Avg  Commercial-Coal,              !- Name
       Coal,                                   !- Resource
@@ -358,24 +352,13 @@ class XcelEDATariffSelectionandModelSetup < OpenStudio::Ruleset::WorkspaceUserSc
       1.0920,                                 !- Year Escalation 29
       1.0950;                                 !- Year Escalation 30
      "
-    coal_escalation = OpenStudio::IdfObject::load(coal_escalation_string).get
-    workspace.addObject(coal_escalation)             
-    runner.registerInfo("added fuel escalation rates named #{coal_escalation.name}")                   
-    
-    return true
- 
-  end #end the run method
+    coal_escalation = OpenStudio::IdfObject.load(coal_escalation_string).get
+    workspace.addObject(coal_escalation)
+    runner.registerInfo("added fuel escalation rates named #{coal_escalation.name}")
 
-end #end the measure
+    true
+  end # end the run method
+end # end the measure
 
-#this allows the measure to be use by the application
+# this allows the measure to be use by the application
 XcelEDATariffSelectionandModelSetup.new.registerWithApplication
-
-
-
-
-
-
-
-
-

@@ -28,7 +28,7 @@
       <checksum>0D4162D2</checksum>
     </file>
     <file>
-      <filename>report.html.in</filename>
+      <filename>report.html.erb</filename>
       <filetype>in</filetype>
       <usage_type>resource</usage_type>
       <checksum>093FE760</checksum>

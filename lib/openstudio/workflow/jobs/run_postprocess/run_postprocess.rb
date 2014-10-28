@@ -48,7 +48,8 @@ class RunPostprocess
       cleanup
     rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      raise log_message
+      @logger.error log_message
+      # raise log_message
     end
 
     @results

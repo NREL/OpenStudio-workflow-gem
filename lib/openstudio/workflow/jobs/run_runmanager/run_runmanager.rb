@@ -215,7 +215,10 @@ class RunRunmanager
 
     rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      raise log_message
+      @logger.error log_message
+
+      # do not raise as the results will never end up in the datapoint
+      # raise log_message
     end
 
     @results

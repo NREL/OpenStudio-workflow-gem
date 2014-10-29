@@ -67,9 +67,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         }
     }
     chef.run_list = [
-        "recipe[openstudio]",
-        "recipe[mongodb]",
-	"recipe[zip]"
+      "recipe[rbenv]",
+      "recipe[openstudio]",
+      "recipe[mongodb]",
+      "recipe[zip]"
     ]
   end
 end

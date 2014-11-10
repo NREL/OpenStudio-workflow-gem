@@ -92,14 +92,8 @@ class RunOpenstudio
   def save_osm_and_idf
     # save the data
     a = Time.now
-    osm_filename = "#{@run_directory}/out_raw.osm"
-    File.open(osm_filename, 'w') { |f| f << @model.to_s }
-    b = Time.now
-    @logger.info "Ruby write took #{b.to_f - a.to_f}"
-
-    a = Time.now
     osm_filename = "#{@run_directory}/in.osm"
-    @model.save(OpenStudio::Path.new(osm_filename), true)
+    File.open(osm_filename, 'w') { |f| f << @model.to_s }
     b = Time.now
     @logger.info "OpenStudio write took #{b.to_f - a.to_f}"
 

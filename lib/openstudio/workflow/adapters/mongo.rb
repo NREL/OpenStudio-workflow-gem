@@ -29,7 +29,7 @@ module OpenStudio
         end
 
         def write(msg)
-          @dp.sdp_log_file << msg.gsub('\n', '')
+          @dp.sdp_log_file << msg.gsub("\n", '')
           @dp.save!
         end
       end

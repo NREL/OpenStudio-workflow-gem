@@ -210,7 +210,7 @@ class RunOpenstudio
         wf = File.basename(@model.weatherFile.get.path.get.to_s)
       end
 
-      @logger.info "Initial model weather file is #{wf}" # unless model.weatherFile.empty?
+      # @logger.info "Initial model weather file is #{wf}" # unless model.weatherFile.empty?
     end
 
     wf

@@ -72,8 +72,12 @@ class RunOpenstudio
       updated_weather_file = get_weather_file_from_model
       unless updated_weather_file == @initial_weather_file
         # reset the result hash so the future processes know which weather file to run
-        @logger.info "Updating the weather file result to be #{updated_weather_file }"
-        @results[:weather_filename] = "#{@weather_file_path}/#{updated_weather_file}"
+        @logger.info "Updating the weather file to be '#{updated_weather_file}'"
+        if (Pathname.new updated_weather_file).absolute? && (Pathname.new updated_weather_file).exist?
+          @results[:weather_filename] = updated_weather_file
+        else
+          @results[:weather_filename] = "#{@weather_file_path}/#{updated_weather_file}"
+        end
       end
 
       @logger.info 'Saving measure output attributes JSON'
@@ -135,6 +139,7 @@ class RunOpenstudio
         fail 'No seed model path in JSON defined'
       end
     else
+      # TODO: create a blank model and return
       fail 'No seed model block'
     end
 
@@ -167,7 +172,8 @@ class RunOpenstudio
     elsif @analysis_json[:analysis][:weather_file]
       if @analysis_json[:analysis][:weather_file][:path]
         weather_filename = File.expand_path(
-            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path]))
+            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path])
+        )
         @weather_file_path = File.dirname(weather_filename)
       else
         fail 'No weather file path defined'
@@ -185,15 +191,26 @@ class RunOpenstudio
     weather_filename
   end
 
+  # return the weather file from the model. If the weather file is defined in the model, then
+  # it checks the file paths to check if the model exists. This allows for a user to upload a
+  # weather file in a measure and then have the measure's path be used for the weather file.
   def get_weather_file_from_model
     wf = nil
     # grab the weather file out of the OSM if it exists
     if @model.weatherFile.empty?
       @logger.info 'No weather file in model'
     else
-      # this is the weather file from the OSM model
-      wf = File.basename(@model.weatherFile.get.path.get.to_s)
-      @logger.info "Model weather file is #{wf}" # unless model.weatherFile.empty?
+      p = @model.weatherFile.get.path.get.to_s.gsub('file://', '')
+      if File.exist? p
+        # use this entire path
+        @logger.info "Full path to weather file exists #{p}"
+        wf = p
+      else
+        # this is the weather file from the OSM model
+        wf = File.basename(@model.weatherFile.get.path.get.to_s)
+      end
+
+      @logger.info "Initial model weather file is #{wf}" # unless model.weatherFile.empty?
     end
 
     wf

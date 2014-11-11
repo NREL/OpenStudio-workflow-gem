@@ -116,7 +116,7 @@ class RunXml
     model
   end
 
-  # Save the weather file to the instance variable
+  # Save the weather file to the instance variable. This can change later after measures run.
   def load_weather_file
     weather_filename = nil
     if @analysis_json[:analysis][:weather_file]

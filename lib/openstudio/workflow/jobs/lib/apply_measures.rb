@@ -99,7 +99,6 @@ module OpenStudio
         start_time = ::Time.now
         current_dir = Dir.pwd
         begin
-
           measure_working_directory = "#{@run_directory}/#{workflow_item[:measure_definition_class_name]}"
 
           @logger.info "Creating run directory to #{measure_working_directory}"

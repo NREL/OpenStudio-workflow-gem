@@ -3,6 +3,7 @@ OpenStudio::Workflow Change Log
 
 Unreleased
 --------------
+* Allow measures to set weather file in a measure and have it update what EnergyPlus uses for the weather file.
 
 Version 0.0.2
 --------------

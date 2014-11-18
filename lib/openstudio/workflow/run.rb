@@ -93,6 +93,7 @@ module OpenStudio
       # @param adapter an instance of the adapter class
       # @param directory location of the datapoint directory to run. This is needed
       #        independent of the adapter that is being used. Note that the simulation will actually run in 'run'
+      # @param options that are sent to the adapters
       def initialize(adapter, directory, options = {})
         @adapter = adapter
         @directory = directory

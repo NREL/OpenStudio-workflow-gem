@@ -108,9 +108,9 @@ class RunRunmanager
         # load problem formulation
         loadResult = OpenStudio::Analysis.loadJSON(JSON.pretty_generate(@analysis_json))
         if loadResult.analysisObject.empty?
-          loadResult.errors.each { |error|
+          loadResult.errors.each do |error|
             @logger.warn error.logMessage # DLM: is this right?
-          }
+          end
           fail 'Unable to load analysis json.'
         end
 
@@ -130,9 +130,9 @@ class RunRunmanager
         # load data point to run
         loadResult = OpenStudio::Analysis.loadJSON(JSON.pretty_generate(@datapoint_json))
         if loadResult.analysisObject.empty?
-          loadResult.errors.each { |error|
+          loadResult.errors.each do |error|
             @logger.warn error.logMessage
-          }
+          end
           fail 'Unable to load data point json.'
         end
         data_point = loadResult.analysisObject.get.to_DataPoint.get

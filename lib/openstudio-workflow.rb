@@ -48,10 +48,10 @@ end
 class String
   def snake_case
     gsub(/::/, '/')
-        .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-        .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-        .tr(' -', '__')
-        .downcase
+    .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+    .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+    .tr(' -', '__')
+    .downcase
   end
 end
 
@@ -80,6 +80,38 @@ module OpenStudio
       adapter = load_adapter adapter_name, options[:adapter_options]
       run_klass = OpenStudio::Workflow::Run.new(adapter, run_directory, options)
       # return the run class
+      run_klass
+    end
+
+    # predefined method that simply runs EnergyPlus in the specified directory. It does not apply any workflow steps
+    # such as preprocessing / postprocessing.
+    # The directory must have the IDF and EPW file in the folder. The simulations will run in the directory/run path
+    def run_energyplus(adapter_name, run_directory, options = {})
+      unless (Pathname.new run_directory).absolute?
+        # relative to wherever you are running the script
+        run_directory = File.expand_path run_directory
+      end
+
+      transitions = [
+        { from: :queued, to: :preflight },
+        { from: :preflight, to: :energyplus },
+        { from: :energyplus, to: :finished }
+      ]
+
+      states = [
+        { state: :queued, options: { initial: true } },
+        { state: :preflight, options: { after_enter: :run_preflight } },
+        { state: :energyplus, options: { after_enter: :run_energyplus } },
+        { state: :finished },
+        { state: :errored }
+      ]
+      options = {
+        transitions: transitions,
+        states: states
+      }
+
+      adapter = load_adapter adapter_name, options[:adapter_options]
+      run_klass = OpenStudio::Workflow::Run.new(adapter, run_directory, options)
       run_klass
     end
 

@@ -51,19 +51,50 @@ class RunEnergyplus
     # Ensure that the directory is created (but it should already be at this point)
     FileUtils.mkdir_p(@run_directory)
 
+    # if the weather file is already in the directory, then just use that weather file
+    weather_file_name = nil
+    weather_files = Dir["#{@directory}/*.epw"]
+    if weather_files.size > 1
+      @logger.info 'Multiple weather files in the directory. Will rely on the weather file name in the openstudio model'
+    elsif weather_files.size == 1
+      weather_file_name = weather_files.first
+    end
+
     # verify that the OSM, IDF, and the Weather files are in the run directory as the 'in.*' format
-    if @options[:run_openstudio][:weather_filename] && File.exist?(@options[:run_openstudio][:weather_filename])
+    if !weather_file_name &&
+        @options[:run_openstudio] &&
+        @options[:run_openstudio][:weather_filename] &&
+        File.exist?(@options[:run_openstudio][:weather_filename])
+      weather_file_name = @options[:run_openstudio][:weather_filename]
+    end
+
+    if weather_file_name
       # verify that it is named in.epw
-      unless File.basename(@options[:run_openstudio][:weather_filename]).downcase == 'in.idf'
-        FileUtils.copy(@options[:run_openstudio][:weather_filename], "#{@run_directory}/in.epw")
-      end
+      @logger.info "Weather file for EnergyPlus simulation is #{weather_file_name}"
+      FileUtils.copy(weather_file_name, "#{@run_directory}/in.epw")
     else
       fail "EPW file not found or not sent to #{self.class}"
     end
 
+    # check if the run folder has an IDF. If not then check if the parent folder does.
+    idf_file_name = nil
+    if File.exist?("#{@run_directory}/in.idf")
+      @logger.info 'IDF (in.idf) already exists in the run directory'
+    else
+      # glob for idf at the directory level
+      idfs = Dir["#{@directory}/*.idf"]
+      if idfs.size > 1
+        @logger.info 'Multiple IDF files in the directory. Cannot continue'
+      elsif idfs.size == 1
+        idf_file_name = idfs.first
+      end
+    end
+
     # Need to check the in.idf and in.osm
     # FileUtils.copy(options[:osm], "#{@run_directory}/in.osm")
-    # FileUtils.copy(options[:idf], "#{@run_directory}/in.idf")
+    if idf_file_name
+      FileUtils.copy(idf_file_name, "#{@run_directory}/in.idf")
+    end
 
     # can't create symlinks because the /vagrant mount is actually a windows mount
     @logger.info "Copying EnergyPlus files to run directory: #{@run_directory}"
@@ -111,6 +142,16 @@ class RunEnergyplus
           end
         end
       end
+
+      paths_to_rm = []
+      paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
+      paths_to_rm << Pathname.glob("#{@run_directory}/*.so")
+      paths_to_rm << Pathname.glob("#{@run_directory}/*.idd")
+      paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
+      paths_to_rm << Pathname.glob("#{@run_directory}/EnergyPlus")
+      paths_to_rm << Pathname.glob("#{@run_directory}/packaged_measures")
+      paths_to_rm.each { |p| FileUtils.rm_rf(p) }
+
     rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       @logger.error log_message

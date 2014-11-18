@@ -85,26 +85,25 @@ describe 'OpenStudio::Workflow' do
     expect(k.final_state).to eq :finished
   end
 
-  it 'should run a local file with pat format' do
+  it 'should run a local file as energyplus only' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/pat_project/data_point_469b52c3-4aae-4cdd-b580-5c9494eefa11'
-    options = {
-      is_pat: true,
-      problem_filename: '../formulation.json',
-      datapoint_filename: 'data_point.json',
-      analysis_root_path: 'spec/files/pat_project'
-    }
-    k = OpenStudio::Workflow.load 'Local', run_dir, options
+    run_dir = './spec/files/local_ep'
+    FileUtils.mkdir_p run_dir
+
+    k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
+
+    # copy in an idf and epw file
+    FileUtils.copy('spec/files/example_models/seed/seed.idf', run_dir)
+    FileUtils.copy('spec/files/example_models/weather/in.epw', run_dir)
+
     expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.options[:problem_filename]).to eq '../formulation.json'
-    expect(k.options[:datapoint_filename]).to eq 'data_point.json'
+    expect(k.options[:problem_filename]).to eq nil
+    expect(k.options[:datapoint_filename]).to eq nil
     expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
 
-    expect(File.exist?("#{run_dir}/data_point.zip")).to eq true
-    expect(File.exist?("#{run_dir}/data_point_reports.zip")).to eq true
-
+    # clean everything up
   end
 
   it 'should not find the input file' do

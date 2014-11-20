@@ -136,12 +136,15 @@ class RunEnergyplus
 
       # create stdout
       File.open('stdout-energyplus', 'w') do |file|
-        IO.popen('./EnergyPlus') do |io|
+        IO.popen('./EnergyPlus + 2>&1') do |io|
           while (line = io.gets)
             file << line
           end
         end
       end
+      r = $?
+
+      @logger.info "System call to EnergyPlus returned #{r}"
 
       paths_to_rm = []
       paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
@@ -152,9 +155,21 @@ class RunEnergyplus
       paths_to_rm << Pathname.glob("#{@run_directory}/packaged_measures")
       paths_to_rm.each { |p| FileUtils.rm_rf(p) }
 
+      unless r == 0
+        fail "EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log."
+      end
+
+      # TODO: check the end or err file
+      if File.exists? 'eplusout.err'
+        eplus_err = File.read('eplusout.err')
+        if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
+          fail "EnergyPlus Terminated with a Fatal Error. Check eplusout.err log."
+        end
+      end
     rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       @logger.error log_message
+      fail log_message
     ensure
       Dir.chdir(current_dir)
       @logger.info 'EnergyPlus Completed'

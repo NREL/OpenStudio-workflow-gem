@@ -227,7 +227,7 @@ class RunOpenstudio
       forward_translator = OpenStudio::EnergyPlus::ForwardTranslator.new
       @model_idf = forward_translator.translateModel(@model)
       b = Time.now
-      @logger.info "Translate object to energyplus IDF took #{b.to_f - a.to_f}"
+      @logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
     end
   end
 end

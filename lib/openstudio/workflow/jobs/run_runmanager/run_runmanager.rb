@@ -65,9 +65,7 @@ class RunRunmanager
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
     @logger.info "Current directory is #{@directory}"
-
     begin
-
       @logger.info 'Retrieving datapoint and problem'
       @datapoint_json = @adapter.get_datapoint(@directory.to_s, @options)
       @analysis_json = @adapter.get_problem(@directory.to_s, @options)

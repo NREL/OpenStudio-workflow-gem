@@ -1,10 +1,12 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Unreleased
+Version 0.0.3
 --------------
 * Allow measures to set weather file in a measure and have it update what EnergyPlus uses for the weather file.
 * OpenStudio::Workflow.run_energyplus method added to just run energyplus.
+* Remove AASM (act as state machine) and replace with simple tracking of the state. Interface is the same except there is now no need to pass in the States.
+* Catch EnergyPlus errors (non-zero exits), Fatal Errors in eplusout.err, and invalid weather files.
 
 Version 0.0.2
 --------------

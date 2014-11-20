@@ -21,8 +21,6 @@
 module OpenStudio
   module Workflow
     class Run
-      include AASM
-
       attr_accessor :logger
 
       attr_reader :options
@@ -30,61 +28,57 @@ module OpenStudio
       attr_reader :directory
       attr_reader :run_directory
       attr_reader :final_state
+      attr_reader :final_message
       attr_reader :job_results
-
-      # Create a nice name for the state object instead of aasm
-      alias_method :state, :aasm
 
       # load the transitions
       def self.default_transition
-        # TODO: replace these with dynamic states from a config file of some sort
         [
-          { from: :queued, to: :preflight },
-          { from: :preflight, to: :openstudio },
-          { from: :openstudio, to: :energyplus },
-          { from: :energyplus, to: :reporting_measures },
-          { from: :reporting_measures, to: :postprocess },
-          { from: :postprocess, to: :finished }
+            {from: :queued, to: :preflight},
+            {from: :preflight, to: :openstudio},
+            {from: :openstudio, to: :energyplus},
+            {from: :energyplus, to: :reporting_measures},
+            {from: :reporting_measures, to: :postprocess},
+            {from: :postprocess, to: :finished}
         ]
       end
 
       # The default states for the workflow.  Note that the states of :queued of :finished need
       # to exist for all cases.
       def self.default_states
-        # TODO: replace this with some sort of dynamic store
+        warn "[Deprecation Warning] explicitly specifying states will no longer be required in 0.3.0. Method #{__method__}"
         [
-          { state: :queued, options: { initial: true } },
-          { state: :preflight, options: { after_enter: :run_preflight } },
-          { state: :openstudio, options: { after_enter: :run_openstudio } }, # TODO: this should be run_openstudio_measures and run_energyplus_measures
-          { state: :energyplus, options: { after_enter: :run_energyplus } },
-          { state: :reporting_measures, options: { after_enter: :run_reporting_measures } },
-          { state: :postprocess, options: { after_enter: :run_postprocess } },
-          { state: :finished },
-          { state: :errored }
+            {state: :queued, options: {initial: true}},
+            {state: :preflight, options: {after_enter: :run_preflight}},
+            {state: :openstudio, options: {after_enter: :run_openstudio}}, # TODO: this should be run_openstudio_measures and run_energyplus_measures
+            {state: :energyplus, options: {after_enter: :run_energyplus}},
+            {state: :reporting_measures, options: {after_enter: :run_reporting_measures}},
+            {state: :postprocess, options: {after_enter: :run_postprocess}},
+            {state: :finished},
+            {state: :errored}
         ]
       end
 
       # transitions for pat job
       def self.pat_transition
-        # TODO: replace these with dynamic states from a config file of some sort
         [
-          { from: :queued, to: :preflight },
-          { from: :preflight, to: :runmanager },
-          { from: :runmanager, to: :postprocess },
-          { from: :postprocess, to: :finished }
+            {from: :queued, to: :preflight},
+            {from: :preflight, to: :runmanager},
+            {from: :runmanager, to: :postprocess},
+            {from: :postprocess, to: :finished}
         ]
       end
 
       # states for pat job
       def self.pat_states
-        # TODO: replace this with some sort of dynamic store
+        warn "[Deprecation Warning] explicitly specifying states will no longer be required in 0.3.0. Method #{__method__}"
         [
-          { state: :queued, options: { initial: true } },
-          { state: :preflight, options: { after_enter: :run_preflight } },
-          { state: :runmanager, options: { after_enter: :run_runmanager } },
-          { state: :postprocess, options: { after_enter: :run_postprocess } },
-          { state: :finished },
-          { state: :errored }
+            {state: :queued, options: {initial: true}},
+            {state: :preflight, options: {after_enter: :run_preflight}},
+            {state: :runmanager, options: {after_enter: :run_runmanager}},
+            {state: :postprocess, options: {after_enter: :run_postprocess}},
+            {state: :finished},
+            {state: :errored}
         ]
       end
 
@@ -96,6 +90,9 @@ module OpenStudio
       # @param options that are sent to the adapters
       def initialize(adapter, directory, options = {})
         @adapter = adapter
+        @final_message = ''
+        @current_state = nil
+        @transitions = {}
         @directory = directory
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
@@ -103,20 +100,18 @@ module OpenStudio
         defaults = nil
         if options[:is_pat]
           defaults = {
-            transitions: OpenStudio::Workflow::Run.pat_transition,
-            states: OpenStudio::Workflow::Run.pat_states,
-            jobs: {}
+              transitions: OpenStudio::Workflow::Run.pat_transition,
+              states: OpenStudio::Workflow::Run.pat_states,
+              jobs: {}
           }
         else
           defaults = {
-            transitions: OpenStudio::Workflow::Run.default_transition,
-            states: OpenStudio::Workflow::Run.default_states,
-            jobs: {}
+              transitions: OpenStudio::Workflow::Run.default_transition,
+              states: OpenStudio::Workflow::Run.default_states,
+              jobs: {}
           }
         end
         @options = defaults.merge(options)
-
-        @error = false
 
         @job_results = {}
 
@@ -137,8 +132,6 @@ module OpenStudio
         @logger.info "Initializing directory #{@directory} for simulation with options #{@options}"
         @logger.info "OpenStudio loaded: '#{$openstudio_gem}'"
 
-        super()
-
         # load the state machine
         machine
       end
@@ -148,7 +141,8 @@ module OpenStudio
       def run
         @logger.info "Starting workflow in #{@directory}"
         begin
-          while state.current_state != :finished && !@error
+          while @current_state != :finished && @current_state != :errored
+            sleep 2
             step
           end
 
@@ -165,7 +159,7 @@ module OpenStudio
             @adapter.communicate_results @directory, @job_results[:run_reporting_measures]
           end
         ensure
-          if @error
+          if @current_state == :errored
             @adapter.communicate_failure @directory
           else
             @adapter.communicate_complete @directory
@@ -181,18 +175,29 @@ module OpenStudio
           puts obj_function_array.join(',')
         end
 
-        state.current_state
+        @current_state
+      end
+
+      # Step through the states, if there is an error (e.g. exception) then go to error
+      def step(*args)
+        begin
+          next_state
+
+          send("run_#{@current_state}")
+        rescue => e
+          step_error("#{e.message}:#{e.backtrace.join("\n")}")
+        end
       end
 
       # call back for when there is an exception running any of the state transitions
       def step_error(*args)
         # Make sure to set the instance variable @error to true in order to stop the :step
         # event from being fired.
-        @error = true
-        @logger.error "Found error in state '#{aasm.current_state}' with message #{args}}"
+        @final_message = "Found error in state '#{@current_state}' with message #{args}}"
+        @logger.error @final_message
 
-        # Call the error_out event to transition to the :errored state
-        error_out
+        # transition to an error state
+        @current_state = :errored
       end
 
       # TODO: these methods needs to be dynamic or inherited
@@ -255,45 +260,42 @@ module OpenStudio
         @logger.info @job_results
       end
 
-      def final_state
-        state.current_state
+      # last method that is called.
+      def run_finished
+        @logger.info "Running #{__method__}"
+
+        @current_state
       end
+      alias_method :final_state, :run_finished
 
       private
 
-      # Create a state machine from the predefined transitions methods.  This loads in
-      # a single event of :step which steps through the transitions defined in the Hash in default_transitions
-      # and calls the actions defined in the states in the Hash of default_states
+      # Create a state machine from the predefined transitions methods.  This will initialize in the :queued state
+      # and then load in the transitions from the @options hash
       def machine
         @logger.info 'Initializing state machine'
-        @options[:states].each do |s|
-          s[:options] ? o = s[:options] : o = {}
-          OpenStudio::Workflow::Run.aasm.states << AASM::State.new(s[:state], self.class, o)
-        end
-        OpenStudio::Workflow::Run.aasm.initial_state(:queued)
+        @current_state = :queued
 
-        # Create a new event and add in the transitions
-        new_event = OpenStudio::Workflow::Run.aasm.event(:step)
-        event = OpenStudio::Workflow::Run.aasm.events[:step]
+        @transitions = @options[:transitions]
+      end
 
-        # TODO: make a config option to not go to the error state. Useful to not error-state when testing
-        event.options[:error] = 'step_error'
-        @options[:transitions].each do |t|
-          event.transitions(t)
-        end
+      def next_state
+        @logger.info "Current state: '#{@current_state}'"
+        ns = @transitions.select{ |h| h[:from] == @current_state}.first[:to]
+        @logger.info "Next state will be: '#{ns}'"
 
-        # Add in special event to error_out the state machine
-        new_event = OpenStudio::Workflow::Run.aasm.event(:error_out)
-        event = OpenStudio::Workflow::Run.aasm.events[:error_out]
-        event.transitions(to: :errored)
+        # Set the next state before calling the method
+        @current_state = ns
+
+        # do not return anything, the step method uses the @current_state variable to call run_#{next_state}
       end
 
       # Get any options that may have been sent into the class defining the workflow step
       def get_job_options
         result = {}
-        # if @options[:jobs].has_key?(state.current_state)
+        # if @options[:jobs].has_key?(@current_state)
         # logger.info "Retrieving job options from the @options array for #{state.current_state}"
-        #  result = @options[:jobs][state.current_state]
+        #  result = @options[:jobs][@current_state]
         # end
 
         # result

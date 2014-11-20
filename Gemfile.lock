@@ -1,8 +1,7 @@
 PATH
   remote: .
   specs:
-    openstudio-workflow (0.0.2)
-      aasm (~> 3.1.1)
+    openstudio-workflow (0.0.3)
       colored (~> 1.2)
       multi_json (~> 1.10.0)
 
@@ -10,7 +9,6 @@ GEM
   remote: http://rubygems.org/
   specs:
     CFPropertyList (2.2.8)
-    aasm (3.1.1)
     activemodel (3.2.18)
       activesupport (= 3.2.18)
       builder (~> 3.0.0)

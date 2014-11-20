@@ -49,7 +49,7 @@ describe 'OpenStudio::Workflow' do
 
   end
 
-  it 'should run a local file adapater in legacy mode' do
+  it 'should run a local file adapter in legacy mode' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ex1'
     options = {
@@ -105,6 +105,66 @@ describe 'OpenStudio::Workflow' do
 
     # clean everything up
   end
+
+  it 'should fail to run an invalid energyplus file' do
+    # for local, it uses the rundir as the uuid
+    run_dir = './spec/files/local_ep_bad'
+    FileUtils.mkdir_p run_dir
+
+    k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
+
+    # copy in an idf and epw file
+    FileUtils.copy('spec/files/example_models/seed/seed_bad.idf', run_dir)
+    FileUtils.copy('spec/files/example_models/weather/in.epw', run_dir)
+
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq nil
+    expect(k.options[:datapoint_filename]).to eq nil
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :errored
+    expect(k.final_state).to eq :errored
+
+    # clean everything up
+  end
+
+  it 'should fail to run energyplus with no weather' do
+    # for local, it uses the rundir as the uuid
+    run_dir = './spec/files/local_ep_no_weather'
+    FileUtils.mkdir_p run_dir
+
+    k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
+
+    # copy in an idf and epw file
+    FileUtils.copy('spec/files/example_models/seed/seed.idf', run_dir)
+    #FileUtils.copy('spec/files/example_models/weather/in.epw', run_dir)
+
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq nil
+    expect(k.options[:datapoint_filename]).to eq nil
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :errored
+    expect(k.final_message).to match /.*EPW file not found or not sent to RunEnergyplus.*/
+  end
+
+  it 'should fail to run energyplus with malformed weather' do
+    # for local, it uses the rundir as the uuid
+    run_dir = './spec/files/local_ep_malformed_weather'
+    FileUtils.mkdir_p run_dir
+
+    k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
+
+    # copy in an idf and epw file
+    FileUtils.copy('spec/files/example_models/seed/seed.idf', run_dir)
+    FileUtils.copy('spec/files/example_models/weather/in_malformed.epw', run_dir)
+
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq nil
+    expect(k.options[:datapoint_filename]).to eq nil
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :errored
+    expect(k.final_message).to match /.*failed with EnergyPlus Terminated with a Fatal Error.*/
+  end
+
 
   it 'should not find the input file' do
     run_dir = './spec/files/local_ex1'

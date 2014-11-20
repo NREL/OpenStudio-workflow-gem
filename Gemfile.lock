@@ -89,11 +89,11 @@ DEPENDENCIES
   ci_reporter (~> 1.9.2)
   delayed_job_mongoid
   facter (~> 2.0.2)
-  libxml-ruby
+  libxml-ruby (~> 2.7.0)
   mongoid (~> 3.1.6)
   mongoid-paperclip
   openstudio-workflow!
-  os
+  os (~> 0.9.6)
   paperclip (~> 4.1.1)
   rake
   rspec (~> 2.14)

@@ -16,9 +16,10 @@ gem 'paperclip', '~> 4.1.1'
 gem 'mongoid-paperclip', require: 'mongoid_paperclip'
 gem 'delayed_job_mongoid'
 
+# Installation for reading/writing xml
 group :xml do
-  gem 'libxml-ruby'
-  gem 'os'
+  gem 'libxml-ruby', '~> 2.7.0'
+  gem 'os', '~> 0.9.6'
 end
 
 group :test do

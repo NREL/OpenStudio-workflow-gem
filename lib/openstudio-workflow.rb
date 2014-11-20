@@ -21,6 +21,7 @@ require 'pp'
 require 'multi_json'
 require 'colored'
 require 'fileutils'
+require 'securerandom'
 require 'json' # needed for a single pretty generate call
 require 'pathname'
 

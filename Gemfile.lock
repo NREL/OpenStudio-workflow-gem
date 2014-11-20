@@ -3,7 +3,9 @@ PATH
   specs:
     openstudio-workflow (0.0.3)
       colored (~> 1.2)
+      facter (~> 2.0.2)
       multi_json (~> 1.10.0)
+      zip (~> 2.0.2)
 
 GEM
   remote: http://rubygems.org/
@@ -88,7 +90,6 @@ DEPENDENCIES
   bundler (~> 1.6)
   ci_reporter (~> 1.9.2)
   delayed_job_mongoid
-  facter (~> 2.0.2)
   libxml-ruby (~> 2.7.0)
   mongoid (~> 3.1.6)
   mongoid-paperclip
@@ -100,4 +101,3 @@ DEPENDENCIES
   rubocop
   rubocop-checkstyle_formatter
   ruby-prof (~> 0.15.1)
-  zip (~> 2.0.2)

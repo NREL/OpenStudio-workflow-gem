@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'multi_json', '~> 1.10.0'
   s.add_runtime_dependency 'colored', '~> 1.2'
-
-  # Don't require facter until we can figure out how to install this easy on windows
-  # spec.add_runtime_dependency 'facter', '~> 2.0.1'
+  # Don't upgrade to facter > 2.0 as it breaks that facts. Need to figure out what the change is.
+  s.add_runtime_dependency 'facter', '~> 2.0.2'
+  s.add_runtime_dependency 'zip', '~> 2.0.2'
 end

@@ -114,7 +114,7 @@ describe 'OpenStudio::Workflow' do
     k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
 
     # copy in an idf and epw file
-    FileUtils.copy('spec/files/example_models/seed/seed_bad.idf', run_dir)
+    FileUtils.copy('spec/files/example_models/seed/seed_malformed.idf', run_dir)
     FileUtils.copy('spec/files/example_models/weather/in.epw', run_dir)
 
     expect(k).to be_instance_of OpenStudio::Workflow::Run

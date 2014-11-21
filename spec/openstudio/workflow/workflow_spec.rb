@@ -127,6 +127,27 @@ describe 'OpenStudio::Workflow' do
     # clean everything up
   end
 
+  it 'should fail to run a file that produces utf-8' do
+    # for local, it uses the rundir as the uuid
+    run_dir = './spec/files/local_ep_iso-8859'
+    FileUtils.mkdir_p run_dir
+
+    k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
+
+    # copy in an idf and epw file
+    FileUtils.copy('spec/files/example_models/seed/seed_8859-1.idf', run_dir)
+    FileUtils.copy('spec/files/example_models/weather/in.epw', run_dir)
+
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq nil
+    expect(k.options[:datapoint_filename]).to eq nil
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :errored
+    expect(k.final_state).to eq :errored
+
+    # clean everything up
+  end
+
   it 'should fail to run energyplus with no weather' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ep_no_weather'

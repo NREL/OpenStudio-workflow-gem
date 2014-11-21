@@ -162,6 +162,7 @@ class RunEnergyplus
       # TODO: check the end or err file
       if File.exists? 'eplusout.err'
         eplus_err = File.read('eplusout.err')
+        eplus_err = eplus_err.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
         if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
           fail "EnergyPlus Terminated with a Fatal Error. Check eplusout.err log."
         end

@@ -123,8 +123,6 @@ describe 'OpenStudio::Workflow' do
     expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :errored
     expect(k.final_state).to eq :errored
-
-    # clean everything up
   end
 
   it 'should fail to run a file that produces utf-8' do
@@ -142,10 +140,8 @@ describe 'OpenStudio::Workflow' do
     expect(k.options[:problem_filename]).to eq nil
     expect(k.options[:datapoint_filename]).to eq nil
     expect(k.directory).to eq File.expand_path(run_dir)
-    expect(k.run).to eq :errored
-    expect(k.final_state).to eq :errored
-
-    # clean everything up
+    expect(k.run).to eq :finished
+    expect(k.final_state).to eq :finished
   end
 
   it 'should fail to run energyplus with no weather' do

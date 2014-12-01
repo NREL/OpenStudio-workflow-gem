@@ -1,6 +1,10 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version 0.0.4 (Unreleased)
+-------------
+* Include rubyXL gem for reading/writing MS Excel files
+
 Version 0.0.3
 --------------
 * Allow measures to set weather file in a measure and have it update what EnergyPlus uses for the weather file.

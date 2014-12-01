@@ -18,6 +18,7 @@
 ######################################################################
 
 require 'pp'
+require 'rubyXL'
 require 'multi_json'
 require 'colored'
 require 'fileutils'

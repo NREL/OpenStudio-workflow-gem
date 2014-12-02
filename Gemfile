@@ -6,10 +6,7 @@ gemspec
 # profiling should always be available
 gem 'ruby-prof', '~> 0.15.1'
 
-# install rubyXL gem to read/write excel files
-gem 'rubyXL'
-
-# always install these dependencies
+# always install these dependencies for connecting to mongo
 gem 'mongoid', '~> 3.1.6'
 gem 'paperclip', '~> 4.1.1'
 gem 'mongoid-paperclip', require: 'mongoid_paperclip'

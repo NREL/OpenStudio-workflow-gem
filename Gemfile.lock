@@ -5,6 +5,7 @@ PATH
       colored (~> 1.2)
       facter (~> 2.0.2)
       multi_json (~> 1.10.0)
+      rubyXL (~> 3.3.0)
       zip (~> 2.0.2)
 
 GEM
@@ -108,4 +109,3 @@ DEPENDENCIES
   rubocop
   rubocop-checkstyle_formatter
   ruby-prof (~> 0.15.1)
-  rubyXL

@@ -153,7 +153,7 @@ describe 'OpenStudio::Workflow' do
 
     # copy in an idf and epw file
     FileUtils.copy('spec/files/example_models/seed/seed.idf', run_dir)
-    #FileUtils.copy('spec/files/example_models/weather/in.epw', run_dir)
+    # FileUtils.copy('spec/files/example_models/weather/in.epw', run_dir)
 
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.options[:problem_filename]).to eq nil
@@ -181,7 +181,6 @@ describe 'OpenStudio::Workflow' do
     expect(k.run).to eq :errored
     expect(k.final_message).to match /.*failed with EnergyPlus Terminated with a Fatal Error.*/
   end
-
 
   it 'should not find the input file' do
     run_dir = './spec/files/local_ex1'
@@ -308,28 +307,14 @@ describe 'OpenStudio::Workflow' do
     expect(File.exist?("#{run_dir}/reports/eplustbl.html")).to eq true
     expect(File.exist?("#{run_dir}/reports/standard_reports.html")).to eq true
     expect(Dir.exist?("#{run_dir}/run/SetWindowToWallRatioByFacade")).to eq false
+
+    # Test the measure attribute writing with pipes and periods
+    expect(File.exist?("#{run_dir}/run/results.json")).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('An Attribute with Spaces'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Invalid_Period_Measure'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Invalid_Pipe_Measure'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Other_Random_Characters_with_dangling'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Asterisks_Are_Bad_Too'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Every_Bad_Character_Here_Too'.to_sym)).to eq true
   end
-
-  # it 'should add a new state and transition' do
-  #   transitions = OpenStudio::Workflow::Run.default_transition
-  #   transitions[1][:to] = :xml
-  #   transitions.insert(2, {from: :xml, to: :openstudio})
-  #
-  #   states = OpenStudio::Workflow::Run.default_states
-  #   states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
-  #   options = {
-  #       transitions: transitions,
-  #       states: states,
-  #       analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
-  #       xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
-  #   }
-  #   pp options
-  #   run_dir = './spec/files/mongo_xml1'
-  #   k = OpenStudio::Workflow.load 'Local', run_dir, options
-  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
-  #   expect(k.directory).to eq run_dir
-  #   expect(k.run).to eq :finished
-  #   expect(k.final_state).to eq :finished
-  # end
-
 end

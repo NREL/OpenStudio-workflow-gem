@@ -34,12 +34,12 @@ module OpenStudio
       # load the transitions
       def self.default_transition
         [
-            {from: :queued, to: :preflight},
-            {from: :preflight, to: :openstudio},
-            {from: :openstudio, to: :energyplus},
-            {from: :energyplus, to: :reporting_measures},
-            {from: :reporting_measures, to: :postprocess},
-            {from: :postprocess, to: :finished}
+          { from: :queued, to: :preflight },
+          { from: :preflight, to: :openstudio },
+          { from: :openstudio, to: :energyplus },
+          { from: :energyplus, to: :reporting_measures },
+          { from: :reporting_measures, to: :postprocess },
+          { from: :postprocess, to: :finished }
         ]
       end
 
@@ -48,24 +48,24 @@ module OpenStudio
       def self.default_states
         warn "[Deprecation Warning] explicitly specifying states will no longer be required in 0.3.0. Method #{__method__}"
         [
-            {state: :queued, options: {initial: true}},
-            {state: :preflight, options: {after_enter: :run_preflight}},
-            {state: :openstudio, options: {after_enter: :run_openstudio}}, # TODO: this should be run_openstudio_measures and run_energyplus_measures
-            {state: :energyplus, options: {after_enter: :run_energyplus}},
-            {state: :reporting_measures, options: {after_enter: :run_reporting_measures}},
-            {state: :postprocess, options: {after_enter: :run_postprocess}},
-            {state: :finished},
-            {state: :errored}
+          { state: :queued, options: { initial: true } },
+          { state: :preflight, options: { after_enter: :run_preflight } },
+          { state: :openstudio, options: { after_enter: :run_openstudio } }, # TODO: this should be run_openstudio_measures and run_energyplus_measures
+          { state: :energyplus, options: { after_enter: :run_energyplus } },
+          { state: :reporting_measures, options: { after_enter: :run_reporting_measures } },
+          { state: :postprocess, options: { after_enter: :run_postprocess } },
+          { state: :finished },
+          { state: :errored }
         ]
       end
 
       # transitions for pat job
       def self.pat_transition
         [
-            {from: :queued, to: :preflight},
-            {from: :preflight, to: :runmanager},
-            {from: :runmanager, to: :postprocess},
-            {from: :postprocess, to: :finished}
+          { from: :queued, to: :preflight },
+          { from: :preflight, to: :runmanager },
+          { from: :runmanager, to: :postprocess },
+          { from: :postprocess, to: :finished }
         ]
       end
 
@@ -73,12 +73,12 @@ module OpenStudio
       def self.pat_states
         warn "[Deprecation Warning] explicitly specifying states will no longer be required in 0.3.0. Method #{__method__}"
         [
-            {state: :queued, options: {initial: true}},
-            {state: :preflight, options: {after_enter: :run_preflight}},
-            {state: :runmanager, options: {after_enter: :run_runmanager}},
-            {state: :postprocess, options: {after_enter: :run_postprocess}},
-            {state: :finished},
-            {state: :errored}
+          { state: :queued, options: { initial: true } },
+          { state: :preflight, options: { after_enter: :run_preflight } },
+          { state: :runmanager, options: { after_enter: :run_runmanager } },
+          { state: :postprocess, options: { after_enter: :run_postprocess } },
+          { state: :finished },
+          { state: :errored }
         ]
       end
 
@@ -100,15 +100,15 @@ module OpenStudio
         defaults = nil
         if options[:is_pat]
           defaults = {
-              transitions: OpenStudio::Workflow::Run.pat_transition,
-              states: OpenStudio::Workflow::Run.pat_states,
-              jobs: {}
+            transitions: OpenStudio::Workflow::Run.pat_transition,
+            states: OpenStudio::Workflow::Run.pat_states,
+            jobs: {}
           }
         else
           defaults = {
-              transitions: OpenStudio::Workflow::Run.default_transition,
-              states: OpenStudio::Workflow::Run.default_states,
-              jobs: {}
+            transitions: OpenStudio::Workflow::Run.default_transition,
+            states: OpenStudio::Workflow::Run.default_states,
+            jobs: {}
           }
         end
         @options = defaults.merge(options)
@@ -180,13 +180,11 @@ module OpenStudio
 
       # Step through the states, if there is an error (e.g. exception) then go to error
       def step(*args)
-        begin
-          next_state
+        next_state
 
-          send("run_#{@current_state}")
-        rescue => e
-          step_error("#{e.message}:#{e.backtrace.join("\n")}")
-        end
+        send("run_#{@current_state}")
+      rescue => e
+        step_error("#{e.message}:#{e.backtrace.join("\n")}")
       end
 
       # call back for when there is an exception running any of the state transitions
@@ -281,7 +279,7 @@ module OpenStudio
 
       def next_state
         @logger.info "Current state: '#{@current_state}'"
-        ns = @transitions.select{ |h| h[:from] == @current_state}.first[:to]
+        ns = @transitions.select { |h| h[:from] == @current_state }.first[:to]
         @logger.info "Next state will be: '#{ns}'"
 
         # Set the next state before calling the method

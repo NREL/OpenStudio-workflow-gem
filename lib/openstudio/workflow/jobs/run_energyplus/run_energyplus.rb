@@ -62,9 +62,9 @@ class RunEnergyplus
 
     # verify that the OSM, IDF, and the Weather files are in the run directory as the 'in.*' format
     if !weather_file_name &&
-        @options[:run_openstudio] &&
-        @options[:run_openstudio][:weather_filename] &&
-        File.exist?(@options[:run_openstudio][:weather_filename])
+       @options[:run_openstudio] &&
+       @options[:run_openstudio][:weather_filename] &&
+       File.exist?(@options[:run_openstudio][:weather_filename])
       weather_file_name = @options[:run_openstudio][:weather_filename]
     end
 
@@ -156,21 +156,21 @@ class RunEnergyplus
       paths_to_rm.each { |p| FileUtils.rm_rf(p) }
 
       unless r == 0
-        fail "EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log."
+        fail 'EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log.'
       end
 
       # TODO: check the end or err file
-      if File.exists? 'eplusout.err'
+      if File.exist? 'eplusout.err'
         eplus_err = File.read('eplusout.err')
         eplus_err = eplus_err.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
         if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
-          fail "EnergyPlus Terminated with a Fatal Error. Check eplusout.err log."
+          fail 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
         end
       end
     rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       @logger.error log_message
-      fail log_message
+      raise log_message
     ensure
       Dir.chdir(current_dir)
       @logger.info 'EnergyPlus Completed'

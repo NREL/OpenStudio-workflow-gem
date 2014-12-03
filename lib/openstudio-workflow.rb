@@ -49,10 +49,10 @@ end
 class String
   def snake_case
     gsub(/::/, '/')
-    .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-    .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-    .tr(' -', '__')
-    .downcase
+      .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+      .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+      .tr(' -', '__')
+      .downcase
   end
 end
 
@@ -67,11 +67,11 @@ module OpenStudio
 
       # Convert various paths to absolute paths
       if options[:adapter_options] && options[:adapter_options][:mongoid_path] &&
-          (Pathname.new options[:adapter_options][:mongoid_path]).absolute? == false
+         (Pathname.new options[:adapter_options][:mongoid_path]).absolute? == false
         options[:adapter_options][:mongoid_path] = File.expand_path options[:adapter_options][:mongoid_path]
       end
       if options[:analysis_root_path] &&
-          (Pathname.new options[:analysis_root_path]).absolute? == false
+         (Pathname.new options[:analysis_root_path]).absolute? == false
         options[:analysis_root_path] = File.expand_path options[:analysis_root_path]
       end
       unless (Pathname.new run_directory).absolute?

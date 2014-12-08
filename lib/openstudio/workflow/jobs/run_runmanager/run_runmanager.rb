@@ -27,7 +27,7 @@ class RunRunmanager
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     energyplus_path = nil
     if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
       energyplus_path = 'C:/EnergyPlus-8-1-0'
@@ -49,6 +49,7 @@ class RunRunmanager
     @results = {}
     @logger = logger
     @logger.info "#{self.class} passed the following options #{@options}"
+    @time_logger = time_logger
 
     # initialize instance variables that are needed in the perform section
     @model = nil

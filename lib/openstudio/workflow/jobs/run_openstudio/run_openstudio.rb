@@ -25,7 +25,7 @@ class RunOpenstudio
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     defaults = { format: 'hash', use_monthly_reports: false, analysis_root_path: '.' }
     @options = defaults.merge(options)
     @directory = directory
@@ -34,6 +34,7 @@ class RunOpenstudio
     @adapter = adapter
     @results = {}
     @logger = logger
+    @time_logger = time_logger
     @logger.info "#{self.class} passed the following options #{@options}"
 
     # initialize instance variables that are needed in the perform section
@@ -63,7 +64,9 @@ class RunOpenstudio
 
       apply_measures(:openstudio_measure)
 
+      @time_logger.start("Translating to EnergyPlus")
       translate_to_energyplus
+      @time_logger.stop("Translating to EnergyPlus")
 
       apply_measures(:energyplus_measure)
 
@@ -86,7 +89,9 @@ class RunOpenstudio
       end
     end
 
+    @time_logger.start("Saving OSM and IDF")
     save_osm_and_idf
+    @time_logger.stop("Saving OSM and IDF")
 
     @results
   end
@@ -95,13 +100,9 @@ class RunOpenstudio
 
   def save_osm_and_idf
     # save the data
-    a = Time.now
     osm_filename = "#{@run_directory}/in.osm"
     File.open(osm_filename, 'w') { |f| f << @model.to_s }
-    b = Time.now
-    @logger.info "OpenStudio write took #{b.to_f - a.to_f}"
 
-    # Run EnergyPlus using run energyplus script
     idf_filename = "#{@run_directory}/in.idf"
     File.open(idf_filename, 'w') { |f| f << @model_idf.to_s }
 

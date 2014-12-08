@@ -18,8 +18,6 @@
 ######################################################################
 
 # Run precanned post processing to extract object functions
-# TODO: I hear that measures can step on each other if not run in their own directory
-
 require 'csv'
 require 'ostruct'
 
@@ -27,13 +25,14 @@ class RunReportingMeasures
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
     @run_directory = "#{@directory}/run"
     @adapter = adapter
     @logger = logger
+    @time_logger = time_logger
     @results = {}
     @output_attributes = {}
 
@@ -61,11 +60,13 @@ class RunReportingMeasures
       @datapoint_json = @adapter.get_datapoint(@directory, @options)
       @analysis_json = @adapter.get_problem(@directory, @options)
 
+      @time_logger.start("Running standard post process")
       if @options[:use_monthly_reports]
         run_monthly_postprocess
       else
         run_standard_postprocess
       end
+      @time_logger.stop("Running standard post process")
 
       translate_csv_to_json
 

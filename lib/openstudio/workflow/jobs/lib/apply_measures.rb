@@ -96,7 +96,8 @@ module OpenStudio
 
       def apply_measure(workflow_item)
         @logger.info "Starting #{__method__} for #{workflow_item[:name]}"
-        start_time = ::Time.now
+        @time_logger.start("Measure:#{workflow_item[:name]}")
+        #start_time = ::Time.now
         current_dir = Dir.pwd
         begin
           measure_working_directory = "#{@run_directory}/#{workflow_item[:measure_definition_class_name]}"
@@ -204,7 +205,9 @@ module OpenStudio
           end
         ensure
           Dir.chdir current_dir
-          @logger.info "Finished #{__method__} for #{workflow_item[:name]} in #{::Time.now - start_time} s"
+          @time_logger.stop("Measure:#{workflow_item[:name]}")
+
+          @logger.info "Finished #{__method__} for #{workflow_item[:name]} in #{@time_logger.delta("Measure:#{workflow_item[:name]}")} s"
         end
       end
 

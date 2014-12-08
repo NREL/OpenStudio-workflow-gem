@@ -27,6 +27,7 @@ rubocop-results.xml
 /*.osm
 spec/files/**/run
 spec/files/**/*.log
+spec/files/**/*.json
 spec/files/**/*.job
 spec/files/**/StandardReports
 spec/files/**/datapoint_out.json

@@ -27,13 +27,14 @@ class RunPostprocess
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
     @run_directory = "#{@directory}/run"
     @adapter = adapter
     @logger = logger
+    @time_logger = time_logger
     @results = {}
     @output_attributes = {}
 

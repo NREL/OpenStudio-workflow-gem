@@ -94,6 +94,7 @@ module OpenStudio
         @current_state = nil
         @transitions = {}
         @directory = directory
+        @time_logger = TimeLogger.new
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
 
@@ -166,6 +167,7 @@ module OpenStudio
           end
 
           @logger.info 'Workflow complete'
+          @time_logger.save(File.join(@directory,'profile.json'))
 
           # TODO: define the outputs and figure out how to show it correctory
           obj_function_array ||= ['NA']
@@ -307,7 +309,7 @@ module OpenStudio
         require_relative "jobs/#{from_method}/#{from_method}"
         klass_name = from_method.to_s.split('_').map(&:capitalize) * ''
         @logger.info "Getting method for state transition '#{from_method}'"
-        klass = Object.const_get(klass_name).new(@directory, @logger, @adapter, get_job_options)
+        klass = Object.const_get(klass_name).new(@directory, @logger, @time_logger, @adapter, get_job_options)
         klass
       end
     end

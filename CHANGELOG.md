@@ -6,6 +6,7 @@ Version 0.0.4 (Unreleased)
 * Include rubyXL gem for reading/writing MS Excel files
 * Remove invalid characters from OpenStudio Measure Attributes. /[|!@#\$%^&\*\(\)\{\}\\\[\]|;:'",<.>\/?\+=]+/
 * Fix objective functions to read from any of the results hash, not just the standard report legacy
+* Add time logger and reporting measure
 
 Version 0.0.3
 --------------

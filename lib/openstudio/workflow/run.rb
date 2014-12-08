@@ -157,6 +157,7 @@ module OpenStudio
             @adapter.communicate_results @directory, @job_results[:run_runmanager]
           elsif @job_results[:run_reporting_measures]
             @logger.info 'Sending the reporting measuers results back to the adapter'
+            @time_logger.save(File.join(@directory,'profile.json'))
             @adapter.communicate_results @directory, @job_results[:run_reporting_measures]
           end
         ensure
@@ -167,9 +168,12 @@ module OpenStudio
           end
 
           @logger.info 'Workflow complete'
+          # Write out the TimeLogger once again in case the run_reporting_measures didn't exist
           @time_logger.save(File.join(@directory,'profile.json'))
 
-          # TODO: define the outputs and figure out how to show it correctory
+
+
+          # TODO: define the outputs and figure out how to show it correctly
           obj_function_array ||= ['NA']
 
           # Print the objective functions to the screen even though the file is being used right now

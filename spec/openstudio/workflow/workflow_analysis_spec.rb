@@ -30,7 +30,6 @@ describe 'OpenStudio Formulation' do
                      objective_function: true
                  })
 
-    puts a.to_hash
     a.save "#{run_dir}/analysis.json"
     a.save_static_data_point "#{run_dir}/data_point.json"
 

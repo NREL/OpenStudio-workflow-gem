@@ -88,6 +88,7 @@ describe 'OpenStudio::Workflow' do
   it 'should run a local file as energyplus only' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ep'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
     k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
@@ -109,6 +110,7 @@ describe 'OpenStudio::Workflow' do
   it 'should fail to run an invalid energyplus file' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ep_bad'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
     k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
@@ -128,6 +130,7 @@ describe 'OpenStudio::Workflow' do
   it 'should fail to run a file that produces utf-8' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ep_iso-8859'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
     k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
@@ -147,6 +150,7 @@ describe 'OpenStudio::Workflow' do
   it 'should fail to run energyplus with no weather' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ep_no_weather'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
     k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
@@ -166,6 +170,7 @@ describe 'OpenStudio::Workflow' do
   it 'should fail to run energyplus with malformed weather' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/local_ep_malformed_weather'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
     k = OpenStudio::Workflow.run_energyplus 'Local', run_dir
@@ -193,6 +198,7 @@ describe 'OpenStudio::Workflow' do
   it 'should create a mongo file adapater and run the verbose format' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/mongo_ex1'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
     options = {
       datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
       analysis_root_path: 'spec/files/example_models',
@@ -208,30 +214,9 @@ describe 'OpenStudio::Workflow' do
     expect(k.final_state).to eq :finished
   end
 
-  # it 'should add a new state and transition with geometry manipulation', run_xml: true do
-  #   transitions = OpenStudio::Workflow::Run.default_transition
-  #   transitions[1][:to] = :xml
-  #   transitions.insert(2, {from: :xml, to: :openstudio})
-  #
-  #   states = OpenStudio::Workflow::Run.default_states
-  #   states.insert(2, {:state => :xml, :options => {:after_enter => :run_xml}})
-  #   options = {
-  #       transitions: transitions,
-  #       states: states,
-  #       analysis_root_path: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/test_measures',
-  #       xml_library_file: '../assetscore-openstudio/PNNL_Multi_Block_OS_Console/main'
-  #   }
-  #   pp options
-  #   run_dir = './spec/files/mongo_xml2'
-  #   k = OpenStudio::Workflow.load 'Local', run_dir, options
-  #   expect(k).to be_instance_of OpenStudio::Workflow::Run
-  #   expect(k.directory).to eq File.expand_path(run_dir)
-  #   expect(k.run).to eq :finished
-  #   expect(k.final_state).to eq :finished
-  # end
-
   it 'should create a new datapoint based on a list' do
     run_dir = './spec/files/dynamically_created'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
     dp_uuid = 'random_datapoint_uuid'
     options = {
       datapoint_id: dp_uuid,
@@ -262,6 +247,7 @@ describe 'OpenStudio::Workflow' do
   it 'should create a mongo file adapater and run the concise format', mongo: true do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/mongo_ex3'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
     options = {
       datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
       analysis_root_path: 'spec/files/example_models',

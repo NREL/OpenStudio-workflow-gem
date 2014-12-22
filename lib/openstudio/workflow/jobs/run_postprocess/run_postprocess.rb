@@ -88,7 +88,10 @@ class RunPostprocess
     end
 
     # Remove empty directories in run folder
-    Dir["#{@run_directory}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w(. ..)).empty? }.each { |d| Dir.rmdir d }
+    Dir["#{@run_directory}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w(. ..)).empty? }.each do |d|
+      @logger.info "Removing empty directory #{d}"
+      Dir.rmdir d
+    end
 
     paths_to_rm = []
     # paths_to_rm << Pathname.glob("#{@run_directory}/*.osm")

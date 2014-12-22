@@ -3,6 +3,7 @@ OpenStudio::Workflow Change Log
 
 Version 0.0.5 (Unreleased)
 -------------
+* Tests for programmatically creating the analysis.json files from the OpenStudio-analysis-gem
 
 Version 0.0.4
 -------------

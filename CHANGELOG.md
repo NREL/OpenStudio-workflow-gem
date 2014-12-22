@@ -1,7 +1,10 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Version 0.0.4 (Unreleased)
+Version 0.0.5 (Unreleased)
+-------------
+
+Version 0.0.4
 -------------
 * Include rubyXL gem for reading/writing MS Excel files
 * Remove invalid characters from OpenStudio Measure Attributes. /[|!@#\$%^&\*\(\)\{\}\\\[\]|;:'",<.>\/?\+=]+/

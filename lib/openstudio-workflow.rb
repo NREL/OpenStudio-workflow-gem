@@ -22,7 +22,7 @@ require 'rubyXL'
 require 'multi_json'
 require 'colored'
 require 'fileutils'
-require 'securerandom'
+require 'securerandom' # uuids
 require 'json' # needed for a single pretty generate call
 require 'pathname'
 

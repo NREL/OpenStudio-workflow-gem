@@ -23,6 +23,7 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
+    CFPropertyList (2.2.8)
     activemodel (3.2.21)
       activesupport (= 3.2.21)
       builder (~> 3.0.0)

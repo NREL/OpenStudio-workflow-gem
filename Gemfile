@@ -23,11 +23,8 @@ group :xml do
 end
 
 group :test do
-  gem 'rspec', '~> 2.14'
-end
-
-group :ci do
-  gem 'ci_reporter', '~> 1.9.2'
+  gem 'rspec', '~> 3.1.0'
+  gem 'ci_reporter_rspec'
   gem 'rubocop'
   gem 'rubocop-checkstyle_formatter'
 end

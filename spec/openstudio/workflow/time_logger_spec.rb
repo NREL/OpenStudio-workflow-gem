@@ -2,8 +2,6 @@ require 'rspec'
 require 'spec_helper'
 
 describe TimeLogger do
-
-
   describe 'single value' do
     before :all do
       @t = TimeLogger.new
@@ -54,7 +52,7 @@ describe TimeLogger do
     end
 
     it 'should save a file' do
-      #@t.save("#{File.dirname()}"
+      # @t.save("#{File.dirname()}"
     end
   end
 end

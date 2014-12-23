@@ -46,7 +46,6 @@ describe 'OpenStudio::Workflow' do
     rescue LoadError
       puts 'No Mongo'
     end
-
   end
 
   it 'should run a local file adapter in legacy mode' do

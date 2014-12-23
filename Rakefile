@@ -1,5 +1,5 @@
 require 'bundler'
-require 'bundler/gem_tasks'
+
 begin
   Bundler.setup
 rescue Bundler::BundlerError => e
@@ -8,11 +8,14 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 
-require 'rake'
-require 'rspec/core'
 require 'rspec/core/rake_task'
 
-# require 'rubocop/rake_task'
+# Always create spec reports
+require 'ci/reporter/rake/rspec'
+
+# Gem tasks
+require 'bundler/gem_tasks'
+
 RSpec::Core::RakeTask.new(:spec) do |spec|
   spec.rspec_opts = %w(--format progress --format CI::Reporter::RSpec)
   spec.pattern = FileList['spec/**/*_spec.rb']

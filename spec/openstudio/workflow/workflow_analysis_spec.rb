@@ -4,7 +4,6 @@ require 'spec_helper'
 require 'openstudio-analysis'
 
 describe 'OpenStudio Formulation' do
-
   it 'should run a local file adapter in legacy mode' do
     a = OpenStudio::Analysis.create('workflow-gem')
     run_dir = 'spec/files/simulations/workflow-gem-1'
@@ -17,18 +16,18 @@ describe 'OpenStudio Formulation' do
 
     p = 'spec/files/example_models/measures/ReduceLightingLoadsByPercentage'
     m = a.workflow.add_measure_from_path('light_power_reduction', 'Reduce Lights', p)
-    #m.argument_value('heating_sch', 'some-string')
+    # m.argument_value('heating_sch', 'some-string')
 
     p = 'spec/files/example_models/measures/RotateBuilding'
     m = a.workflow.add_measure_from_path('rotate_building', 'Rotate Building', p)
 
     # add output variables
-    a.add_output({
-                     display_name: "Total Natural Gas",
-                     name: "standard_report_legacy.total_natural_gas",
-                     units: "MJ/m2",
+    a.add_output(
+                     display_name: 'Total Natural Gas',
+                     name: 'standard_report_legacy.total_natural_gas',
+                     units: 'MJ/m2',
                      objective_function: true
-                 })
+                 )
 
     a.save "#{run_dir}/analysis.json"
     a.save_static_data_point "#{run_dir}/data_point.json"
@@ -37,10 +36,10 @@ describe 'OpenStudio Formulation' do
     # it requires you to know the relative path to the measure which you already added when constructing the workflow.
     # best to keep the analysis_root_path empty when using the programmatic interface
     options = {
-        problem_filename: "analysis.json",
-        datapoint_filename: "data_point.json",
-        analysis_root_path: '',
-        use_monthly_reports: true
+      problem_filename: 'analysis.json',
+      datapoint_filename: 'data_point.json',
+      analysis_root_path: '',
+      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
@@ -48,7 +47,6 @@ describe 'OpenStudio Formulation' do
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
     # run the workflow in the simulation directory
-
 
     # d = {
     #     type: 'uniform',
@@ -76,6 +74,4 @@ describe 'OpenStudio Formulation' do
     # expect(k.run).to eq :finished
     # expect(k.final_state).to eq :finished
   end
-
-
 end

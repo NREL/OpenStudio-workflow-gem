@@ -60,13 +60,13 @@ class RunReportingMeasures
       @datapoint_json = @adapter.get_datapoint(@directory, @options)
       @analysis_json = @adapter.get_problem(@directory, @options)
 
-      @time_logger.start("Running standard post process")
+      @time_logger.start('Running standard post process')
       if @options[:use_monthly_reports]
         run_monthly_postprocess
       else
         run_standard_postprocess
       end
-      @time_logger.stop("Running standard post process")
+      @time_logger.stop('Running standard post process')
 
       translate_csv_to_json
 
@@ -371,7 +371,6 @@ class RunReportingMeasures
         ['INTERIORLIGHTS:ELECTRICITY', 'EXTERIORLIGHTS:ELECTRICITY', 'INTERIOREQUIPMENT:ELECTRICITY', 'EXTERIOREQUIPMENT:ELECTRICITY',
          'FANS:ELECTRICITY', 'PUMPS:ELECTRICITY', 'HEATING:ELECTRICITY', 'COOLING:ELECTRICITY', 'HEATREJECTION:ELECTRICITY',
          'HUMIDIFIER:ELECTRICITY', 'HEATRECOVERY:ELECTRICITY', 'WATERSYSTEMS:ELECTRICITY', 'COGENERATION:ELECTRICITY', 'REFRIGERATION:ELECTRICITY'].each do |end_use|
-
           tmp_query = query + " AND ColumnName='#{end_use}'"
           tmp_val = sql_query(sql, 'BUILDING ENERGY PERFORMANCE - ELECTRICITY', tmp_query)
           val += tmp_val unless tmp_val.nil?

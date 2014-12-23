@@ -14,7 +14,7 @@ gem 'delayed_job_mongoid'
 
 # use the openstudio-analysis gem
 gem 'openstudio-analysis', github: 'NREL/OpenStudio-analysis-gem', branch: '0.4.0'
-#gem 'openstudio-analysis', path: '../OpenStudio-analysis-gem'
+# gem 'openstudio-analysis', path: '../OpenStudio-analysis-gem'
 
 # Installation for reading/writing xml
 group :xml do

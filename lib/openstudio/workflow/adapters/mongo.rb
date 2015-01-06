@@ -80,17 +80,9 @@ module OpenStudio
               @datapoint.internal_ip_address = @datapoint.ip_address
             else
               if Gem.loaded_specs['facter']
-                # Check if we are on amazon
-                if Facter.fact(:ec2_metadata)
-                  # must be on amazon
-                  m = Facter.fact(:ec2_metadata).value
-
-                  @datapoint.ip_address = m['public-ipv4'] ? m['public-ipv4'] : 'unknown'
-                  @datapoint.internal_ip_address = m['local-ipv4'] ? m['local-ipv4'] : 'unknown'
-                else
-                  @datapoint.ip_address = Facter.fact(:ipaddress).value
-                  @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
-                end
+                # Use EC2 public to check if we are on AWS.
+                @datapoint.ip_address = Facter.fact(:ec2_public_ipv4) ? Facter.fact(:ec2_public_ipv4).value : Facter.fact(:ipaddress).value
+                @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
               end
             end
           rescue => e

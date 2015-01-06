@@ -25,8 +25,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'multi_json', '~> 1.10.0'
   s.add_runtime_dependency 'colored', '~> 1.2'
-  # Don't upgrade to facter > 2.0 as it breaks the facts. Need to figure out what the change is.
-  s.add_runtime_dependency 'facter', '~> 2.0.2'
+  s.add_runtime_dependency 'facter', '~> 2.3'
   s.add_runtime_dependency 'rubyXL', '~> 3.3.0' # install rubyXL gem to read/write excel files
   s.add_runtime_dependency 'rubyzip', '~> 1.1.6'
 end

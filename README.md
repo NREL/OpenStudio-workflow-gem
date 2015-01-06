@@ -8,7 +8,7 @@ This applications has the following dependencies
 
 * Ruby 2.0
 * OpenStudio with Ruby 2.0 bindings
-* EnergyPlus 8.1 (assuming OpenStudio ~> 1.3.1)
+* EnergyPlus 8.2 (assuming OpenStudio >= 1.5.4)
 * MongoDB if using MongoDB Adapter (or when running rspec)
 
 [OpenStudio](http://developer.nrel.gov/downloads/buildings/openstudio/builds/) needs to be installed
@@ -24,7 +24,7 @@ Add this line to your application's Gemfile:
 
 Use this line if you want the bleeding edge:
 
-    gem 'OpenStudio-workflow', :git => 'git@github.com:NREL/OpenStudio-workflow-gem.git'
+    gem 'OpenStudio-workflow', github: 'NREL/OpenStudio-workflow-gem', branch: 'EnergyPlus-8.2.0'
 
 And then execute:
 
@@ -35,6 +35,9 @@ Or install it yourself as:
     $ gem install OpenStudio-workflow
 
 ## Usage
+
+Note that the branches of the Workflow Gem depict which version of EnergyPlus is in use. The develop branch at the
+moment should not be used.
 
 There are currently two adapters to run OpenStudio workflow. The first is a simple Local adapter
 allowing the user to pass in the directory to simulation. The directory must have an
@@ -61,7 +64,7 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 * Implement better error handling with custom exception classes
 * Implement a different measure directory, seed model directory, and weather file directory option
 * ~Dynamically add other "states" to the workflow~
-* Create and change into a unique directory when running measures
+* ~Create and change into a unique directory when running measures~
 * ~~Implement Error State~~
 * ~~Implement MongoDB Adapter~~
 * ~~Implement remaining Adapter states (i.e. communicate success, communicate failure etc~~

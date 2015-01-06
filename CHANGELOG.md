@@ -1,7 +1,7 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Version 0.0.5 (Unreleased)
+Version 0.1.0
 -------------
 * Tests for programmatically creating the analysis.json files from the OpenStudio-analysis-gem
 * Upgrade to EnergyPlus 8.2. Right now the run energyplus and run runmanager job hard code these paths.

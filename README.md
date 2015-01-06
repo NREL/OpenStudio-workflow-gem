@@ -12,8 +12,7 @@ This applications has the following dependencies
 * MongoDB if using MongoDB Adapter (or when running rspec)
 
 [OpenStudio](http://developer.nrel.gov/downloads/buildings/openstudio/builds/) needs to be installed
-and in your path.  On Mac/Linux it is easiest to add the following to your .bash_profile or /etc/profile.d in order
-to make sure that OpenStudio can be loaded.
+and in your path.  On Mac/Linux it is easiest to add the following to your .bash_profile or /etc/profile.d to make sure that OpenStudio can be loaded.
 
     export OPENSTUDIO_ROOT=/usr/local
     export RUBYLIB=$OPENSTUDIO_ROOT/lib/ruby/site_ruby/2.0.0

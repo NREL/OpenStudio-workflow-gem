@@ -15,12 +15,10 @@ describe TimeLogger do
       @t.start('test')
       expect(@t.channels['test']).not_to eq nil
 
-      puts @t.inspect
       sleep 1
       @t.stop('test')
 
       expect(@t.channels['test']).to eq nil
-      puts @t.inspect
     end
 
     it 'should report time' do

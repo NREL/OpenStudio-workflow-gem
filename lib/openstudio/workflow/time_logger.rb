@@ -13,17 +13,17 @@ class TimeLogger
   def start(channel)
     # warning -- "will reset timer for #{moniker}" if @monikers.key? moniker
     s = ::Time.now
-    @channels[channel] = {start_time_str: "#{s}", start_time: s.to_f}
+    @channels[channel] = { start_time_str: "#{s}", start_time: s.to_f }
   end
 
   def stop(channel)
     end_time = ::Time.now.to_f
     @logger << {
-        channel: channel,
-        start_time: @channels[channel][:start_time],
-        start_time_str: @channels[channel][:start_time_str],
-        end_time: end_time,
-        delta: end_time - @channels[channel][:start_time]
+      channel: channel,
+      start_time: @channels[channel][:start_time],
+      start_time_str: @channels[channel][:start_time_str],
+      end_time: end_time,
+      delta: end_time - @channels[channel][:start_time]
     }
 
     # remove the channel
@@ -43,7 +43,7 @@ class TimeLogger
 
   # this will report all the values for all the channels with this name.
   def delta(channel)
-    @logger.map { |k| {channel.to_s => k[:delta]} if k[:channel] == channel }
+    @logger.map { |k| { channel.to_s => k[:delta] } if k[:channel] == channel }
   end
 
   # save the data to a file. This will overwrite the file if it already exists

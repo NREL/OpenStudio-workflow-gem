@@ -24,9 +24,9 @@ class RunEnergyplus
   def initialize(directory, logger, time_logger, adapter, options = {})
     energyplus_path = nil
     if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-      energyplus_path = 'C:/EnergyPlus-8-1-0'
+      energyplus_path = 'C:/EnergyPlus-8-2-0'
     else
-      energyplus_path = '/usr/local/EnergyPlus-8-1-0'
+      energyplus_path = '/usr/local/EnergyPlus-8-2-0'
     end
 
     defaults = {
@@ -99,20 +99,18 @@ class RunEnergyplus
 
     # can't create symlinks because the /vagrant mount is actually a windows mount
     @logger.info "Copying EnergyPlus files to run directory: #{@run_directory}"
-    @time_logger.start("Copying EnergyPlus files")
+    @time_logger.start('Copying EnergyPlus files')
     FileUtils.copy("#{@options[:energyplus_path]}/libbcvtb.so", "#{@run_directory}/libbcvtb.so")
     FileUtils.copy("#{@options[:energyplus_path]}/libepexpat.so", "#{@run_directory}/libepexpat.so")
     FileUtils.copy("#{@options[:energyplus_path]}/libepfmiimport.so", "#{@run_directory}/libepfmiimport.so")
-    FileUtils.copy("#{@options[:energyplus_path]}/libDElight.so", "#{@run_directory}/libDElight.so")
-    FileUtils.copy("#{@options[:energyplus_path]}/libDElight.so", "#{@run_directory}/libDElight.so")
     FileUtils.copy("#{@options[:energyplus_path]}/ExpandObjects", "#{@run_directory}/ExpandObjects")
     FileUtils.copy("#{@options[:energyplus_path]}/EnergyPlus", "#{@run_directory}/EnergyPlus")
     FileUtils.copy("#{@options[:energyplus_path]}/Energy+.idd", "#{@run_directory}/Energy+.idd")
-    @time_logger.stop("Copying EnergyPlus files")
+    @time_logger.stop('Copying EnergyPlus files')
 
-    @time_logger.start("Running EnergyPlus")
+    @time_logger.start('Running EnergyPlus')
     @results = call_energyplus
-    @time_logger.stop("Running EnergyPlus")
+    @time_logger.stop('Running EnergyPlus')
 
     @results
   end

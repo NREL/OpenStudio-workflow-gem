@@ -2,8 +2,6 @@ require 'rspec'
 require 'spec_helper'
 
 describe TimeLogger do
-
-
   describe 'single value' do
     before :all do
       @t = TimeLogger.new
@@ -17,12 +15,10 @@ describe TimeLogger do
       @t.start('test')
       expect(@t.channels['test']).not_to eq nil
 
-      puts @t.inspect
       sleep 1
       @t.stop('test')
 
       expect(@t.channels['test']).to eq nil
-      puts @t.inspect
     end
 
     it 'should report time' do
@@ -54,7 +50,7 @@ describe TimeLogger do
     end
 
     it 'should save a file' do
-      #@t.save("#{File.dirname()}"
+      # @t.save("#{File.dirname()}"
     end
   end
 end

@@ -64,9 +64,9 @@ class RunOpenstudio
 
       apply_measures(:openstudio_measure)
 
-      @time_logger.start("Translating to EnergyPlus")
+      @time_logger.start('Translating to EnergyPlus')
       translate_to_energyplus
-      @time_logger.stop("Translating to EnergyPlus")
+      @time_logger.stop('Translating to EnergyPlus')
 
       apply_measures(:energyplus_measure)
 
@@ -89,9 +89,9 @@ class RunOpenstudio
       end
     end
 
-    @time_logger.start("Saving OSM and IDF")
+    @time_logger.start('Saving OSM and IDF')
     save_osm_and_idf
-    @time_logger.stop("Saving OSM and IDF")
+    @time_logger.stop('Saving OSM and IDF')
 
     @results
   end

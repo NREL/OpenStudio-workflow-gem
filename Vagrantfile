@@ -28,6 +28,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     package.vm.network :private_network, type: 'dhcp'
     package.vm.network "forwarded_port", guest: 27017, host: 27018
     package.vm.synced_folder ".", "/data/openstudio-workflow", :nfs => use_nfs
+    if File.exist? "../OpenStudio-analysis-gem"
+      package.vm.synced_folder "../OpenStudio-analysis-gem", "/data/OpenStudio-analysis-gem", :nfs => use_nfs
+    end
     if File.exist? "../assetscore-openstudio"
       package.vm.synced_folder "../assetscore-openstudio", "/data/assetscore-openstudio", :nfs => use_nfs
     end
@@ -35,11 +38,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision :chef_solo do |chef|
     chef.json = {
-        :openstudio => {
-            :version => "1.5.3",
-            :installer => {
-                :version_revision => "bad56a6316",
-                :platform => "Linux-Ruby2.0"
+        openstudio: {
+            version: '1.5.5',
+            installer: {
+                version_revision: 'f6ccda50f0'
             }
         },
         :openstudio_new => {

@@ -30,9 +30,9 @@ class RunRunmanager
   def initialize(directory, logger, time_logger, adapter, options = {})
     energyplus_path = nil
     if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-      energyplus_path = 'C:/EnergyPlus-8-1-0'
+      energyplus_path = 'C:/EnergyPlus-8-2-0'
     else
-      energyplus_path = '/usr/local/EnergyPlus-8-1-0'
+      energyplus_path = '/usr/local/EnergyPlus-8-2-0'
     end
 
     defaults = {

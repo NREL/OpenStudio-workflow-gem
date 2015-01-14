@@ -1,6 +1,10 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Unreleased Version
+------------------
+* Catch exception when loading a measure file.
+
 Version 0.1.0
 -------------
 * Tests for programmatically creating the analysis.json files from the OpenStudio-analysis-gem

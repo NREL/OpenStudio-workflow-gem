@@ -120,41 +120,53 @@ module OpenStudio
           @logger.info "Loading Measure from #{measure_file_path}"
           fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
 
-          require measure_file_path
-          measure = Object.const_get(measure_name).new
-          runner = OpenStudio::Ruleset::OSRunner.new
+          measure = nil
+          runner = nil
           result = nil
+          begin
+            require measure_file_path
+            measure = Object.const_get(measure_name).new
+            runner = OpenStudio::Ruleset::OSRunner.new
+          rescue => e
+            log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
+            raise log_message
+          end
 
           arguments = nil
-          if workflow_item[:measure_type] == 'RubyMeasure'
-            arguments = measure.arguments(@model)
-          elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
-            arguments = measure.arguments(@model)
-          elsif workflow_item[:measure_type] == 'ReportingMeasure'
-            arguments = measure.arguments
-          end
-
-          # Create argument map and initialize all the arguments
-          argument_map = OpenStudio::Ruleset::OSArgumentMap.new
-          arguments.each do |v|
-            argument_map[v.name] = v.clone
-          end
-          # @logger.info "Argument map for measure is #{argument_map}"
-
-          @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
-          if workflow_item[:arguments]
-            workflow_item[:arguments].each do |argument|
-              success = apply_arguments(argument_map, argument)
-              fail 'Could not set arguments' unless success
+          begin
+            if workflow_item[:measure_type] == 'RubyMeasure'
+              arguments = measure.arguments(@model)
+            elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
+              arguments = measure.arguments(@model)
+            elsif workflow_item[:measure_type] == 'ReportingMeasure'
+              arguments = measure.arguments
             end
-          end
 
-          @logger.info "Iterating over variables for workflow item '#{workflow_item[:name]}'"
-          if workflow_item[:variables]
-            workflow_item[:variables].each do |variable|
-              success = apply_variables(argument_map, variable)
-              fail 'Could not set variables' unless success
+            # Create argument map and initialize all the arguments
+            argument_map = OpenStudio::Ruleset::OSArgumentMap.new
+            arguments.each do |v|
+              argument_map[v.name] = v.clone
             end
+            # @logger.info "Argument map for measure is #{argument_map}"
+
+            @logger.info "Iterating over arguments for workflow item '#{workflow_item[:name]}'"
+            if workflow_item[:arguments]
+              workflow_item[:arguments].each do |argument|
+                success = apply_arguments(argument_map, argument)
+                fail 'Could not set arguments' unless success
+              end
+            end
+
+            @logger.info "Iterating over variables for workflow item '#{workflow_item[:name]}'"
+            if workflow_item[:variables]
+              workflow_item[:variables].each do |variable|
+                success = apply_variables(argument_map, variable)
+                fail 'Could not set variables' unless success
+              end
+            end
+          rescue => e
+            log_message = "Error assigning argument in measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
+            raise log_message
           end
 
           begin

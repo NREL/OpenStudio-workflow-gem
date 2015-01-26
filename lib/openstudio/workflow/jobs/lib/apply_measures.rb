@@ -133,8 +133,8 @@ module OpenStudio
           end
 
           arguments = nil
-          
-	  begin
+
+          begin
             if workflow_item[:measure_type] == 'RubyMeasure'
               arguments = measure.arguments(@model)
             elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
@@ -142,8 +142,8 @@ module OpenStudio
             elsif workflow_item[:measure_type] == 'ReportingMeasure'
               arguments = measure.arguments
             end
-	  
-	    @logger.info "Extracted the following arguments: #{arguments}"
+
+            @logger.info "Extracted the following arguments: #{arguments}"
 
             # Create argument map and initialize all the arguments
             argument_map = OpenStudio::Ruleset::OSArgumentMap.new
@@ -219,9 +219,10 @@ module OpenStudio
             @logger.warn log_message
           end
         rescue => e
-	log_message = "#{__FILE__} failed with message #{e.message} in #{e.backtrace.join("\n")}"
-        @logger.error log_message
-	ensure
+          log_message = "#{__FILE__} failed with message #{e.message} in #{e.backtrace.join("\n")}"
+          @logger.error log_message
+          raise log_message
+        ensure
           Dir.chdir current_dir
           @time_logger.stop("Measure:#{workflow_item[:name]}")
 

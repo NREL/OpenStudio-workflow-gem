@@ -4,7 +4,7 @@ Run an EnergyPlus simulation using a file-based workflow that is read from a Loc
 
 ## Installation
 
-This applications has the following dependencies
+The OpenStudio Workflow Gem has the following dependencies:
 
 * Ruby 2.0
 * OpenStudio with Ruby 2.0 bindings
@@ -12,7 +12,7 @@ This applications has the following dependencies
 * MongoDB if using MongoDB Adapter (or when running rspec)
 
 [OpenStudio](http://developer.nrel.gov/downloads/buildings/openstudio/builds/) needs to be installed
-and in your path.  On Mac/Linux it is easiest to add the following to your .bash_profile or /etc/profile.d to make sure that OpenStudio can be loaded.
+and in your path.  On Mac/Linux it is easiest to add the following to your .bash_profile or /etc/profile.d/<file>.sh to ensure OpenStudio can be loaded.
 
     export OPENSTUDIO_ROOT=/usr/local
     export RUBYLIB=$OPENSTUDIO_ROOT/lib/ruby/site_ruby/2.0.0
@@ -59,9 +59,9 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 
 ### Todos
 
-* Read the analysis.json file to determine the states that are going to run instead of (or inaddition to) passing them into the constructor
+* Read the analysis.json file to determine the states that are going to run instead of (or in addition to) passing them into the constructor
 * Implement better error handling with custom exception classes
-* Implement a different measure directory, seed model directory, and weather file directory option
+* ~Implement a different measure directory, seed model directory, and weather file directory option~
 * ~Dynamically add other "states" to the workflow~
 * ~Create and change into a unique directory when running measures~
 * ~~Implement Error State~~

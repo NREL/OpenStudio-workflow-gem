@@ -183,7 +183,7 @@ describe 'OpenStudio::Workflow' do
     expect(k.options[:datapoint_filename]).to eq nil
     expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :errored
-    expect(k.final_message).to match /.*failed with EnergyPlus returned a non-zero exit code.*/
+    expect(k.final_message).to match /.*failed with EnergyPlus Terminated with a Fatal Error*/
   end
 
   it 'should not find the input file' do

@@ -1,7 +1,4 @@
-require 'rspec'
 require 'spec_helper'
-
-require 'openstudio-analysis'
 
 describe 'OpenStudio Formulation' do
   it 'should run a local file adapter in legacy mode' do

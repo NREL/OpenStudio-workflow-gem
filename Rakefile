@@ -16,10 +16,12 @@ require 'ci/reporter/rake/rspec'
 # Gem tasks
 require 'bundler/gem_tasks'
 
-RSpec::Core::RakeTask.new(:spec) do |spec|
+RSpec::Core::RakeTask.new('spec:unit') do |spec|
   spec.rspec_opts = %w(--format progress --format CI::Reporter::RSpec)
   spec.pattern = FileList['spec/**/*_spec.rb']
 end
+
+task 'spec:unit' => 'ci:setup:rspec'
 
 require 'rubocop/rake_task'
 desc 'Run RuboCop on the lib directory'
@@ -31,4 +33,4 @@ RuboCop::RakeTask.new(:rubocop) do |task|
   task.fail_on_error = false
 end
 
-task default: [:spec]
+task default: 'spec:unit'

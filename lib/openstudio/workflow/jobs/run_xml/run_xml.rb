@@ -211,14 +211,14 @@ class RunXml
           if wf[:arguments]
             wf[:arguments].each do |wf_arg|
               if wf_arg[:value]
-                @logger.info "Setting argument value #{wf_arg[:name]} to #{wf_arg[:value]}"
+                @logger.info "Setting argument value '#{wf_arg[:name]}' to '#{wf_arg[:value]}'"
                 # Note that these measures have symbolized hash keys and not strings.  I really want indifferential access here!
                 args[wf_arg[:name].to_sym] = wf_arg[:value]
               end
             end
           end
 
-          @logger.info "iterate over variables for workflow item #{wf[:name]}"
+          @logger.info "iterate over variables for workflow item '#{wf[:name]}'"
           if wf[:variables]
             wf[:variables].each do |wf_var|
               # Argument hash in workflow looks like the following

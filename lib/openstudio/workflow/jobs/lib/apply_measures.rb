@@ -39,12 +39,12 @@ module OpenStudio
         success = true
 
         unless argument[:value].nil?
-          @logger.info "Setting argument value #{argument[:name]} to #{argument[:value]}"
+          @logger.info "Setting argument value '#{argument[:name]}' to '#{argument[:value]}'"
 
           v = argument_map[argument[:name]]
           fail "Could not find argument map in measure for '#{argument[:name]}' with value '#{argument[:value]}'" unless v
           value_set = v.setValue(argument[:value])
-          fail "Could not set argument #{argument[:name]} of value #{argument[:value]} on model" unless value_set
+          fail "Could not set argument '#{argument[:name]}' of value '#{argument[:value]}' on model" unless value_set
           argument_map[argument[:name]] = v.clone
         else
           @logger.warn "Value for argument '#{argument[:name]}' not set in argument list therefore will use default"

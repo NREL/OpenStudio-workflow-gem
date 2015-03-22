@@ -43,7 +43,7 @@ class TimeLogger
 
   # this will report all the values for all the channels with this name.
   def delta(channel)
-    @logger.map { |k| { channel.to_s => k[:delta] } if k[:channel] == channel }
+    @logger.map { |k| { channel.to_s => k[:delta] } if k[:channel] == channel }.compact
   end
 
   # save the data to a file. This will overwrite the file if it already exists

@@ -46,10 +46,11 @@ describe TimeLogger do
       expect(r.first[:delta]).to be_within(0.1).of(2)
       expect(r.last[:delta]).to be_within(0.1).of(1)
       puts @t.report
-    end
 
-    it 'should save a file' do
-      # @t.save("#{File.dirname()}"
+      expect(@t.delta('log channel with spaces')).to be_a Array
+      expect(@t.delta('log channel with spaces').size).to eq 1
+      expect(@t.delta('log channel with spaces').first.values.first).to be_within(0.1).of(2)
     end
   end
+
 end

@@ -65,6 +65,9 @@ module OpenStudio
           # TODO: use the ComputeNode model to pull out the information so that we can reuse the methods
           # Determine what the IP address is of the worker node and save in the data point
 
+          # TODO: Check if there is a system_config.conf file in the /etc/openstudio-server/server.conf folder and
+          # read from that file
+
           retries = 0
           begin
             require 'socket'

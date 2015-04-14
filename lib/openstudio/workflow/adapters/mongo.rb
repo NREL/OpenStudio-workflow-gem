@@ -73,8 +73,8 @@ module OpenStudio
           # public-hostname: ec2-54-161-221-129.compute-1.amazonaws.com
           # public-ipv4: 54.161.221.129
           # number_of_cores: 1
-          if File.exist? "/etc/openstudio-server/instance.yml"
-            y = YAML.load_file("/etc/openstudio-server/instance.yml")
+          if File.exist? '/etc/openstudio-server/instance.yml'
+            y = YAML.load_file('/etc/openstudio-server/instance.yml')
             @datapoint.ip_address = y['public-ipv4'] if y['public-ipv4']
             @datapoint.internal_ip_address = y['local-ipv4'] if y['local-ipv4']
           else
@@ -204,7 +204,7 @@ module OpenStudio
           if results
             @datapoint.results ? @datapoint.results.merge!(results) : @datapoint.results = results
           end
-          result = @datapoint.save! # redundant because next method calls save too.       
+          result = @datapoint.save! # redundant because next method calls save too.
         end
 
         # TODO: Implement the writing to the mongo_db for logging

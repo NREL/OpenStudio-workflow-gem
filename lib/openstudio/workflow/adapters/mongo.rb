@@ -204,13 +204,7 @@ module OpenStudio
           if results
             @datapoint.results ? @datapoint.results.merge!(results) : @datapoint.results = results
           end
-          result = @datapoint.save! # redundant because next method calls save too.
-
-          if result
-            # @logger.info 'Successfully saved result to database'
-          else
-            # @logger.error 'ERROR saving result to database'
-          end
+          result = @datapoint.save! # redundant because next method calls save too.       
         end
 
         # TODO: Implement the writing to the mongo_db for logging
@@ -220,10 +214,6 @@ module OpenStudio
           @log = OpenStudio::Workflow::Adapters::MongoLog.new(@datapoint)
 
           @log
-        end
-
-        def save_yml_data_to_database(datapoint, yaml)
-
         end
 
         private

@@ -4,8 +4,8 @@ AllCops:
     - 'spec/files/**/measures/**/*'
     - '**/measure.rb'
     - 'spec/files/mongoid/models/**/*'
-
-inherit_from: .rubocop_todo.yml
+    - 'spec/files/pat_project/data_point_*/**/*'
+    - 'spec/files/mongo_pat1/run/**/*'
 
 # ==================== Linters ====================
 Lint/AmbiguousOperator:

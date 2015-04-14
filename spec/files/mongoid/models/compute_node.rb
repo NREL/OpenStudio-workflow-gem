@@ -14,8 +14,8 @@ class ComputeNode
   field :valid, type: Boolean, default: false
 
   # Indexes
-  index({ hostname: 1 }, unique: true)
-  index({ ip_address: 1 }, unique: true)
+  index({hostname: 1}, unique: true)
+  index({ip_address: 1}, unique: true)
   index(node_type: 1)
 
   # Return all the valid IP addresses as a hash in prep for writing to a dataframe
@@ -91,9 +91,9 @@ class ComputeNode
   # New method to download files from the remote systems.  This method flips the download around and favors
   # looking at which points are on the compute node and download the files that way instead of trying to find which
   # compute node the data point was run.
-  def self.download_all_results(analysis_id)
-    # Get the analysis
-    analysis = Analysis.find(analysis_id)
+  def self.download_all_results(analysis_id = nil)
+    # Get the analysis if it exists
+    analysis = analysis_id.nil? ? nil : Analysis.find(analysis_id)
 
     # What is the maximum number of cores that we want this to run on?
     cns = ComputeNode.all
@@ -101,9 +101,15 @@ class ComputeNode
       Rails.logger.info "Checking for points on #{cn.ip_address}"
 
       # find which data points are complete on the compute node
-      dps = analysis.data_points.and({ download_status: 'na' }, { status: 'completed' }, { ip_address: cn.ip_address })
+      dps = nil
+      if analysis
+        dps = analysis.data_points.and({download_status: 'na'}, status: 'completed').or({ip_address: cn.ip_address}, internal_ip_address: cn.ip_address)
+      else
+        dps = DataPoint.and({download_status: 'na'}, status: 'completed').or({ip_address: cn.ip_address}, internal_ip_address: cn.ip_address)
+      end
 
       if dps.count > 0
+        # TODO: security overhaul: remove password
         session = Net::SSH.start(cn.ip_address, cn.user, password: cn.password)
 
         dps.each do |dp|
@@ -180,6 +186,7 @@ class ComputeNode
 
     # end
 
+    # TODO: move this to a worker init because this is hitting API limits on amazon!
     Socket.gethostname =~ /os-.*/ ? local_host = true : local_host = false
 
     # go through the worker node
@@ -188,7 +195,6 @@ class ComputeNode
         node.ami_id = 'Vagrant'
         node.instance_id = 'Vagrant'
       else
-        # TODO: convert this all over to Facter!
         #   ex: @datapoint.ami_id = m['ami-id'] ? m['ami-id'] : 'unknown'
         #   ex: @datapoint.instance_id = m['instance-id'] ? m['instance-id'] : 'unknown'
         #   ex: @datapoint.hostname = m['public-hostname'] ? m['public-hostname'] : 'unknown'
@@ -199,6 +205,7 @@ class ComputeNode
           node.instance_id = `curl -sL http://169.254.169.254/latest/meta-data/instance-id`
         else
           # have to communicate with the box to get the instance information (ideally this gets pushed from who knew)
+          # TODO: security overhaul: remove password
           Net::SSH.start(node.ip_address, node.user, password: node.password) do |session|
             # Rails.logger.info(self.inspect)
 

@@ -61,47 +61,60 @@ module OpenStudio
           @datapoint.status_message = ''
           @datapoint.run_start_time = ::Time.now
 
-          # TODO: Get Facter to play well on windows and replace 'socket'
           # TODO: use the ComputeNode model to pull out the information so that we can reuse the methods
           # Determine what the IP address is of the worker node and save in the data point
 
-          # TODO: Check if there is a system_config.conf file in the /etc/openstudio-server/server.conf folder and
-          # read from that file
-
-          retries = 0
-          begin
-            require 'socket'
-            if Socket.gethostname =~ /os-.*/
-              # Maybe use this in the future: /sbin/ifconfig eth1|grep inet|head -1|sed 's/\:/ /'|awk '{print $3}'
-              # Must be on vagrant and just use the hostname to do a lookup
-              map = {
-                'os-server' => '192.168.33.10',
-                'os-worker-1' => '192.168.33.11',
-                'os-worker-2' => '192.168.33.12'
-              }
-              @datapoint.ip_address = map[Socket.gethostname]
-              @datapoint.internal_ip_address = @datapoint.ip_address
-            else
-              if Gem.loaded_specs['facter']
-                # Use EC2 public to check if we are on AWS.
-                @datapoint.ip_address = Facter.fact(:ec2_public_ipv4) ? Facter.fact(:ec2_public_ipv4).value : Facter.fact(:ipaddress).value
-                @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
+          # ami-id: ami-7c7e4e14
+          # instance-id: i-c52e0412
+          # instance-type: m3.medium
+          # local-hostname: ip-10-99-169-57.ec2.internal
+          # local-ipv4: 10.99.169.57
+          # placement: us-east-1a
+          # public-hostname: ec2-54-161-221-129.compute-1.amazonaws.com
+          # public-ipv4: 54.161.221.129
+          # number_of_cores: 1
+          if File.exist? "/etc/openstudio-server/instance.yml"
+            y = YAML.load_file("/etc/openstudio-server/instance.yml")
+            @datapoint.ip_address = y['public-ipv4'] if y['public-ipv4']
+            @datapoint.internal_ip_address = y['local-ipv4'] if y['local-ipv4']
+          else
+            # try to infer it from the socket/facter information
+            # note, facter will be deprecated in the future, so don't extend it!
+            retries = 0
+            begin
+              require 'socket'
+              if Socket.gethostname =~ /os-.*/
+                # Maybe use this in the future: /sbin/ifconfig eth1|grep inet|head -1|sed 's/\:/ /'|awk '{print $3}'
+                # Must be on vagrant and just use the hostname to do a lookup
+                map = {
+                  'os-server' => '192.168.33.10',
+                  'os-worker-1' => '192.168.33.11',
+                  'os-worker-2' => '192.168.33.12'
+                }
+                @datapoint.ip_address = map[Socket.gethostname]
+                @datapoint.internal_ip_address = @datapoint.ip_address
+              else
+                if Gem.loaded_specs['facter']
+                  # Use EC2 public to check if we are on AWS.
+                  @datapoint.ip_address = Facter.fact(:ec2_public_ipv4) ? Facter.fact(:ec2_public_ipv4).value : Facter.fact(:ipaddress).value
+                  @datapoint.internal_ip_address = Facter.fact(:ipaddress).value
+                end
               end
-            end
-          rescue => e
-            # catch any exceptions. It appears that if a new instance of amazon starts, then it is likely that
-            # the Facter for AWS may not be initialized yet. Retry after waiting for 15 seconds if this happens.
-            # If this fails out, then the only issue with this is that the data point won't be downloaded because
-            # the worker node is not known
+            rescue => e
+              # catch any exceptions. It appears that if a new instance of amazon starts, then it is likely that
+              # the Facter for AWS may not be initialized yet. Retry after waiting for 15 seconds if this happens.
+              # If this fails out, then the only issue with this is that the data point won't be downloaded because
+              # the worker node is not known
 
-            # retry just in case
-            if retries < 30 # try for up to 5 minutes
-              retries += 1
-              sleep 10
-              retry
-            else
-              raise "could not find Facter based data for worker node after #{retries} retries with message #{e.message}"
-              # just do nothing for now
+              # retry just in case
+              if retries < 30 # try for up to 5 minutes
+                retries += 1
+                sleep 10
+                retry
+              else
+                raise "could not find Facter based data for worker node after #{retries} retries with message #{e.message}"
+                # just do nothing for now
+              end
             end
           end
 
@@ -207,6 +220,10 @@ module OpenStudio
           @log = OpenStudio::Workflow::Adapters::MongoLog.new(@datapoint)
 
           @log
+        end
+
+        def save_yml_data_to_database(datapoint, yaml)
+
         end
 
         private

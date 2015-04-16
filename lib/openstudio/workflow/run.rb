@@ -283,7 +283,7 @@ module OpenStudio
 
       def next_state
         @logger.info "Current state: '#{@current_state}'"
-        ns = @transitions.select { |h| h[:from] == @current_state }.first[:to]
+        ns = @transitions.find { |h| h[:from] == @current_state }[:to]
         @logger.info "Next state will be: '#{ns}'"
 
         # Set the next state before calling the method

@@ -52,5 +52,4 @@ describe TimeLogger do
       expect(@t.delta('log channel with spaces').first.values.first).to be_within(0.1).of(2)
     end
   end
-
 end

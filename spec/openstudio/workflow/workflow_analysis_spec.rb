@@ -20,11 +20,11 @@ describe 'OpenStudio Formulation' do
 
     # add output variables
     a.add_output(
-                     display_name: 'Total Natural Gas',
-                     name: 'standard_report_legacy.total_natural_gas',
-                     units: 'MJ/m2',
-                     objective_function: true
-                 )
+      display_name: 'Total Natural Gas',
+      name: 'standard_report_legacy.total_natural_gas',
+      units: 'MJ/m2',
+      objective_function: true
+    )
 
     a.save "#{run_dir}/analysis.json"
     a.save_static_data_point "#{run_dir}/data_point.json"

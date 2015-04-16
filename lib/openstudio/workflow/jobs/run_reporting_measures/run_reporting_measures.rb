@@ -77,8 +77,7 @@ class RunReportingMeasures
       end
 
       @logger.info 'Saving reporting measures output attributes JSON'
-      File.open("#{@run_directory}/reporting_measure_attributes.json", 'w') do
-      |f|
+      File.open("#{@run_directory}/reporting_measure_attributes.json", 'w') do |f|
         f << JSON.pretty_generate(@output_attributes)
       end
 

@@ -73,8 +73,7 @@ class RunXml
       end
 
       # @logger.debug "XML measure output attributes JSON is #{@output_attributes}"
-      File.open("#{@run_directory}/measure_attributes_xml.json", 'w') do
-      |f|
+      File.open("#{@run_directory}/measure_attributes_xml.json", 'w') do |f|
         f << JSON.pretty_generate(@output_attributes)
       end
     end
@@ -96,7 +95,7 @@ class RunXml
 
         # assume that the seed model has been placed in the directory
         baseline_model_path = File.expand_path(
-            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:seed][:path]))
+          File.join(@options[:analysis_root_path], @analysis_json[:analysis][:seed][:path]))
 
         if File.exist? baseline_model_path
           @logger.info "Reading in baseline model #{baseline_model_path}"
@@ -125,7 +124,7 @@ class RunXml
         # This last(4) needs to be cleaned up.  Why don't we know the path of the file?
         # assume that the seed model has been placed in the directory
         weather_filename = File.expand_path(
-            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path]))
+          File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path]))
         unless File.exist?(weather_filename)
           @logger.warn "Could not find weather file for simulation #{weather_filename}. Will continue because may change"
         end
@@ -190,7 +189,7 @@ class RunXml
 
           @logger.info "Loading measure in relative path #{measure_path}"
           measure_file_path = File.expand_path(
-              File.join(@options[:analysis_root_path], measure_path, 'measure.rb'))
+            File.join(@options[:analysis_root_path], measure_path, 'measure.rb'))
           fail "Measure file does not exist #{measure_name} in #{measure_file_path}" unless File.exist? measure_file_path
 
           require measure_file_path

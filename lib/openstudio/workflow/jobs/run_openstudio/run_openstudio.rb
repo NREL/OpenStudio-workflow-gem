@@ -84,8 +84,8 @@ class RunOpenstudio
       end
 
       @logger.info 'Saving measure output attributes JSON'
-      File.open("#{@run_directory}/measure_attributes.json", 'w') do
-          |f| f << JSON.pretty_generate(@output_attributes)
+      File.open("#{@run_directory}/measure_attributes.json", 'w') do |f|
+        f << JSON.pretty_generate(@output_attributes)
       end
     end
 
@@ -135,7 +135,7 @@ class RunOpenstudio
 
         # assume that the seed model has been placed in the directory
         baseline_model_path = File.expand_path(
-            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:seed][:path]))
+          File.join(@options[:analysis_root_path], @analysis_json[:analysis][:seed][:path]))
       else
         fail 'No seed model path in JSON defined'
       end
@@ -173,7 +173,7 @@ class RunOpenstudio
     elsif @analysis_json[:analysis][:weather_file]
       if @analysis_json[:analysis][:weather_file][:path]
         weather_filename = File.expand_path(
-            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path])
+          File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path])
         )
         @weather_file_path = File.dirname(weather_filename)
       else

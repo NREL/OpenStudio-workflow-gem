@@ -79,7 +79,7 @@ module OpenStudio
           zip_results(directory, 'workflow')
 
           if results.is_a? Hash
-            File.open("#{directory}/datapoint_out.json", 'w') { |f| f << JSON.pretty_generate(results) }
+            File.open("#{directory}/data_point_out.json", 'w') { |f| f << JSON.pretty_generate(results) }
           else
             pp "Unknown datapoint result type. Please handle #{results.class}"
             # data_point_json_path = OpenStudio::Path.new(run_dir) / OpenStudio::Path.new('data_point_out.json')

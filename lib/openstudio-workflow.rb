@@ -25,6 +25,7 @@ require 'fileutils'
 require 'securerandom' # uuids
 require 'json' # needed for a single pretty generate call
 require 'pathname'
+require 'mkmf' # for finding files
 
 begin
   require 'facter'

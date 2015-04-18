@@ -17,18 +17,20 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+# Force the MakeMakefile logger write file output to null.
+module MakeMakefile::Logging
+  @logfile = File::NULL
+end
+
+
 class RunEnergyplus
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, time_logger, adapter, options = {})
-    energyplus_path = nil
-    if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-      energyplus_path = 'C:/EnergyPlus-8-2-0'
-    else
-      energyplus_path = '/usr/local/EnergyPlus-8-2-0'
-    end
+    @logger = logger
 
+    energyplus_path = find_energyplus
     defaults = {
       energyplus_path: energyplus_path
     }
@@ -38,7 +40,6 @@ class RunEnergyplus
     @directory = directory
     @run_directory = "#{@directory}/run"
     @adapter = adapter
-    @logger = logger
     @time_logger = time_logger
     @results = {}
 
@@ -98,14 +99,8 @@ class RunEnergyplus
     end
 
     # can't create symlinks because the /vagrant mount is actually a windows mount
-    @logger.info "Copying EnergyPlus files to run directory: #{@run_directory}"
     @time_logger.start('Copying EnergyPlus files')
-    FileUtils.copy("#{@options[:energyplus_path]}/libbcvtb.so", "#{@run_directory}/libbcvtb.so")
-    FileUtils.copy("#{@options[:energyplus_path]}/libepexpat.so", "#{@run_directory}/libepexpat.so")
-    FileUtils.copy("#{@options[:energyplus_path]}/libepfmiimport.so", "#{@run_directory}/libepfmiimport.so")
-    FileUtils.copy("#{@options[:energyplus_path]}/ExpandObjects", "#{@run_directory}/ExpandObjects")
-    FileUtils.copy("#{@options[:energyplus_path]}/EnergyPlus", "#{@run_directory}/EnergyPlus")
-    FileUtils.copy("#{@options[:energyplus_path]}/Energy+.idd", "#{@run_directory}/Energy+.idd")
+    prepare_energyplus_dir
     @time_logger.stop('Copying EnergyPlus files')
 
     @time_logger.start('Running EnergyPlus')
@@ -116,6 +111,45 @@ class RunEnergyplus
   end
 
   private
+
+  # Look for the location of EnergyPlus
+  def find_energyplus
+    if ENV['ENERGYPLUSDIR']
+      return ENV['ENERGYPLUSDIR']
+    elsif ENV['RUBYLIB'] =~ /OpenStudio/
+      path = ENV['RUBYLIB'].split(':')
+      path = File.dirname(path.find{|p| p =~ /OpenStudio/})
+      # Grab the version out of the openstudio path
+      path += '/sharedresources/EnergyPlus-8-2-0'
+      @logger.info "found EnergyPlus path of #{path}"
+      return path
+    else
+      if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
+        energyplus_path = 'C:/EnergyPlus-8-2-0'
+      else
+        energyplus_path = '/usr/local/EnergyPlus-8-2-0'
+      end
+
+    end
+  end
+
+  def prepare_energyplus_dir
+    def copy_if_exists(from, to_dir)
+      @logger.info "Copying #{from} to #{to_dir}"
+      FileUtils.copy(from, "#{to_dir}/#{File.basename(from)}") if File.exists?(from)
+    end
+
+    @logger.info "Copying EnergyPlus files to run directory: #{@run_directory}"
+    copy_if_exists("#{@options[:energyplus_path]}/libbcvtb.so", @run_directory)
+    copy_if_exists("#{@options[:energyplus_path]}/libbcvtb.dylib", @run_directory)
+    copy_if_exists("#{@options[:energyplus_path]}/libepexpat.so", @run_directory)
+    copy_if_exists("#{@options[:energyplus_path]}/libepexpat.dylib", @run_directory)
+    copy_if_exists("#{@options[:energyplus_path]}/libepfmiimport.so", @run_directory)
+    copy_if_exists("#{@options[:energyplus_path]}/libepfmiimport.dylib", @run_directory)
+    copy_if_exists("#{@options[:energyplus_path]}/ExpandObjects", @run_directory)
+    copy_if_exists("#{@options[:energyplus_path]}/EnergyPlus", @run_directory)
+    copy_if_exists("#{@options[:energyplus_path]}/Energy+.idd", @run_directory)
+  end
 
   def call_energyplus
     begin

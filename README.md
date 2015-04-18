@@ -1,4 +1,5 @@
 # OpenStudio::Workflow
+[![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
 
 Run an EnergyPlus simulation using a file-based workflow that is read from a Local or MongoDB adapter.
 

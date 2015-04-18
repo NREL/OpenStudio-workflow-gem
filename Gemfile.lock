@@ -68,7 +68,7 @@ GEM
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
     i18n (0.7.0)
-    libxml-ruby (2.7.0)
+    libxml-ruby (2.8.0)
     macaddr (1.7.1)
       systemu (~> 2.6.2)
     mime-types (2.4.3)
@@ -145,7 +145,7 @@ DEPENDENCIES
   bundler (~> 1.6)
   ci_reporter_rspec
   delayed_job_mongoid
-  libxml-ruby (~> 2.7.0)
+  libxml-ruby (~> 2.8.0)
   mongoid (~> 3.1.6)
   mongoid-paperclip
   openstudio-analysis!

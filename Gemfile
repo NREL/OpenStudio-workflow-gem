@@ -12,10 +12,6 @@ gem 'paperclip', '~> 4.1.1'
 gem 'mongoid-paperclip', require: 'mongoid_paperclip'
 gem 'delayed_job_mongoid'
 
-# use the openstudio-analysis gem -- for what?
-gem 'openstudio-analysis', github: 'NREL/OpenStudio-analysis-gem', branch: '0.4.2'
-# gem 'openstudio-analysis', path: '../OpenStudio-analysis-gem'
-
 # Installation for reading/writing xml
 group :xml do
   gem 'libxml-ruby', '~> 2.8.0'
@@ -23,6 +19,7 @@ group :xml do
 end
 
 group :test do
+  gem 'openstudio-analysis', github: 'NREL/OpenStudio-analysis-gem', branch: 'develop'
   gem 'rspec', '~> 3.2.0'
   gem 'ci_reporter_rspec'
   gem 'rubocop'

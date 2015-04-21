@@ -22,7 +22,6 @@ module MakeMakefile::Logging
   @logfile = File::NULL
 end
 
-
 class RunEnergyplus
   # Initialize
   # param directory: base directory where the simulation files are prepared
@@ -42,6 +41,10 @@ class RunEnergyplus
     @adapter = adapter
     @time_logger = time_logger
     @results = {}
+
+    # container for storing the energyplus files there were copied into the local directory. These will be
+    # removed at the end of the simulation.
+    @energyplus_files = []
 
     @logger.info "#{self.class} passed the following options #{@options}"
   end
@@ -118,7 +121,7 @@ class RunEnergyplus
       return ENV['ENERGYPLUSDIR']
     elsif ENV['RUBYLIB'] =~ /OpenStudio/
       path = ENV['RUBYLIB'].split(':')
-      path = File.dirname(path.find{|p| p =~ /OpenStudio/})
+      path = File.dirname(path.find { |p| p =~ /OpenStudio/ })
       # Grab the version out of the openstudio path
       path += '/sharedresources/EnergyPlus-8-2-0'
       @logger.info "found EnergyPlus path of #{path}"
@@ -133,22 +136,34 @@ class RunEnergyplus
     end
   end
 
-  def prepare_energyplus_dir
-    def copy_if_exists(from, to_dir)
-      @logger.info "Copying #{from} to #{to_dir}"
-      FileUtils.copy(from, "#{to_dir}/#{File.basename(from)}") if File.exists?(from)
+  def clean_directory
+    @logger.info 'Removing any copied EnergyPlus files'
+    @energyplus_files.each do |file|
+      if File.exist? file
+        FileUtils.rm_f file
+      end
     end
 
+    paths_to_rm = []
+    paths_to_rm << "#{@run_directory}/packaged_measures"
+    paths_to_rm << "#{@run_directory}/Energy+.ini"
+    paths_to_rm.each { |p| FileUtils.rm_rf(p) if File.exist?(p) }
+  end
+
+  # Prepare the directory to run EnergyPlus. In EnergyPlus < 8.2, we have to copy all the files into the directory.
+  #
+  # @return [Boolean] Returns true is there is more than one file copied
+  def prepare_energyplus_dir
     @logger.info "Copying EnergyPlus files to run directory: #{@run_directory}"
-    copy_if_exists("#{@options[:energyplus_path]}/libbcvtb.so", @run_directory)
-    copy_if_exists("#{@options[:energyplus_path]}/libbcvtb.dylib", @run_directory)
-    copy_if_exists("#{@options[:energyplus_path]}/libepexpat.so", @run_directory)
-    copy_if_exists("#{@options[:energyplus_path]}/libepexpat.dylib", @run_directory)
-    copy_if_exists("#{@options[:energyplus_path]}/libepfmiimport.so", @run_directory)
-    copy_if_exists("#{@options[:energyplus_path]}/libepfmiimport.dylib", @run_directory)
-    copy_if_exists("#{@options[:energyplus_path]}/ExpandObjects", @run_directory)
-    copy_if_exists("#{@options[:energyplus_path]}/EnergyPlus", @run_directory)
-    copy_if_exists("#{@options[:energyplus_path]}/Energy+.idd", @run_directory)
+    Dir["#{@options[:energyplus_path]}/*"].each do |file|
+      next if File.directory? file
+      next if File.extname(file).downcase =~ /.pdf|.app|.html|.gif|.txt|.xlsx/
+
+      @energyplus_files << "#{@run_directory}/#{File.basename(file)}"
+      FileUtils.copy(file, "#{@run_directory}/#{File.basename(file)}")
+    end
+
+    @energyplus_files.size > 0
   end
 
   def call_energyplus
@@ -182,16 +197,6 @@ class RunEnergyplus
       r = $?
 
       @logger.info "EnergyPlus returned '#{r}'"
-
-      paths_to_rm = []
-      paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
-      paths_to_rm << Pathname.glob("#{@run_directory}/*.so")
-      paths_to_rm << Pathname.glob("#{@run_directory}/*.idd")
-      paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
-      paths_to_rm << Pathname.glob("#{@run_directory}/EnergyPlus")
-      paths_to_rm << Pathname.glob("#{@run_directory}/packaged_measures")
-      paths_to_rm.each { |p| FileUtils.rm_rf(p) }
-
       unless r == 0
         @logger.warn 'EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log.'
       end
@@ -219,11 +224,13 @@ class RunEnergyplus
       @logger.error log_message
       raise log_message
     ensure
+      @logger.info "Ensuring 'clean' directory"
+      clean_directory
+
       Dir.chdir(current_dir)
       @logger.info 'EnergyPlus Completed'
     end
 
-    # TODO: get list of all the files that are generated and return
     {}
   end
 end

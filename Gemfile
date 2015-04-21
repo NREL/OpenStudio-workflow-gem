@@ -4,7 +4,9 @@ source 'http://rubygems.org'
 gemspec
 
 # profiling should always be available
-gem 'ruby-prof', '~> 0.15.1'
+group :profile do
+  gem 'ruby-prof', '~> 0.15.1'
+end
 
 # always install these dependencies for connecting to mongo
 gem 'mongoid', '~> 3.1.6'

@@ -18,8 +18,6 @@
 ######################################################################
 
 # Run precanned post processing to extract object functions
-# TODO: I hear that measures can step on each other if not run in their own directory
-
 require 'csv'
 require 'ostruct'
 
@@ -27,13 +25,14 @@ class RunReportingMeasures
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
     @run_directory = "#{@directory}/run"
     @adapter = adapter
     @logger = logger
+    @time_logger = time_logger
     @results = {}
     @output_attributes = {}
 
@@ -61,11 +60,13 @@ class RunReportingMeasures
       @datapoint_json = @adapter.get_datapoint(@directory, @options)
       @analysis_json = @adapter.get_problem(@directory, @options)
 
+      @time_logger.start("Running standard post process")
       if @options[:use_monthly_reports]
         run_monthly_postprocess
       else
         run_standard_postprocess
       end
+      @time_logger.stop("Running standard post process")
 
       translate_csv_to_json
 
@@ -77,7 +78,8 @@ class RunReportingMeasures
 
       @logger.info 'Saving reporting measures output attributes JSON'
       File.open("#{@run_directory}/reporting_measure_attributes.json", 'w') do
-          |f| f << JSON.pretty_generate(@output_attributes)
+      |f|
+        f << JSON.pretty_generate(@output_attributes)
       end
 
       run_extract_inputs_and_outputs
@@ -99,30 +101,40 @@ class RunReportingMeasures
     # For xml, the measure attributes are in the measure_attributes_xml.json file
     # TODO: somehow pass the metadata around on which JSONs to suck into the database
     if File.exist? "#{@run_directory}/measure_attributes_xml.json"
-      temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes_xml.json"), symbolize_names: true)
-      @results.merge! temp_json
+      h = JSON.parse(File.read("#{@run_directory}/measure_attributes_xml.json"), symbolize_names: true)
+      h = rename_hash_keys(h)
+      @results.merge! h
     end
 
     # Inputs are in the measure_attributes.json file
     if File.exist? "#{@run_directory}/measure_attributes.json"
-      temp_json = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
-      @results.merge! temp_json
+      h = JSON.parse(File.read("#{@run_directory}/measure_attributes.json"), symbolize_names: true)
+      h = rename_hash_keys(h)
+      @results.merge! h
     end
 
     # Inputs are in the reporting_measure_attributes.jsonfile
     if File.exist? "#{@run_directory}/reporting_measure_attributes.json"
-      temp_json = JSON.parse(File.read("#{@run_directory}/reporting_measure_attributes.json"), symbolize_names: true)
-      @results.merge! temp_json
+      h = JSON.parse(File.read("#{@run_directory}/reporting_measure_attributes.json"), symbolize_names: true)
+      h = rename_hash_keys(h)
+      @results.merge! h
     end
 
-    # Initialize the objective function variable
+    # Initialize the objective function variable.
     @objective_functions = {}
     if File.exist? "#{@run_directory}/standard_report_legacy.json"
-      @results[:standard_report_legacy] = JSON.parse(File.read("#{@run_directory}/standard_report_legacy.json"), symbolize_names: true)
+      h = JSON.parse(File.read("#{@run_directory}/standard_report_legacy.json"), symbolize_names: true)
+      h = rename_hash_keys(h)
+      @results[:standard_report_legacy] = h
+    end
 
-      @logger.info 'Iterating over Analysis JSON Output Variables'
-      # Save the objective functions to the object for sending back to the simulation executive
+    @logger.info 'Saving the result hash to file'
+    File.open("#{@run_directory}/results.json", 'w') { |f| f << JSON.pretty_generate(@results) }
 
+    @logger.info 'Iterating over Analysis JSON Output Variables'
+    # Save the objective functions to the object for sending back to the simulation executive
+
+    if @analysis_json[:analysis] && @analysis_json[:analysis][:output_variables]
       @analysis_json[:analysis][:output_variables].each do |variable|
         # determine which ones are the objective functions (code smell: todo: use enumerator)
         if variable[:objective_function]
@@ -240,7 +252,31 @@ class RunReportingMeasures
     end
   end
 
-  # TODO: THis is uglier than the one below! sorry.
+  # Remove any invalid characters in the measure attribute keys.
+  # Periods and Pipes are the most problematic because mongo does not allow hash keys with periods, and the pipes
+  # are used in the map/reduce method that was written to speed up the data write in openstudio-server.
+  # Also remove any trailing underscores and spaces
+  def rename_hash_keys(hash)
+    # TODO: log the name changes?
+    regex = /[|!@#\$%^&\*\(\)\{\}\\\[\]|;:'",<.>\/?\+=]+/
+
+    rename_keys = lambda do |h|
+      if Hash === h
+        h.each_key do |key|
+          if key.to_s =~ regex
+            @logger.warn "Renaming result key '#{key}' to remove invalid characters"
+          end
+        end
+        Hash[h.map { |k, v| [k.to_s.gsub(regex, '_').squeeze('_').gsub(/[_\s]+$/, '').chomp.to_sym, rename_keys[v]] }]
+      else
+        h
+      end
+    end
+
+    rename_keys[hash]
+  end
+
+  # TODO: This needs to be cleaned up and tested. This is just ugly. Sorry.
   def run_monthly_postprocess
     def sql_query(sql, report_name, query)
       val = nil

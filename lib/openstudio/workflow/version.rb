@@ -19,6 +19,6 @@
 
 module OpenStudio
   module Workflow
-    VERSION = '0.0.2'
+    VERSION = '0.0.5'
   end
 end

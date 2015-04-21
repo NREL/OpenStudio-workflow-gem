@@ -23,10 +23,12 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bundler', '~> 1.6'
   s.add_development_dependency 'rake'
 
-  s.add_runtime_dependency 'aasm', '~> 3.1.1'
   s.add_runtime_dependency 'multi_json', '~> 1.10.0'
   s.add_runtime_dependency 'colored', '~> 1.2'
 
-  # Don't require facter until we can figure out how to install this easy on windows
-  # spec.add_runtime_dependency 'facter', '~> 2.0.1'
+  s.add_runtime_dependency 'facter', '>= 2.0'
+  # Need to upgrade facter. Make sure that the image has the right version
+  #s.add_runtime_dependency 'facter', '~> 2.3'
+  s.add_runtime_dependency 'rubyXL', '~> 3.3.0' # install rubyXL gem to read/write excel files
+  s.add_runtime_dependency 'rubyzip', '~> 1.1.6'
 end

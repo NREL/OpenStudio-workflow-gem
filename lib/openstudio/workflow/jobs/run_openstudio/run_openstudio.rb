@@ -25,7 +25,7 @@ class RunOpenstudio
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     defaults = { format: 'hash', use_monthly_reports: false, analysis_root_path: '.' }
     @options = defaults.merge(options)
     @directory = directory
@@ -34,6 +34,7 @@ class RunOpenstudio
     @adapter = adapter
     @results = {}
     @logger = logger
+    @time_logger = time_logger
     @logger.info "#{self.class} passed the following options #{@options}"
 
     # initialize instance variables that are needed in the perform section
@@ -63,7 +64,9 @@ class RunOpenstudio
 
       apply_measures(:openstudio_measure)
 
+      @time_logger.start("Translating to EnergyPlus")
       translate_to_energyplus
+      @time_logger.stop("Translating to EnergyPlus")
 
       apply_measures(:energyplus_measure)
 
@@ -72,8 +75,12 @@ class RunOpenstudio
       updated_weather_file = get_weather_file_from_model
       unless updated_weather_file == @initial_weather_file
         # reset the result hash so the future processes know which weather file to run
-        @logger.info "Updating the weather file result to be #{updated_weather_file }"
-        @results[:weather_filename] = "#{@weather_file_path}/#{updated_weather_file}"
+        @logger.info "Updating the weather file to be '#{updated_weather_file}'"
+        if (Pathname.new updated_weather_file).absolute? && (Pathname.new updated_weather_file).exist?
+          @results[:weather_filename] = updated_weather_file
+        else
+          @results[:weather_filename] = "#{@weather_file_path}/#{updated_weather_file}"
+        end
       end
 
       @logger.info 'Saving measure output attributes JSON'
@@ -82,7 +89,9 @@ class RunOpenstudio
       end
     end
 
+    @time_logger.start("Saving OSM and IDF")
     save_osm_and_idf
+    @time_logger.stop("Saving OSM and IDF")
 
     @results
   end
@@ -91,19 +100,9 @@ class RunOpenstudio
 
   def save_osm_and_idf
     # save the data
-    a = Time.now
-    osm_filename = "#{@run_directory}/out_raw.osm"
-    File.open(osm_filename, 'w') { |f| f << @model.to_s }
-    b = Time.now
-    @logger.info "Ruby write took #{b.to_f - a.to_f}"
-
-    a = Time.now
     osm_filename = "#{@run_directory}/in.osm"
-    @model.save(OpenStudio::Path.new(osm_filename), true)
-    b = Time.now
-    @logger.info "OpenStudio write took #{b.to_f - a.to_f}"
+    File.open(osm_filename, 'w') { |f| f << @model.to_s }
 
-    # Run EnergyPlus using run energyplus script
     idf_filename = "#{@run_directory}/in.idf"
     File.open(idf_filename, 'w') { |f| f << @model_idf.to_s }
 
@@ -141,6 +140,7 @@ class RunOpenstudio
         fail 'No seed model path in JSON defined'
       end
     else
+      # TODO: create a blank model and return
       fail 'No seed model block'
     end
 
@@ -173,7 +173,8 @@ class RunOpenstudio
     elsif @analysis_json[:analysis][:weather_file]
       if @analysis_json[:analysis][:weather_file][:path]
         weather_filename = File.expand_path(
-            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path]))
+            File.join(@options[:analysis_root_path], @analysis_json[:analysis][:weather_file][:path])
+        )
         @weather_file_path = File.dirname(weather_filename)
       else
         fail 'No weather file path defined'
@@ -191,15 +192,26 @@ class RunOpenstudio
     weather_filename
   end
 
+  # return the weather file from the model. If the weather file is defined in the model, then
+  # it checks the file paths to check if the model exists. This allows for a user to upload a
+  # weather file in a measure and then have the measure's path be used for the weather file.
   def get_weather_file_from_model
     wf = nil
     # grab the weather file out of the OSM if it exists
     if @model.weatherFile.empty?
       @logger.info 'No weather file in model'
     else
-      # this is the weather file from the OSM model
-      wf = File.basename(@model.weatherFile.get.path.get.to_s)
-      @logger.info "Model weather file is #{wf}" # unless model.weatherFile.empty?
+      p = @model.weatherFile.get.path.get.to_s.gsub('file://', '')
+      if File.exist? p
+        # use this entire path
+        @logger.info "Full path to weather file exists #{p}"
+        wf = p
+      else
+        # this is the weather file from the OSM model
+        wf = File.basename(@model.weatherFile.get.path.get.to_s)
+      end
+
+      # @logger.info "Initial model weather file is #{wf}" # unless model.weatherFile.empty?
     end
 
     wf
@@ -216,7 +228,7 @@ class RunOpenstudio
       forward_translator = OpenStudio::EnergyPlus::ForwardTranslator.new
       @model_idf = forward_translator.translateModel(@model)
       b = Time.now
-      @logger.info "Translate object to energyplus IDF took #{b.to_f - a.to_f}"
+      @logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
     end
   end
 end

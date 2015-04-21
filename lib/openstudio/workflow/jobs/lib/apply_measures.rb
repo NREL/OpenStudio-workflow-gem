@@ -96,10 +96,10 @@ module OpenStudio
 
       def apply_measure(workflow_item)
         @logger.info "Starting #{__method__} for #{workflow_item[:name]}"
-        start_time = ::Time.now
+        @time_logger.start("Measure:#{workflow_item[:name]}")
+        #start_time = ::Time.now
         current_dir = Dir.pwd
         begin
-
           measure_working_directory = "#{@run_directory}/#{workflow_item[:measure_definition_class_name]}"
 
           @logger.info "Creating run directory to #{measure_working_directory}"
@@ -133,6 +133,8 @@ module OpenStudio
           elsif workflow_item[:measure_type] == 'ReportingMeasure'
             arguments = measure.arguments
           end
+	  
+	  @logger.info "Extracted the following arguments: #{arguments}"
 
           # Create argument map and initialize all the arguments
           argument_map = OpenStudio::Ruleset::OSArgumentMap.new
@@ -203,9 +205,14 @@ module OpenStudio
             log_message = "TODO: #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             @logger.warn log_message
           end
-        ensure
+        rescue => e
+	log_message = "#{__FILE__} failed with message #{e.message} in #{e.backtrace.join("\n")}"
+        @logger.error log_message
+	ensure
           Dir.chdir current_dir
-          @logger.info "Finished #{__method__} for #{workflow_item[:name]} in #{::Time.now - start_time} s"
+          @time_logger.stop("Measure:#{workflow_item[:name]}")
+
+          @logger.info "Finished #{__method__} for #{workflow_item[:name]} in #{@time_logger.delta("Measure:#{workflow_item[:name]}")} s"
         end
       end
 

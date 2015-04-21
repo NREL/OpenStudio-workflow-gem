@@ -27,13 +27,14 @@ class RunPostprocess
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
     @run_directory = "#{@directory}/run"
     @adapter = adapter
     @logger = logger
+    @time_logger = time_logger
     @results = {}
     @output_attributes = {}
 
@@ -48,7 +49,8 @@ class RunPostprocess
       cleanup
     rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      raise log_message
+      @logger.error log_message
+      # raise log_message
     end
 
     @results
@@ -93,17 +95,11 @@ class RunPostprocess
     # paths_to_rm << Pathname.glob("#{@run_directory}/*.idf") # keep the idfs
     # paths_to_rm << Pathname.glob("*.audit")
     # paths_to_rm << Pathname.glob("*.bnd")
-    paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.eso")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.mtr")
-    paths_to_rm << Pathname.glob("#{@run_directory}/*.so")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.epw")
-    paths_to_rm << Pathname.glob("#{@run_directory}/*.idd")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.mtd")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.rdd")
-    paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
-    paths_to_rm << Pathname.glob("#{@run_directory}/EnergyPlus")
-    paths_to_rm << Pathname.glob("#{@run_directory}/packaged_measures")
     paths_to_rm.each { |p| FileUtils.rm_rf(p) }
   end
 end

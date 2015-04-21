@@ -19,13 +19,14 @@
 
 # Run Prelight job to prepare the directory for simulations.
 class RunPreflight
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
     @adapter = adapter
-    @results = {}
     @logger = logger
+    @time_logger = time_logger
+    @results = {}
   end
 
   def perform
@@ -33,9 +34,9 @@ class RunPreflight
 
     @adapter.communicate_started @directory, @options
 
-    # Add the moment this does nothing.
+    # At the moment this does nothing.
 
-    # return the results back to the caller--always
+    # return the results back to the caller -- always
     @results
   end
 end

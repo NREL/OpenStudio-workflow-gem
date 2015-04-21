@@ -36,9 +36,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :chef_solo do |chef|
     chef.json = {
         :openstudio => {
-            :version => "1.5.1",
+            :version => "1.5.3",
             :installer => {
-                :version_revision => "297c509238",
+                :version_revision => "bad56a6316",
                 :platform => "Linux-Ruby2.0"
             }
         },
@@ -67,9 +67,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         }
     }
     chef.run_list = [
-        "recipe[openstudio]",
-        "recipe[mongodb]",
-	"recipe[zip]"
+      "recipe[rbenv]",
+      "recipe[openstudio]",
+      "recipe[mongodb]",
+      "recipe[zip]"
     ]
   end
 end

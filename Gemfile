@@ -3,22 +3,19 @@ source 'http://rubygems.org'
 # Specify your gem's dependencies in OpenStudio-workflow.gemspec
 gemspec
 
-gem 'uuid'
-gem 'zip'
-gem 'facter', require: false
-
 # profiling should always be available
 gem 'ruby-prof', '~> 0.15.1'
 
-# always install these dependencies
+# always install these dependencies for connecting to mongo
 gem 'mongoid', '~> 3.1.6'
 gem 'paperclip', '~> 4.1.1'
 gem 'mongoid-paperclip', require: 'mongoid_paperclip'
 gem 'delayed_job_mongoid'
 
+# Installation for reading/writing xml
 group :xml do
-  gem 'libxml-ruby'
-  gem 'os'
+  gem 'libxml-ruby', '~> 2.7.0'
+  gem 'os', '~> 0.9.6'
 end
 
 group :test do

@@ -66,6 +66,12 @@ class RotateBuilding < OpenStudio::Ruleset::ModelUserScript
       runner.registerWarning('The model contains one or more site shading groups. They were not rotated with the building.')
     end
 
+    runner.registerValue('An Attribute with Spaces', 4)
+    runner.registerValue('Invalid|Pipe|Measure', 8)
+    runner.registerValue('Invalid.Period.Measure', 15)
+    runner.registerValue('Other?Random.Characters||.??with|dangling||', 16)
+    runner.registerValue('Asterisks*Are*Bad*Too', 23)
+    runner.registerValue('Every!Bad@Character!@#$%^&*()=_+[]\{}|;:\'Here\"Too', 42)
     # reporting final condition of model
     runner.registerValue('orientation_final', building.northAxis)
     runner.registerFinalCondition("The building's final rotation is #{building.northAxis} degrees.")

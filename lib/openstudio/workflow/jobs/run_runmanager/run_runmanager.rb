@@ -27,7 +27,7 @@ class RunRunmanager
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
-  def initialize(directory, logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     energyplus_path = nil
     if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
       energyplus_path = 'C:/EnergyPlus-8-1-0'
@@ -49,6 +49,7 @@ class RunRunmanager
     @results = {}
     @logger = logger
     @logger.info "#{self.class} passed the following options #{@options}"
+    @time_logger = time_logger
 
     # initialize instance variables that are needed in the perform section
     @model = nil
@@ -65,9 +66,7 @@ class RunRunmanager
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
     @logger.info "Current directory is #{@directory}"
-
     begin
-
       @logger.info 'Retrieving datapoint and problem'
       @datapoint_json = @adapter.get_datapoint(@directory.to_s, @options)
       @analysis_json = @adapter.get_problem(@directory.to_s, @options)
@@ -108,9 +107,9 @@ class RunRunmanager
         # load problem formulation
         loadResult = OpenStudio::Analysis.loadJSON(JSON.pretty_generate(@analysis_json))
         if loadResult.analysisObject.empty?
-          loadResult.errors.each { |error|
+          loadResult.errors.each do |error|
             @logger.warn error.logMessage # DLM: is this right?
-          }
+          end
           fail 'Unable to load analysis json.'
         end
 
@@ -130,9 +129,9 @@ class RunRunmanager
         # load data point to run
         loadResult = OpenStudio::Analysis.loadJSON(JSON.pretty_generate(@datapoint_json))
         if loadResult.analysisObject.empty?
-          loadResult.errors.each { |error|
+          loadResult.errors.each do |error|
             @logger.warn error.logMessage
-          }
+          end
           fail 'Unable to load data point json.'
         end
         data_point = loadResult.analysisObject.get.to_DataPoint.get
@@ -215,7 +214,10 @@ class RunRunmanager
 
     rescue => e
       log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      raise log_message
+      @logger.error log_message
+
+      # do not raise as the results will never end up in the datapoint
+      # raise log_message
     end
 
     @results

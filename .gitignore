@@ -6,6 +6,7 @@ Berksfile.lock
 .config
 .yardoc
 InstalledFiles
+Gemfile.lock
 _yardoc
 coverage
 doc/

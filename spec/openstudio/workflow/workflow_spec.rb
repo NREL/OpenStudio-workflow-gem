@@ -49,7 +49,7 @@ describe 'OpenStudio::Workflow' do
 
   it 'should run a local file adapter in legacy mode' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/simulations/local_ex1'
+    run_dir = './spec/files/local_ex1'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
     options = {
@@ -69,7 +69,7 @@ describe 'OpenStudio::Workflow' do
 
   it 'should run a local file with minimum format' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/simulations/local_ex2'
+    run_dir = './spec/files/local_ex2'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
     options = {

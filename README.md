@@ -108,7 +108,7 @@ If you are testing changes to OpenStudio source code and want to test these on t
 ** echo 'export CC=/usr/bin/clang-3.5' >> ~/.bashrc
 ** echo 'export CXX=/usr/bin/clang++-3.5' >> ~/.bashrc
 ** source ~/.bashrc
-** cd /home/vagrant
+* cd /home/vagrant
 * git clone https://github.com/NREL/OpenStudio.git openstudio
 * cd openstudio
 * git checkout your_branch_name

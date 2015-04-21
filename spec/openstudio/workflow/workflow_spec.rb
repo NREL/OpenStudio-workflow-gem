@@ -49,7 +49,9 @@ describe 'OpenStudio::Workflow' do
 
   it 'should run a local file adapter in legacy mode' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ex1'
+    run_dir = './spec/files/simulations/local_ex1'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
     options = {
       problem_filename: 'analysis_1.json',
       datapoint_filename: 'datapoint_1.json',
@@ -67,7 +69,9 @@ describe 'OpenStudio::Workflow' do
 
   it 'should run a local file with minimum format' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ex2'
+    run_dir = './spec/files/simulations/local_ex2'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
     options = {
       problem_filename: 'analysis_1.json',
       datapoint_filename: 'datapoint_1.json',
@@ -85,7 +89,7 @@ describe 'OpenStudio::Workflow' do
 
   it 'should run a local file as energyplus only' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ep'
+    run_dir = './spec/files/simulations/local_ep'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
@@ -107,7 +111,7 @@ describe 'OpenStudio::Workflow' do
 
   it 'should fail to run an invalid energyplus file' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ep_bad'
+    run_dir = './spec/files/simulations/local_ep_bad'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
@@ -127,7 +131,7 @@ describe 'OpenStudio::Workflow' do
 
   it 'should fail to run a file that produces utf-8' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ep_iso-8859'
+    run_dir = './spec/files/simulations/local_ep_iso-8859'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
@@ -147,7 +151,7 @@ describe 'OpenStudio::Workflow' do
 
   it 'should fail to run energyplus with no weather' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ep_no_weather'
+    run_dir = './spec/files/simulations/local_ep_no_weather'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
@@ -167,7 +171,7 @@ describe 'OpenStudio::Workflow' do
 
   it 'should fail to run energyplus with malformed weather' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/local_ep_malformed_weather'
+    run_dir = './spec/files/simulations/local_ep_malformed_weather'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
 
@@ -186,7 +190,10 @@ describe 'OpenStudio::Workflow' do
   end
 
   it 'should not find the input file' do
-    run_dir = './spec/files/local_ex1'
+    run_dir = './spec/files/simulations/local_ex1'
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
+
     k = OpenStudio::Workflow.load 'Local', run_dir
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.run).to be :errored
@@ -195,8 +202,10 @@ describe 'OpenStudio::Workflow' do
 
   it 'should create a mongo file adapater and run the verbose format' do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/mongo_ex1'
+    run_dir = './spec/files/simulations/mongo_ex1'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
+
     options = {
       datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
       analysis_root_path: 'spec/files/example_models',
@@ -213,8 +222,10 @@ describe 'OpenStudio::Workflow' do
   end
 
   it 'should create a new datapoint based on a list' do
-    run_dir = './spec/files/dynamically_created'
+    run_dir = './spec/files/simulations/dynamically_created'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
+
     dp_uuid = 'random_datapoint_uuid'
     options = {
       datapoint_id: dp_uuid,
@@ -242,10 +253,12 @@ describe 'OpenStudio::Workflow' do
     expect(dp.sdp_log_file.last).to include 'Test log message'
   end
 
-  it 'should create a mongo file adapater and run the concise format', mongo: true do
+  it 'should create a mongo file adapater and run the concise format and write out a building from the measure', mongo: true do
     # for local, it uses the rundir as the uuid
-    run_dir = './spec/files/mongo_ex3'
+    run_dir = './spec/files/simulations/mongo_ex3'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
+    
     options = {
       datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
       analysis_root_path: 'spec/files/example_models',

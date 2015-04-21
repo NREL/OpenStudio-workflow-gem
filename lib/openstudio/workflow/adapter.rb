@@ -26,6 +26,7 @@ module OpenStudio
       def initialize(options = {})
         @options = options
         @log = nil
+        @datapoint = nil
       end
 
       # class << self
@@ -61,6 +62,69 @@ module OpenStudio
 
       def get_logger(file, options = {})
         instance.get_logger file, options
+      end
+
+      protected
+
+      # Zip up a folder and it's contents
+      def zip_directory(directory, zip_filename)
+        # Submethod for adding the directory to the zip folder.
+        def add_directory_to_zip(zip_file, local_directory, root_directory)
+          Dir[File.join("#{local_directory}", '**', '**')].each do |file|
+            # remove the base directory from the zip file
+            rel_dir = local_directory.sub("#{root_directory}/", '')
+            zip_file_to_add = file.gsub("#{local_directory}", "#{rel_dir}/")
+            zip_file.add(zip_file_to_add, file)
+          end
+
+          zip_file
+        end
+
+        FileUtils.rm_f(zip_filename) if File.exist?(zip_filename)
+
+        Zip.default_compression = Zlib::BEST_COMPRESSION
+        Zip::File.open(zip_filename, Zip::File::CREATE) do |zf|
+          Dir[File.join(directory, '*')].each do |file|
+            if File.directory?(file)
+              # skip a few directory that should not be zipped as they are inputs
+              if File.basename(file) =~ /seed|measures|weather/
+                next
+              end
+              add_directory_to_zip(zf, file, directory)
+            else
+              next if File.extname(file) =~ /\.rb.*/
+              next if File.extname(file) =~ /\.zip.*/
+
+              zip_file_to_add = file.gsub("#{directory}/", '')
+              zf.add(zip_file_to_add, file)
+            end
+          end
+        end
+      end
+
+      # Main method to zip up the results of the simulation results. This will append the UUID of the data point
+      # if it exists. This method will create two zip files. One for the reports and one for the entire data point. The
+      # Data Point ZIP will also contain the reports.
+      #
+      # @param directory [String] The data point directory to zip up.
+      # @return nil
+      def zip_results(directory)
+        # create zip file using a system call
+        # @logger.info "Zipping up data point #{analysis_dir}"
+        if Dir.exist?(directory) && File.directory?(directory)
+          zip_filename = @datapoint ? "data_point_#{@datapoint.uuid}.zip" : 'data_point.zip'
+          zip_filename = File.join(directory, zip_filename)
+          zip_directory directory, zip_filename
+        end
+
+        # zip up only the reports folder
+        report_dir = File.join(directory, 'reports')
+        # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
+        if Dir.exist?(report_dir) && File.directory?(report_dir)
+          zip_filename = @datapoint ? "data_point_#{@datapoint.uuid}_reports.zip" : 'data_point_reports.zip'
+          zip_filename = File.join(directory, zip_filename)
+          zip_directory report_dir, zip_filename
+        end
       end
     end
   end

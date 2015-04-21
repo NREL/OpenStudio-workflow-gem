@@ -76,7 +76,7 @@ module OpenStudio
         end
 
         def communicate_results(directory, results)
-          zip_results(directory, 'workflow')
+          zip_results(directory)
 
           if results.is_a? Hash
             File.open("#{directory}/data_point_out.json", 'w') { |f| f << JSON.pretty_generate(results) }
@@ -94,28 +94,6 @@ module OpenStudio
         def get_logger(directory, _options = {})
           @log ||= File.open("#{directory}/local_adapter.log", 'w')
           @log
-        end
-
-        # TODO: this uses a system call to zip results at the moment
-        def zip_results(directory, _analysis_type = 'workflow')
-          current_dir = Dir.pwd
-          begin
-            # create zip file using a system call
-            # @logger.info "Zipping up data point #{analysis_dir}"
-            if File.directory? directory
-              Dir.chdir(directory)
-              `zip -9 -r --exclude=*.rb* data_point.zip .`
-            end
-
-            # zip up only the reports folder
-            report_dir = 'reports'
-            # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
-            if File.directory? report_dir
-              `zip -9 -r data_point_reports.zip reports`
-            end
-          ensure
-            Dir.chdir(current_dir)
-          end
         end
       end
     end

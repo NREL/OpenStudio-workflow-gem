@@ -35,6 +35,7 @@ class RunEnergyplus
     }
     @options = defaults.merge(options)
 
+
     # TODO: use openstudio tool finder for this
     @directory = directory
     @run_directory = "#{@directory}/run"
@@ -45,6 +46,8 @@ class RunEnergyplus
     # container for storing the energyplus files there were copied into the local directory. These will be
     # removed at the end of the simulation.
     @energyplus_files = []
+    @energyplus_exe = nil
+    @expand_objects_exe = nil
 
     @logger.info "#{self.class} passed the following options #{@options}"
   end
@@ -159,9 +162,16 @@ class RunEnergyplus
       next if File.directory? file
       next if File.extname(file).downcase =~ /.pdf|.app|.html|.gif|.txt|.xlsx/
 
-      @energyplus_files << "#{@run_directory}/#{File.basename(file)}"
-      FileUtils.copy(file, "#{@run_directory}/#{File.basename(file)}")
+      dest_file = "#{@run_directory}/#{File.basename(file)}"
+      @energyplus_files << dest_file
+
+      @energyplus_exe = File.basename(dest_file) if File.basename(dest_file) =~ /^energyplus.{0,4}$/i
+      @expand_objects_exe = File.basename(dest_file) if File.basename(dest_file) =~ /^ExpandObjects.{0,4}$/i
+      FileUtils.copy file, dest_file
     end
+
+    fail "Could not find EnergyPlus Executable in #{@options[:energyplus_path]}" unless @energyplus_exe
+    fail "Could not find ExpandObjects Executable in #{@options[:energyplus_path]}" unless @expand_objects_exe
 
     @energyplus_files.size > 0
   end
@@ -173,7 +183,7 @@ class RunEnergyplus
       @logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
       File.open('stdout-expandobject', 'w') do |file|
-        IO.popen('./ExpandObjects') do |io|
+        IO.popen(@expand_objects_exe) do |io|
           while (line = io.gets)
             file << line
           end
@@ -188,7 +198,7 @@ class RunEnergyplus
 
       # create stdout
       File.open('stdout-energyplus', 'w') do |file|
-        IO.popen('./EnergyPlus + 2>&1') do |io|
+        IO.popen("#{@energyplus_exe} + 2>&1") do |io|
           while (line = io.gets)
             file << line
           end

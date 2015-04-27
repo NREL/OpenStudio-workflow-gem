@@ -7,8 +7,8 @@ describe 'OpenStudio Formulation' do
     a = OpenStudio::Analysis.create('workflow-gem')
     run_dir = 'spec/files/simulations/workflow-gem-1'
 
-    a.seed_model 'spec/files/example_models/seed/seed.osm'
-    a.weather_file 'spec/files/example_models/weather/in.epw'
+    a.seed_model = 'spec/files/example_models/seed/seed.osm'
+    a.weather_file = 'spec/files/example_models/weather/in.epw'
     FileUtils.mkdir_p run_dir
 
     a.analysis_type = 'single_run'

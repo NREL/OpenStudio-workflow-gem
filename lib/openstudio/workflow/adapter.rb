@@ -120,13 +120,23 @@ module OpenStudio
         end
 
         # zip up only the reports folder
-        report_dir = File.join(directory, 'reports')
+
+        actual_report_dir = File.join(directory, 'reports')
         # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
-        if Dir.exist?(report_dir) && File.directory?(report_dir)
+        if Dir.exist?(actual_report_dir) && File.directory?(actual_report_dir)
+          #### This is cheesy, but create another directory level for the reports so that it zips up correctly (with the reports folder at the root)
+          tmp_report_dir = File.join(directory, 'zip_me')
+          FileUtils.mkdir_p tmp_report_dir
+          FileUtils.move actual_report_dir, tmp_report_dir, force: true
+
           zip_filename = @datapoint ? "data_point_#{@datapoint.uuid}_reports.zip" : 'data_point_reports.zip'
           zip_filename = File.join(directory, zip_filename)
-          zip_directory report_dir, zip_filename
+          zip_directory tmp_report_dir, zip_filename
+
+          # move back
+          FileUtils.move tmp_report_dir, actual_report_dir, force: true
         end
+
       end
     end
   end

@@ -100,6 +100,8 @@ module OpenStudio
             end
           end
         end
+
+        File.chmod(0664, zip_filename)
       end
 
       # Main method to zip up the results of the simulation results. This will append the UUID of the data point

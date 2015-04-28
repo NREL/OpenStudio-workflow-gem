@@ -67,7 +67,7 @@ module OpenStudio
       protected
 
       # Zip up a folder and it's contents
-      def zip_directory(directory, zip_filename)
+      def zip_directory(directory, zip_filename, pattern = '*')
         # Submethod for adding the directory to the zip folder.
         def add_directory_to_zip(zip_file, local_directory, root_directory)
           Dir[File.join("#{local_directory}", '**', '**')].each do |file|
@@ -84,7 +84,7 @@ module OpenStudio
 
         Zip.default_compression = Zlib::BEST_COMPRESSION
         Zip::File.open(zip_filename, Zip::File::CREATE) do |zf|
-          Dir[File.join(directory, '*')].each do |file|
+          Dir[File.join(directory, pattern)].each do |file|
             if File.directory?(file)
               # skip a few directory that should not be zipped as they are inputs
               if File.basename(file) =~ /seed|measures|weather/
@@ -112,7 +112,6 @@ module OpenStudio
       # @return nil
       def zip_results(directory)
         # create zip file using a system call
-        # @logger.info "Zipping up data point #{analysis_dir}"
         if Dir.exist?(directory) && File.directory?(directory)
           zip_filename = @datapoint ? "data_point_#{@datapoint.uuid}.zip" : 'data_point.zip'
           zip_filename = File.join(directory, zip_filename)
@@ -120,21 +119,11 @@ module OpenStudio
         end
 
         # zip up only the reports folder
-
-        actual_report_dir = File.join(directory, 'reports')
-        # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
-        if Dir.exist?(actual_report_dir) && File.directory?(actual_report_dir)
-          #### This is cheesy, but create another directory level for the reports so that it zips up correctly (with the reports folder at the root)
-          tmp_report_dir = File.join(directory, 'zip_me')
-          FileUtils.mkdir_p tmp_report_dir
-          FileUtils.move actual_report_dir, tmp_report_dir, force: true
-
+        report_dir = File.join(directory, 'reports')
+        if Dir.exist?(report_dir) && File.directory?(report_dir)
           zip_filename = @datapoint ? "data_point_#{@datapoint.uuid}_reports.zip" : 'data_point_reports.zip'
           zip_filename = File.join(directory, zip_filename)
-          zip_directory tmp_report_dir, zip_filename
-
-          # move back
-          FileUtils.move tmp_report_dir, actual_report_dir, force: true
+          zip_directory directory, zip_filename, 'reports'
         end
 
       end

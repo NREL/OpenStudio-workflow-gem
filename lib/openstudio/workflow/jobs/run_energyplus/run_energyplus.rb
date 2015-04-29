@@ -240,7 +240,7 @@ class RunEnergyplus
       raise log_message
     ensure
       @logger.info "Ensuring 'clean' directory"
-      clean_directory
+      #clean_directory
 
       Dir.chdir(current_dir)
       @logger.info 'EnergyPlus Completed'

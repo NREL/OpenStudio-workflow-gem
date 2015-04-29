@@ -203,7 +203,7 @@ class RunEnergyplus
 
       # create stdout
       File.open('stdout-energyplus', 'w') do |file|
-        IO.popen("./#{@energyplus_exe} + 2>&1") do |io|
+        IO.popen("./#{@energyplus_exe} 2>&1") do |io|
           while (line = io.gets)
             file << line
           end

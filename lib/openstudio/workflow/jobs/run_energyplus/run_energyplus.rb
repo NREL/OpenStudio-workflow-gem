@@ -181,6 +181,11 @@ class RunEnergyplus
       current_dir = Dir.pwd
       Dir.chdir(@run_directory)
       @logger.info "Starting simulation in run directory: #{Dir.pwd}"
+      
+      @logger.info "Contents of: #{Dir.pwd}"
+      Dir.glob("*").each do |f|
+        @logger.info "  #{f}"
+      end
 
       File.open('stdout-expandobject', 'w') do |file|
         IO.popen(@expand_objects_exe) do |io|

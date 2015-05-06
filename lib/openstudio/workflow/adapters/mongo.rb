@@ -47,8 +47,6 @@ module OpenStudio
 
           Dir["#{base_path}/models/*.rb"].each { |f| require f }
           Mongoid.load!("#{base_path}/mongoid.yml", :development)
-
-          @datapoint = nil
         end
 
         # Tell the system that the process has started
@@ -198,7 +196,7 @@ module OpenStudio
         end
 
         def communicate_results(directory, results)
-          zip_results(directory, 'workflow')
+          zip_results(directory)
 
           # @logger.info 'Saving EnergyPlus JSON file'
           if results
@@ -222,28 +220,6 @@ module OpenStudio
           # TODO : make this a conditional on when to create one vs when to error out.
           # keep @datapoint as the model instance
           DataPoint.find_or_create_by(uuid: uuid)
-        end
-
-        # TODO: this uses a system call to zip results at the moment, replace with rubylib
-        def zip_results(directory, _analysis_type = 'workflow')
-          current_dir = Dir.pwd
-          begin
-            # create zip file using a system call
-            # @logger.info "Zipping up data point #{analysis_dir}"
-            if File.directory? directory
-              Dir.chdir(directory)
-              `zip -9 -r --exclude=*.rb* data_point_#{@datapoint.uuid}.zip .`
-            end
-
-            # zip up only the reports folder
-            report_dir = 'reports'
-            # @logger.info "Zipping up Analysis Reports Directory #{report_dir}/reports"
-            if File.directory? report_dir
-              `zip -9 -r data_point_#{@datapoint.uuid}_reports.zip reports`
-            end
-          ensure
-            Dir.chdir(current_dir)
-          end
         end
       end
     end

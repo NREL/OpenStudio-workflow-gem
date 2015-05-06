@@ -6,6 +6,7 @@ Berksfile.lock
 .config
 .yardoc
 InstalledFiles
+Gemfile.lock
 _yardoc
 coverage
 doc/
@@ -36,3 +37,4 @@ spec/files/**/reports
 spec/files/*/*.json
 spec/files/dynamically_created/*
 spec/files/local_ep*
+spec/files/simulations

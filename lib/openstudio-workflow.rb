@@ -25,6 +25,7 @@ require 'fileutils'
 require 'securerandom' # uuids
 require 'json' # needed for a single pretty generate call
 require 'pathname'
+require 'mkmf' # for finding files
 
 begin
   require 'facter'
@@ -86,8 +87,12 @@ module OpenStudio
     end
 
     # predefined method that simply runs EnergyPlus in the specified directory. It does not apply any workflow steps
-    # such as preprocessing / postprocessing.
-    # The directory must have the IDF and EPW file in the folder. The simulations will run in the directory/run path
+    # such as preprocessing / postprocessing. The directory must have the IDF and EPW file in the folder. The
+    # simulations will run in the directory/run path
+    #
+    # @param adapter_name [String] Type of adapter, local or mongo.
+    # @param run_directory [String] Path to where the simulation is to run
+    # @param options [Hash] List of options for the adapter
     def run_energyplus(adapter_name, run_directory, options = {})
       unless (Pathname.new run_directory).absolute?
         # relative to wherever you are running the script
@@ -114,7 +119,28 @@ module OpenStudio
 
       adapter = load_adapter adapter_name, options[:adapter_options]
       run_klass = OpenStudio::Workflow::Run.new(adapter, run_directory, options)
+
       run_klass
+    end
+
+    # Extract an archive to a specific location
+    # @param archive_filename [String] Path and name of the file to extract
+    # @param destination [String] Path to extract to
+    # @param overwrite [Boolean] If true, will overwrite any extracted file that may already exist
+    def extract_archive(archive_filename, destination, overwrite = true)
+      Zip::File.open(archive_filename) do |zf|
+        zf.each do |f|
+          f_path = File.join(destination, f.name)
+          FileUtils.mkdir_p(File.dirname(f_path))
+
+          if File.exist?(f_path) && overwrite
+            FileUtils.rm_rf(f_path)
+            zf.extract(f, f_path)
+          elsif !File.exist? f_path
+            zf.extract(f, f_path)
+          end
+        end
+      end
     end
 
     private

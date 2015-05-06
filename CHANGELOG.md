@@ -4,6 +4,12 @@ OpenStudio::Workflow Change Log
 Unreleased Version
 ------------------
 * Catch exception when loading a measure file.
+* Enable running simulations on windows and mac
+  * Use rubyzip gem instead of system call
+  * New find_energyplus method which tries to use OpenStudio's version of EnergyPlus
+* Copy all EnergyPlus files into run directory
+* Better cleanup after EnergyPlus simulation
+* Read machine information from /etc/openstudio-server directory, if available
 
 Version 0.1.0
 -------------

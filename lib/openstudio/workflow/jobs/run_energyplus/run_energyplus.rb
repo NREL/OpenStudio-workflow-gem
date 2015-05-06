@@ -17,30 +17,37 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+# Force the MakeMakefile logger write file output to null.
+module MakeMakefile::Logging
+  @logfile = File::NULL
+end
+
 class RunEnergyplus
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, time_logger, adapter, options = {})
-    energyplus_path = nil
-    if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-      energyplus_path = 'C:/EnergyPlus-8-2-0'
-    else
-      energyplus_path = '/usr/local/EnergyPlus-8-2-0'
-    end
+    @logger = logger
 
+    energyplus_path = find_energyplus
     defaults = {
       energyplus_path: energyplus_path
     }
     @options = defaults.merge(options)
 
+
     # TODO: use openstudio tool finder for this
     @directory = directory
     @run_directory = "#{@directory}/run"
     @adapter = adapter
-    @logger = logger
     @time_logger = time_logger
     @results = {}
+
+    # container for storing the energyplus files there were copied into the local directory. These will be
+    # removed at the end of the simulation.
+    @energyplus_files = []
+    @energyplus_exe = nil
+    @expand_objects_exe = nil
 
     @logger.info "#{self.class} passed the following options #{@options}"
   end
@@ -98,14 +105,8 @@ class RunEnergyplus
     end
 
     # can't create symlinks because the /vagrant mount is actually a windows mount
-    @logger.info "Copying EnergyPlus files to run directory: #{@run_directory}"
     @time_logger.start('Copying EnergyPlus files')
-    FileUtils.copy("#{@options[:energyplus_path]}/libbcvtb.so", "#{@run_directory}/libbcvtb.so")
-    FileUtils.copy("#{@options[:energyplus_path]}/libepexpat.so", "#{@run_directory}/libepexpat.so")
-    FileUtils.copy("#{@options[:energyplus_path]}/libepfmiimport.so", "#{@run_directory}/libepfmiimport.so")
-    FileUtils.copy("#{@options[:energyplus_path]}/ExpandObjects", "#{@run_directory}/ExpandObjects")
-    FileUtils.copy("#{@options[:energyplus_path]}/EnergyPlus", "#{@run_directory}/EnergyPlus")
-    FileUtils.copy("#{@options[:energyplus_path]}/Energy+.idd", "#{@run_directory}/Energy+.idd")
+    prepare_energyplus_dir
     @time_logger.stop('Copying EnergyPlus files')
 
     @time_logger.start('Running EnergyPlus')
@@ -117,14 +118,77 @@ class RunEnergyplus
 
   private
 
+  # Look for the location of EnergyPlus
+  def find_energyplus
+    if ENV['ENERGYPLUSDIR']
+      return ENV['ENERGYPLUSDIR']
+    elsif ENV['RUBYLIB'] =~ /OpenStudio/
+      path = ENV['RUBYLIB'].split(':')
+      path = File.dirname(path.find { |p| p =~ /OpenStudio/ })
+      # Grab the version out of the openstudio path
+      path += '/sharedresources/EnergyPlus-8-2-0'
+      @logger.info "found EnergyPlus path of #{path}"
+      return path
+    else
+      if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
+        energyplus_path = 'C:/EnergyPlus-8-2-0'
+      else
+        energyplus_path = '/usr/local/EnergyPlus-8-2-0'
+      end
+
+    end
+  end
+
+  def clean_directory
+    @logger.info 'Removing any copied EnergyPlus files'
+    @energyplus_files.each do |file|
+      if File.exist? file
+        FileUtils.rm_f file
+      end
+    end
+
+    paths_to_rm = []
+    paths_to_rm << "#{@run_directory}/packaged_measures"
+    paths_to_rm << "#{@run_directory}/Energy+.ini"
+    paths_to_rm.each { |p| FileUtils.rm_rf(p) if File.exist?(p) }
+  end
+
+  # Prepare the directory to run EnergyPlus. In EnergyPlus < 8.2, we have to copy all the files into the directory.
+  #
+  # @return [Boolean] Returns true is there is more than one file copied
+  def prepare_energyplus_dir
+    @logger.info "Copying EnergyPlus files to run directory: #{@run_directory}"
+    Dir["#{@options[:energyplus_path]}/*"].each do |file|
+      next if File.directory? file
+      next if File.extname(file).downcase =~ /.pdf|.app|.html|.gif|.txt|.xlsx/
+
+      dest_file = "#{@run_directory}/#{File.basename(file)}"
+      @energyplus_files << dest_file
+
+      @energyplus_exe = File.basename(dest_file) if File.basename(dest_file) =~ /^energyplus.{0,4}$/i
+      @expand_objects_exe = File.basename(dest_file) if File.basename(dest_file) =~ /^ExpandObjects.{0,4}$/i
+      FileUtils.copy file, dest_file
+    end
+
+    fail "Could not find EnergyPlus Executable in #{@options[:energyplus_path]}" unless @energyplus_exe
+    fail "Could not find ExpandObjects Executable in #{@options[:energyplus_path]}" unless @expand_objects_exe
+
+    @energyplus_files.size > 0
+  end
+
   def call_energyplus
     begin
       current_dir = Dir.pwd
       Dir.chdir(@run_directory)
       @logger.info "Starting simulation in run directory: #{Dir.pwd}"
+      
+      #@logger.info "Contents of: #{Dir.pwd}"
+      #Dir.glob("*").each do |f|
+      #  @logger.info "  #{f}"
+      #end
 
       File.open('stdout-expandobject', 'w') do |file|
-        IO.popen('./ExpandObjects') do |io|
+        IO.popen("./#{@expand_objects_exe}") do |io|
           while (line = io.gets)
             file << line
           end
@@ -139,7 +203,7 @@ class RunEnergyplus
 
       # create stdout
       File.open('stdout-energyplus', 'w') do |file|
-        IO.popen('./EnergyPlus + 2>&1') do |io|
+        IO.popen("./#{@energyplus_exe} 2>&1") do |io|
           while (line = io.gets)
             file << line
           end
@@ -148,16 +212,6 @@ class RunEnergyplus
       r = $?
 
       @logger.info "EnergyPlus returned '#{r}'"
-
-      paths_to_rm = []
-      paths_to_rm << Pathname.glob("#{@run_directory}/*.ini")
-      paths_to_rm << Pathname.glob("#{@run_directory}/*.so")
-      paths_to_rm << Pathname.glob("#{@run_directory}/*.idd")
-      paths_to_rm << Pathname.glob("#{@run_directory}/ExpandObjects")
-      paths_to_rm << Pathname.glob("#{@run_directory}/EnergyPlus")
-      paths_to_rm << Pathname.glob("#{@run_directory}/packaged_measures")
-      paths_to_rm.each { |p| FileUtils.rm_rf(p) }
-
       unless r == 0
         @logger.warn 'EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log.'
       end
@@ -185,11 +239,13 @@ class RunEnergyplus
       @logger.error log_message
       raise log_message
     ensure
+      @logger.info "Ensuring 'clean' directory"
+      clean_directory
+
       Dir.chdir(current_dir)
       @logger.info 'EnergyPlus Completed'
     end
 
-    # TODO: get list of all the files that are generated and return
     {}
   end
 end

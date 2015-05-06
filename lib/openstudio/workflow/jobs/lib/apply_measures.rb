@@ -215,8 +215,8 @@ module OpenStudio
             measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
             @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
           rescue => e
-            log_message = "TODO: #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-            @logger.warn log_message
+            log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+            @logger.error log_message
           end
         rescue => e
           log_message = "#{__FILE__} failed with message #{e.message} in #{e.backtrace.join("\n")}"

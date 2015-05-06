@@ -64,7 +64,7 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 * Implement better error handling with custom exception classes
 * ~Implement a different measure directory, seed model directory, and weather file directory option~
 * ~Dynamically add other "states" to the workflow~
-* ~Create and change into a unique directory when running measures~
+* ~~Create and change into a unique directory when running measures~~
 * ~~Implement Error State~~
 * ~~Implement MongoDB Adapter~~
 * ~~Implement remaining Adapter states (i.e. communicate success, communicate failure etc~~

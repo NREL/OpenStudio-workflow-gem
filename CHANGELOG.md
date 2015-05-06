@@ -9,6 +9,7 @@ Unreleased Version
   * New find_energyplus method which tries to use OpenStudio's version of EnergyPlus
 * Copy all EnergyPlus files into run directory
 * Better cleanup after EnergyPlus simulation
+* Read machine information from /etc/openstudio-server directory, if available
 
 Version 0.1.0
 -------------

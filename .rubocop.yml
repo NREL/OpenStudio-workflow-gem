@@ -5,6 +5,7 @@ AllCops:
     - '**/measure.rb'
     - 'spec/files/mongoid/models/**/*'
     - 'spec/files/pat_project/data_point_*/**/*'
+    - 'spec/files/pat_project/run/**/*'
     - 'spec/files/mongo_pat1/run/**/*'
 
 # ==================== Linters ====================

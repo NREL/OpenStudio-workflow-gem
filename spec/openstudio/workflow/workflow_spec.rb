@@ -254,7 +254,7 @@ describe 'OpenStudio::Workflow' do
     run_dir = './spec/files/simulations/mongo_ex3'
     FileUtils.rm_rf run_dir if Dir.exist? run_dir
     FileUtils.mkdir_p run_dir
-    
+
     options = {
       datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
       analysis_root_path: 'spec/files/example_models',

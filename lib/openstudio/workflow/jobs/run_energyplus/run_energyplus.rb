@@ -35,7 +35,6 @@ class RunEnergyplus
     }
     @options = defaults.merge(options)
 
-
     # TODO: use openstudio tool finder for this
     @directory = directory
     @run_directory = "#{@directory}/run"
@@ -181,11 +180,11 @@ class RunEnergyplus
       current_dir = Dir.pwd
       Dir.chdir(@run_directory)
       @logger.info "Starting simulation in run directory: #{Dir.pwd}"
-      
-      #@logger.info "Contents of: #{Dir.pwd}"
-      #Dir.glob("*").each do |f|
+
+      # @logger.info "Contents of: #{Dir.pwd}"
+      # Dir.glob("*").each do |f|
       #  @logger.info "  #{f}"
-      #end
+      # end
 
       File.open('stdout-expandobject', 'w') do |file|
         IO.popen("./#{@expand_objects_exe}") do |io|

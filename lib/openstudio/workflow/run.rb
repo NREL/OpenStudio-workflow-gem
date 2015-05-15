@@ -302,7 +302,7 @@ module OpenStudio
 
         # result
 
-        # TODO fix this so that it gets the base config options plus its job options. Need to
+        # TODO: fix this so that it gets the base config options plus its job options. Need to
         # also merge in all the former job results.
         @options.merge(@job_results)
       end

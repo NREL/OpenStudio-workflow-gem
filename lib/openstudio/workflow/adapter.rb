@@ -125,7 +125,6 @@ module OpenStudio
           zip_filename = File.join(directory, zip_filename)
           zip_directory directory, zip_filename, 'reports'
         end
-
       end
     end
   end

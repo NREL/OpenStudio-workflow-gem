@@ -30,7 +30,7 @@ require 'mkmf' # for finding files
 begin
   require 'facter'
 rescue LoadError => e
-  puts 'Could not load Facter. Will not be able to save the IP address to the log'.red
+  warn 'Could not load Facter. Will not be able to save the IP address to the log'.red
 end
 
 require 'openstudio/workflow/version'

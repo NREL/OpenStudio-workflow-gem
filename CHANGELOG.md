@@ -1,6 +1,10 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Unrealeased Changes
+------------------
+* Use EnergyPlus 8.3
+
 Version 0.1.1
 ------------------
 * Catch exception when loading a measure file.

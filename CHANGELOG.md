@@ -1,7 +1,7 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Unreleased Version
+Version 0.1.1
 ------------------
 * Catch exception when loading a measure file.
 * Enable running simulations on windows and mac

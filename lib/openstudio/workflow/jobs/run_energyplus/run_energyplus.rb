@@ -169,8 +169,8 @@ class RunEnergyplus
       FileUtils.copy file, dest_file
     end
 
-    fail "Could not find EnergyPlus Executable in #{@options[:energyplus_path]}" unless @energyplus_exe
-    fail "Could not find ExpandObjects Executable in #{@options[:energyplus_path]}" unless @expand_objects_exe
+    fail "Could not find EnergyPlus executable in #{@options[:energyplus_path]}" unless @energyplus_exe
+    fail "Could not find ExpandObjects executable in #{@options[:energyplus_path]}" unless @expand_objects_exe
 
     @energyplus_files.size > 0
   end

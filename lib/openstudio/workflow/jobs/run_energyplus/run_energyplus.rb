@@ -125,14 +125,14 @@ class RunEnergyplus
       path = ENV['RUBYLIB'].split(':')
       path = File.dirname(path.find { |p| p =~ /OpenStudio/ })
       # Grab the version out of the openstudio path
-      path += '/sharedresources/EnergyPlus-8-2-0'
+      path += '/sharedresources/EnergyPlus-8-3-0'
       @logger.info "found EnergyPlus path of #{path}"
       return path
     else
       if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-        energyplus_path = 'C:/EnergyPlus-8-2-0'
+        energyplus_path = 'C:/EnergyPlus-8-3-0'
       else
-        energyplus_path = '/usr/local/EnergyPlus-8-2-0'
+        energyplus_path = '/usr/local/EnergyPlus-8-3-0'
       end
 
     end

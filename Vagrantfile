@@ -39,9 +39,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :chef_solo do |chef|
     chef.json = {
       openstudio: {
-        version: '1.5.5',
-        installer: {
-          version_revision: 'f6ccda50f0'
+        version: '1.7.5',
+          installer: {
+            version_revision: '24e09a7180'
         }
       },
       openstudio_new: {
@@ -60,7 +60,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         sysconfig_file: '/var/lib/mongo',
         default_init_name: 'mongod',
         instance_name: 'mongod',
-        package_version: '2.6.4',
         install_method: 'mongodb-org',
         config: {
           dbpath: '/mnt/mongodb/data',

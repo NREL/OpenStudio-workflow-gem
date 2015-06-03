@@ -27,13 +27,19 @@ Use this line if you want the bleeding edge:
     gem 'OpenStudio-workflow', github: 'NREL/OpenStudio-workflow-gem', branch: 'EnergyPlus-8.2.0'
 
 And then execute:
+    
+    Mac/Linux:
 
-    $ bundle
+        $ bundle
+        
+    Windows (avoids native extensions):
+    
+        $ bundle install --without xml profile
 
 Or install it yourself as:
-
+    
     $ gem install OpenStudio-workflow
-
+    
 ## Usage
 
 Note that the branches of the Workflow Gem depict which version of EnergyPlus is in use. The develop branch at the

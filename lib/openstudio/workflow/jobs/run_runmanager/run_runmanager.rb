@@ -28,26 +28,21 @@ class RunRunmanager
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, time_logger, adapter, options = {})
-    energyplus_path = nil
-    if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-      energyplus_path = 'C:/EnergyPlus-8-3-0'
-    else
-      energyplus_path = '/usr/local/EnergyPlus-8-3-0'
-    end
-
+    @logger = logger
+    
+    energyplus_path = find_energyplus
     defaults = {
       analysis_root_path: '.',
       energyplus_path: energyplus_path
     }
     @options = defaults.merge(options)
-
+    
     @analysis_root_path = OpenStudio::Path.new(options[:analysis_root_path])
     @directory = OpenStudio::Path.new(directory)
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
     @run_directory = @directory / OpenStudio::Path.new('run')
     @adapter = adapter
     @results = {}
-    @logger = logger
     @logger.info "#{self.class} passed the following options #{@options}"
     @time_logger = time_logger
 
@@ -221,5 +216,26 @@ class RunRunmanager
     end
 
     @results
+  end
+  
+  # Look for the location of EnergyPlus
+  def find_energyplus
+    if ENV['ENERGYPLUSDIR']
+      return ENV['ENERGYPLUSDIR']
+    elsif ENV['RUBYLIB'] =~ /OpenStudio/
+      path = ENV['RUBYLIB'].split(':')
+      path = File.dirname(path.find { |p| p =~ /OpenStudio/ })
+      # Grab the version out of the openstudio path
+      path += '/sharedresources/EnergyPlus-8-3-0'
+      @logger.info "found EnergyPlus path of #{path}"
+      return path
+    else
+      if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
+        energyplus_path = 'C:/EnergyPlus-8-3-0'
+      else
+        energyplus_path = '/usr/local/EnergyPlus-8-3-0'
+      end
+
+    end
   end
 end

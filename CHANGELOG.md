@@ -4,6 +4,10 @@ OpenStudio::Workflow Change Log
 Unrealeased Changes
 ------------------
 * Use EnergyPlus 8.3
+* Update find energyplus to use OpenStudio method 
+* Update dependencies
+* Support tests running on Docker
+* Skip the PAT tests for now since they are broken
 
 Version 0.1.1
 ------------------

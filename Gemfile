@@ -22,7 +22,7 @@ end
 
 group :test do
   gem 'openstudio-analysis', github: 'NREL/OpenStudio-analysis-gem', branch: 'develop'
-  gem 'rspec', '~> 3.2.0'
+  gem 'rspec', '~> 3.3'
   gem 'ci_reporter_rspec'
   gem 'rubocop'
   gem 'rubocop-checkstyle_formatter'

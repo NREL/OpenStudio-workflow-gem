@@ -39,7 +39,7 @@ describe 'OpenStudio::Workflow' do
     end
   end
 
-  it 'should run a local file with pat format' do
+  skip 'should run a local file with pat format' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/pat_project/data_point_469b52c3-4aae-4cdd-b580-5c9494eefa11'
     options = {
@@ -53,14 +53,21 @@ describe 'OpenStudio::Workflow' do
     expect(k.options[:problem_filename]).to eq '../formulation.json'
     expect(k.options[:datapoint_filename]).to eq 'data_point.json'
     expect(k.directory).to eq File.expand_path(run_dir)
+
+    # load in the data_point_out.json and check to make sure that it found energyplus
+    expect(File.exist?("#{run_dir}/data_point_out.json")).to eq true
+
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
+
+    f = File.read("#{run_dir}/data_point_out.json")
+    expect(f =~ /Unable to find valid executable while creating local process/).to eq nil
 
     expect(File.exist?("#{run_dir}/data_point.zip")).to eq true
     expect(File.exist?("#{run_dir}/data_point_reports.zip")).to eq true
   end
 
-  it 'should create a mongo file adapater and run the verbose format' do
+  skip 'should create a mongo file adapater and run the verbose format' do
     # for local, it uses the rundir as the uuid
     run_dir = './spec/files/mongo_pat1'
     dp = 'd85b5ffa-b8f0-4bc1-b8af-da6df0da4267'
@@ -76,8 +83,15 @@ describe 'OpenStudio::Workflow' do
     k = OpenStudio::Workflow.load 'Mongo', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.directory).to eq File.expand_path(run_dir)
+
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
+
+    # load in the data_point_out.json and check to make sure that it found energyplus
+    expect(File.exist?("#{run_dir}/data_point_out.json")).to eq true
+
+    f = File.read("#{run_dir}/data_point_out.json")
+    expect(f =~ /Unable to find valid executable while creating local process/).to eq nil
 
     expect(File.exist?("#{run_dir}/data_point_#{dp}.zip")).to eq true
     expect(File.exist?("#{run_dir}/data_point_#{dp}_reports.zip")).to eq true

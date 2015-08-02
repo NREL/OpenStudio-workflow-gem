@@ -117,24 +117,27 @@ class RunEnergyplus
 
   private
 
-  # Look for the location of EnergyPlus
   def find_energyplus
     if ENV['ENERGYPLUSDIR']
       return ENV['ENERGYPLUSDIR']
+      # TODO: check if method exists! first
+    elsif OpenStudio.respond_to? :getEnergyPlusDirectory
+      return OpenStudio.getEnergyPlusDirectory.to_s
     elsif ENV['RUBYLIB'] =~ /OpenStudio/
+      warn 'Finding EnergyPlus by RUBYLIB parsing will not be supported in the near future. Use either ENERGYPLUSDIR'\
+           'env variable or a newer OpenStudio version that has the getEnergyPlusDirectory method'
       path = ENV['RUBYLIB'].split(':')
       path = File.dirname(path.find { |p| p =~ /OpenStudio/ })
       # Grab the version out of the openstudio path
       path += '/sharedresources/EnergyPlus-8-3-0'
-      @logger.info "found EnergyPlus path of #{path}"
+
       return path
     else
       if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-        energyplus_path = 'C:/EnergyPlus-8-3-0'
+        return 'C:/EnergyPlus-8-3-0'
       else
-        energyplus_path = '/usr/local/EnergyPlus-8-3-0'
+        return '/usr/local/EnergyPlus-8-3-0'
       end
-
     end
   end
 

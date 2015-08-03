@@ -1,10 +1,10 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Unrealeased Changes
+Unreleased Changes
 ------------------
 * Use EnergyPlus 8.3
-* Update find energyplus to use OpenStudio method 
+* Update find_energyplus to use new OpenStudio method instead of RUBYLIB env var
 * Update dependencies
 * Support tests running on Docker
 * Skip the PAT tests for now since they are broken
@@ -19,7 +19,6 @@ Version 0.1.1
 * Copy all EnergyPlus files into run directory
 * Better cleanup after EnergyPlus simulation
 * Read machine information from /etc/openstudio-server directory, if available
-
 
 Version 0.1.0
 -------------

@@ -17,12 +17,10 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# Force the MakeMakefile logger write file output to null.
-module MakeMakefile::Logging
-  @logfile = File::NULL
-end
-
 class RunEnergyplus
+  ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i
+  EXPAND_OBJECTS_REGEX =  /^expandobjects\D{0,4}$/i
+
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
@@ -167,8 +165,8 @@ class RunEnergyplus
       dest_file = "#{@run_directory}/#{File.basename(file)}"
       @energyplus_files << dest_file
 
-      @energyplus_exe = File.basename(dest_file) if File.basename(dest_file) =~ /^energyplus.{0,4}$/i
-      @expand_objects_exe = File.basename(dest_file) if File.basename(dest_file) =~ /^ExpandObjects.{0,4}$/i
+      @energyplus_exe = File.basename(dest_file) if File.basename(dest_file) =~ ENERGYPLUS_REGEX
+      @expand_objects_exe = File.basename(dest_file) if File.basename(dest_file) =~ EXPAND_OBJECTS_REGEX
       FileUtils.copy file, dest_file
     end
 

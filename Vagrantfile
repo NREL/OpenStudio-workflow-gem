@@ -40,8 +40,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.json = {
       openstudio: {
         version: '1.7.5',
-          installer: {
-            version_revision: '24e09a7180'
+        installer: {
+          version_revision: '24e09a7180'
         }
       },
       openstudio_new: {

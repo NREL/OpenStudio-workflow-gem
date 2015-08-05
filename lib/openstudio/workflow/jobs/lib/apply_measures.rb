@@ -143,8 +143,6 @@ module OpenStudio
               arguments = measure.arguments
             end
 
-            @logger.info "Extracted the following arguments: #{arguments}"
-
             # Create argument map and initialize all the arguments
             argument_map = OpenStudio::Ruleset::OSArgumentMap.new
             arguments.each do |v|

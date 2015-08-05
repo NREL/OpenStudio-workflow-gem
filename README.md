@@ -141,3 +141,4 @@ Next you have to do this:
 Then you can test that you are using your build by comparing the output of these two commands:
 * ruby -e "require 'openstudio'" -e "puts OpenStudio::openStudioLongVersion"
 * git rev-parse --short HEAD
+

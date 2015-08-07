@@ -16,7 +16,7 @@ group :xml do
 end
 
 group :test do
-  gem 'simplecov', :require => false
+  gem 'coveralls', require: false
   gem 'ruby-prof', '~> 0.15.1'
   gem 'openstudio-analysis', github: 'NREL/OpenStudio-analysis-gem', branch: 'develop'
   gem 'rspec', '~> 3.3'

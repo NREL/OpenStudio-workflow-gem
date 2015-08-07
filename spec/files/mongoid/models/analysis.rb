@@ -1,3 +1,4 @@
+# :nocov:
 class Analysis
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -419,3 +420,4 @@ class Analysis
     self.save!
   end
 end
+# :nocov:

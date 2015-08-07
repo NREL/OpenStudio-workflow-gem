@@ -1,5 +1,6 @@
 # OpenStudio::Workflow
-[![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
+[![Circle CI](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0.svg?style=svg)](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0)
+[![Coverage Status](https://coveralls.io/repos/NREL/OpenStudio-workflow-gem/badge.svg?branch=docker-tests&service=github)](https://coveralls.io/github/NREL/OpenStudio-workflow-gem?branch=EnergyPlus-8.3.0) [![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
 
 Run an EnergyPlus simulation using a file-based workflow that is read from a Local or MongoDB adapter.
 
@@ -9,7 +10,7 @@ The OpenStudio Workflow Gem has the following dependencies:
 
 * Ruby 2.0
 * OpenStudio with Ruby 2.0 bindings
-* EnergyPlus 8.2 (assuming OpenStudio >= 1.5.4)
+* EnergyPlus 8.3 (assuming OpenStudio >= 1.7.2)
 * MongoDB if using MongoDB Adapter (or when running rspec)
 
 [OpenStudio](http://developer.nrel.gov/downloads/buildings/openstudio/builds/) needs to be installed
@@ -58,26 +59,13 @@ The workflow manager can also use MongoDB to receive instructions on the workflo
 
 ## Caveats and Todos
 
-### Caveats
-
-* There are currently several hard coded workflow options
-* Must use OpenStudio with Ruby 2.0 support
-* Using MongoDB as the Adapter requires a command line zip (gnuzip) utility
-
 ### Todos
 
 * Read the analysis.json file to determine the states that are going to run instead of (or in addition to) passing them into the constructor
 * Implement better error handling with custom exception classes
-* ~Implement a different measure directory, seed model directory, and weather file directory option~
-* ~Dynamically add other "states" to the workflow~
-* ~~Create and change into a unique directory when running measures~~
-* ~~Implement Error State~~
-* ~~Implement MongoDB Adapter~~
-* ~~Implement remaining Adapter states (i.e. communicate success, communicate failure etc~~
 * Add a results adapter to return a string as the last call based on the source of the call. (e.g. R, command line, C++, etc).
 * Implement a logger in the Adapters, right now they are unable to log
-* Hook up the measure groups based workflows
-* ~~Add xml workflow item~~
+* Hook up the measure group based workflows
 
 ## Testing and Development
 
@@ -141,3 +129,4 @@ Next you have to do this:
 Then you can test that you are using your build by comparing the output of these two commands:
 * ruby -e "require 'openstudio'" -e "puts OpenStudio::openStudioLongVersion"
 * git rev-parse --short HEAD
+

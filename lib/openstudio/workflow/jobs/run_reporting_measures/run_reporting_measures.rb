@@ -237,8 +237,8 @@ class RunReportingMeasures
       csv = CSV.read("#{@run_directory}/eplustbl.csv")
       csv.transpose.each do |k, v|
         longname = k.gsub(/\(.*\)/, '').strip
-        short_name = longname.downcase.gsub(' ', '_')
-        units = k.match(/\(.*\)/)[0].gsub('(', '').gsub(')', '')
+        short_name = longname.downcase.tr(' ', '_')
+        units = k.match(/\(.*\)/)[0].delete('(').delete(')')
         results[short_name.to_sym] = v.nil? ? nil : v.to_f
         results["#{short_name}_units".to_sym] = units
         results["#{short_name}_display_name".to_sym] = longname

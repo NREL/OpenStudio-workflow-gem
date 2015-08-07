@@ -19,7 +19,7 @@
 
 class RunEnergyplus
   ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i
-  EXPAND_OBJECTS_REGEX =  /^expandobjects\D{0,4}$/i
+  EXPAND_OBJECTS_REGEX = /^expandobjects\D{0,4}$/i
 
   # Initialize
   # param directory: base directory where the simulation files are prepared

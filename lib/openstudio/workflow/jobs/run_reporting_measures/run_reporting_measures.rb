@@ -294,33 +294,6 @@ class RunReportingMeasures
       val
     end
 
-    def add_element(hash, var_name, value, xpath = nil)
-      values_hash = {}
-      values_hash['name'] = var_name
-
-      # store correct datatype
-      store_val = nil
-      if value.nil?
-        store_val = nil
-      elsif value == 'true'
-        store_val = true
-      elsif value == 'false'
-        store_val = false
-      else
-        test = value.to_s
-        value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
-        if value.is_a?(Fixnum) || value.is_a?(Float)
-          store_val = value.to_f
-        else
-          store_val = value.to_s
-        end
-      end
-      values_hash['value'] = store_val
-      values_hash['xpath'] = xpath unless xpath.nil?
-
-      hash['data']['variables'] << values_hash
-    end
-
     # add results from sql method
     def add_data(sql, query, hdr, area, val)
       row = []
@@ -489,33 +462,6 @@ class RunReportingMeasures
       end
 
       val
-    end
-
-    def add_element(hash, var_name, value, xpath = nil)
-      values_hash = {}
-      values_hash['name'] = var_name
-
-      # store correct datatype
-      store_val = nil
-      if value.nil?
-        store_val = nil
-      elsif value == 'true'
-        store_val = true
-      elsif value == 'false'
-        store_val = false
-      else
-        test = value.to_s
-        value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
-        if value.is_a?(Fixnum) || value.is_a?(Float)
-          store_val = value.to_f
-        else
-          store_val = value.to_s
-        end
-      end
-      values_hash['value'] = store_val
-      values_hash['xpath'] = xpath unless xpath.nil?
-
-      hash['data']['variables'] << values_hash
     end
 
     # add results from sql method

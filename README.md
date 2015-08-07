@@ -1,5 +1,5 @@
 # OpenStudio::Workflow
-[![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
+[![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e) [![Circle CI](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0.svg?style=svg)](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0)
 
 Run an EnergyPlus simulation using a file-based workflow that is read from a Local or MongoDB adapter.
 

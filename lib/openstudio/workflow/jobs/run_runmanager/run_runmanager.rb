@@ -29,14 +29,14 @@ class RunRunmanager
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, time_logger, adapter, options = {})
     @logger = logger
-    
+
     energyplus_path = find_energyplus
     defaults = {
       analysis_root_path: '.',
       energyplus_path: energyplus_path
     }
     @options = defaults.merge(options)
-    
+
     @analysis_root_path = OpenStudio::Path.new(options[:analysis_root_path])
     @directory = OpenStudio::Path.new(directory)
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -195,8 +195,6 @@ class RunRunmanager
         @logger.info 'Updating OpenStudio DataPoint object'
         analysis.problem.updateDataPoint(data_point, job)
 
-        @logger.info data_point
-
         @results = { pat_data_point: ::MultiJson.load(data_point.toJSON, symbolize_names: true) }
 
         # Savet this to the directory for debugging purposes
@@ -217,25 +215,31 @@ class RunRunmanager
 
     @results
   end
-  
+
+  private
+
   # Look for the location of EnergyPlus
   def find_energyplus
     if ENV['ENERGYPLUSDIR']
       return ENV['ENERGYPLUSDIR']
+      # TODO: check if method exists! first
+    elsif OpenStudio.respond_to? :getEnergyPlusDirectory
+      return OpenStudio.getEnergyPlusDirectory.to_s
     elsif ENV['RUBYLIB'] =~ /OpenStudio/
+      warn 'Finding EnergyPlus by RUBYLIB parsing will not be supported in the near future. Use either ENERGYPLUSDIR'\
+           'env variable or a newer OpenStudio version that has the getEnergyPlusDirectory method'
       path = ENV['RUBYLIB'].split(':')
       path = File.dirname(path.find { |p| p =~ /OpenStudio/ })
       # Grab the version out of the openstudio path
       path += '/sharedresources/EnergyPlus-8-3-0'
-      @logger.info "found EnergyPlus path of #{path}"
+
       return path
     else
       if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-        energyplus_path = 'C:/EnergyPlus-8-3-0'
+        return 'C:/EnergyPlus-8-3-0'
       else
-        energyplus_path = '/usr/local/EnergyPlus-8-3-0'
+        return '/usr/local/EnergyPlus-8-3-0'
       end
-
     end
   end
 end

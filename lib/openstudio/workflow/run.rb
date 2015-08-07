@@ -156,7 +156,7 @@ module OpenStudio
             @logger.info 'Sending the run_runmananger results back to the adapter'
             @adapter.communicate_results @directory, @job_results[:run_runmanager]
           elsif @job_results[:run_reporting_measures]
-            @logger.info 'Sending the reporting measuers results back to the adapter'
+            @logger.info 'Sending the reporting measures results back to the adapter'
             @time_logger.save(File.join(@directory, 'profile.json'))
             @adapter.communicate_results @directory, @job_results[:run_reporting_measures]
           end

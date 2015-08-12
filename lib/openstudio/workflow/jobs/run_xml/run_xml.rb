@@ -239,7 +239,7 @@ class RunXml
                       @logger.info "Setting variable '#{variable_name}' to '#{@datapoint_json[:data_point][:set_variable_values][variable_uuid]}'"
 
                       args[wf_var[:argument][:name].to_sym] = @datapoint_json[:data_point][:set_variable_values][variable_uuid]
-                      args["#{wf_var[:argument][:name]}_machine_name".to_sym] = wf_var[:argument][:display_name].snake_case
+                      args["#{wf_var[:argument][:name]}_machine_name".to_sym] = wf_var[:argument][:display_name].to_underscore
                       args["#{wf_var[:argument][:name]}_type".to_sym] = wf_var[:value_type] if wf_var[:value_type]
                       @logger.info "Setting the machine name for argument '#{wf_var[:argument][:name]}' to '#{args["#{wf_var[:argument][:name]}_machine_name".to_sym]}'"
 

@@ -76,14 +76,14 @@ class RunPostprocess
       end
     end
 
-    # Also, find any "report.html" files
+    # Also, find any "report*.*" files
     Dir["#{@run_directory}/*/report*.*"].each do |report|
       # get the parent directory of the file and snake case it
       # do i need to force encoding on this as well?
-      measure_class_name = File.basename(File.dirname(report)).snake_case
+      measure_class_name = File.basename(File.dirname(report)).to_underscore
       file_ext = File.extname(report)
-      append_str = File.basename(report, '.*').gsub('report', '')
-      new_file_name = "#{@directory}/reports/#{measure_class_name}#{append_str}#{file_ext}"
+      append_str = File.basename(report, '.*')
+      new_file_name = "#{@directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"
       FileUtils.copy report, new_file_name
     end
 

@@ -130,3 +130,29 @@ Then you can test that you are using your build by comparing the output of these
 * ruby -e "require 'openstudio'" -e "puts OpenStudio::openStudioLongVersion"
 * git rev-parse --short HEAD
 
+## Testing
+
+The preferred way for testing is to run rspec either natively or via docker. The issue with natively running the tests locally is the requirement to have mongo installed and running.
+
+### Locally
+
+```
+rake
+```
+
+### Docker
+
+To run all the tests automatically run:
+```
+docker run --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.1-mongo-2.4 /var/simdata/openstudio/test/bin/docker-run.sh
+```
+
+To run the tests inside docker and enable debugging, then create a bash shell in docker with:
+```
+docker run -it --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.1-mongo-2.4 bash
+service mongodb start
+bundle update
+rake 
+# or
+bundle exec rspec <file>:<line>
+```

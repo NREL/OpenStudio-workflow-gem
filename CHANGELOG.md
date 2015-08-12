@@ -8,6 +8,8 @@ Unreleased Changes
 * Update dependencies
 * Support tests running on Docker
 * Skip the PAT tests for now since they are broken
+* Remove snake_case method as it conflicts with another libraries method, now called to_underscore
+* Add test for persisting JSONs as reports. Rename reports in the form of <measure_name_underscored>_<report_name>.<ext>
 
 Version 0.1.1
 ------------------

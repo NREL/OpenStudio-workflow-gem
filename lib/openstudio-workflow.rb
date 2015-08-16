@@ -25,7 +25,6 @@ require 'fileutils'
 require 'securerandom' # uuids
 require 'json' # needed for a single pretty generate call
 require 'pathname'
-require 'mkmf' # for finding files
 
 begin
   require 'facter'
@@ -49,11 +48,11 @@ end
 
 # some core extensions
 class String
-  def snake_case
+  def to_underscore
     gsub(/::/, '/')
       .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
       .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-      .tr(' -', '__')
+      .tr('-', '_')
       .downcase
   end
 end
@@ -152,5 +151,26 @@ module OpenStudio
       klass = OpenStudio::Workflow::Adapters.const_get(klass_name).new(adapter_options)
       klass
     end
+  end
+end
+
+# Extend OS Runner to persist measure information throughout the workflow
+class ExtendedRunner < OpenStudio::Ruleset::OSRunner
+
+  # overload ctor
+  def initialize
+    super
+    @past_results = []
+  end
+
+  # overloaded method
+  def prepareForUserScriptRun(userScript)
+    @past_results << result
+    super
+  end
+
+  # new method
+  def past_results
+    return @past_results
   end
 end

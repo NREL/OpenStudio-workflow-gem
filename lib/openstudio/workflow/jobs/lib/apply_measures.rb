@@ -126,7 +126,7 @@ module OpenStudio
           begin
             require measure_file_path
             measure = Object.const_get(measure_name).new
-            runner = OpenStudio::Ruleset::OSRunner.new
+            runner = OpenStudio::Ruleset::ExtendedRunner.new
           rescue => e
             log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message
@@ -142,8 +142,6 @@ module OpenStudio
             elsif workflow_item[:measure_type] == 'ReportingMeasure'
               arguments = measure.arguments
             end
-
-            @logger.info "Extracted the following arguments: #{arguments}"
 
             # Create argument map and initialize all the arguments
             argument_map = OpenStudio::Ruleset::OSArgumentMap.new
@@ -186,6 +184,7 @@ module OpenStudio
               measure.run(runner, argument_map)
             end
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
+            @logger.info "ExtendedRunner respoce: '#{runner.past_results}'"
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

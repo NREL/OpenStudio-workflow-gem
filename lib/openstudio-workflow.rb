@@ -165,7 +165,6 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
 
   # overloaded method
   def validateUserArguments(script_arguments, user_arguments)
-    @logger.info("Adding arguments to past_results. arguments: #{[script_arguments,user_arguments]}")
     @past_results << [script_arguments,user_arguments]
     super
   end

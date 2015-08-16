@@ -6,7 +6,7 @@ describe RunEnergyplus do
   describe 'find_energyplus' do
     before :all do
       @logger = ::Logger.new(STDOUT)
-      @e = RunEnergyplus.new(nil, @logger, nil, nil)
+      @e = RunEnergyplus.new(nil, @logger, nil, nil, nil)
     end
 
     it 'should create an instance' do

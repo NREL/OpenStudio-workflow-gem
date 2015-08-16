@@ -160,11 +160,11 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
   # overload ctor
   def initialize
     super
-    @past_results = []
+    @past_results = [S]
   end
 
   # overloaded method
-  def prepareForUserScriptRun(userScript)
+  def validateUserArguments(userScript)
     @logger.info("Adding result to past_results. result: #{result}")
     @past_results << result
     super

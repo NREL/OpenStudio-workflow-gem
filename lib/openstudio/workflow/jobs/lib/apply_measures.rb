@@ -126,7 +126,7 @@ module OpenStudio
           begin
             require measure_file_path
             measure = Object.const_get(measure_name).new
-            runner = OpenStudio::Ruleset::ExtendedRunner.new
+            runner = ExtendedRunner.new
           rescue => e
             log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

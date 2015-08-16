@@ -237,8 +237,8 @@ class RunReportingMeasures
       csv = CSV.read("#{@run_directory}/eplustbl.csv")
       csv.transpose.each do |k, v|
         longname = k.gsub(/\(.*\)/, '').strip
-        short_name = longname.downcase.gsub(' ', '_')
-        units = k.match(/\(.*\)/)[0].gsub('(', '').gsub(')', '')
+        short_name = longname.downcase.tr(' ', '_')
+        units = k.match(/\(.*\)/)[0].delete('(').delete(')')
         results[short_name.to_sym] = v.nil? ? nil : v.to_f
         results["#{short_name}_units".to_sym] = units
         results["#{short_name}_display_name".to_sym] = longname
@@ -292,33 +292,6 @@ class RunReportingMeasures
       end
 
       val
-    end
-
-    def add_element(hash, var_name, value, xpath = nil)
-      values_hash = {}
-      values_hash['name'] = var_name
-
-      # store correct datatype
-      store_val = nil
-      if value.nil?
-        store_val = nil
-      elsif value == 'true'
-        store_val = true
-      elsif value == 'false'
-        store_val = false
-      else
-        test = value.to_s
-        value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
-        if value.is_a?(Fixnum) || value.is_a?(Float)
-          store_val = value.to_f
-        else
-          store_val = value.to_s
-        end
-      end
-      values_hash['value'] = store_val
-      values_hash['xpath'] = xpath unless xpath.nil?
-
-      hash['data']['variables'] << values_hash
     end
 
     # add results from sql method
@@ -489,33 +462,6 @@ class RunReportingMeasures
       end
 
       val
-    end
-
-    def add_element(hash, var_name, value, xpath = nil)
-      values_hash = {}
-      values_hash['name'] = var_name
-
-      # store correct datatype
-      store_val = nil
-      if value.nil?
-        store_val = nil
-      elsif value == 'true'
-        store_val = true
-      elsif value == 'false'
-        store_val = false
-      else
-        test = value.to_s
-        value = test.match('\.').nil? ? Integer(test) : Float(test) rescue test.to_s
-        if value.is_a?(Fixnum) || value.is_a?(Float)
-          store_val = value.to_f
-        else
-          store_val = value.to_s
-        end
-      end
-      values_hash['value'] = store_val
-      values_hash['xpath'] = xpath unless xpath.nil?
-
-      hash['data']['variables'] << values_hash
     end
 
     # add results from sql method

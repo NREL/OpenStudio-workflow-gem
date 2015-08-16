@@ -1,9 +1,15 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Unrealeased Changes
+Unreleased Changes
 ------------------
 * Use EnergyPlus 8.3
+* Update find_energyplus to use new OpenStudio method instead of RUBYLIB env var
+* Update dependencies
+* Support tests running on Docker
+* Skip the PAT tests for now since they are broken
+* Remove snake_case method as it conflicts with another libraries method, now called to_underscore
+* Add test for persisting JSONs as reports. Rename reports in the form of <measure_name_underscored>_<report_name>.<ext>
 
 Version 0.1.1
 ------------------
@@ -15,7 +21,6 @@ Version 0.1.1
 * Copy all EnergyPlus files into run directory
 * Better cleanup after EnergyPlus simulation
 * Read machine information from /etc/openstudio-server directory, if available
-
 
 Version 0.1.0
 -------------

@@ -17,12 +17,10 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# Force the MakeMakefile logger write file output to null.
-module MakeMakefile::Logging
-  @logfile = File::NULL
-end
-
 class RunEnergyplus
+  ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i
+  EXPAND_OBJECTS_REGEX = /^expandobjects\D{0,4}$/i
+
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
@@ -117,24 +115,27 @@ class RunEnergyplus
 
   private
 
-  # Look for the location of EnergyPlus
   def find_energyplus
     if ENV['ENERGYPLUSDIR']
       return ENV['ENERGYPLUSDIR']
+      # TODO: check if method exists! first
+    elsif OpenStudio.respond_to? :getEnergyPlusDirectory
+      return OpenStudio.getEnergyPlusDirectory.to_s
     elsif ENV['RUBYLIB'] =~ /OpenStudio/
+      warn 'Finding EnergyPlus by RUBYLIB parsing will not be supported in the near future. Use either ENERGYPLUSDIR'\
+           'env variable or a newer OpenStudio version that has the getEnergyPlusDirectory method'
       path = ENV['RUBYLIB'].split(':')
       path = File.dirname(path.find { |p| p =~ /OpenStudio/ })
       # Grab the version out of the openstudio path
       path += '/sharedresources/EnergyPlus-8-3-0'
-      @logger.info "found EnergyPlus path of #{path}"
+
       return path
     else
       if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
-        energyplus_path = 'C:/EnergyPlus-8-3-0'
+        return 'C:/EnergyPlus-8-3-0'
       else
-        energyplus_path = '/usr/local/EnergyPlus-8-3-0'
+        return '/usr/local/EnergyPlus-8-3-0'
       end
-
     end
   end
 
@@ -164,8 +165,8 @@ class RunEnergyplus
       dest_file = "#{@run_directory}/#{File.basename(file)}"
       @energyplus_files << dest_file
 
-      @energyplus_exe = File.basename(dest_file) if File.basename(dest_file) =~ /^energyplus.{0,4}$/i
-      @expand_objects_exe = File.basename(dest_file) if File.basename(dest_file) =~ /^ExpandObjects.{0,4}$/i
+      @energyplus_exe = File.basename(dest_file) if File.basename(dest_file) =~ ENERGYPLUS_REGEX
+      @expand_objects_exe = File.basename(dest_file) if File.basename(dest_file) =~ EXPAND_OBJECTS_REGEX
       FileUtils.copy file, dest_file
     end
 

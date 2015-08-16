@@ -172,7 +172,6 @@ module OpenStudio
 
           begin
             @logger.info "Calling measure.run for '#{workflow_item[:name]}'"
-            @logger.info "Meausre run call executed by: #{measure.method(:run).source_location}"
             if workflow_item[:measure_type] == 'RubyMeasure'
               measure.run(@model, runner, argument_map)
             elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
@@ -202,7 +201,7 @@ module OpenStudio
             @logger.info "Runner result json1: #{result.to_json}"
             @logger.info "Runner result json2: #{result.as_json}"
             @logger.info "Runner result attributes: #{result.attributes.get}"
-            @logger.info "Runner result value: #{result.value.get}"
+            @logger.info "Runner result value: #{result.value.methods}"
             @logger.info "Runner result instance_values: #{result.instance_values}"
             @logger.info "Runner result instance_variable_names: #{result.instance_variable_names}"
             @logger.info "Runner result pretty_print_instance_variables: #{result.pretty_print_instance_variables}"

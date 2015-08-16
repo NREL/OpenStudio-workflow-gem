@@ -95,7 +95,7 @@ module OpenStudio
         @transitions = {}
         @directory = directory
         @time_logger = TimeLogger.new
-        @workflow_arguments = []
+        @@workflow_arguments = []
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
 

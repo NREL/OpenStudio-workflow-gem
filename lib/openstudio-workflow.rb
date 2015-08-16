@@ -159,7 +159,7 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
 
   # Overloaded argument parsing
   def validateUserArguments(script_arguments, user_arguments)
-    @workflow_arguments << [script_arguments,user_arguments]
+    @@workflow_arguments << [script_arguments,user_arguments]
     super
   end
 

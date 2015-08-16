@@ -200,7 +200,7 @@ module OpenStudio
             @logger.info "Runner result methods: #{result.methods}"
             @logger.info "Runner result json1: #{result.to_json}"
             @logger.info "Runner result json2: #{result.as_json}"
-            @logger.info "Runner result attributes: #{result.attributes.get}"
+            @logger.info "Runner result attributes: #{result.attributes.methods}"
             @logger.info "Runner result value: #{result.value.methods}"
             @logger.info "Runner result instance_values: #{result.instance_values}"
             @logger.info "Runner result instance_variable_names: #{result.instance_variable_names}"

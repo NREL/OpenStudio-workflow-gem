@@ -184,11 +184,8 @@ module OpenStudio
               measure.run(runner, argument_map)
             end
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
-            @logger.info "ExtendedRunner responce: '#{runner.past_results}'"
-            @logger.info "ExtendedRunner size: '#{runner.past_results.size}'"
-            @logger.info "ExtendedRunner methods: '#{runner.past_results.methods}'"
-            @logger.info "ExtendedRunner to_s: '#{runner.past_results.to_s}'"
-            @logger.info "ExtendedRunner zeroth to_s: '#{runner.past_results[0].to_s}'"
+            @logger.info "ExtendedRunner workflow_arguments responce: '#{runner.workflow_arguments}'"
+            @logger.info "ExtendedRunner workflow_arguments size: '#{runner.workflow_arguments.size}'"
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message
@@ -196,16 +193,6 @@ module OpenStudio
 
           begin
             result = runner.result
-            @logger.info "Runner result: #{result}"
-            @logger.info "Runner result methods: #{result.methods}"
-            @logger.info "Runner result json1: #{result.to_json}"
-            @logger.info "Runner result json2: #{result.as_json}"
-            @logger.info "Runner result attributes: #{result.attributes.methods}"
-            @logger.info "Runner result value: #{result.value.methods}"
-            @logger.info "Runner result instance_values: #{result.instance_values}"
-            @logger.info "Runner result instance_variable_names: #{result.instance_variable_names}"
-            @logger.info "Runner result pretty_print_instance_variables: #{result.pretty_print_instance_variables}"
-            @logger.info "Runner result pretty_print_inspect: #{result.pretty_print_inspect}"
             @logger.info "Running of measure '#{workflow_item[:name]}' completed. Post-processing measure output"
 
             @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?

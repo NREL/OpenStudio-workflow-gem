@@ -157,20 +157,20 @@ end
 # Extend OS Runner to persist measure information throughout the workflow
 class ExtendedRunner < OpenStudio::Ruleset::OSRunner
 
-  # overload ctor
+  # Overload OSRunner
   def initialize
     super
-    @past_results = []
+    @workflow_arguments = []
   end
 
-  # overloaded method
+  # Overloaded argument parsing
   def validateUserArguments(script_arguments, user_arguments)
-    @past_results << [script_arguments,user_arguments]
+    @workflow_arguments << [script_arguments,user_arguments]
     super
   end
 
-  # new method
-  def past_results
-    return @past_results
+  # Method for retrieving all prior OS Argument inputs to measures
+  def workflow_arguments
+    return @workflow_arguments
   end
 end

@@ -196,6 +196,8 @@ module OpenStudio
 
           begin
             result = runner.result
+            @logger.info "Runner result: #{result}"
+            @logger.info "Runner result methods: #{result.methods}"
             @logger.info "Running of measure '#{workflow_item[:name]}' completed. Post-processing measure output"
 
             @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?

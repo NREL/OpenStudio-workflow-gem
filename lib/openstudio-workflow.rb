@@ -157,10 +157,20 @@ end
 # Extend OS Runner to persist measure information throughout the workflow
 class ExtendedRunner < OpenStudio::Ruleset::OSRunner
 
+  # Add in @workflow_arguments
+  def initialize
+    super
+    attr_accessor :workflow_arguments
+  end
+
   # Overloaded argument parsing
   def validateUserArguments(script_arguments, user_arguments)
-    @@workflow_arguments << [script_arguments,user_arguments]
+    @workflow_arguments << [script_arguments,user_arguments]
     super
   end
 
+  # Allow for arguments to be parsed out
+  def workflow_arguments
+    return @workflow_arguments
+  end
 end

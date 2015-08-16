@@ -160,7 +160,7 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
   # overload ctor
   def initialize
     super
-    @past_results = [S]
+    @past_results = []
   end
 
   # overloaded method

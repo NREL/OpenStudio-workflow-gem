@@ -165,6 +165,7 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
 
   # overloaded method
   def prepareForUserScriptRun(userScript)
+    @logger.info("Adding result to past_results. result: #{result}")
     @past_results << result
     super
   end

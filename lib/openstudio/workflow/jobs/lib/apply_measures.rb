@@ -184,7 +184,11 @@ module OpenStudio
               measure.run(runner, argument_map)
             end
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
-            @logger.info "ExtendedRunner respoce: '#{runner.past_results}'"
+            @logger.info "ExtendedRunner responce: '#{runner.past_results}'"
+            @logger.info "ExtendedRunner size: '#{runner.past_results.size}'"
+            @logger.info "ExtendedRunner methods: '#{runner.past_results.methods}'"
+            @logger.info "ExtendedRunner to_s: '#{runner.past_results.to_s}'"
+            @logger.info "ExtendedRunner zeroth to_s: '#{runner.past_results[0].to_s}'"
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

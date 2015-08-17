@@ -210,7 +210,7 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
   def validateUserArguments(script_arguments, user_arguments)
     @workflow_arguments = {}
     user_arguments.each do |hash|
-      @workflow_arguments[hash.key.to_sym] = bad_os_typecasting(hash.key, self, user_arguments)
+      @workflow_arguments[hash.to_sym] = bad_os_typecasting(hash.key, self, user_arguments)
     end
     super
   end

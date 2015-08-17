@@ -184,7 +184,7 @@ module OpenStudio
 
               measure.run(runner, argument_map)
             end
-            @workflow_arguments << runner.workflow_arguments
+            @workflow_arguments[measure.class.to_s.to_sym] = runner.workflow_arguments
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

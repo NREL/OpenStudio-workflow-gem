@@ -160,7 +160,7 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
   # Add in @workflow_arguments
   def initialize
     super
-    attr_accessor :workflow_arguments
+    @workflow_arguments
   end
 
   # Overloaded argument parsing
@@ -171,6 +171,6 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
 
   # Allow for arguments to be parsed out
   def workflow_arguments
-    return @workflow_arguments
+    return @workflow_arguments[0]
   end
 end

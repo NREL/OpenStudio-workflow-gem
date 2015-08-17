@@ -153,3 +153,70 @@ module OpenStudio
     end
   end
 end
+
+# Extend OS Runner to persist measure information throughout the workflow
+class ExtendedRunner < OpenStudio::Ruleset::OSRunner
+
+  # Add in @workflow_arguments
+  def initialize
+    super
+    @workflow_arguments
+  end
+
+  # Helper method to compensate for not being able to query the type of an os argument variable
+  def bad_os_typecasting(os_argument_name, runner, user_arguments)
+    type_found = nil
+    begin
+      out = runner.getStringArgumentValue(os_argument_name, user_arguments)
+      type_found = true
+    end
+    unless type_found
+      begin
+        out = runner.getDoubleArgumentValue(os_argument_name, user_arguments)
+        type_found = true
+      end
+    end
+    unless type_found
+      begin
+        out = runner.getBoolArgumentValue(os_argument_name, user_arguments)
+        type_found = true
+      end
+    end
+    unless type_found
+      begin
+        out = runner.getIntegerArgumentValue(os_argument_name, user_arguments)
+        type_found = true
+      end
+    end
+    unless type_found
+      begin
+        out = runner.getQuantityArgumentValue(os_argument_name, user_arguments)
+        type_found = true
+      end
+    end
+    unless type_found
+      begin
+        out = runner.getPathArgumentValue(os_argument_name, user_arguments)
+        type_found = true
+      end
+    end
+    unless type_found
+      fail "Unknown argument value defined for variables #{os_argument_name}"
+    end
+    out
+  end
+
+  # Overloaded argument parsing
+  def validateUserArguments(script_arguments, user_arguments)
+    @workflow_arguments = {}
+    user_arguments.each do |hash|
+      @workflow_arguments[hash.to_sym] = bad_os_typecasting(hash, self, user_arguments)
+    end
+    super
+  end
+
+  # Allow for arguments to be parsed out
+  def workflow_arguments
+    return @workflow_arguments
+  end
+end

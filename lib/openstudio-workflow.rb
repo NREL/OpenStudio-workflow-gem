@@ -171,6 +171,6 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
 
   # Allow for arguments to be parsed out
   def workflow_arguments
-    return @workflow_arguments[0] if @workflow_arguments
+    return @workflow_arguments if @workflow_arguments
   end
 end

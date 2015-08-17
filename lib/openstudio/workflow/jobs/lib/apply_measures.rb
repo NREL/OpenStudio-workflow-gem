@@ -187,6 +187,8 @@ module OpenStudio
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
             @logger.info "ExtendedRunner workflow_arguments responce: '#{@workflow_arguments}'"
             @logger.info "ExtendedRunner workflow_arguments size: '#{@workflow_arguments.size}'"
+            @logger.info "Attempted name extraction: #{runner.workflow_arguments[0].each {|arg| puts arg.name}}"
+            @logger.info "Attempted value extraction: #{runner.workflow_arguments[0].each {|arg| puts arg.value}}"
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

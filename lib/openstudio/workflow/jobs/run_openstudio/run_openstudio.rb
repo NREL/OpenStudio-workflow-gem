@@ -25,7 +25,7 @@ class RunOpenstudio
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
-  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     defaults = { format: 'hash', use_monthly_reports: false, analysis_root_path: '.' }
     @options = defaults.merge(options)
     @directory = directory
@@ -35,7 +35,6 @@ class RunOpenstudio
     @results = {}
     @logger = logger
     @time_logger = time_logger
-    @workflow_arguments = workflow_arguments
     @logger.info "#{self.class} passed the following options #{@options}"
 
     # initialize instance variables that are needed in the perform section
@@ -64,14 +63,12 @@ class RunOpenstudio
       load_weather_file
 
       apply_measures(:openstudio_measure)
-      @logger.info('Finished applying OpenStudio measures.')
 
       @time_logger.start('Translating to EnergyPlus')
       translate_to_energyplus
       @time_logger.stop('Translating to EnergyPlus')
 
       apply_measures(:energyplus_measure)
-      @logger.info('Finished applying EnergyPlus measures.')
 
       # check if the weather file has changed. This is cheesy for now. Should have a default measure that
       # always sets the weather file so that it can be better controlled

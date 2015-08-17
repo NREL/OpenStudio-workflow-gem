@@ -126,8 +126,7 @@ module OpenStudio
           begin
             require measure_file_path
             measure = Object.const_get(measure_name).new
-            runner = ExtendedRunner.new
-            runner.former_workflow_arguments = @workflow_arguments
+            runner = OpenStudio::Ruleset::ExtendedRunner.new
           rescue => e
             log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message
@@ -184,8 +183,8 @@ module OpenStudio
 
               measure.run(runner, argument_map)
             end
-            @workflow_arguments << runner.workflow_arguments
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
+            @logger.info "ExtendedRunner respoce: '#{runner.past_results}'"
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

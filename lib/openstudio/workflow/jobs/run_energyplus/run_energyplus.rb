@@ -24,7 +24,7 @@ class RunEnergyplus
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
-  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
+  def initialize(directory, logger, time_logger, adapter, options = {})
     @logger = logger
 
     energyplus_path = find_energyplus
@@ -38,7 +38,6 @@ class RunEnergyplus
     @run_directory = "#{@directory}/run"
     @adapter = adapter
     @time_logger = time_logger
-    @workflow_arguments = workflow_arguments
     @results = {}
 
     # container for storing the energyplus files there were copied into the local directory. These will be

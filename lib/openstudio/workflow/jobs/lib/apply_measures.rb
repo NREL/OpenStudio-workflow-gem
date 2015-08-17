@@ -185,8 +185,6 @@ module OpenStudio
             end
             @workflow_arguments << runner.workflow_arguments
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
-            @logger.info "ExtendedRunner workflow_arguments responce: '#{@workflow_arguments}'"
-            @logger.info "ExtendedRunner workflow_arguments size: '#{@workflow_arguments.size}'"
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

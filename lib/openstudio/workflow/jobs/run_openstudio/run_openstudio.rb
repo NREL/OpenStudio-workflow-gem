@@ -64,14 +64,14 @@ class RunOpenstudio
       load_weather_file
 
       apply_measures(:openstudio_measure)
-      @logger.info("Finished applying OpenStudio measures. Workflow Arguments: #{@@workflow_arguments}")
+      @logger.info("Finished applying OpenStudio measures. Workflow Arguments: #{@workflow_arguments}")
 
       @time_logger.start('Translating to EnergyPlus')
       translate_to_energyplus
       @time_logger.stop('Translating to EnergyPlus')
 
       apply_measures(:energyplus_measure)
-      @logger.info("Finished applying EnergyPlus measures. Workflow Arguments: #{@@workflow_arguments}")
+      @logger.info("Finished applying EnergyPlus measures. Workflow Arguments: #{@workflow_arguments}")
 
       # check if the weather file has changed. This is cheesy for now. Should have a default measure that
       # always sets the weather file so that it can be better controlled

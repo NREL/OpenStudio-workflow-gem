@@ -175,6 +175,7 @@ module OpenStudio
             if workflow_item[:measure_type] == 'RubyMeasure'
               measure.run(@model, runner, argument_map)
             elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
+              runner.setLastOpenStudioModel(@model)
               measure.run(@model_idf, runner, argument_map)
             elsif workflow_item[:measure_type] == 'ReportingMeasure'
               # This is silly, set the last model and last sqlfile instead of passing it into the measure.run method

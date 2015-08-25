@@ -19,13 +19,14 @@
 
 # Run Prelight job to prepare the directory for simulations.
 class RunPreflight
-  def initialize(directory, logger, time_logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
     @adapter = adapter
     @logger = logger
     @time_logger = time_logger
+    @workflow_arguments = workflow_arguments
     @results = {}
   end
 

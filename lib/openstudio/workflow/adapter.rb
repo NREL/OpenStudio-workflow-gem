@@ -90,10 +90,20 @@ module OpenStudio
               if File.basename(file) =~ /seed|measures|weather/
                 next
               end
+              # skip x-large directory
+              if File.size?(file)
+                next if File.size?(file) >= 15000000
+              end
               add_directory_to_zip(zf, file, directory)
             else
               next if File.extname(file) =~ /\.rb.*/
               next if File.extname(file) =~ /\.zip.*/
+              # skip large non-osm/idf files
+              if File.size(file)
+                if File.size(file) >= 15000000
+                  next unless File.extname(file) == '.osm' || File.extname(file) == '.idf'
+                end
+              end
 
               zip_file_to_add = file.gsub("#{directory}/", '')
               zf.add(zip_file_to_add, file)

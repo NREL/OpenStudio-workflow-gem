@@ -70,6 +70,63 @@ describe 'OpenStudio::Workflow' do
     expect(k.directory).to eq File.expand_path(run_dir)
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
+
+    # Look at the results in teh job_results hash
+    expect(k.job_results).to be_a Hash
+    expect(k.job_results[:run_reporting_measures][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
+
+    # expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
+    expect(k.job_results[:run_reporting_measures][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
+
+    expect(File.exist?("#{run_dir}/objectives.json")).to eq true
+    expect(File.exist?("#{run_dir}/data_point.zip")).to eq true
+    expect(File.exist?("#{run_dir}/data_point_reports.zip")).to eq true
+
+    # When this is run as the entire test suite, the next two commented fields fail. When running individually, they
+    # pass fine. Not sure what the difference is.
+    # expect(File.exist?("#{run_dir}/run/RotateBuilding/rotate_building_out.osm")).to eq true
+    # expect(File.exist?("#{run_dir}/run/StandardReports/report.html")).to eq true
+
+    expect(File.exist?("#{run_dir}/reports/eplustbl.html")).to eq true
+    # expect(File.exist?("#{run_dir}/reports/standard_reports.html")).to eq true
+    expect(Dir.exist?("#{run_dir}/run/SetWindowToWallRatioByFacade")).to eq false
+
+    # Test the measure attribute writing with pipes and periods
+    expect(File.exist?("#{run_dir}/run/results.json")).to eq true
+    puts k.job_results
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('An Attribute with Spaces'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Invalid_Period_Measure'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Invalid_Pipe_Measure'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Other_Random_Characters_with_dangling'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Asterisks_Are_Bad_Too'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Every_Bad_Character_Here_Too'.to_sym)).to eq true
+  end
+
+  it 'should run with optional arguments' do
+    run_dir = "#{ENV['SIMULATION_RUN_DIR']}/optional_arguments"
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
+
+    # copy json and zip file
+    FileUtils.copy('spec/files/optional_arguments/analysis.json', run_dir)
+    FileUtils.copy('spec/files/optional_arguments/data_point.json', run_dir)
+    FileUtils.copy('spec/files/optional_arguments/analysis.zip', run_dir)
+
+    # unzip the analysis zip
+    OpenStudio::Workflow.extract_archive("#{run_dir}/analysis.zip", run_dir)
+
+    options = {
+      problem_filename: 'analysis.json',
+      datapoint_filename: 'data_point.json',
+      analysis_root_path: run_dir,
+      use_monthly_reports: true
+    }
+    k = OpenStudio::Workflow.load 'Local', run_dir, options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq 'analysis.json'
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :finished
+    expect(k.final_state).to eq :finished
   end
 
   it 'should run a local file with minimum format' do
@@ -277,7 +334,7 @@ describe 'OpenStudio::Workflow' do
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
 
-    # First test the database
+    # Test the results in the database
     if k.adapter.is_a? OpenStudio::Workflow::Adapters::Mongo
       expect(k.adapter.datapoint[:results]).to_not be_nil
       expect(k.adapter.datapoint[:results][:standard_report_legacy]).to_not be_nil
@@ -285,40 +342,9 @@ describe 'OpenStudio::Workflow' do
       expect(k.adapter.datapoint[:results][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
     end
 
-    # Look at the results in teh job_results hash
-    expect(k.job_results).to be_a Hash
-    expect(k.job_results[:run_reporting_measures][:lighting_loads_user_customized_name][:lighting_power_reduction_percent]).to be_within(1).of(26.375)
-    # expect(k.job_results[:run_postprocess][:standard_report][:total_building_area]).to be_within(1).of(26.375)
-    # expect(k.job_results[:run_postprocess][:standard_report][:total_site_energy_eui]).to be_within(10).of(321.26)
-    expect(k.job_results[:run_reporting_measures][:standard_report_legacy][:total_energy]).to be_within(10).of(321.26)
-
-    # expect(k.job_results[:run_postprocess][:standard_report][:total_source_energy_eui]).to be_within(10).of(865.73)
-    expect(k.job_results[:run_reporting_measures][:standard_report_legacy][:total_source_energy]).to be_within(10).of(865.73)
-
-    expect(File.exist?("#{run_dir}/objectives.json")).to eq true
-    expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}.zip")).to eq true
-    expect(File.exist?("#{run_dir}/data_point_#{options[:datapoint_id]}_reports.zip")).to eq true
     objs = JSON.parse(File.read("#{run_dir}/objectives.json"), symbolize_keys: true)
     expect(objs['objective_function_1']).to be_within(2).of(182)
     expect(objs['objective_function_target_1']).to be_within(1).of(1234)
     expect(objs['objective_function_group_2']).to eq(4)
-
-    # When this is run as the entire test suite, the next two commented fields fail. When running individually, they
-    # pass fine. Not sure what the difference is.
-    # expect(File.exist?("#{run_dir}/run/RotateBuilding/rotate_building_out.osm")).to eq true
-    # expect(File.exist?("#{run_dir}/run/StandardReports/report.html")).to eq true
-
-    expect(File.exist?("#{run_dir}/reports/eplustbl.html")).to eq true
-    # expect(File.exist?("#{run_dir}/reports/standard_reports.html")).to eq true
-    expect(Dir.exist?("#{run_dir}/run/SetWindowToWallRatioByFacade")).to eq false
-
-    # Test the measure attribute writing with pipes and periods
-    expect(File.exist?("#{run_dir}/run/results.json")).to eq true
-    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('An Attribute with Spaces'.to_sym)).to eq true
-    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Invalid_Period_Measure'.to_sym)).to eq true
-    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Invalid_Pipe_Measure'.to_sym)).to eq true
-    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Other_Random_Characters_with_dangling'.to_sym)).to eq true
-    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Asterisks_Are_Bad_Too'.to_sym)).to eq true
-    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Every_Bad_Character_Here_Too'.to_sym)).to eq true
   end
 end

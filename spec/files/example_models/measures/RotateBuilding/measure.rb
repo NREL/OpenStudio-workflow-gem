@@ -77,6 +77,7 @@ class RotateBuilding < OpenStudio::Ruleset::ModelUserScript
     runner.registerFinalCondition("The building's final rotation is #{building.northAxis} degrees.")
 
     model.save('rotate_building_out.osm')
+
     true
   end # end the run method
 end # end the measure

@@ -32,19 +32,14 @@ rescue LoadError => e
   warn 'Could not load Facter. Will not be able to save the IP address to the log'.red
 end
 
+require 'openstudio'
+
+require 'openstudio/extended_runner'
 require 'openstudio/workflow/version'
 require 'openstudio/workflow/multi_delegator'
 require 'openstudio/workflow/run'
 require 'openstudio/workflow/jobs/lib/apply_measures'
 require 'openstudio/workflow/time_logger'
-
-begin
-  require 'openstudio'
-  $openstudio_gem = true
-rescue LoadError => e
-  $openstudio_gem = false
-  puts 'OpenStudio did not load, but most functionality is still available. Will try to continue...'.red
-end
 
 # some core extensions
 class String
@@ -151,71 +146,5 @@ module OpenStudio
       klass = OpenStudio::Workflow::Adapters.const_get(klass_name).new(adapter_options)
       klass
     end
-  end
-end
-
-# Extend OS Runner to persist measure information throughout the workflow
-class ExtendedRunner < OpenStudio::Ruleset::OSRunner
-  # Allow former arguments to be set and read
-  # TODO: Consider having the former arguments passed in in initialization, and define as attr_reader
-  attr_accessor :former_workflow_arguments
-  attr_reader :workflow_arguments
-
-  # Add in @workflow_arguments
-  def initialize
-    super
-    @workflow_arguments = nil
-  end
-
-  # Helper method to compensate for not being able to query the type of an os argument variable
-  def bad_os_typecasting(os_argument_name, runner, user_arguments)
-    type_found = nil
-    begin
-      out = runner.getStringArgumentValue(os_argument_name, user_arguments)
-      type_found = true
-    end
-    unless type_found
-      begin
-        out = runner.getDoubleArgumentValue(os_argument_name, user_arguments)
-        type_found = true
-      end
-    end
-    unless type_found
-      begin
-        out = runner.getBoolArgumentValue(os_argument_name, user_arguments)
-        type_found = true
-      end
-    end
-    unless type_found
-      begin
-        out = runner.getIntegerArgumentValue(os_argument_name, user_arguments)
-        type_found = true
-      end
-    end
-    unless type_found
-      begin
-        out = runner.getQuantityArgumentValue(os_argument_name, user_arguments)
-        type_found = true
-      end
-    end
-    unless type_found
-      begin
-        out = runner.getPathArgumentValue(os_argument_name, user_arguments)
-        type_found = true
-      end
-    end
-    unless type_found
-      fail "Unknown argument value defined for variables #{os_argument_name}"
-    end
-    out
-  end
-
-  # Overloaded argument parsing
-  def validateUserArguments(script_arguments, user_arguments)
-    @workflow_arguments = {}
-    user_arguments.each do |hash|
-      @workflow_arguments[hash.to_sym] = bad_os_typecasting(hash, self, user_arguments)
-    end
-    super
   end
 end

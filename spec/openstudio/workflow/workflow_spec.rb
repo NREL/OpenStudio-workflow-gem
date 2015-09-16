@@ -72,6 +72,33 @@ describe 'OpenStudio::Workflow' do
     expect(k.final_state).to eq :finished
   end
 
+  it 'should run with optional arguments' do
+    run_dir = "#{ENV['SIMULATION_RUN_DIR']}/optional_arguments"
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
+
+    # copy json and zip file
+    FileUtils.copy('spec/files/optional_arguments/analysis.json', run_dir)
+    FileUtils.copy('spec/files/optional_arguments/data_point.json', run_dir)
+    FileUtils.copy('spec/files/optional_arguments/analysis.zip', run_dir)
+
+    # unzip the analysis zip
+    OpenStudio::Workflow.extract_archive("#{run_dir}/analysis.zip", run_dir)
+
+    options = {
+        problem_filename: 'analysis.json',
+        datapoint_filename: 'data_point.json',
+        analysis_root_path: run_dir,
+        use_monthly_reports: true
+    }
+    k = OpenStudio::Workflow.load 'Local', run_dir, options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq 'analysis.json'
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :finished
+    expect(k.final_state).to eq :finished
+  end
+
   it 'should run a local file with minimum format' do
     data_files = './spec/files/local_ex2'
 
@@ -96,6 +123,8 @@ describe 'OpenStudio::Workflow' do
     expect(k.run).to eq :finished
     expect(k.final_state).to eq :finished
   end
+
+
 
   it 'should run a local file as energyplus only' do
     run_dir = "#{ENV['SIMULATION_RUN_DIR']}/local_ep"

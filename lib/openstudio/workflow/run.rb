@@ -133,7 +133,6 @@ module OpenStudio
         end
 
         @logger.info "Initializing directory #{@directory} for simulation with options #{@options}"
-        @logger.info "OpenStudio loaded: '#{$openstudio_gem}'"
 
         # load the state machine
         machine

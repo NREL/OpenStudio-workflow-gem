@@ -41,7 +41,6 @@ require 'openstudio/workflow/run'
 require 'openstudio/workflow/jobs/lib/apply_measures'
 require 'openstudio/workflow/time_logger'
 
-
 # some core extensions
 class String
   def to_underscore
@@ -149,4 +148,3 @@ module OpenStudio
     end
   end
 end
-

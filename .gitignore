@@ -24,15 +24,4 @@ mkmf.log
 .DS_Store
 rubocop-results.xml
 /*.osm
-spec/files/**/run
-spec/files/**/*.log
-spec/files/**/*.json
-spec/files/**/*.job
-spec/files/**/StandardReports
-spec/files/**/datapoint_out.json
-spec/files/**/*.zip
-spec/files/**/reports
-spec/files/*/*.json
-spec/files/dynamically_created/*
-spec/files/local_ep*
 spec/files/simulations

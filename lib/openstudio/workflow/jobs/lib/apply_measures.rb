@@ -196,11 +196,7 @@ module OpenStudio
             result = runner.result
             @logger.info "Running of measure '#{workflow_item[:name]}' completed. Post-processing measure output"
 
-            an_error = false
-            result.errors.each do |w|
-              an_error = true
-            end
-            fail "Measure #{measure_name} reported an error, check log" if an_error
+            fail "Measure #{measure_name} reported an error, check log" if result.errors.size != 0
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

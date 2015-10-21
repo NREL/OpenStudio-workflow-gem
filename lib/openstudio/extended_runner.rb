@@ -7,9 +7,9 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
 
   # Add in @workflow_arguments
   def initialize(multi_logger)
-    super
     @multi_logger = multi_logger
     @workflow_arguments = nil
+    super
   end
 
   # Take the OS Argument type and map it correctly to the argument value.

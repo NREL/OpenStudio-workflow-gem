@@ -6,9 +6,9 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
   attr_reader :workflow_arguments
 
   # Add in @workflow_arguments
-  def initialize
+  def initialize(multi_logger)
     super
-
+    @multi_logger = multi_logger
     @workflow_arguments = nil
   end
 
@@ -60,5 +60,37 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
     end
 
     super
+  end
+
+  # Overload registerInfo
+  def registerInfo(message)
+    super
+    @multi_logger.info = message
+  end
+
+
+  # Overload registerInfo
+  def registerWarning(message)
+    super
+    @multi_logger.warn = message
+  end
+
+
+  # Overload registerError
+  def registerError(message)
+    super
+    @multi_logger.error = message
+  end
+
+  # Overload registerInitialCondition
+  def registerInitialCondition(message)
+    super
+    @multi_logger.info = message
+  end
+
+  # Overload registerFinalCondition
+  def registerFinalCondition(message)
+    super
+    @multi_logger.info = message
   end
 end

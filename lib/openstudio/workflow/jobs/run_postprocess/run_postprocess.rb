@@ -99,7 +99,7 @@ class RunPostprocess
     # paths_to_rm << Pathname.glob("#{@run_directory}/*.idf") # keep the idfs
     # paths_to_rm << Pathname.glob("*.audit")
     # paths_to_rm << Pathname.glob("*.bnd")
-    #paths_to_rm << Pathname.glob("#{@run_directory}/*.eso")
+    # paths_to_rm << Pathname.glob("#{@run_directory}/*.eso")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.mtr")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.epw")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.mtd")

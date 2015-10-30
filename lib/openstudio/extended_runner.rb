@@ -68,13 +68,11 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
     @multi_logger.info message
   end
 
-
   # Overload registerInfo
   def registerWarning(message)
     super
     @multi_logger.warn message
   end
-
 
   # Overload registerError
   def registerError(message)

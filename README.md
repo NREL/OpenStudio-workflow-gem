@@ -81,12 +81,12 @@ rake
 
 To run all the tests automatically run:
 ```
-docker run --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.1-mongo-2.4 /var/simdata/openstudio/test/bin/docker-run.sh
+docker run --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.5-mongo-2.4 /var/simdata/openstudio/test/bin/docker-run.sh
 ```
 
 To run the tests inside docker and enable debugging, then create a bash shell in docker with:
 ```
-docker run -it --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.1-mongo-2.4 bash
+docker run -it --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.5-mongo-2.4 bash
 service mongodb start
 bundle update
 rake 

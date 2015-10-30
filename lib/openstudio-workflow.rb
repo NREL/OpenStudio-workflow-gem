@@ -41,6 +41,8 @@ require 'openstudio/workflow/run'
 require 'openstudio/workflow/jobs/lib/apply_measures'
 require 'openstudio/workflow/time_logger'
 
+ENV['OPENSTUDIO_WORKFLOW'] = 'true'
+
 # some core extensions
 class String
   def to_underscore

@@ -47,6 +47,15 @@ describe 'OpenStudio::Workflow' do
     end
   end
 
+  it 'should set the OPENSTUDIO_WORKFLOW env variable' do
+
+    expect(ENV['OPENSTUDIO_WORKFLOW_UNSET']).to eq nil
+    expect(ENV['OPENSTUDIO_WORKFLOW']).to eq 'true'
+    expect(ENV.has_key? 'OPENSTUDIO_WORKFLOW').to eq true
+    expect(ENV.key? 'OPENSTUDIO_WORKFLOW').to eq true
+
+  end
+
   it 'should run a local file adapter in legacy mode' do
     data_files = './spec/files/local_ex1'
 
@@ -56,6 +65,8 @@ describe 'OpenStudio::Workflow' do
 
     # copy over the test file to the run directory
     FileUtils.cp_r(Dir["#{data_files}/*"], run_dir)
+
+
 
     options = {
       problem_filename: 'analysis_1.json',
@@ -100,6 +111,8 @@ describe 'OpenStudio::Workflow' do
     expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Other_Random_Characters_with_dangling'.to_sym)).to eq true
     expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Asterisks_Are_Bad_Too'.to_sym)).to eq true
     expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Every_Bad_Character_Here_Too'.to_sym)).to eq true
+
+
   end
 
   it 'should run with optional arguments' do

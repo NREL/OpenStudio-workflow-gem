@@ -72,6 +72,8 @@ class RotateBuilding < OpenStudio::Ruleset::ModelUserScript
     runner.registerValue('Other?Random.Characters||.??with|dangling||', 16)
     runner.registerValue('Asterisks*Are*Bad*Too', 23)
     runner.registerValue('Every!Bad@Character!@#$%^&*()=_+[]\{}|;:\'Here\"Too', 42)
+    runner.registerValue('env_var_set', ENV.key?('OPENSTUDIO_WORKFLOW'))
+
     # reporting final condition of model
     runner.registerValue('orientation_final', building.northAxis)
     runner.registerFinalCondition("The building's final rotation is #{building.northAxis} degrees.")

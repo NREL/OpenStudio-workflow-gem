@@ -106,6 +106,7 @@ describe 'OpenStudio::Workflow' do
     expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Other_Random_Characters_with_dangling'.to_sym)).to eq true
     expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Asterisks_Are_Bad_Too'.to_sym)).to eq true
     expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('Every_Bad_Character_Here_Too'.to_sym)).to eq true
+    expect(k.job_results[:run_reporting_measures][:rotate_building_relative_to_current_orientation].key?('env_var_set'.to_sym)).to eq true
   end
 
   it 'should run with optional arguments' do

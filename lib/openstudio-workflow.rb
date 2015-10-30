@@ -32,14 +32,14 @@ rescue LoadError => e
   warn 'Could not load Facter. Will not be able to save the IP address to the log'.red
 end
 
-require 'openstudio'
-
-require 'openstudio/extended_runner'
 require 'openstudio/workflow/version'
 require 'openstudio/workflow/multi_delegator'
 require 'openstudio/workflow/run'
 require 'openstudio/workflow/jobs/lib/apply_measures'
 require 'openstudio/workflow/time_logger'
+
+require 'openstudio'
+require 'openstudio/extended_runner'
 
 ENV['OPENSTUDIO_WORKFLOW'] = 'true'
 

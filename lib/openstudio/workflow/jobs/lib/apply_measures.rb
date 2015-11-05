@@ -187,6 +187,7 @@ module OpenStudio
             end
             @workflow_arguments[workflow_item[:name].to_sym] = runner.workflow_arguments
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
+            GC.start
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

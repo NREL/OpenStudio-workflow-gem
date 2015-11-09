@@ -260,10 +260,8 @@ class RunEnergyplus
 
     # this is a workaround for OpenStudio issue #1699
     needs_detailedvariable = false
-    needs_timestepvariable = true
     needs_hourlyvariable = false
     needs_dailyvariable = false
-    needs_monthlyvariable = false
     needs_runperiodvariable = false
 
     idf = OpenStudio::IdfFile.load(idf_filename).get
@@ -289,8 +287,6 @@ class RunEnergyplus
       reporting_frequency = meter.getString(1, true)
       if reporting_frequency =~ /detailed/i
         needs_detailedvariable = true
-      elsif reporting_frequency =~ /timestep/i
-        needs_timestepvariable = true
       elsif reporting_frequency =~ /hourly/i
         needs_hourlyvariable = true
       elsif reporting_frequency =~ /daily/i
@@ -308,14 +304,10 @@ class RunEnergyplus
       reporting_frequency = variable.getString(2, true)
       if reporting_frequency =~ /detailed/i
         needs_detailedvariable = false
-      elsif reporting_frequency =~ /timestep/i
-        needs_timestepvariable = false
       elsif reporting_frequency =~ /hourly/i
         needs_hourlyvariable = false
       elsif reporting_frequency =~ /daily/i
         needs_dailyvariable = false
-      elsif reporting_frequency =~ /monthly/i
-        needs_monthlyvariable = false
       elsif reporting_frequency =~ /runperiod|environment|annual/i
         needs_runperiodvariable = false
       end
@@ -337,26 +329,20 @@ class RunEnergyplus
     end
 
     new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Detailed;' if needs_detailedvariable
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Timestep;' if needs_timestepvariable
     new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Hourly;' if needs_hourlyvariable
     new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Daily;' if needs_dailyvariable
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;' if needs_monthlyvariable
     new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,RunPeriod;' if needs_runperiodvariable
 
     # These are supposedly needed for the calibration report
     new_objects << 'Output:Meter:MeterFileOnly,Gas:Facility,Daily;'
     new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Timestep;'
     new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Daily;'
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;'
     new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
     new_objects << 'Output:Variable,*,Zone Air Relative Humidity,Hourly;'
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;'
     new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Timestep;'
-    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
-    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
-    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
 
-
-    # always add in the timestep facility meters
+    # Always add in the timestep facility meters
     new_objects << 'Output:Meter,Electricity:Facility,Timestep;'
     new_objects << 'Output:Meter,Gas:Facility,Timestep;'
     new_objects << 'Output:Meter,DistrictCooling:Facility,Timestep;'

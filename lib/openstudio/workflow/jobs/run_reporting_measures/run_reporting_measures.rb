@@ -232,11 +232,11 @@ class RunReportingMeasures
     apply_measure(workflow_item)
 
     workflow_item = {
-        display_name: 'Calibration Reports',
-        measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s, 'measure.rb')),
-        measure_definition_class_name: 'CalibrationReports',
-        measure_type: 'CalibrationReports',
-        name: 'calibration_reports'
+      display_name: 'Calibration Reports',
+      measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s, 'measure.rb')),
+      measure_definition_class_name: 'CalibrationReports',
+      measure_type: 'CalibrationReports',
+      name: 'calibration_reports'
     }
     @logger.info 'Running packaged Calibration Reports measures'
     apply_measure(workflow_item)

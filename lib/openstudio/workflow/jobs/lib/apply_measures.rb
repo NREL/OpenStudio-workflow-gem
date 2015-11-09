@@ -146,8 +146,10 @@ module OpenStudio
 
             # Create argument map and initialize all the arguments
             argument_map = OpenStudio::Ruleset::OSArgumentMap.new
-            arguments.each do |v|
-              argument_map[v.name] = v.clone
+            if arguments
+              arguments.each do |v|
+                argument_map[v.name] = v.clone
+              end
             end
             # @logger.info "Argument map for measure is #{argument_map}"
 
@@ -179,8 +181,9 @@ module OpenStudio
               runner.setLastOpenStudioModel(@model)
               measure.run(@model_idf, runner, argument_map)
             elsif workflow_item[:measure_type] == 'ReportingMeasure'
-              # This is silly, set the last model and last sqlfile instead of passing it into the measure.run method
+              # This is silly, set the last model, last IDF, and last sqlfile instead of passing it into the measure.run method
               runner.setLastOpenStudioModel(@model)
+              runner.setLastEnergyPlusWorkspace(@model_idf)
               runner.setLastEnergyPlusSqlFilePath(@sql_filename)
 
               measure.run(runner, argument_map)

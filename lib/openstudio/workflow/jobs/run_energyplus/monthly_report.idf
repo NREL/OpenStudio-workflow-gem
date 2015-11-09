@@ -219,3 +219,4 @@ Output:Table:Monthly,
     ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
     Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
     ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+

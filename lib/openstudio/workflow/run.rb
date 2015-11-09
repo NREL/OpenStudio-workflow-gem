@@ -47,7 +47,6 @@ module OpenStudio
       # The default states for the workflow.  Note that the states of :queued of :finished need
       # to exist for all cases.
       def self.default_states
-        warn "[Deprecation Warning] explicitly specifying states will no longer be required in 0.3.0. Method #{__method__}"
         [
           { state: :queued, options: { initial: true } },
           { state: :preflight, options: { after_enter: :run_preflight } },
@@ -72,7 +71,6 @@ module OpenStudio
 
       # states for pat job
       def self.pat_states
-        warn "[Deprecation Warning] explicitly specifying states will no longer be required in 0.3.0. Method #{__method__}"
         [
           { state: :queued, options: { initial: true } },
           { state: :preflight, options: { after_enter: :run_preflight } },

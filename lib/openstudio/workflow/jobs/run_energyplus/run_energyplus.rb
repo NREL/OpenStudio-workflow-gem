@@ -343,6 +343,19 @@ class RunEnergyplus
     new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;' if needs_monthlyvariable
     new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,RunPeriod;' if needs_runperiodvariable
 
+    # These are supposedly needed for the calibration report
+    new_objects << 'Output:Meter:MeterFileOnly,Gas:Facility,Daily;'
+    new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Timestep;'
+    new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Daily;'
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;'
+    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
+    new_objects << 'Output:Variable,*,Zone Air Relative Humidity,Hourly;'
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Timestep;'
+    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
+    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
+    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
+
+
     # always add in the timestep facility meters
     new_objects << 'Output:Meter,Electricity:Facility,Timestep;'
     new_objects << 'Output:Meter,Gas:Facility,Timestep;'

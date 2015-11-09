@@ -9,6 +9,9 @@ gem 'paperclip', '~> 4.1.1'
 gem 'mongoid-paperclip', require: 'mongoid_paperclip'
 gem 'delayed_job_mongoid'
 
+# OpenStudio Standards - Don't require by default for now
+gem 'openstudio-standards', github: 'NREL/openstudio-standards', require: false
+
 # Installation for reading/writing xml
 group :xml do
   gem 'libxml-ruby', '~> 2.8.0'

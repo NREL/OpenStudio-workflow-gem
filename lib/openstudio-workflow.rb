@@ -38,13 +38,10 @@ require 'openstudio/workflow/run'
 require 'openstudio/workflow/jobs/lib/apply_measures'
 require 'openstudio/workflow/time_logger'
 
-begin
-  require 'openstudio'
-  $openstudio_gem = true
-rescue LoadError => e
-  $openstudio_gem = false
-  puts 'OpenStudio did not load, but most functionality is still available. Will try to continue...'.red
-end
+require 'openstudio'
+require 'openstudio/extended_runner'
+
+ENV['OPENSTUDIO_WORKFLOW'] = 'true'
 
 # some core extensions
 class String

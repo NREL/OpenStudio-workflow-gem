@@ -22,6 +22,7 @@ module OpenStudio
   module Workflow
     class Run
       attr_accessor :logger
+      attr_accessor :workflow_arguments
 
       attr_reader :options
       attr_reader :adapter
@@ -46,7 +47,6 @@ module OpenStudio
       # The default states for the workflow.  Note that the states of :queued of :finished need
       # to exist for all cases.
       def self.default_states
-        warn "[Deprecation Warning] explicitly specifying states will no longer be required in 0.3.0. Method #{__method__}"
         [
           { state: :queued, options: { initial: true } },
           { state: :preflight, options: { after_enter: :run_preflight } },
@@ -71,7 +71,6 @@ module OpenStudio
 
       # states for pat job
       def self.pat_states
-        warn "[Deprecation Warning] explicitly specifying states will no longer be required in 0.3.0. Method #{__method__}"
         [
           { state: :queued, options: { initial: true } },
           { state: :preflight, options: { after_enter: :run_preflight } },
@@ -95,6 +94,7 @@ module OpenStudio
         @transitions = {}
         @directory = directory
         @time_logger = TimeLogger.new
+        @workflow_arguments = {}
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
 
@@ -131,7 +131,6 @@ module OpenStudio
         end
 
         @logger.info "Initializing directory #{@directory} for simulation with options #{@options}"
-        @logger.info "OpenStudio loaded: '#{$openstudio_gem}'"
 
         # load the state machine
         machine
@@ -311,7 +310,7 @@ module OpenStudio
         require_relative "jobs/#{from_method}/#{from_method}"
         klass_name = from_method.to_s.split('_').map(&:capitalize) * ''
         @logger.info "Getting method for state transition '#{from_method}'"
-        klass = Object.const_get(klass_name).new(@directory, @logger, @time_logger, @adapter, get_job_options)
+        klass = Object.const_get(klass_name).new(@directory, @logger, @time_logger, @adapter, @workflow_arguments, get_job_options)
         klass
       end
     end

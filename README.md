@@ -1,6 +1,7 @@
 # OpenStudio::Workflow
 [![Circle CI](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0.svg?style=svg)](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0)
-[![Coverage Status](https://coveralls.io/repos/NREL/OpenStudio-workflow-gem/badge.svg?branch=docker-tests&service=github)](https://coveralls.io/github/NREL/OpenStudio-workflow-gem?branch=EnergyPlus-8.3.0) [![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
+[![Coverage Status](https://coveralls.io/repos/NREL/OpenStudio-workflow-gem/badge.svg?branch=EnergyPlus-8.3.0&service=github)](https://coveralls.io/github/NREL/OpenStudio-workflow-gem?branch=EnergyPlus-8.3.0)
+[![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
 
 Run an EnergyPlus simulation using a file-based workflow that is read from a Local or MongoDB adapter.
 
@@ -81,12 +82,12 @@ rake
 
 To run all the tests automatically run:
 ```
-docker run --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.1-mongo-2.4 /var/simdata/openstudio/test/bin/docker-run.sh
+docker run --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.5-mongo-2.4 /var/simdata/openstudio/test/bin/docker-run.sh
 ```
 
 To run the tests inside docker and enable debugging, then create a bash shell in docker with:
 ```
-docker run -it --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.1-mongo-2.4 bash
+docker run -it --rm -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:openstudio-1.8.5-mongo-2.4 bash
 service mongodb start
 bundle update
 rake 

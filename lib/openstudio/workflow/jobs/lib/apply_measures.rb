@@ -126,7 +126,8 @@ module OpenStudio
           begin
             require measure_file_path
             measure = Object.const_get(measure_name).new
-            runner = OpenStudio::Ruleset::OSRunner.new
+            runner = ExtendedRunner.new @logger
+            runner.former_workflow_arguments = @workflow_arguments
           rescue => e
             log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message
@@ -145,8 +146,10 @@ module OpenStudio
 
             # Create argument map and initialize all the arguments
             argument_map = OpenStudio::Ruleset::OSArgumentMap.new
-            arguments.each do |v|
-              argument_map[v.name] = v.clone
+            if arguments
+              arguments.each do |v|
+                argument_map[v.name] = v.clone
+              end
             end
             # @logger.info "Argument map for measure is #{argument_map}"
 
@@ -175,15 +178,19 @@ module OpenStudio
             if workflow_item[:measure_type] == 'RubyMeasure'
               measure.run(@model, runner, argument_map)
             elsif workflow_item[:measure_type] == 'EnergyPlusMeasure'
+              runner.setLastOpenStudioModel(@model)
               measure.run(@model_idf, runner, argument_map)
             elsif workflow_item[:measure_type] == 'ReportingMeasure'
-              # This is silly, set the last model and last sqlfile instead of passing it into the measure.run method
+              # This is silly, set the last model, last IDF, and last sqlfile instead of passing it into the measure.run method
               runner.setLastOpenStudioModel(@model)
+              runner.setLastEnergyPlusWorkspace(@model_idf)
               runner.setLastEnergyPlusSqlFilePath(@sql_filename)
 
               measure.run(runner, argument_map)
             end
+            @workflow_arguments[workflow_item[:name].to_sym] = runner.workflow_arguments
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
+            GC.start
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message
@@ -193,17 +200,7 @@ module OpenStudio
             result = runner.result
             @logger.info "Running of measure '#{workflow_item[:name]}' completed. Post-processing measure output"
 
-            @logger.info result.initialCondition.get.logMessage unless result.initialCondition.empty?
-            @logger.info result.finalCondition.get.logMessage unless result.finalCondition.empty?
-
-            result.warnings.each { |w| @logger.warn w.logMessage }
-            an_error = false
-            result.errors.each do |w|
-              @logger.error w.logMessage
-              an_error = true
-            end
-            fail "Measure #{measure_name} reported an error, check log" if an_error
-            result.info.each { |w| @logger.info w.logMessage }
+            fail "Measure #{measure_name} reported an error, check log" if result.errors.size != 0
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message

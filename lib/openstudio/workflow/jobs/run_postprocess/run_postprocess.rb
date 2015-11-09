@@ -27,7 +27,7 @@ class RunPostprocess
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
-  def initialize(directory, logger, time_logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
@@ -35,6 +35,7 @@ class RunPostprocess
     @adapter = adapter
     @logger = logger
     @time_logger = time_logger
+    @workflow_arguments = workflow_arguments
     @results = {}
     @output_attributes = {}
 
@@ -98,7 +99,7 @@ class RunPostprocess
     # paths_to_rm << Pathname.glob("#{@run_directory}/*.idf") # keep the idfs
     # paths_to_rm << Pathname.glob("*.audit")
     # paths_to_rm << Pathname.glob("*.bnd")
-    paths_to_rm << Pathname.glob("#{@run_directory}/*.eso")
+    # paths_to_rm << Pathname.glob("#{@run_directory}/*.eso")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.mtr")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.epw")
     paths_to_rm << Pathname.glob("#{@run_directory}/*.mtd")

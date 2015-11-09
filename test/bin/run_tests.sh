@@ -6,7 +6,7 @@ function run_docker {
   echo "Running Docker container for $image"
   echo "Copying the files to a new test directory"
   mkdir -p docker_tests/$image
-  rsync -a --progress . docker_tests/$image/ --exclude docker_tests --exclude .idea --exclude .git
+  rsync -a . docker_tests/$image/ --exclude docker_tests --exclude .idea
   cd docker_tests/$image
 
   echo "Executing the docker command"

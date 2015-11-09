@@ -17,7 +17,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# TODO: I hear that measures can step on each other if not run in their own directory
 class RunOpenstudio
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
@@ -25,8 +24,10 @@ class RunOpenstudio
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
-  def initialize(directory, logger, time_logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
     defaults = { format: 'hash', use_monthly_reports: false, analysis_root_path: '.' }
+    warn 'Option of use_monthly_reports is deprecated. Monthly reports are always generated.' if options[:use_monthly_reports]
+
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -35,6 +36,7 @@ class RunOpenstudio
     @results = {}
     @logger = logger
     @time_logger = time_logger
+    @workflow_arguments = workflow_arguments
     @logger.info "#{self.class} passed the following options #{@options}"
 
     # initialize instance variables that are needed in the perform section
@@ -63,12 +65,14 @@ class RunOpenstudio
       load_weather_file
 
       apply_measures(:openstudio_measure)
+      @logger.info('Finished applying OpenStudio measures.')
 
       @time_logger.start('Translating to EnergyPlus')
       translate_to_energyplus
       @time_logger.stop('Translating to EnergyPlus')
 
       apply_measures(:energyplus_measure)
+      @logger.info('Finished applying EnergyPlus measures.')
 
       # check if the weather file has changed. This is cheesy for now. Should have a default measure that
       # always sets the weather file so that it can be better controlled
@@ -105,15 +109,6 @@ class RunOpenstudio
 
     idf_filename = "#{@run_directory}/in.idf"
     File.open(idf_filename, 'w') { |f| f << @model_idf.to_s }
-
-    # TODO: convert this to an OpenStudio method instead of substituting the data as text
-    if @options[:use_monthly_reports]
-      @logger.info 'Adding monthly reports to EnergyPlus IDF'
-      to_append = File.read(File.join(File.dirname(__FILE__), 'monthly_report.idf'))
-      File.open(idf_filename, 'a') do |handle|
-        handle.puts to_append
-      end
-    end
 
     @results[:osm] = File.expand_path(osm_filename)
     @results[:idf] = File.expand_path(idf_filename)

@@ -29,6 +29,7 @@ Output:Table:Monthly,
     SumOrAverage,            !- Aggregation Type for Variable or Meter 13
     Refrigeration:Electricity,!- Variable or Meter 14 Name
     SumOrAverage;            !- Aggregation Type for Variable or Meter 14
+
 Output:Table:Monthly,
   Building Energy Performance - Natural Gas,  !- Name
     2,                       !- Digits After Decimal
@@ -44,6 +45,7 @@ Output:Table:Monthly,
     SumOrAverage,            !- Aggregation Type for Variable or Meter 5
     Cogeneration:Gas,        !- Variable or Meter 6 Name
     SumOrAverage;            !- Aggregation Type for Variable or Meter 6
+
 Output:Table:Monthly,
   Building Energy Performance - District Heating,  !- Name
     2,                       !- Digits After Decimal
@@ -73,6 +75,7 @@ Output:Table:Monthly,
     SumOrAverage,            !- Aggregation Type for Variable or Meter 12
     Cogeneration:DistrictHeating,!- Variable or Meter 13 Name
     SumOrAverage;            !- Aggregation Type for Variable or Meter 13
+
 Output:Table:Monthly,
   Building Energy Performance - District Cooling,  !- Name
     2,                       !- Digits After Decimal
@@ -102,6 +105,7 @@ Output:Table:Monthly,
     SumOrAverage,            !- Aggregation Type for Variable or Meter 12
     Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
     SumOrAverage;            !- Aggregation Type for Variable or Meter 13
+
 Output:Table:Monthly,
   Building Energy Performance - Electricity Peak Demand,  !- Name
     2,                       !- Digits After Decimal
@@ -133,6 +137,7 @@ Output:Table:Monthly,
     ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
     Cogeneration:Electricity,!- Variable or Meter 13 Name
     ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+
 Output:Table:Monthly,
   Building Energy Performance - Natural Gas Peak Demand,  !- Name
     2,                       !- Digits After Decimal
@@ -150,6 +155,7 @@ Output:Table:Monthly,
     ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
     Cogeneration:Gas,        !- Variable or Meter 6 Name
     ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 6
+
 Output:Table:Monthly,
   Building Energy Performance - District Heating Peak Demand,  !- Name
     2,                       !- Digits After Decimal
@@ -181,6 +187,7 @@ Output:Table:Monthly,
     ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
     Cogeneration:DistrictHeating,!- Variable or Meter 13 Name
     ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+
 Output:Table:Monthly,
   Building Energy Performance - District Cooling Peak Demand,  !- Name
     2,                       !- Digits After Decimal
@@ -212,7 +219,4 @@ Output:Table:Monthly,
     ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
     Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
     ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
-    Output:Meter,Electricity:Facility,Timestep; !- [J]
-    Output:Meter,Gas:Facility,Timestep; !- [J]
-    Output:Meter,DistrictCooling:Facility,Timestep; !- [J]
-    Output:Meter,DistrictHeating:Facility,Timestep; !- [J]
+

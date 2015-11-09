@@ -25,7 +25,7 @@ class RunReportingMeasures
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
-  def initialize(directory, logger, time_logger, adapter, options = {})
+  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
@@ -33,6 +33,7 @@ class RunReportingMeasures
     @adapter = adapter
     @logger = logger
     @time_logger = time_logger
+    @workflow_arguments = workflow_arguments
     @results = {}
     @output_attributes = {}
 
@@ -43,6 +44,7 @@ class RunReportingMeasures
     @logger.info "#{self.class} passed the following options #{@options}"
 
     @model = load_model @options[:run_openstudio][:osm]
+    @model_idf = load_idf @options[:run_openstudio][:idf]
 
     # TODO: should read the name of the sql output file via the :run_openstudio options hash
     # I want to reiterate that this is cheezy!
@@ -61,11 +63,7 @@ class RunReportingMeasures
       @analysis_json = @adapter.get_problem(@directory, @options)
 
       @time_logger.start('Running standard post process')
-      if @options[:use_monthly_reports]
-        run_monthly_postprocess
-      else
-        run_standard_postprocess
-      end
+      run_monthly_postprocess
       @time_logger.stop('Running standard post process')
 
       translate_csv_to_json
@@ -193,7 +191,7 @@ class RunReportingMeasures
 
   private
 
-  # Load in the OpenStudio model. It is required for postprocessing
+  # Load in the OpenStudio model. It is required for post processing
   def load_model(filename)
     model = nil
     @logger.info 'Loading model'
@@ -213,18 +211,34 @@ class RunReportingMeasures
     model
   end
 
-  # Run the prepackaged measures in the Gem.
+  # Load in the IDF model. It is required for post processing
+  def load_idf(filename)
+    fail "IDF file does not exist: #{filename}" unless File.exist? filename
+    OpenStudio::Workspace.load(filename, 'EnergyPlus'.to_IddFileType).get
+  end
+
+  # Run the prepackaged measures in OpenStudio. Currently this runs the standard reports and the calibration measure
+  # TODO: add a flag on which packaged reporting measures to run
   def run_packaged_measures
     # configure the workflow item json to pass
     workflow_item = {
       display_name: 'Standard Reports',
-      measure_definition_directory: File.expand_path(File.join(File.dirname(__FILE__), 'packaged_measures', 'StandardReports', 'measure.rb')),
-      measure_definition_class_name: 'StandardReports',
+      measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.standardReportMeasure.directory.to_s, 'measure.rb')),
+      measure_definition_class_name: 'OpenStudioResults',
       measure_type: 'ReportingMeasure',
       name: 'standard_reports'
     }
-    @logger.info 'Running packaged reporting measures'
+    @logger.info 'Running packaged Standard Reports measures'
+    apply_measure(workflow_item)
 
+    workflow_item = {
+      display_name: 'Calibration Reports',
+      measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s, 'measure.rb')),
+      measure_definition_class_name: 'CalibrationReports',
+      measure_type: 'CalibrationReports',
+      name: 'calibration_reports'
+    }
+    @logger.info 'Running packaged Calibration Reports measures'
     apply_measure(workflow_item)
 
     @logger.info 'Finished Running Packaged Measures'
@@ -432,87 +446,6 @@ class RunReportingMeasures
     tbl_data << add_data4(sql_file, "RowName='October'", 'Total Electricity Oct (J)', nil, nil)
     tbl_data << add_data4(sql_file, "RowName='November'", 'Total Electricity Nov (J)', nil, nil)
     tbl_data << add_data4(sql_file, "RowName='December'", 'Total Electricity Dec (J)', nil, nil) # close SQL file
-    sql_file.close
-    # transpose data
-    tbl_rows = tbl_data.transpose
-
-    @logger.info tbl_rows
-    # write electricity data to CSV
-    CSV.open("#{@run_directory}/eplustbl.csv", 'wb') do |csv|
-      tbl_rows.each do |row|
-        csv << row
-      end
-    end
-  end
-
-  # TODO: This is ugly.  Move this out of here entirely and into a reporting measure if we need it at all
-  def run_standard_postprocess
-    def sql_query(sql, report_name, query)
-      val = nil
-      result = sql.execAndReturnFirstDouble("SELECT Value FROM TabularDataWithStrings WHERE ReportName='#{report_name}' AND #{query}")
-      if result.empty?
-        @logger.warn "Query for run_standard_postprocess failed for #{query}"
-      else
-        begin
-          val = result.get
-        rescue => e
-          @logger.info "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-          val = nil
-        end
-      end
-
-      val
-    end
-
-    # add results from sql method
-    def add_data(sql, query, hdr, area, val)
-      row = []
-      val = sql_query(sql, 'AnnualBuildingUtilityPerformanceSummary', query) if val.nil?
-      row << hdr
-      if area.nil?
-        row << val
-      else
-        row << (val * 1000) / area
-      end
-      row
-    end
-
-    # open sql file
-    sql_file = OpenStudio::SqlFile.new(@sql_filename)
-
-    # get building area
-    bldg_area = sql_query(sql_file, 'AnnualBuildingUtilityPerformanceSummary', "TableName='Building Area' AND RowName='Net Conditioned Building Area' AND ColumnName='Area'")
-    # populate data array
-
-    tbl_data = []
-    tbl_data << add_data(sql_file, "TableName='Site and Source Energy' AND RowName='Total Site Energy' AND ColumnName='Energy Per Conditioned Building Area'", 'Total Energy (MJ/m2)', nil, nil)
-    tbl_data << add_data(sql_file, "TableName='Site and Source Energy' AND RowName='Total Source Energy' AND ColumnName='Energy Per Conditioned Building Area'", 'Total Source Energy (MJ/m2)', nil, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Total End Uses' AND ColumnName='Electricity'", 'Total Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Total End Uses' AND ColumnName='Natural Gas'", 'Total Natural Gas (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Heating' AND ColumnName='Electricity'", 'Heating Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Heating' AND ColumnName='Natural Gas'", 'Heating Natural Gas (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Cooling' AND ColumnName='Electricity'", 'Cooling Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Interior Lighting' AND ColumnName='Electricity'", 'Interior Lighting Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Exterior Lighting' AND ColumnName='Electricity'", 'Exterior Lighting Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Interior Equipment' AND ColumnName='Electricity'", 'Interior Equipment Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Interior Equipment' AND ColumnName='Natural Gas'", 'Interior Equipment Natural Gas (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Exterior Equipment' AND ColumnName='Electricity'", 'Exterior Equipment Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Fans' AND ColumnName='Electricity'", 'Fans Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Pumps' AND ColumnName='Electricity'", 'Pumps Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Heat Rejection' AND ColumnName='Electricity'", 'Heat Rejection Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Humidification' AND ColumnName='Electricity'", 'Humidification Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Water Systems' AND ColumnName='Electricity'", 'Water Systems Electricity (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Water Systems' AND ColumnName='Natural Gas'", 'Water Systems Natural Gas (MJ/m2)', bldg_area, nil)
-    tbl_data << add_data(sql_file, "TableName='End Uses' AND RowName='Refrigeration' AND ColumnName='Electricity'", 'Refrigeration Electricity (MJ/m2)', bldg_area, nil)
-    htg_hrs = sql_query(sql_file, 'AnnualBuildingUtilityPerformanceSummary', "TableName='Comfort and Setpoint Not Met Summary' AND RowName='Time Setpoint Not Met During Occupied Heating' AND ColumnName='Facility'")
-    clg_hrs = sql_query(sql_file, 'AnnualBuildingUtilityPerformanceSummary', "TableName='Comfort and Setpoint Not Met Summary' AND RowName='Time Setpoint Not Met During Occupied Cooling' AND ColumnName='Facility'")
-    tot_hrs = clg_hrs && htg_hrs ? htg_hrs + clg_hrs : nil
-    tbl_data << add_data(sql_file, nil, 'Heating Hours Unmet (hr)', nil, htg_hrs)
-    tbl_data << add_data(sql_file, nil, 'Cooling Hours Unmet (hr)', nil, clg_hrs)
-    tbl_data << add_data(sql_file, nil, 'Total Hours Unmet (hr)', nil, tot_hrs)
-    total_cost = sql_query(sql_file, 'Life-Cycle Cost Report', "TableName='Present Value by Category' AND RowName='Grand Total' AND ColumnName='Present Value'")
-    tbl_data << add_data(sql_file, nil, 'Total Life Cycle Cost ($)', nil, total_cost)
-    # close SQL file
     sql_file.close
     # transpose data
     tbl_rows = tbl_data.transpose

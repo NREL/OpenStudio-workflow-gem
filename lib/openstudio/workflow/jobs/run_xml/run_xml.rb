@@ -22,8 +22,8 @@ require 'libxml'
 # This actually belongs as another class that gets added as a state dynamically
 class RunXml
   # RunXml
-  def initialize(directory, logger, time_logger, adapter, options = {})
-    defaults = { use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb' }
+  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
+    defaults = { analysis_root_path: '.', xml_library_file: 'xml_runner.rb' }
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -32,6 +32,7 @@ class RunXml
     @results = {}
     @logger = logger
     @time_logger = time_logger
+    @workflow_arguments = workflow_arguments
     @logger.info "#{self.class} passed the following options #{@options}"
 
     # initialize instance variables that are needed in the perform section

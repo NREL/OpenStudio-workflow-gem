@@ -44,6 +44,7 @@ class RunReportingMeasures
     @logger.info "#{self.class} passed the following options #{@options}"
 
     @model = load_model @options[:run_openstudio][:osm]
+    @model_idf = load_idf @options[:run_openstudio][:idf]
 
     # TODO: should read the name of the sql output file via the :run_openstudio options hash
     # I want to reiterate that this is cheezy!
@@ -190,7 +191,7 @@ class RunReportingMeasures
 
   private
 
-  # Load in the OpenStudio model. It is required for postprocessing
+  # Load in the OpenStudio model. It is required for post processing
   def load_model(filename)
     model = nil
     @logger.info 'Loading model'
@@ -210,18 +211,34 @@ class RunReportingMeasures
     model
   end
 
-  # Run the prepackaged measures in the Gem.
+  # Load in the IDF model. It is required for post processing
+  def load_idf(filename)
+    fail "IDF file does not exist: #{filename}" unless File.exist? filename
+    OpenStudio::Workspace.load(filename, 'EnergyPlus'.to_IddFileType).get
+  end
+
+  # Run the prepackaged measures in OpenStudio. Currently this runs the standard reports and the calibration measure
+  # TODO: add a flag on which packaged reporting measures to run
   def run_packaged_measures
     # configure the workflow item json to pass
     workflow_item = {
       display_name: 'Standard Reports',
-      measure_definition_directory: File.expand_path(File.join(File.dirname(__FILE__), 'packaged_measures', 'StandardReports', 'measure.rb')),
-      measure_definition_class_name: 'StandardReports',
+      measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.standardReportMeasure.directory.to_s, 'measure.rb')),
+      measure_definition_class_name: 'OpenStudioResults',
       measure_type: 'ReportingMeasure',
       name: 'standard_reports'
     }
-    @logger.info 'Running packaged reporting measures'
+    @logger.info 'Running packaged Standard Reports measures'
+    apply_measure(workflow_item)
 
+    workflow_item = {
+        display_name: 'Calibration Reports',
+        measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s, 'measure.rb')),
+        measure_definition_class_name: 'CalibrationReports',
+        measure_type: 'CalibrationReports',
+        name: 'calibration_reports'
+    }
+    @logger.info 'Running packaged Calibration Reports measures'
     apply_measure(workflow_item)
 
     @logger.info 'Finished Running Packaged Measures'

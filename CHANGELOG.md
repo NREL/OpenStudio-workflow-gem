@@ -1,7 +1,7 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Unreleased Changes
+Version 0.2.0
 ------------------
 * Use EnergyPlus that is packaged with OpenStudio. The branch of this repo is no longer tied to the version of EnergyPlus
 * Update find_energyplus to use new OpenStudio method instead of RUBYLIB env var

@@ -107,6 +107,10 @@ class RunEnergyplus
     prepare_energyplus_dir
     @time_logger.stop('Copying EnergyPlus files')
 
+    @time_logger.start('Running EnergyPlus Preprocess Script')
+    energyplus_preprocess("#{@run_directory}/in.idf")
+    @time_logger.start('Running EnergyPlus Preprocess Script')
+
     @time_logger.start('Running EnergyPlus')
     @results = call_energyplus
     @time_logger.stop('Running EnergyPlus')
@@ -183,11 +187,6 @@ class RunEnergyplus
       Dir.chdir(@run_directory)
       @logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
-      # @logger.info "Contents of: #{Dir.pwd}"
-      # Dir.glob("*").each do |f|
-      #  @logger.info "  #{f}"
-      # end
-
       File.open('stdout-expandobject', 'w') do |file|
         IO.popen("./#{@expand_objects_exe}") do |io|
           while (line = io.gets)
@@ -248,5 +247,116 @@ class RunEnergyplus
     end
 
     {}
+  end
+
+  # Run this code before running energyplus to make sure the reporting variables are setup correctly
+  def energyplus_preprocess(idf_filename)
+    @logger.info 'Running EnergyPlus Preprocess'
+
+    fail "Could not find IDF file in run directory (#{idf_filename})" unless File.exist? idf_filename
+
+    new_objects = []
+    needs_monthlyoutput = false
+
+    # this is a workaround for OpenStudio issue #1699
+    needs_detailedvariable = false
+    needs_timestepvariable = true
+    needs_hourlyvariable = false
+    needs_dailyvariable = false
+    needs_monthlyvariable = false
+    needs_runperiodvariable = false
+
+    idf = OpenStudio::IdfFile.load(idf_filename).get
+    # save the pre-preprocess file
+    File.open("#{File.dirname(idf_filename)}/pre-preprocess.idf", 'w') { |f| f << idf.to_s }
+
+    needs_sqlobj = idf.getObjectsByType('Output:SQLite'.to_IddObjectType).empty?
+
+    needs_monthlyoutput = idf.getObjectsByName('Building Energy Performance - Natural Gas').empty? ||
+                          idf.getObjectsByName('Building Energy Performance - Electricity').empty? ||
+                          idf.getObjectsByName('Building Energy Performance - District Heating').empty? ||
+                          idf.getObjectsByName('Building Energy Performance - District Cooling').empty?
+
+    # this is a workaround for issue #1699 -- get all the meter requests
+    meters = []
+    meters += idf.getObjectsByType('Output:Meter'.to_IddObjectType) unless idf.getObjectsByType('Output:Meter'.to_IddObjectType).empty?
+    meters += idf.getObjectsByType('Output:Meter:MeterFileOnly'.to_IddObjectType) unless idf.getObjectsByType('Output:Meter:MeterFileOnly'.to_IddObjectType).empty?
+    meters += idf.getObjectsByType('Output:Meter:Cumulative'.to_IddObjectType) unless idf.getObjectsByType('Output:Meter:Cumulative'.to_IddObjectType).empty?
+    meters += idf.getObjectsByType('Output:Meter:Cumulative:MeterFileOnly'.to_IddObjectType) unless idf.getObjectsByType('Output:Meter:Cumulative:MeterFileOnly'.to_IddObjectType).empty?
+
+    # go through each meter and check the reporting frequency
+    meters.each do |meter|
+      reporting_frequency = meter.getString(1, true)
+      if reporting_frequency =~ /detailed/i
+        needs_detailedvariable = true
+      elsif reporting_frequency =~ /timestep/i
+        needs_timestepvariable = true
+      elsif reporting_frequency =~ /hourly/i
+        needs_hourlyvariable = true
+      elsif reporting_frequency =~ /daily/i
+        needs_dailyvariable = true
+      elsif reporting_frequency =~ /monthly/i
+        needs_monthlyvariable = true
+      elsif reporting_frequency =~ /runperiod|environment|annual/i
+        needs_runperiodvariable = true
+      end
+    end
+
+    # turn off the requests if the meter is already a variable
+    variables = idf.getObjectsByType('Output:Variable'.to_IddObjectType)
+    variables.each do |variable|
+      reporting_frequency = variable.getString(2, true)
+      if reporting_frequency =~ /detailed/i
+        needs_detailedvariable = false
+      elsif reporting_frequency =~ /timestep/i
+        needs_timestepvariable = false
+      elsif reporting_frequency =~ /hourly/i
+        needs_hourlyvariable = false
+      elsif reporting_frequency =~ /daily/i
+        needs_dailyvariable = false
+      elsif reporting_frequency =~ /monthly/i
+        needs_monthlyvariable = false
+      elsif reporting_frequency =~ /runperiod|environment|annual/i
+        needs_runperiodvariable = false
+      end
+    end
+
+    if needs_sqlobj
+      @logger.info 'Adding SQL Output to IDF'
+      new_objects << '
+        Output:SQLite,
+        SimpleAndTabular;         ! Option Type
+        '
+    end
+
+    if needs_monthlyoutput
+      monthly_report_idf = File.join(File.dirname(__FILE__), 'monthly_report.idf')
+
+      idf_file = OpenStudio::IdfFile.load(File.read(monthly_report_idf), 'EnergyPlus'.to_IddFileType).get
+      idf.addObjects(idf_file.objects)
+    end
+
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Detailed;' if needs_detailedvariable
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Timestep;' if needs_timestepvariable
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Hourly;' if needs_hourlyvariable
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Daily;' if needs_dailyvariable
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;' if needs_monthlyvariable
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,RunPeriod;' if needs_runperiodvariable
+
+    # always add in the timestep facility meters
+    new_objects << 'Output:Meter,Electricity:Facility,Timestep;'
+    new_objects << 'Output:Meter,Gas:Facility,Timestep;'
+    new_objects << 'Output:Meter,DistrictCooling:Facility,Timestep;'
+    new_objects << 'Output:Meter,DistrictHeating:Facility,Timestep;'
+
+    new_objects.each do |obj|
+      object = OpenStudio::IdfObject.load(obj).get
+      idf.addObject(object)
+    end
+
+    # save the file
+    File.open(idf_filename, 'w') { |f| f << idf.to_s }
+
+    @logger.info 'Finished EnergyPlus Preprocess'
   end
 end

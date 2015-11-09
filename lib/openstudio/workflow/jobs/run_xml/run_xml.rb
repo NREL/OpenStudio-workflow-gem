@@ -23,7 +23,7 @@ require 'libxml'
 class RunXml
   # RunXml
   def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
-    defaults = { use_monthly_reports: false, analysis_root_path: '.', xml_library_file: 'xml_runner.rb' }
+    defaults = { analysis_root_path: '.', xml_library_file: 'xml_runner.rb' }
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.

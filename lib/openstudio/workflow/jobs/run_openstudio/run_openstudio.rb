@@ -27,6 +27,8 @@ class RunOpenstudio
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
     defaults = { format: 'hash', use_monthly_reports: false, analysis_root_path: '.' }
+    warn 'Option of use_monthly_reports is deprecated. Monthly reports are always generated.' if options[:use_monthly_reports]
+
     @options = defaults.merge(options)
     @directory = directory
     # TODO: there is a base number of arguments that each job will need including @run_directory. abstract it out.
@@ -108,15 +110,6 @@ class RunOpenstudio
 
     idf_filename = "#{@run_directory}/in.idf"
     File.open(idf_filename, 'w') { |f| f << @model_idf.to_s }
-
-    # TODO: convert this to an OpenStudio method instead of substituting the data as text
-    if @options[:use_monthly_reports]
-      @logger.info 'Adding monthly reports to EnergyPlus IDF'
-      to_append = File.read(File.join(File.dirname(__FILE__), 'monthly_report.idf'))
-      File.open(idf_filename, 'a') do |handle|
-        handle.puts to_append
-      end
-    end
 
     @results[:osm] = File.expand_path(osm_filename)
     @results[:idf] = File.expand_path(idf_filename)

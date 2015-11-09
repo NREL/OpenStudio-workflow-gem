@@ -17,7 +17,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# TODO: I hear that measures can step on each other if not run in their own directory
 class RunOpenstudio
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures

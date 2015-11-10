@@ -229,17 +229,24 @@ class RunReportingMeasures
       name: 'standard_reports'
     }
     @logger.info 'Running packaged Standard Reports measures'
-    apply_measure(workflow_item)
+    begin
+      apply_measure(workflow_item)
+    rescue => e
+      @logger.warn "Error applying Standard Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
+    end
 
-    workflow_item = {
-      display_name: 'Calibration Reports',
-      measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s, 'measure.rb')),
-      measure_definition_class_name: 'CalibrationReports',
-      measure_type: 'CalibrationReports',
-      name: 'calibration_reports'
-    }
-    @logger.info 'Running packaged Calibration Reports measures'
-    apply_measure(workflow_item)
+    @logger.info "Found #{@model.getUtilityBills.length} utility bills"
+    if @model.getUtilityBills.length > 0
+      workflow_item = {
+        display_name: 'Calibration Reports',
+        measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s, 'measure.rb')),
+        measure_definition_class_name: 'CalibrationReports',
+        measure_type: 'CalibrationReports',
+        name: 'calibration_reports'
+      }
+      @logger.info 'Running packaged Calibration Reports measures'
+      apply_measure(workflow_item)
+    end
 
     @logger.info 'Finished Running Packaged Measures'
   end

@@ -258,12 +258,6 @@ class RunEnergyplus
     new_objects = []
     needs_monthlyoutput = false
 
-    # this is a workaround for OpenStudio issue #1699
-    needs_detailedvariable = false
-    needs_hourlyvariable = false
-    needs_dailyvariable = false
-    needs_runperiodvariable = false
-
     idf = OpenStudio::IdfFile.load(idf_filename).get
     # save the pre-preprocess file
     File.open("#{File.dirname(idf_filename)}/pre-preprocess.idf", 'w') { |f| f << idf.to_s }
@@ -275,43 +269,11 @@ class RunEnergyplus
                           idf.getObjectsByName('Building Energy Performance - District Heating').empty? ||
                           idf.getObjectsByName('Building Energy Performance - District Cooling').empty?
 
-    # this is a workaround for issue #1699 -- get all the meter requests
-    meters = []
-    meters += idf.getObjectsByType('Output:Meter'.to_IddObjectType) unless idf.getObjectsByType('Output:Meter'.to_IddObjectType).empty?
-    meters += idf.getObjectsByType('Output:Meter:MeterFileOnly'.to_IddObjectType) unless idf.getObjectsByType('Output:Meter:MeterFileOnly'.to_IddObjectType).empty?
-    meters += idf.getObjectsByType('Output:Meter:Cumulative'.to_IddObjectType) unless idf.getObjectsByType('Output:Meter:Cumulative'.to_IddObjectType).empty?
-    meters += idf.getObjectsByType('Output:Meter:Cumulative:MeterFileOnly'.to_IddObjectType) unless idf.getObjectsByType('Output:Meter:Cumulative:MeterFileOnly'.to_IddObjectType).empty?
-
-    # go through each meter and check the reporting frequency
-    meters.each do |meter|
-      reporting_frequency = meter.getString(1, true)
-      if reporting_frequency =~ /detailed/i
-        needs_detailedvariable = true
-      elsif reporting_frequency =~ /hourly/i
-        needs_hourlyvariable = true
-      elsif reporting_frequency =~ /daily/i
-        needs_dailyvariable = true
-      elsif reporting_frequency =~ /monthly/i
-        needs_monthlyvariable = true
-      elsif reporting_frequency =~ /runperiod|environment|annual/i
-        needs_runperiodvariable = true
-      end
-    end
-
-    # turn off the requests if the meter is already a variable
-    variables = idf.getObjectsByType('Output:Variable'.to_IddObjectType)
-    variables.each do |variable|
-      reporting_frequency = variable.getString(2, true)
-      if reporting_frequency =~ /detailed/i
-        needs_detailedvariable = false
-      elsif reporting_frequency =~ /hourly/i
-        needs_hourlyvariable = false
-      elsif reporting_frequency =~ /daily/i
-        needs_dailyvariable = false
-      elsif reporting_frequency =~ /runperiod|environment|annual/i
-        needs_runperiodvariable = false
-      end
-    end
+    # this is a workaround for issue #1699 -- remove when 1699 is closed.
+    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
+    new_objects << 'Output:Variable,*,Zone Air Relative Humidity,Daily;'
+    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;'
+    new_objects << 'Output:Variable,*,Site Outdoor Air Wetbulb Temperature,Timestep;'
 
     if needs_sqlobj
       @logger.info 'Adding SQL Output to IDF'
@@ -323,24 +285,14 @@ class RunEnergyplus
 
     if needs_monthlyoutput
       monthly_report_idf = File.join(File.dirname(__FILE__), 'monthly_report.idf')
-
       idf_file = OpenStudio::IdfFile.load(File.read(monthly_report_idf), 'EnergyPlus'.to_IddFileType).get
       idf.addObjects(idf_file.objects)
     end
-
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Detailed;' if needs_detailedvariable
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Hourly;' if needs_hourlyvariable
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Daily;' if needs_dailyvariable
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,RunPeriod;' if needs_runperiodvariable
 
     # These are supposedly needed for the calibration report
     new_objects << 'Output:Meter:MeterFileOnly,Gas:Facility,Daily;'
     new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Timestep;'
     new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Daily;'
-    new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
-    new_objects << 'Output:Variable,*,Zone Air Relative Humidity,Hourly;'
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;'
-    new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Timestep;'
 
     # Always add in the timestep facility meters
     new_objects << 'Output:Meter,Electricity:Facility,Timestep;'

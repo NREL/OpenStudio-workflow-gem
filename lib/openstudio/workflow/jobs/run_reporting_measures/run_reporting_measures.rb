@@ -235,6 +235,7 @@ class RunReportingMeasures
       @logger.warn "Error applying Standard Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
     end
 
+    @logger.info "Found #{@model.getUtilityBills.length} utility bills"
     if @model.getUtilityBills.length > 0
       workflow_item = {
         display_name: 'Calibration Reports',

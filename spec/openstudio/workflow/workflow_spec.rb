@@ -354,4 +354,35 @@ describe 'OpenStudio::Workflow' do
     expect(objs['objective_function_target_1']).to be_within(1).of(1234)
     expect(objs['objective_function_group_2']).to eq(4)
   end
+
+  it 'should run EnergyPlus measure with register values' do
+    data_files = './spec/files/local_energyplus_ex1'
+
+    run_dir = "#{ENV['SIMULATION_RUN_DIR']}/local_energyplus_ex1"
+    FileUtils.rm_rf run_dir if Dir.exist? run_dir
+    FileUtils.mkdir_p run_dir
+
+    # copy over the test file to the run directory
+    FileUtils.cp_r(Dir["#{data_files}/*"], run_dir)
+
+    options = {
+      problem_filename: 'analysis_1.json',
+      datapoint_filename: 'datapoint_1.json',
+      analysis_root_path: 'spec/files/example_models',
+      use_monthly_reports: true
+    }
+    k = OpenStudio::Workflow.load 'Local', run_dir, options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.options[:problem_filename]).to eq 'analysis_1.json'
+    expect(k.options[:datapoint_filename]).to eq 'datapoint_1.json'
+    expect(k.directory).to eq File.expand_path(run_dir)
+    expect(k.run).to eq :finished
+    expect(k.final_state).to eq :finished
+
+    expect(File.exist?("#{run_dir}/run/results.json")).to eq true
+    expect(k.job_results[:run_reporting_measures][:static_pressure_reset_ems][:energyplus_user_script]).to eq true
+    expect(k.job_results[:run_reporting_measures][:static_pressure_reset_ems][:energyplus_user_post_valid]).to eq nil
+    expect(k.job_results[:run_reporting_measures][:static_pressure_reset_ems][:applicable]).to eq false
+    expect(k.job_results[:run_reporting_measures][:standard_reports][:applicable]).to eq true
+  end
 end

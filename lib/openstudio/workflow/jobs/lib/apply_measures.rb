@@ -190,6 +190,8 @@ module OpenStudio
             end
             @workflow_arguments[workflow_item[:name].to_sym] = runner.workflow_arguments
             @logger.info "Finished measure.run for '#{workflow_item[:name]}'"
+
+            # run garbage collector after every measure to help address race conditions
             GC.start
           rescue => e
             log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
@@ -209,6 +211,9 @@ module OpenStudio
           begin
             measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
             @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
+
+            # add an applicability flag to all the measure results
+            @output_attributes[workflow_item[:name].to_sym][:applicable] = result.value.value != -1
           rescue => e
             log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             @logger.error log_message

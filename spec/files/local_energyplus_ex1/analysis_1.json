@@ -9,8 +9,7 @@
                 "objective_function": false,
                 "objective_function_index": null,
                 "objective_function_target": null,
-                "scaling_factor": null,
-                "objective_function_group": 1
+                "scaling_factor": null
             },
             {
                 "display_name": "Total Electricity",
@@ -19,8 +18,7 @@
                 "objective_function": false,
                 "objective_function_index": null,
                 "objective_function_target": null,
-                "scaling_factor": null,
-                "objective_function_group": 2
+                "scaling_factor": null
             },
             {
                 "display_name": "Total Site Energy",
@@ -39,8 +37,16 @@
                 "objective_function": true,
                 "objective_function_index": 1,
                 "objective_function_target": null,
-                "scaling_factor": null,
-                "objective_function_group": 4
+                "scaling_factor": null
+            },
+            {
+                "display_name": "Applicable Flag",
+                "name": "static_pressure_reset_ems.applicable",
+                "units": "",
+                "objective_function": true,
+                "objective_function_index": 2,
+                "objective_function_target": null,
+                "scaling_factor": null
             }
         ],
         "problem": {

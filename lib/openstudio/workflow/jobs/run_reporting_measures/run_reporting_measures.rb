@@ -139,7 +139,9 @@ class RunReportingMeasures
           # TODO: move this to cleaner logic. Use ostruct?
           if variable[:name].include? '.'
             k, v = variable[:name].split('.')
-            if @results.key?(k.to_sym) && @results[k.to_sym][v.to_sym]
+
+            # look for the objective function key and make sure that it is not nil. False is an okay obj function.
+            if @results.key?(k.to_sym) && !@results[k.to_sym][v.to_sym].nil?
               @objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = @results[k.to_sym][v.to_sym]
               if variable[:objective_function_target]
                 @logger.info "Found objective function target for #{variable[:name]}"

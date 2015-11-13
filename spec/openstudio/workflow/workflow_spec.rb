@@ -384,5 +384,9 @@ describe 'OpenStudio::Workflow' do
     expect(k.job_results[:run_reporting_measures][:static_pressure_reset_ems][:energyplus_user_post_valid]).to eq nil
     expect(k.job_results[:run_reporting_measures][:static_pressure_reset_ems][:applicable]).to eq false
     expect(k.job_results[:run_reporting_measures][:standard_reports][:applicable]).to eq true
+
+    # check the result of the objective function -- false should be a valid obj. func.
+    objs = JSON.parse(File.read("#{run_dir}/objectives.json"), symbolize_keys: true)
+    expect(objs['objective_function_3']).to eq false
   end
 end

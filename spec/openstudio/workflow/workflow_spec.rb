@@ -67,7 +67,6 @@ describe 'OpenStudio::Workflow' do
       problem_filename: 'analysis_1.json',
       datapoint_filename: 'datapoint_1.json',
       analysis_root_path: 'spec/files/example_models',
-      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
@@ -126,7 +125,6 @@ describe 'OpenStudio::Workflow' do
       problem_filename: 'analysis.json',
       datapoint_filename: 'data_point.json',
       analysis_root_path: run_dir,
-      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
@@ -150,7 +148,6 @@ describe 'OpenStudio::Workflow' do
       problem_filename: 'analysis_1.json',
       datapoint_filename: 'datapoint_1.json',
       analysis_root_path: 'spec/files/example_models',
-      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
@@ -277,7 +274,6 @@ describe 'OpenStudio::Workflow' do
     options = {
       datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
       analysis_root_path: 'spec/files/example_models',
-      use_monthly_reports: true,
       adapter_options: {
         mongoid_path: './spec/files/mongoid'
       }
@@ -329,7 +325,6 @@ describe 'OpenStudio::Workflow' do
     options = {
       datapoint_id: 'f348e59a-e1c3-11e3-8b68-0800200c9a66',
       analysis_root_path: 'spec/files/example_models',
-      use_monthly_reports: true,
       adapter_options: {
         mongoid_path: './spec/files/mongoid'
       }
@@ -369,7 +364,6 @@ describe 'OpenStudio::Workflow' do
       problem_filename: 'analysis_1.json',
       datapoint_filename: 'datapoint_1.json',
       analysis_root_path: 'spec/files/example_models',
-      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run

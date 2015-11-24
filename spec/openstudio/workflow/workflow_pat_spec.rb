@@ -82,7 +82,6 @@ describe 'OpenStudio::Workflow' do
       is_pat: true,
       datapoint_id: dp,
       analysis_root_path: 'spec/files/pat_project',
-      use_monthly_reports: true,
       adapter_options: {
         mongoid_path: './spec/files/mongoid'
       }

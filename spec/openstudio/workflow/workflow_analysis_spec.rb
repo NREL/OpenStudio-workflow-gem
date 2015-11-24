@@ -42,7 +42,6 @@ describe 'OpenStudio Formulation' do
       problem_filename: 'analysis.json',
       datapoint_filename: 'data_point.json',
       analysis_root_path: run_dir,
-      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
@@ -82,7 +81,6 @@ describe 'OpenStudio Formulation' do
       problem_filename: 'analysis.json',
       datapoint_filename: 'data_point.json',
       analysis_root_path: run_dir,
-      use_monthly_reports: true
     }
     k = OpenStudio::Workflow.load 'Local', run_dir, options
     expect(k).to be_instance_of OpenStudio::Workflow::Run

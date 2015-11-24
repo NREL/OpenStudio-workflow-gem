@@ -25,7 +25,7 @@ class RunOpenstudio
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
-    defaults = { format: 'hash', use_monthly_reports: false, analysis_root_path: '.' }
+    defaults = { format: 'hash', analysis_root_path: '.' }
     warn 'Option of use_monthly_reports is deprecated. Monthly reports are always generated.' if options[:use_monthly_reports]
 
     @options = defaults.merge(options)

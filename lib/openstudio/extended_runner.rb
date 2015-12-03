@@ -6,12 +6,17 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
   attr_reader :workflow_arguments
 
   # Add in @workflow_arguments
-  def initialize(multi_logger, analysis_hash, datapoint_hash)
+  def initialize(multi_logger, analysis_hash, datapoint_hash, output_attributes)
     @multi_logger = multi_logger
     @analysis = analysis_hash
     @datapoint = datapoint_hash
+    @results = output_attributes
     @workflow_arguments = nil
     super()
+  end
+
+  def past_results
+    return @results
   end
 
   def analysis

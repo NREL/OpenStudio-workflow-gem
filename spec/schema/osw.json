@@ -1,0 +1,190 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"$ref": "#/definitions/OpenStudioWorkflow Schema",
+	"definitions": {
+		"Argument": {
+			"title": "argument",
+			"description": "Hash defining a single measure input",
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "Machine readable argument name as defined in the measure.xml",
+					"type": "string"
+				},
+				"value": {
+					"description": "Value that the argument is to be set to",
+					"type": [
+						"string",
+						"number",
+						"boolean"
+					]
+				},
+				"value_type": {
+					"description": "Allowed values of 'string', 'bool', and 'number'",
+					"type": "string"
+				}
+			},
+			"required": [
+				"name",
+				"value"
+			],
+			"additionalProperties": false
+		},
+		"Workflow Step": {
+			"description": "Hash defining an indivigual measure",
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "Machine readable snak-cased measure name which must be unique",
+					"type": "string"
+				},
+				"measure_type": {
+					"description": "Allowable values of 'Ruby', 'EnergyPlus', or 'Reporting'",
+					"type": "string"
+				},
+				"measure_definition_class_name": {
+					"description": "Measure class name as defined in the measure.rb file",
+					"type": "string"
+				},
+				"measure_definition_directory": {
+					"description": "Directory name of the measure",
+					"type": "string"
+				},
+				"arguments": {
+					"$ref": "#/definitions/Argument Array"
+				}
+			},
+			"required": [
+				"name",
+				"measure_type",
+				"measure_definition_class_name",
+				"measure_definition_directory",
+				"arguments"
+			],
+			"additionalProperties": false
+		},
+		"Workflow": {
+			"description": "Array of measures to be executed in the simulation process",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/Workflow Step"
+			}
+		},
+		"Seed Object": {
+			"title": "seed",
+			"description": "Hash defining the default seed model used by this simultation",
+			"type": "object",
+			"properties": {
+				"file_type": {
+					"description": "Type of seed model being specified, e.g. osm or idf",
+					"type": "string"
+				},
+				"path": {
+					"description": "Path from ??? to the seed model",
+					"type": "string"
+				}
+			},
+			"additionalProperties": false
+		},
+		"Weather File": {
+			"title": "weather_file",
+			"description": "Hash defining the default weather file used by this simulation",
+			"type": "object",
+			"properties": {
+				"file_type": {
+					"description": "Type of weather file being specified, e.g. TMY3",
+					"type": "string"
+				},
+				"path": {
+					"description": "Path from ??? to the weather file",
+					"type": "string"
+				}
+			},
+			"required": [
+				"file_type",
+				"path"
+			],
+			"additionalProperties": false
+		},
+		"OpenStudioWorkflow Schema": {
+			"description": "JSON Schema for the OpenStudioWorkflow (OSW) file format",
+			"type": "object",
+			"properties": {
+				"weather_file": {
+					"$ref": "#/definitions/Weather File"
+				},
+				"seed": {
+					"$ref": "#/definitions/Seed Object"
+				},
+				"workflow": {
+					"$ref": "#/definitions/Workflow"
+				},
+				"file_format_version": {
+					"description": "Currently 0.1",
+					"type": "number"
+				},
+				"osa_id": {
+					"description": "UUID of the .osa file fron which this file was generated, or null if not generated from a .osa file",
+					"type": [
+						"string",
+						"null"
+					]
+				},
+				"osa_hash": {
+					"description": "Checksum of the .osa file from which this file was generated, or null if not generated from a .osa file",
+					"type": [
+						"number",
+						"null"
+					]
+				},
+				"osd_id": {
+					"description": "UUID of the .osd file from which this file was generated, or null if not generated from a .osd file",
+					"type": [
+						"string",
+						"null"
+					]
+				},
+				"osd_hash": {
+					"description": "Checksum of the .osd file from which this file was generated, or null if not generated from a .osd file",
+					"type": [
+						"number",
+						"null"
+					]
+				},
+				"created_at": {
+					"description": "ISO8601 string defining the time at which this file was created",
+					"type": "string"
+				},
+				"updated_at": {
+					"description": "ISO8601 string defining the time at which this file was last updated",
+					"type": "string"
+				},
+				"id": {
+					"description": "UUID of this file",
+					"type": "string"
+				}
+			},
+			"required": [
+				"weather_file",
+				"seed",
+				"workflow",
+				"file_format_version",
+				"osa_id",
+				"osa_hash",
+				"osd_id",
+				"osd_hash",
+				"created_at",
+				"updated_at",
+				"id"
+			],
+			"additionalProperties": false
+		},
+		"Argument Array": {
+			"description": "Array defining inputs to the measure",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/Argument"
+			}
+		}
+	}
+}

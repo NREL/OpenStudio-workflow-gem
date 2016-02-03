@@ -18,10 +18,6 @@
 						"number",
 						"boolean"
 					]
-				},
-				"value_type": {
-					"description": "Allowed values of 'string', 'bool', and 'number'",
-					"type": "string"
 				}
 			},
 			"required": [
@@ -34,20 +30,8 @@
 			"description": "Hash defining an indivigual measure",
 			"type": "object",
 			"properties": {
-				"name": {
-					"description": "Machine readable snak-cased measure name which must be unique",
-					"type": "string"
-				},
-				"measure_type": {
-					"description": "Allowable values of 'Ruby', 'EnergyPlus', or 'Reporting'",
-					"type": "string"
-				},
-				"measure_definition_class_name": {
-					"description": "Measure class name as defined in the measure.rb file",
-					"type": "string"
-				},
-				"measure_definition_directory": {
-					"description": "Directory name of the measure",
+				"measure_dir_name": {
+					"description": "Measure directory name containing the measure.rb file",
 					"type": "string"
 				},
 				"arguments": {
@@ -55,72 +39,43 @@
 				}
 			},
 			"required": [
-				"name",
-				"measure_type",
-				"measure_definition_class_name",
-				"measure_definition_directory",
+				"measure_dir_name",
 				"arguments"
 			],
 			"additionalProperties": false
 		},
-		"Workflow": {
+		"Workflow Steps": {
 			"description": "Array of measures to be executed in the simulation process",
 			"type": "array",
 			"items": {
 				"$ref": "#/definitions/Workflow Step"
 			}
 		},
-		"Seed Object": {
-			"title": "seed",
-			"description": "Hash defining the default seed model used by this simultation",
-			"type": "object",
-			"properties": {
-				"file_type": {
-					"description": "Type of seed model being specified, e.g. osm or idf",
-					"type": "string"
-				},
-				"path": {
-					"description": "Path from ??? to the seed model",
-					"type": "string"
-				}
-			},
-			"additionalProperties": false
+		"Seed Definition": {
+			"title": "seed_file",
+			"description": "String defining the filepath for the seed model relative to the osw file",
+			"type": "string"
 		},
-		"Weather File": {
+		"Weather Definition": {
 			"title": "weather_file",
-			"description": "Hash defining the default weather file used by this simulation",
-			"type": "object",
-			"properties": {
-				"file_type": {
-					"description": "Type of weather file being specified, e.g. TMY3",
-					"type": "string"
-				},
-				"path": {
-					"description": "Path from ??? to the weather file",
-					"type": "string"
-				}
-			},
-			"required": [
-				"file_type",
-				"path"
-			],
-			"additionalProperties": false
+			"description": "String defining the filepath for the weather file relative to the osw instance",
+			"type": "string"
 		},
 		"OpenStudioWorkflow Schema": {
 			"description": "JSON Schema for the OpenStudioWorkflow (OSW) file format",
 			"type": "object",
 			"properties": {
 				"weather_file": {
-					"$ref": "#/definitions/Weather File"
+					"$ref": "#/definitions/Weather Definition"
 				},
-				"seed": {
-					"$ref": "#/definitions/Seed Object"
+				"seed_file": {
+					"$ref": "#/definitions/Seed Definition"
 				},
-				"workflow": {
-					"$ref": "#/definitions/Workflow"
+				"steps": {
+					"$ref": "#/definitions/Workflow Steps"
 				},
 				"file_format_version": {
-					"description": "Currently 0.1",
+					"description": "Currently 0.1, however will infered to be the default of the software package unless otherwise specified",
 					"type": "number"
 				},
 				"osa_id": {
@@ -166,16 +121,8 @@
 			},
 			"required": [
 				"weather_file",
-				"seed",
-				"workflow",
-				"file_format_version",
-				"osa_id",
-				"osa_hash",
-				"osd_id",
-				"osd_hash",
-				"created_at",
-				"updated_at",
-				"id"
+				"seed_file",
+				"steps"
 			],
 			"additionalProperties": false
 		},

@@ -7,15 +7,15 @@
 			"arguments": [
 				{
 					"name": "cost",
-					"value": 123.321,
+					"value": 123.321
 				},
 				{
 					"name": "percent_increase",
-					"value": 5,
+					"value": 5
 				},
 				{
 					"name": "operating_expenses",
-					"value": 0,
+					"value": 0
 				}
 			]
 		},
@@ -24,15 +24,15 @@
 			"arguments": [
 				{
 					"name": "cost",
-					"value": 321.123,
+					"value": 321.123
 				},
 				{
 					"name": "percent_increase",
-					"value": 15,
+					"value": 15
 				},
 				{
 					"name": "space_type",
-					"value": "*All*",
+					"value": "*All*"
 				}
 			]
 		},
@@ -41,11 +41,11 @@
 			"arguments": [
 				{
 					"name": "has_bool",
-					"value": true,
+					"value": true
 				},
 				{
 					"name": "percent_decrease",
-					"value": 5,
+					"value": 5
 				}
 			]
 		}

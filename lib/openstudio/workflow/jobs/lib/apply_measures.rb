@@ -39,7 +39,7 @@ module OpenStudio
         success = true
 
         unless argument[:value].nil?
-          @logger.info "Setting argument value '#{argument[:name]}' to '#{argument[:value]}'"
+          @logger.info "Setting argument value '#{argument[:name]}' to '#{argument[:value]} in argument_map '#{argument_map}'"
 
           v = argument_map[argument[:name]]
           fail "Could not find argument map in measure for '#{argument[:name]}' with value '#{argument[:value]}'" unless v

@@ -17,23 +17,22 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# Run Prelight job to prepare the directory for simulations.
-class RunPreflight
-  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
-    defaults = {}
-    @options = defaults.merge(options)
-    @directory = directory
-    @adapter = adapter
-    @logger = logger
-    @time_logger = time_logger
-    @workflow_arguments = workflow_arguments
-    @results = {}
+# Run the initialization job to validate the directory and initialize the adapters.
+class RunTranslation < OpenStudio::Workflow::Job
+
+  require_relative '../util/measure'
+
+  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+    super
   end
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
 
-    @adapter.communicate_started @directory, @options
+    @time_logger.start('Translating to EnergyPlus')
+    translate_to_energyplus
+    @time_logger.stop('Translating to EnergyPlus')
+
 
     # At the moment this does nothing.
 

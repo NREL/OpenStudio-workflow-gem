@@ -17,22 +17,29 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require_relative '../adapter'
+# Run the initialization job to run validations and initializations
+class RunInit < OpenStudio::Workflow::Job
 
-module OpenStudio
-  module Workflow
-    module Adapters
-      class MongoLog
-        def initialize(datapoint_model)
-          fail 'Mongo is not supported as an adapter in the branch of the WFG. Please use develop or master.'
-        end
-      end
+  require_relative '../util/measure'
 
-      class Mongo < Adapter
-        def initialize(options = {})
-          fail 'Mongo is not supported as an adapter in the branch of the WFG. Please use develop or master.'
-        end
-      end
+  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+    super
+  end
+
+  # This method starts the adapter and verifies the OSW if the options contain verify_osw
+  # @todo See about moving the workflow and root_dir into the initialize
+  def perform
+    logger.info "Calling #{__method__} in the #{self.class} class"
+
+    @adapter.communicate_started @directory, @options
+
+    if @options[:verify_osw]
+      @workflow = @adapter.get_workflow @directory, @options
+      @workflow['root_dir'] ? @root_dir = @workflow['root_dir'] : @root_dir = '.'
+      validate_measures(@workflow, @root_dir, @logger)
     end
+
+    # return the results back to the caller -- always
+    @results
   end
 end

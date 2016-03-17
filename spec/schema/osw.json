@@ -120,8 +120,6 @@
 				}
 			},
 			"required": [
-				"weather_file",
-				"seed_file",
 				"steps"
 			],
 			"additionalProperties": false

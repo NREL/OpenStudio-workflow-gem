@@ -17,37 +17,15 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-class RunEnergyplus
-  ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i
-  EXPAND_OBJECTS_REGEX = /^expandobjects\D{0,4}$/i
+class RunEnergyplus < OpenStudio::Workflow::Job
 
+  require_relative '../util/energyplus
+'
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
-    @logger = logger
-
-    energyplus_path = find_energyplus
-    defaults = {
-      energyplus_path: energyplus_path
-    }
-    @options = defaults.merge(options)
-
-    # TODO: use openstudio tool finder for this
-    @directory = directory
-    @run_directory = "#{@directory}/run"
-    @adapter = adapter
-    @time_logger = time_logger
-    @workflow_arguments = workflow_arguments
-    @results = {}
-
-    # container for storing the energyplus files there were copied into the local directory. These will be
-    # removed at the end of the simulation.
-    @energyplus_files = []
-    @energyplus_exe = nil
-    @expand_objects_exe = nil
-
-    @logger.info "#{self.class} passed the following options #{@options}"
+    super
   end
 
   def perform

@@ -60,10 +60,6 @@ module OpenStudio
         instance.communicate_failure id
       end
 
-      def get_logger(file, options = {})
-        instance.get_logger file, options
-      end
-
       protected
 
       # Zip up a folder and it's contents

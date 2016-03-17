@@ -17,22 +17,16 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require_relative '../adapter'
+class RunEnergyplus < OpenStudio::Workflow::Job
 
-module OpenStudio
-  module Workflow
-    module Adapters
-      class MongoLog
-        def initialize(datapoint_model)
-          fail 'Mongo is not supported as an adapter in the branch of the WFG. Please use develop or master.'
-        end
-      end
+  # Initialize
+  # param directory: base directory where the simulation files are prepared
+  # param logger: logger object in which to write log messages
+  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+    super
+  end
 
-      class Mongo < Adapter
-        def initialize(options = {})
-          fail 'Mongo is not supported as an adapter in the branch of the WFG. Please use develop or master.'
-        end
-      end
-    end
+  def perform
+
   end
 end

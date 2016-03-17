@@ -17,29 +17,19 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require 'pp'
-require 'rubyXL'
-require 'multi_json'
-require 'colored'
 require 'fileutils'
 require 'securerandom' # uuids
 require 'json' # needed for a single pretty generate call
 require 'pathname'
 
-begin
-  require 'facter'
-rescue LoadError => e
-  warn 'Could not load Facter. Will not be able to save the IP address to the log'.red
-end
-
 require 'openstudio/workflow/version'
 require 'openstudio/workflow/multi_delegator'
 require 'openstudio/workflow/run'
-require 'openstudio/workflow/jobs/lib/apply_measures'
+require 'openstudio/workflow/jobs'
 require 'openstudio/workflow/time_logger'
 
 require 'openstudio'
-require 'openstudio/extended_runner'
+require 'openstudio/workflow_runner'
 
 ENV['OPENSTUDIO_WORKFLOW'] = 'true'
 
@@ -55,19 +45,27 @@ class String
 end
 
 module OpenStudio
+
+  # @todo (rhorsey) move the load and energyplus methods into the core CLI
   module Workflow
     extend self
 
+    # Log the message sent to the logger
+    def logger(targets=nil)
+      @logger ||= ::Logger.new MultiDelegator.delegate(:write, :close).to(targets)
+      @logger
+    end
+
+=begin # This needs to all get moved into the Core CLI
     # Create a new workflow instance using the defined adapter and UUID
+    #
     def load(adapter_name, run_directory, options = {})
       defaults = { adapter_options: {} }
       options = defaults.merge(options)
+      @targets = [STDOUT, File.new('run.log')]
+      logger(@targets)
 
       # Convert various paths to absolute paths
-      if options[:adapter_options] && options[:adapter_options][:mongoid_path] &&
-         (Pathname.new options[:adapter_options][:mongoid_path]).absolute? == false
-        options[:adapter_options][:mongoid_path] = File.expand_path options[:adapter_options][:mongoid_path]
-      end
       if options[:analysis_root_path] &&
          (Pathname.new options[:analysis_root_path]).absolute? == false
         options[:analysis_root_path] = File.expand_path options[:analysis_root_path]
@@ -86,9 +84,12 @@ module OpenStudio
     # such as preprocessing / postprocessing. The directory must have the IDF and EPW file in the folder. The
     # simulations will run in the directory/run path
     #
+    # @todo (rhorsey) Do we want the transitions here to be init->translate->preprocess->simulate->finish?
+    #
     # @param adapter_name [String] Type of adapter, local or mongo.
     # @param run_directory [String] Path to where the simulation is to run
     # @param options [Hash] List of options for the adapter
+    #
     def run_energyplus(adapter_name, run_directory, options = {})
       unless (Pathname.new run_directory).absolute?
         # relative to wherever you are running the script
@@ -118,11 +119,14 @@ module OpenStudio
 
       run_klass
     end
+=end
 
     # Extract an archive to a specific location
+    #
     # @param archive_filename [String] Path and name of the file to extract
     # @param destination [String] Path to extract to
     # @param overwrite [Boolean] If true, will overwrite any extracted file that may already exist
+    #
     def extract_archive(archive_filename, destination, overwrite = true)
       Zip::File.open(archive_filename) do |zf|
         zf.each do |f|

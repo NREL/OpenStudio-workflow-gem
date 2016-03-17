@@ -18,28 +18,14 @@
 ######################################################################
 
 # Run precanned post processing to extract object functions
-# TODO: I hear that measures can step on each other if not run in their own directory
 
 require 'csv'
 require 'ostruct'
 
-class RunPostprocess
-  # Mixin the MeasureApplication module to apply measures
-  include OpenStudio::Workflow::ApplyMeasures
+class RunPostprocess < OpenStudio::Workflow::Job
 
-  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
-    defaults = {}
-    @options = defaults.merge(options)
-    @directory = directory
-    @run_directory = "#{@directory}/run"
-    @adapter = adapter
-    @logger = logger
-    @time_logger = time_logger
-    @workflow_arguments = workflow_arguments
-    @results = {}
-    @output_attributes = {}
-
-    @logger.info "#{self.class} passed the following options #{@options}"
+  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+    super
   end
 
   def perform
@@ -51,7 +37,6 @@ class RunPostprocess
     rescue => e
       log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
       @logger.error log_message
-      # raise log_message
     end
 
     @results

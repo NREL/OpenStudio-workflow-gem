@@ -23,9 +23,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bundler', '~> 1.6'
   s.add_development_dependency 'rake'
 
-  s.add_runtime_dependency 'multi_json', '~> 1.10.0'
   s.add_runtime_dependency 'colored', '~> 1.2'
-  s.add_runtime_dependency 'facter', '>= 2.0'
-  s.add_runtime_dependency 'rubyXL', '~> 3.3.0' # install rubyXL gem to read/write excel files
   s.add_runtime_dependency 'rubyzip', '~> 1.1.7'
 end

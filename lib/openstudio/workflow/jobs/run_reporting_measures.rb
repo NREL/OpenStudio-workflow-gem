@@ -21,37 +21,12 @@
 require 'csv'
 require 'ostruct'
 
-class RunReportingMeasures
+class RunReportingMeasures < OpenStudio::Workflow::Job
   # Mixin the MeasureApplication module to apply measures
-  include OpenStudio::Workflow::ApplyMeasures
+  require_relative '../util/measure'
 
-  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
-    defaults = {}
-    @options = defaults.merge(options)
-    @directory = directory
-    @run_directory = "#{@directory}/run"
-    @adapter = adapter
-    @logger = logger
-    @time_logger = time_logger
-    @workflow_arguments = workflow_arguments
-    @results = {}
-    @output_attributes = {}
-
-    # TODO: we shouldn't have to keep loading this file if we need it. It should be availabe for any job.
-    # TODO: passing in the options everytime is ridiculuous
-    @analysis_json = @adapter.get_problem(@directory, @options)
-
-    @logger.info "#{self.class} passed the following options #{@options}"
-
-    @model = load_model @options[:run_openstudio][:osm]
-    @model_idf = load_idf @options[:run_openstudio][:idf]
-
-    # TODO: should read the name of the sql output file via the :run_openstudio options hash
-    # I want to reiterate that this is cheezy!
-    @sql_filename = "#{@run_directory}/eplusout.sql"
-    fail "EnergyPlus SQL file did not exist #{@sql_filename}" unless File.exist? @sql_filename
-
-    @objective_functions = {}
+  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+    super
   end
 
   def perform
@@ -192,32 +167,6 @@ class RunReportingMeasures
   end
 
   private
-
-  # Load in the OpenStudio model. It is required for post processing
-  def load_model(filename)
-    model = nil
-    @logger.info 'Loading model'
-
-    # TODO: wrap this in an exception block and fail as appropriate
-    # assume that the seed model has been placed in the directory
-    if File.exist? filename
-      @logger.info "Reading in model #{filename}"
-      translator = OpenStudio::OSVersion::VersionTranslator.new
-      model = translator.loadModel(filename)
-      fail 'OpenStudio model is empty or could not be loaded' if model.empty?
-      model = model.get
-    else
-      fail "Model '#{filename}' did not exist"
-    end
-
-    model
-  end
-
-  # Load in the IDF model. It is required for post processing
-  def load_idf(filename)
-    fail "IDF file does not exist: #{filename}" unless File.exist? filename
-    OpenStudio::Workspace.load(filename, 'EnergyPlus'.to_IddFileType).get
-  end
 
   # Run the prepackaged measures in OpenStudio. Currently this runs the standard reports and the calibration measure
   # TODO: add a flag on which packaged reporting measures to run

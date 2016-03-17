@@ -29,39 +29,50 @@ module OpenStudio
         end
 
         # Tell the system that the process has started
+        #
         def communicate_started(directory, _options = {})
           # Watch out for namespace conflicts (::Time is okay but Time is OpenStudio::Time)
           File.open("#{directory}/started.job", 'w') { |f| f << "Started Workflow #{::Time.now}" }
         end
 
-        # Get the data point from the path
-        def get_datapoint(directory, options = {})
-          defaults = { datapoint_filename: 'datapoint.json', format: 'json' }
+        # Get the OSW file from the local filesystem
+        #
+        def get_workflow(directory, options = {})
+          defaults = { datapoint_filename: 'workflow.osw', format: 'json' }
           options = defaults.merge(options)
 
           # how do we log within this file?
           if File.exist? "#{directory}/#{options[:datapoint_filename]}"
-            ::MultiJson.load(File.read("#{directory}/#{options[:datapoint_filename]}"), symbolize_names: true)
+            ::JSON.load(File.read("#{directory}/#{options[:datapoint_filename]}"), symbolize_names: true)
           else
-            fail "Data point file does not exist for #{directory}/#{options[:datapoint_filename]}"
+            fail "Workflow file does not exist for #{directory}/#{options[:datapoint_filename]}"
           end
         end
 
-        # Get the Problem/Analysis definition from the local file
-        # TODO: rename this to get_analysis_definintion (or something like that)
-        def get_problem(directory, options = {})
-          defaults = { problem_filename: 'problem.json', format: 'json' }
+        # Get the associated OSD (datapoint) file from the local filesystem
+        #
+        def get_datapoint(directory, options = {})
+          defaults = { problem_filename: 'datapoint.osd', format: 'json' }
           options = defaults.merge(options)
 
           if File.exist? "#{directory}/#{options[:problem_filename]}"
-            ::MultiJson.load(File.read("#{directory}/#{options[:problem_filename]}"), symbolize_names: true)
+            ::JSON.load(File.read("#{directory}/#{options[:problem_filename]}"), symbolize_names: true)
           else
-            fail "Problem file does not exist for #{directory}/#{options[:problem_filename]}"
+            nil
           end
         end
 
-        def communicate_intermediate_result(_directory)
-          # noop
+        # Get the associated OSA (analysis) definition from the local filesystem
+        #
+        def get_analysis(directory, options = {})
+          defaults = { problem_filename: 'analysis.osa', format: 'json' }
+          options = defaults.merge(options)
+
+          if File.exist? "#{directory}/#{options[:problem_filename]}"
+            ::JSON.load(File.read("#{directory}/#{options[:problem_filename]}"), symbolize_names: true)
+          else
+            nil
+          end
         end
 
         def communicate_complete(directory)
@@ -86,14 +97,6 @@ module OpenStudio
             # os_data_point.saveJSON(data_point_json_path, true)
           end
           # end
-        end
-
-        # For the local adapter send back a handle to a file to append the data. For this adapter
-        # the log messages are likely to be the same as the run.log messages.
-        # ?: do we really want two local logs from the Local adapter? One is in the run dir and the other is in the root
-        def get_logger(directory, _options = {})
-          @log ||= File.open("#{directory}/local_adapter.log", 'w')
-          @log
         end
       end
     end

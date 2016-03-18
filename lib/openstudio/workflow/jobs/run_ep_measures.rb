@@ -24,6 +24,9 @@ class RunEnergyplus < OpenStudio::Workflow::Job
   # param logger: logger object in which to write log messages
   def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
     super
+
+    @model_idf = nil
+
   end
 
   def perform

@@ -1,3 +1,4 @@
+require_relative 'workflow/util/type_casting'
 include OpenStudio::Workflow::Util::TypeCasting
 
 # Extend OS Runner to persist measure information throughout the workflow

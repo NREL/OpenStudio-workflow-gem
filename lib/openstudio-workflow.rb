@@ -22,14 +22,16 @@ require 'securerandom' # uuids
 require 'json' # needed for a single pretty generate call
 require 'pathname'
 
-require 'openstudio/workflow/version'
-require 'openstudio/workflow/multi_delegator'
-require 'openstudio/workflow/run'
-require 'openstudio/workflow/jobs'
-require 'openstudio/workflow/time_logger'
+require_relative 'openstudio/workflow/version'
+require_relative 'openstudio/workflow/multi_delegator'
+require_relative 'openstudio/workflow/run'
+require_relative 'openstudio/workflow/job'
+require_relative 'openstudio/workflow/time_logger'
+require_relative 'openstudio/workflow/registry'
+require_relative 'openstudio/workflow/util'
 
 require 'openstudio'
-require 'openstudio/workflow_runner'
+require_relative 'openstudio/workflow_runner'
 
 ENV['OPENSTUDIO_WORKFLOW'] = 'true'
 

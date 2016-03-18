@@ -17,17 +17,17 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+require_relative 'util/directory'
+
 # Run Class for OpenStudio workflow.  The data are passed in via the adapter
 module OpenStudio
   module Workflow
     class Run
-      attr_accessor :logger
-      attr_accessor :workflow_arguments
+      include OpenStudio::Workflow::Util::Directory
+      attr_accessor :registry
 
       attr_reader :options
       attr_reader :adapter
-      attr_reader :directory
-      attr_reader :run_directory
       attr_reader :final_state
       attr_reader :final_message
       attr_reader :job_results
@@ -68,50 +68,46 @@ module OpenStudio
 
       # Initialize a new run class
       #
-      # @param [Object] adapter an instance of the adapter class
-      # @param [String] directory location of the datapoint directory to run. This is needed
-      #   independent of the adapter that is being used. Note that the simulation will actually run in 'run'
-      # @param [Hash] options ({}) hash of user-specified options that are sent to the adapter and override defaults.
+      # @param [Object] adapter an instance of the adapter class. This will be mostly abstracted in the near future
+      # @param [String] directory location of the OSW file to run. It is highly recommended that this be an absolute
+      #   path, however if not it will be made absolute relative to the current working directory
+      # @param [Hash] options ({}) A set of user-specified options that are used to override default behaviors. Some
+      #   sort of definitive documentation is needed for this hash
       # @option options [Hash] :transitions Non-default transitions set (see Run#default_transition)
       # @option options [Hash] :states Non-default states set (see Run#default_states)
       # @option options [Hash] :jobs ???
+      # @todo (rhorsey) establish definitive documentation on all option parameters, and btw what is the jobs hash?
       #
-      # @todo (rhorsey) what is the jobs hash?
       def initialize(adapter, directory, options = {})
         @adapter = adapter
         @final_message = ''
         @current_state = nil
         @transitions = {}
-        @directory = directory
-        @time_logger = TimeLogger.new
-        @workflow_arguments = {}
-        # TODO: run directory is a convention right now. Move to a configuration item
-        @run_directory = "#{@directory}/run"
 
+        # Initialize some values into @registry
+        @registry = Registry.new
+        @registry.register(:directory) {get_directory directory}
+        @registry.register(:run_directory) {get_run_dir(adapter.get_workflow(@registry[:directory]), @registry[:directory])}
+        time_logger = TimeLogger.new
+        @registry.register(:time_logger) {time_logger}
+        @registry.register(:workflow_arguments) {Hash.new}
         defaults = {
           transitions: OpenStudio::Workflow::Run.default_transition,
           states: OpenStudio::Workflow::Run.default_states,
-          jobs: {}
+          jobs: {},
+          targets: [STDOUT, File.join(@registry[:run_directory], 'run.log')]
         }
         @options = defaults.merge(options)
-
         @job_results = {}
 
+        # Initialize the MultiDelegator logger
+        logger(@options[:targets])
+
         # By default blow away the entire run directory every time and recreate it
-        FileUtils.rm_rf(@run_directory) if File.exist?(@run_directory)
-        FileUtils.mkdir_p(@run_directory)
+        FileUtils.rm_rf(@registry[:run_directory]) if File.exist?(@registry[:run_directory])
+        FileUtils.mkdir_p(@registry[:run_directory])
 
-        # There is a namespace conflict when OpenStudio is loaded: be careful!
-        log_file = File.open("#{@run_directory}/run.log", 'a')
-
-        l = @adapter.get_logger @directory, @options
-        if l
-          @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file, l)
-        else
-          @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file)
-        end
-
-        @logger.info "Initializing directory #{@directory} for simulation with options #{@options}"
+        logger.info "Initializing directory #{@registry[:directory]} for simulation with options #{@options}"
 
         # load the state machine
         machine
@@ -122,30 +118,30 @@ module OpenStudio
       # @todo add a catch if any job fails
       # @todo make a block method to provide feedback
       def run
-        @logger.info "Starting workflow in #{@directory}"
+        logger.info "Starting workflow in #{@registry[:directory]}"
         begin
           while @current_state != :finished && @current_state != :errored
             sleep 2
             step
           end
 
-          @logger.info 'Finished workflow - communicating results and zipping files'
+          logger.info 'Finished workflow - communicating results and zipping files'
 
           # @todo (nlong) This should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
           if @job_results[:run_reporting_measures]
-            @logger.info 'Sending the reporting measures results back to the adapter'
+            logger.info 'Sending the reporting measures results back to the adapter'
             @adapter.communicate_results @directory, @job_results[:run_reporting_measures]
           end
         ensure
           if @current_state == :errored
-            @adapter.communicate_failure @directory
+            @adapter.communicate_failure @registry[:directory]
           else
-            @adapter.communicate_complete @directory
+            @adapter.communicate_complete @registry[:directory]
           end
 
-          @logger.info 'Workflow complete'
+          logger.info 'Workflow complete'
           # Write out the TimeLogger once again in case the run_reporting_measures didn't exist
-          @time_logger.save(File.join(@directory, 'profile.json'))
+          @registry[:time_logger].save(File.join(@registry[:directory], 'profile.json'))
 
           # @todo (nlong) define the outputs and figure out how to show it correctly
           obj_function_array ||= ['NA']
@@ -163,8 +159,7 @@ module OpenStudio
       def step(*args)
         next_state
 
-        klass = OpenStudio::Workflow.new_class(@current_state, directory, logger, time_logger, adapter,
-                                               workflow_arguments, options)
+        klass = OpenStudio::Workflow.new_class(@current_state, @registry, @adapter, options)
         @job_results[@current_state.to_sym] = klass.perform
       rescue => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")

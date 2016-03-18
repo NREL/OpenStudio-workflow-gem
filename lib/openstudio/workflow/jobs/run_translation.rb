@@ -24,6 +24,9 @@ class RunTranslation < OpenStudio::Workflow::Job
 
   def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
     super
+
+    @model_idf = nil
+
   end
 
   def perform

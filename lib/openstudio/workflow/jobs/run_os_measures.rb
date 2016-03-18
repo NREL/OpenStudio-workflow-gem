@@ -28,15 +28,12 @@ class RunOpenstudio < OpenStudio::Workflow::Job
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
-    super
     defaults = { format: 'hash', analysis_root_path: '.' }
-    @options = defaults.merge(options)
-    logger.info "After merging with defaults, the options of #{self.class} are #{@options}"
+    super
     @results = {}
 
     # initialize instance variables that are needed in the perform section
     @model = nil
-    @model_idf = nil
     @initial_weather_file = nil
     @weather_file_path = nil
     @analysis = nil

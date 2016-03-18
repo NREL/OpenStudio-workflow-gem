@@ -7,7 +7,6 @@ module OpenStudio
       module Measure
 
         require 'rexml/document'
-        require_relative '../../workflow_runner'
 
         MEASURE_CLASSES = {
             openstudio: 'OpenStudio::Ruleset::RubyUserScript',
@@ -213,6 +212,8 @@ module OpenStudio
         #   the second is the (potentially) updated current_weather_filepath
         #
         def apply_measure(directory, adapter, current_weather_filepath, model, step, output_attributes, options = {})
+          require_relative '../../workflow_runner'
+
           measure_search_array = options[:measure_search_array]
           measure_search_array ||= ['measures']
           measure_dir_name = step[:measure_dir_name]

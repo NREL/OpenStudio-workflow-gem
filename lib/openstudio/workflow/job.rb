@@ -1,22 +1,20 @@
 module OpenStudio
   module Workflow
     class Job
-      def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+      def initialize(adapter, registry, options = {})
         defaults ||= {}
         @options = defaults.merge(options)
-        @directory = directory
         @adapter = adapter
-        @logger = logger
-        @time_logger = time_logger
-        @workflow_arguments = workflow_arguments
+        @registry = registry
         @results = {}
 
         logger.info "#{self.class} passed the following options #{@options}"
+        logger.info "#{self.class} passed the following registry #{@registry.to_hash}"
       end
     end
 
-    def self.new_class(current_state, directory, logger, time_logger, adapter, workflow_arguments, options = {})
-      new_job = Object.const_get(current_state).new(directory, logger, time_logger, adapter, workflow_arguments, options)
+    def self.new_class(current_state, adapter, registry, options = {})
+      new_job = Object.const_get(current_state).new(adapter, registry, options)
       return new_job
     end
   end

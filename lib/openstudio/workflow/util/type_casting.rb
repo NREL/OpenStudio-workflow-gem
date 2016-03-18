@@ -6,7 +6,6 @@ module OpenStudio
       #
       module TypeCasting
 
-
         # Take the OS Argument type and map it correctly to the argument value.
         #     OPENSTUDIO_ENUM( OSArgumentType,
         #     ((Boolean)(Bool)(0))

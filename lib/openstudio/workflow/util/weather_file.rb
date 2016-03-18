@@ -67,8 +67,8 @@ module OpenStudio
           # get the weather file out of the OSW if it exists
           if workflow[:weather_file]
             wf = workflow[:weather_file]
-            break if Pathname.new(workflow).absolute?
-            if workflow[:files_dir]
+            if Pathname.new(workflow).absolute?
+            elsif workflow[:files_dir]
               wf = File.join(workflow[:files_dir], wf)
             elsif workflow[:root_dir]
               wf = File.join(workflow[:root_dir], wf)

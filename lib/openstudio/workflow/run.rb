@@ -86,11 +86,11 @@ module OpenStudio
 
         # Initialize some values into @registry
         @registry = Registry.new
-        @registry.register(:directory) {get_directory directory}
-        @registry.register(:run_directory) {get_run_dir(adapter.get_workflow(@registry[:directory]), @registry[:directory])}
-        time_logger = TimeLogger.new
-        @registry.register(:time_logger) {time_logger}
-        @registry.register(:workflow_arguments) {Hash.new}
+        @registry.register(:directory) { get_directory directory }
+        @registry.register(:run_directory) { get_run_dir(adapter.get_workflow(@registry[:directory]), @registry[:directory]) }
+        time_logger =
+        @registry.register(:time_logger) { TimeLogger.new }
+        @registry.register(:workflow_arguments) { Hash.new }
         defaults = {
           transitions: OpenStudio::Workflow::Run.default_transition,
           states: OpenStudio::Workflow::Run.default_states,
@@ -130,7 +130,7 @@ module OpenStudio
           # @todo (nlong) This should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
           if @job_results[:run_reporting_measures]
             logger.info 'Sending the reporting measures results back to the adapter'
-            @adapter.communicate_results @directory, @job_results[:run_reporting_measures]
+            @adapter.communicate_results @registry[:directory], @job_results[:run_reporting_measures]
           end
         ensure
           if @current_state == :errored
@@ -156,10 +156,10 @@ module OpenStudio
 
       # Step through the states, if there is an error (e.g. exception) then go to error
       #
-      def step(*args)
+      def step
         next_state
 
-        klass = OpenStudio::Workflow.new_class(@current_state, @registry, @adapter, options)
+        klass = OpenStudio::Workflow.new_class(@current_state, @adapter, @registry, options)
         @job_results[@current_state.to_sym] = klass.perform
       rescue => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
@@ -171,7 +171,7 @@ module OpenStudio
         # Make sure to set the instance variable @error to true in order to stop the :step
         # event from being fired.
         @final_message = "Found error in state '#{@current_state}' with message #{args}}"
-        @logger.error @final_message
+        logger.error @final_message
 
         # transition to an error state
         @current_state = :errored
@@ -181,7 +181,7 @@ module OpenStudio
       # @todo (rhorsey) Why do we need this?
       #
       def run_finished
-        @logger.info "Running #{__method__}"
+        logger.info "Running #{__method__}"
 
         @current_state
       end
@@ -208,22 +208,6 @@ module OpenStudio
         @current_state = ns
 
         # do not return anything, the step method uses the @current_state variable to call run_#{next_state}
-      end
-
-      # Get any options that may have been sent into the class defining the workflow step
-      #
-      def get_job_options
-        result = {}
-        # if @options[:jobs].has_key?(@current_state)
-        # logger.info "Retrieving job options from the @options array for #{state.current_state}"
-        #  result = @options[:jobs][@current_state]
-        # end
-
-        # result
-
-        # @todo fix this so that it gets the base config options plus its job options. Need to
-        #   also merge in all the former job results.
-        @options.merge(@job_results)
       end
     end
   end

@@ -3,39 +3,61 @@ module OpenStudio
     module Util
 
       # Manages routine tasks involving OpenStudio::Model or OpenStudio::Workflow objects, such as loading, saving, and
-      #   translating them. Currently loading IDFs is not supported, as the version translator needs to be worked into
-      #   the gem for loading IDFs to be safe
+      # translating them. Currently loading IDFs is not supported, as the version translator needs to be worked into
+      # the gem for loading IDFs to be safe
       #
       module Model
 
         # Method to create / load a seed OSM file
         #
-        # @param [String] directory Directory to find the osm_path from, or to use as the base directory to create
-        #   directory/files/empty.osm in
-        # @param [String] osm_path (nil) Path to find an OSM to load if not nil. If relative, the directory is used as
-        #   the base, however if the path is absolute the directory will be disregarded
-        # @return [Object] An OpenStudio::Model object
+        # @param [String] directory The base directory to append all relative directories to
+        # @param [String] model The OSM file being searched for. If not the name of the file this parameter should be
+        #   the absolute path specifying it's location
+        # @param [Array] model_search_array The set of precedence ordered relative directories to search for the wf in.
+        #   A typical entry might look like `['files', '../../files']`
+        # @return [Object] The return from this method is a loaded OSM or a failure. The order of precedence for paths
+        #   is as follows: 1 - an absolute path defined in model, 2 - the model_search_array, should it be defined,
+        #   joined with the OSM file and appended to the directory, with each entry in the array searched until the osm
+        #   model is found, 3 - an empty model if the model value is set to nil
         #
-        def load_seed_osm(directory, osm_path = nil)
+        def load_seed_osm(directory, model, model_search_array)
           logger.info 'Loading seed model'
-
-          # Get and validate the model path or create a model called empty.osm
-          if osm_path
-            logger.info "Seed model is #{osm_path}"
-            # The osm_path is relative to the directory if realtive
-            Pathname.new(osm_path).absolute? ? model_path = osm_path : model_path = File.join(directory, osm_path)
-            fail "The seed model file could not be found at #{model_path}" unless File.exist? model_path
+          if model
+            osm_path = nil
+            if Pathname.new(model).absolute?
+              osm_path = model
+            else
+              catch :found_dir do
+                model_search_array.each do |model_dir|
+                  fail "The path #{model_dir} does not exist" unless File.exists? File.join(directory, model_dir)
+                  if Dir.entries(File.join(directory, model_dir)).include? model
+                    osm_path = File.absolute_path(File.join(directory, model_dir, model))
+                    throw :found_dir
+                  end
+                end
+              end
+            end
+            unless osm_path
+              logger.warn 'The seed OSM file was not found on the filesystem'
+              return nil
+            end
+            logger.info "Seed OSM file with precedence in the file system is #{osm_path}"
+            unless File.exist? osm_path
+              logger.warn 'The seed OSM file could not be found on the filesystem'
+              osm_path = false
+            end
           else
-            model_path = File.join(directory, 'files/empty.osm')
-            File.open(model_path).close
+            osm_path = File.join(directory, 'files/empty.osm')
+            File.open(osm_path).close
           end
 
           # Load the model and return it
-          logger.info "Reading in baseline model #{model_path}"
+          logger.info "Reading in seed model #{osm_path}"
           translator = OpenStudio::OSVersion::VersionTranslator.new
-          model = translator.loadModel(model_path)
-          fail 'OpenStudio model is empty or could not be loaded' if model.empty?
-          model.get
+          loaded_model = translator.loadModel(osm_path)
+          fail 'OpenStudio model can not be loaded. Please investigate' unless loaded_model.is_initialized?
+          logger.warn 'OpenStudio model is empty or could not be loaded' if loaded_model.empty?
+          loaded_model.get
         end
 
         # Method to create / load a seed IDF file. Not yet implemented
@@ -68,12 +90,12 @@ module OpenStudio
         # Saves an OpenStudio model object to file
         #
         # @param [Object] model The OpenStudio::Model instance to save to file
-        # @param [String] directory Folder to save the model in
+        # @param [String] save_directory Folder to save the model in
         # @param [String] name ('in.osm') Option to define a non-standard name
         # @return [Void]
         #
-        def save_osm(model, directory, name = 'in.osm')
-          osm_filename = File.join(directory, name)
+        def save_osm(model, save_directory, name = 'in.osm')
+          osm_filename = File.join(save_directory, name)
           File.open(osm_filename, 'w') { |f| f << model.to_s }
           logger.info "Saved the OSM model as #{osm_filename}"
         end
@@ -81,12 +103,12 @@ module OpenStudio
         # Saves an OpenStudio IDF model object to file
         #
         # @param [Object] model The OpenStudio::Workspace instance to save to file
-        # @param [String] directory Folder to save the model in
+        # @param [String] save_directory Folder to save the model in
         # @param [String] name ('in.osm') Option to define a non-standard name
         # @return [Void]
         #
-        def save_idf(model_idf, directory, name = 'in.idf')
-          idf_filename = File.join(directory, name)
+        def save_idf(model_idf, save_directory, name = 'in.idf')
+          idf_filename = File.join(save_directory, name)
           File.open(idf_filename, 'w') { |f| f << model_idf.to_s }
           logger.info "Saved the IDF model as #{idf_filename}"
         end

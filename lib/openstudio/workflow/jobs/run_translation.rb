@@ -20,24 +20,19 @@
 # Run the initialization job to validate the directory and initialize the adapters.
 class RunTranslation < OpenStudio::Workflow::Job
 
-  require_relative '../util/measure'
+  require_relative '../util/model'
 
   def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
     super
-
-    @model_idf = nil
-
+    @results = {}
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    logger.info "Calling #{__method__} in the #{self.class} class"
 
-    @time_logger.start('Translating to EnergyPlus')
-    translate_to_energyplus
-    @time_logger.stop('Translating to EnergyPlus')
-
-
-    # At the moment this does nothing.
+    @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]
+    @registry.register(:model_idf) { OpenStudio::Workflow::Util::Model.translate_to_energyplus @registry[:model] }
+    @registry[:time_logger].stop('Translating to EnergyPlus') if @registry[:time_logger]
 
     # return the results back to the caller -- always
     @results

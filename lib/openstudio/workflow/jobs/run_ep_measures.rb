@@ -22,7 +22,7 @@ class RunEnergyplus < OpenStudio::Workflow::Job
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
-  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+  def initialize(adapter, registry, options = {})
     super
 
     @model_idf = nil
@@ -30,6 +30,23 @@ class RunEnergyplus < OpenStudio::Workflow::Job
   end
 
   def perform
+    logger.info "Calling #{__method__} in the #{self.class} class"
+    logger.info "Current directory is #{@directory}"
 
+    logger.info 'Beginning to execute EnergyPlus measures.'
+    OpenStudio::Workflow::Util::Measure.apply_measures(:energyplus, @registry, options)
+    logger.info('Finished applying EnergyPlus measures.')
+
+    logger.info 'Saving measure output attributes JSON'
+    File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
+      f << JSON.pretty_generate(@registry[:output_attributes])
+    end
+
+    @registry[:time_logger].start('Saving OSM and IDF') if @registry[:time_logger]
+    OpenStudio::Workflow::Util::Model.save_osm(@registry[:model], @registry[:root_dir])
+    OpenStudio::Workflow::Util::Model.save_idf(@registry[:model], @registry[:root_dir])
+    @registry[:time_logger].stop('Saving OSM and IDF') if @registry[:time_logger]
+
+    @results
   end
 end

@@ -20,24 +20,60 @@
 # Run the initialization job to run validations and initializations
 class RunInit < OpenStudio::Workflow::Job
 
-  require_relative '../util/measure'
+  require_relative '../util'
+  include OpenStudio::Workflow::Util
 
-  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+  def initialize(adapter, registry, options = {})
+    defaults = {
+        verify_osw: true,
+        measure_paths: ['measures', '../../measures'],
+        file_paths: ['files', 'weather', '../../files', '../../weather'],
+
+    }
     super
   end
 
   # This method starts the adapter and verifies the OSW if the options contain verify_osw
-  # @todo See about moving the workflow and root_dir into the initialize
   def perform
     logger.info "Calling #{__method__} in the #{self.class} class"
 
-    @adapter.communicate_started @directory, @options
+    # Start the adapter
+    # @todo (rhorsey) Figure out how to deprecate this
+    logger.info 'Starting communication with the adapter'
+    @adapter.communicate_started @registry[:directory], @options
 
+    # Load various files and set basic directories for the registry
+    @registry.register(:workflow) { @adapter.get_workflow(@registry[:directory], @options) }
+    logger.info 'Retrieved the workflow from the adapter'
+    fail 'Specified workflow was nil' unless @registry[:workflow]
+    @registry.register(:root_dir) { Directory::get_root_dir @registry[:workflow] }
+    logger.info "The root_dir for the analysis is #{@registry[:root_dir]}"
+    @registry.register(:datapoint) { @adapter.get_datapoint(@registry[:directory], @options) }
+    logger.info 'Found associated OSD file' if @registry[:datapoint]
+    @registry.register(:analysis) { @adapter.get_analysis(@registry[:directory], @options) }
+    logger.info 'Found associated OSA file' if @registry[:analysis]
+
+    # Validate the OSW measures if the flag is set to true, (the default state)
     if @options[:verify_osw]
-      @workflow = @adapter.get_workflow @directory, @options
-      @workflow['root_dir'] ? @root_dir = @workflow['root_dir'] : @root_dir = '.'
-      validate_measures(@workflow, @root_dir, @logger)
+      logger.info 'Attempting to validate the measure workflow'
+      Measure::validate_measures(@registry[:workflow], @registry[:root_dir])
     end
+
+    # Load or create the seed OSM object
+    logger.info 'Finding and loading the seed OSM file'
+    @registry[:workflow][:seed_osm] ? osm_name = @registry[:workflow][:seec_osm] : osm_name = nil
+    if @registry[:workflow][:file_paths]
+      file_search_paths = @registry[:workflow][:files_paths].concat @options[:file_paths]
+    else
+      file_search_paths = @options[:files_paths]
+    end
+    @registry.register(:model) { Model.load_seed_osm(@registry[:root_dir], osm_name, file_search_paths) }
+
+    # Load the weather file, should it exist and be findable
+    logger.info 'Getting the initial weather file'
+    @registry[:workflow][:weather_file] ? wf = @registry[:workflow][:weather_file] : wf = nil
+    @registry.register(:wf) { WeatherFile.get_weather_file(@registry[:root_dir], wf, file_search_paths, model) }
+    logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
 
     # return the results back to the caller -- always
     @results

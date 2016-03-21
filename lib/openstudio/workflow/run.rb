@@ -87,7 +87,7 @@ module OpenStudio
         # Initialize some values into @registry
         @registry = Registry.new
         @registry.register(:directory) { get_directory directory }
-        @registry.register(:run_directory) { get_run_dir(adapter.get_workflow(@registry[:directory]), @registry[:directory]) }
+        @registry.register(:run_dir) { get_run_dir(adapter.get_workflow(@registry[:directory]), @registry[:directory]) }
         time_logger =
         @registry.register(:time_logger) { TimeLogger.new }
         @registry.register(:workflow_arguments) { Hash.new }
@@ -95,7 +95,7 @@ module OpenStudio
           transitions: OpenStudio::Workflow::Run.default_transition,
           states: OpenStudio::Workflow::Run.default_states,
           jobs: {},
-          targets: [STDOUT, File.join(@registry[:run_directory], 'run.log')]
+          targets: [STDOUT, File.join(@registry[:run_dir], 'run.log')]
         }
         @options = defaults.merge(options)
         @job_results = {}
@@ -104,8 +104,8 @@ module OpenStudio
         logger(@options[:targets])
 
         # By default blow away the entire run directory every time and recreate it
-        FileUtils.rm_rf(@registry[:run_directory]) if File.exist?(@registry[:run_directory])
-        FileUtils.mkdir_p(@registry[:run_directory])
+        FileUtils.rm_rf(@registry[:run_dir]) if File.exist?(@registry[:run_dir])
+        FileUtils.mkdir_p(@registry[:run_dir])
 
         logger.info "Initializing directory #{@registry[:directory]} for simulation with options #{@options}"
 

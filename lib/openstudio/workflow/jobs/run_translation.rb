@@ -30,9 +30,11 @@ class RunTranslation < OpenStudio::Workflow::Job
   def perform
     logger.info "Calling #{__method__} in the #{self.class} class"
 
+    logger.info 'Begining the translation to IDF'
     @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]
     @registry.register(:model_idf) { OpenStudio::Workflow::Util::Model.translate_to_energyplus @registry[:model] }
     @registry[:time_logger].stop('Translating to EnergyPlus') if @registry[:time_logger]
+    logger.info 'Sucesfully translated to IDF'
 
     # return the results back to the caller -- always
     @results

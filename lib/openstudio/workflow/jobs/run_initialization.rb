@@ -18,7 +18,7 @@
 ######################################################################
 
 # Run the initialization job to run validations and initializations
-class RunInit < OpenStudio::Workflow::Job
+class RunInitialization < OpenStudio::Workflow::Job
 
   require_relative '../util'
   include OpenStudio::Workflow::Util

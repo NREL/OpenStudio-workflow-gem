@@ -17,7 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-class RunEnergyplus < OpenStudio::Workflow::Job
+class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
 
   # Initialize
   # param directory: base directory where the simulation files are prepared

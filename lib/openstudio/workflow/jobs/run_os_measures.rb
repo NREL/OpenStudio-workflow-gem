@@ -17,7 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-class RunOpenstudio < OpenStudio::Workflow::Job
+class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
   # Mixin the required util modules
   require_relative '../util/measure'

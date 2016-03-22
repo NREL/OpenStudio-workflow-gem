@@ -17,7 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-class RunEnergyplus < OpenStudio::Workflow::Job
+class RunEnergyPlus < OpenStudio::Workflow::Job
 
   require_relative '../util/energyplus'
   include OpenStudio::Workflow::Util::EnergyPlus

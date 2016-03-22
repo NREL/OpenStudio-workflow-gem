@@ -3,6 +3,7 @@ module OpenStudio
     module Util
 
       require_relative 'measure'
+      require 'csv'
       
       # This module serves as a wrapper around various post-processing tasks used to manage outputs
       # @todo (rhorsey) ummmm. So some of this is pretty ugly. Since @dmacumber had ideas about this maybe he can figure

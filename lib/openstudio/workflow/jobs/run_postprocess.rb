@@ -19,24 +19,25 @@
 
 # Run precanned post processing to extract object functions
 
-require 'csv'
-require 'ostruct'
+require_relative '../util/post_process'
 
+# Clean up the run directory. Currently this class does nothing else, although eventually cleanup should become driven
+# and responsive to options
+#
 class RunPostprocess < OpenStudio::Workflow::Job
 
-  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+  def initialize(adapter, registry, options = {})
     super
   end
 
   def perform
     logger.info "Calling #{__method__} in the #{self.class} class"
-    logger.info 'RunPostProcess Retrieving datapoint and problem'
 
     begin
-      cleanup
+      logger.info 'Begining cleanup of the run directory'
+      OpenStudio::Workflow::Util::PostProcess.cleanup(@registry[:root_dir])
     rescue => e
-      log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-      logger.error log_message
+      fail "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
     end
 
     @results

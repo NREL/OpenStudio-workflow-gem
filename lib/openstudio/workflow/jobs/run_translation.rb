@@ -22,9 +22,8 @@ class RunTranslation < OpenStudio::Workflow::Job
 
   require_relative '../util/model'
 
-  def initialize(directory, time_logger, adapter, workflow_arguments, options = {})
+  def initialize(adapter, registry, options = {})
     super
-    @results = {}
   end
 
   def perform
@@ -37,6 +36,6 @@ class RunTranslation < OpenStudio::Workflow::Job
     logger.info 'Sucesfully translated to IDF'
 
     # return the results back to the caller -- always
-    @results
+    results = {}
   end
 end

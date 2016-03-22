@@ -19,7 +19,7 @@
 
 require_relative 'util/directory'
 
-# Run Class for OpenStudio workflow.  The data are passed in via the adapter
+# Run Class for OpenStudio workflow.  All comments here need some love, as well as the code itself
 module OpenStudio
   module Workflow
     class Run

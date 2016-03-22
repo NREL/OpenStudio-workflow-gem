@@ -55,13 +55,6 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
       if @model.getUtilityBills.length > 0
         calibration_report_dir = OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s
         measure_dir_name = File.basename(calibration_report_dir)
-        workflow_item = {
-            display_name: 'Calibration Reports',
-            measure_definition_directory: File.expand_path(File.join(OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s, 'measure.rb')),
-            measure_definition_class_name: 'CalibrationReports',
-            measure_type: 'CalibrationReports',
-            name: 'calibration_reports'
-        }
         step = {measure_dir_name: measure_dir_name}
         step_options = {measure_search_array: File.absolute_path(File.join(calibration_report_dir, '..'))}
         logger.info 'Running packaged Calibration Reports measures'

@@ -48,8 +48,10 @@ module OpenStudio
         # @return [Array, file, file] Returns an array of strings of EnergyPlus files copied to the run_directory, the
         # ExpandObjects EXE file, and EnergyPlus EXE file
         #
-        def prepare_energyplus_dir(run_directory, energyplus_path)
+        def prepare_energyplus_dir(run_directory, energyplus_path = nil)
           logger.info "Copying EnergyPlus files to run directory: #{run_directory}"
+          energyplus_path ||= find_energyplus
+          logger.info "EnergyPlus path is #{energyplus_path}"
           energyplus_files = []
           energyplus_exe, expand_objects_exe = nil
           Dir["#{energyplus_path}/*"].each do |file|
@@ -82,6 +84,7 @@ module OpenStudio
           begin
             current_dir = Dir.pwd
             energyplus_path ||= find_energyplus
+            logger.info "EnergyPlus path is #{energyplus_path}"
             energyplus_files, energyplus_exe, expand_objects_exe = prepare_energyplus_dir(run_directory, energyplus_path)
             Dir.chdir(run_directory)
             logger.info "Starting simulation in run directory: #{Dir.pwd}"

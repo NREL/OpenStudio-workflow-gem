@@ -18,6 +18,7 @@
 ######################################################################
 
 # Run the initialization job to run validations and initializations
+# @todo include util submodules specifically
 class RunInitialization < OpenStudio::Workflow::Job
 
   require_relative '../util'
@@ -56,12 +57,12 @@ class RunInitialization < OpenStudio::Workflow::Job
     # Validate the OSW measures if the flag is set to true, (the default state)
     if @options[:verify_osw]
       logger.info 'Attempting to validate the measure workflow'
-      Measure::validate_measures(@registry[:workflow], @registry[:root_dir])
+      Measure.validate_measures(@registry[:workflow], @registry[:root_dir])
     end
 
     # Load or create the seed OSM object
     logger.info 'Finding and loading the seed OSM file'
-    @registry[:workflow][:seed_osm] ? osm_name = @registry[:workflow][:seec_osm] : osm_name = nil
+    osm_name = @registry[:workflow][:seed_osm] ? @registry[:workflow][:seed_osm] : nil
     if @registry[:workflow][:file_paths]
       file_search_paths = @registry[:workflow][:files_paths].concat @options[:file_paths]
     else
@@ -76,6 +77,6 @@ class RunInitialization < OpenStudio::Workflow::Job
     logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
 
     # return the results back to the caller -- always
-    @results
+    results = {}
   end
 end

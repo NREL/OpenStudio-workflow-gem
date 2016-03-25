@@ -20,9 +20,8 @@
 class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
   # Mixin the required util modules
-  require_relative '../util/measure'
-  require_relative '../util/model'
-  require_relative '../util/weather_file'
+  require_relative '../util'
+  include OpenStudio::Workflow::Util
 
   # Initialize
   # param directory: base directory where the simulation files are prepared
@@ -38,16 +37,17 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
     logger.info "Current directory is #{@directory}"
 
     logger.info 'Beginning to execute OpenStudio measures.'
-    OpenStudio::Workflow::Util::Measure.apply_measures(:openstudio, @registry, options)
+    Measure.apply_measures(:openstudio, @registry, @options)
     logger.info('Finished applying OpenStudio measures.')
 
     logger.info 'Saving measure output attributes JSON'
+    # @todo config this to be optional
     File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
       f << JSON.pretty_generate(@registry[:output_attributes])
     end
 
     @registry[:time_logger].start('Saving OSM') if @registry[:time_logger]
-    OpenStudio::Workflow::Util::Model.save_osm(@registry[:model], @registry[:root_dir])
+    Model.save_osm(@registry[:model], @registry[:root_dir])
     @registry[:time_logger].stop('Saving OSM') if @registry[:time_logger]
 
     @results

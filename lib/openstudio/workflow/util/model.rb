@@ -27,13 +27,11 @@ module OpenStudio
             if Pathname.new(model).absolute?
               osm_path = model
             else
-              catch :found_dir do
-                model_search_array.each do |model_dir|
-                  fail "The path #{model_dir} does not exist" unless File.exists? File.join(directory, model_dir)
-                  if Dir.entries(File.join(directory, model_dir)).include? model
-                    osm_path = File.absolute_path(File.join(directory, model_dir, model))
-                    throw :found_dir
-                  end
+              model_search_array.each do |model_dir|
+                fail "The path #{model_dir} does not exist" unless File.exists? File.join(directory, model_dir)
+                if Dir.entries(File.join(directory, model_dir)).include? model
+                  osm_path = File.absolute_path(File.join(directory, model_dir, model))
+                  break
                 end
               end
             end
@@ -47,6 +45,7 @@ module OpenStudio
               osm_path = false
             end
           else
+            # @todo this is hardcoded, move to constant
             osm_path = File.join(directory, 'files/empty.osm')
             File.open(osm_path).close
           end

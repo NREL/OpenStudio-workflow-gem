@@ -64,16 +64,14 @@ module OpenStudio
         #
         def find_measure_dir(directory, measure_dir_name, measure_search_array)
           measure_path = nil
-          catch :found_dir do
-            measure_search_array.each do |measure_dir|
-              fail "The path #{measure_dir} does not exist" unless File.exists? File.join(directory, measure_dir)
-              if Dir.entries(File.join(directory, measure_dir)).include? measure_dir_name
-                measure_path = File.absolute_path(File.join(directory, measure_dir, measure_dir_name))
-                throw :found_dir
-              end
+          measure_search_array.each do |measure_dir|
+            fail "The path #{measure_dir} does not exist" unless File.exists? File.join(directory, measure_dir)
+            if Dir.entries(File.join(directory, measure_dir)).include? measure_dir_name
+              measure_path = File.absolute_path(File.join(directory, measure_dir, measure_dir_name))
+              break
             end
-            measure_path
           end
+          measure_path
         end
 
         # Shortcut for getting the class name of a measure
@@ -315,6 +313,7 @@ module OpenStudio
                 registry.register(:wf) { runner.weatherfile_path }
               end
 
+              # @todo add note about why reasignment and not eval
               registry.register(:model) { @model }
               registry.register(:model_idf) { @model_idf }
               registry.register(:sql) { @sql }

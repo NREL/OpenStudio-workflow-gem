@@ -97,6 +97,7 @@ module OpenStudio
         # Turn the eplustbl into a json and save it as 'standard_report_legacy'
         #
         # @param [String] run_dir The directory that the simulation was run in
+        # @todo add deprication warning
         #
         def translate_csv_to_json(run_dir)
           if File.exist?("#{run_dir}/eplustbl.csv")
@@ -127,8 +128,7 @@ module OpenStudio
         #
         def rename_hash_keys(hash)
           # @todo should we log the name changes?
-          # @todo is there a reason there are two pipes in the regex?
-          regex = /[|!@#\$%^&\*\(\)\{\}\\\[\]|;:'",<.>\/?\+=]+/
+          regex = /[|!@#\$%^&\*\(\)\{\}\\\[\];:'",<.>\/?\+=]+/
 
           rename_keys = lambda do |h|
             if Hash === h

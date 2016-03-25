@@ -21,6 +21,7 @@
 class RunTranslation < OpenStudio::Workflow::Job
 
   require_relative '../util/model'
+  include OpenStudio::Workflow::Util::Model
 
   def initialize(adapter, registry, options = {})
     super
@@ -31,7 +32,8 @@ class RunTranslation < OpenStudio::Workflow::Job
 
     logger.info 'Begining the translation to IDF'
     @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]
-    @registry.register(:model_idf) { OpenStudio::Workflow::Util::Model.translate_to_energyplus @registry[:model] }
+    model_idf = translate_to_energyplus @registry[:model]
+    @registry.register(:model_idf) { model_idf }
     @registry[:time_logger].stop('Translating to EnergyPlus') if @registry[:time_logger]
     logger.info 'Sucesfully translated to IDF'
 

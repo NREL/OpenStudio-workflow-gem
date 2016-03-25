@@ -29,6 +29,8 @@ module OpenStudio
           weather_file
         end
 
+        private
+
         # Returns the weather file from the model. If the weather file is defined in the model, then
         # it checks the file paths to check if the model exists. This allows for a user to upload a
         # weather file in a measure and then have the measure's path be used for the weather file.
@@ -80,13 +82,11 @@ module OpenStudio
           if Pathname.new(wf).absolute?
             weather_file = wf
           else
-            catch :found_dir do
-              wf_search_array.each do |wf_dir|
-                fail "The path #{wf_dir} does not exist" unless File.exists? File.join(directory, wf_dir)
-                if Dir.entries(File.join(directory, wf_dir)).include? wf
-                  weather_file = File.absolute_path(File.join(directory, wf_dir, wf))
-                  throw :found_dir
-                end
+            wf_search_array.each do |wf_dir|
+              fail "The path #{wf_dir} does not exist" unless File.exists? File.join(directory, wf_dir)
+              if Dir.entries(File.join(directory, wf_dir)).include? wf
+                weather_file = File.absolute_path(File.join(directory, wf_dir, wf))
+                break
               end
             end
           end

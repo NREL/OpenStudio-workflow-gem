@@ -41,6 +41,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
       # Run Standard Reports
       standard_report_dir = OpenStudio::BCLMeasure.standardReportMeasure.directory.to_s
       measure_dir_name = File.basename(standard_report_dir)
+      # @todo add empty arguments and allow for options overload, also disenable
       step = {measure_dir_name: measure_dir_name}
       step_options = {measure_search_array: File.absolute_path(File.join(standard_report_dir, '..'))}
       logger.info 'Running packaged Standard Reports measures'
@@ -73,15 +74,17 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
       logger.info('Finished applying OpenStudio measures.')
 
       # Writing reporting measure attributes json
+      # @todo check that measure_attributes exists where it should across all three measure applicators
       logger.info 'Saving reporting measures output attributes JSON'
-      File.open("#{@registry[:run_dir]}/reporting_measure_attributes.json", 'w') do |f|
+      File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
         f << JSON.pretty_generate(@registry[:output_attributes])
       end
 
       # Run somthing else
-      results, objective_functions = PostProcess::run_extract_inputs_and_outputs @registry[:run_dir]
+      results, objective_functions = PostProcess.run_extract_inputs_and_outputs @registry[:run_dir]
 
       # Write out the obj function file
+      # @todo add File.close
       logger.info "Objective Function JSON is #{objective_functions}"
       obj_fun_file = "#{@registry[:directory]}/objectives.json"
       FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)

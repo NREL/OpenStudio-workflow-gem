@@ -76,7 +76,7 @@ module OpenStudio
       # @option options [Hash] :transitions Non-default transitions set (see Run#default_transition)
       # @option options [Hash] :states Non-default states set (see Run#default_states)
       # @option options [Hash] :jobs ???
-      # @todo (rhorsey) establish definitive documentation on all option parameters, and btw what is the jobs hash?
+      # @todo (rhorsey) establish definitive documentation on all option parameters
       #
       def initialize(adapter, directory, options = {})
         @adapter = adapter
@@ -88,7 +88,6 @@ module OpenStudio
         @registry = Registry.new
         @registry.register(:directory) { get_directory directory }
         @registry.register(:run_dir) { get_run_dir(adapter.get_workflow(@registry[:directory]), @registry[:directory]) }
-        time_logger =
         @registry.register(:time_logger) { TimeLogger.new }
         @registry.register(:workflow_arguments) { Hash.new }
         defaults = {
@@ -180,7 +179,7 @@ module OpenStudio
       # final state
       # @todo (rhorsey) Why do we need this?
       #
-      def run_finished
+      def run_finished(adapter, registry, options)
         logger.info "Running #{__method__}"
 
         @current_state

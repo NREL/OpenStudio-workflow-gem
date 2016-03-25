@@ -22,6 +22,7 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
+  # @todo fix where osm and idf are saved
   def initialize(adapter, registry, options = {})
     super
 

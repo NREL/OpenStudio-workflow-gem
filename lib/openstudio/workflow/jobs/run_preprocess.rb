@@ -44,6 +44,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
     end
 
     # Save the model objects in the registry to the run directory
+    # @todo what about no osm
     if File.exist?("#{@registry[:root_dir]}/in.idf")
       @logger.warn 'IDF (in.idf) already exists in the run directory. Will simulate using this file'
     else

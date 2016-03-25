@@ -40,7 +40,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
       fail "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
     end
 
-    @results
+    results = {}
   end
 
 

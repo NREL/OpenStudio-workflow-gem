@@ -33,7 +33,7 @@ module OpenStudio
               when 'Double'
                 out = arg.valueAsDouble if arg.hasValue
               when 'Quantity'
-                warn 'This OpenStudio Argument Type is deprecated'
+                Workflow.logger.warn 'This OpenStudio Argument Type is deprecated'
               when 'Integer'
                 out = arg.valueAsInteger if arg.hasValue
               when 'String'

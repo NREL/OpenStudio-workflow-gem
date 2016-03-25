@@ -39,7 +39,7 @@ module OpenStudio
             end
           end
           run_dir = File.join(get_directory(directory), 'run') unless run_dir
-          run_dir
+          File.absolute_path(run_dir)
         end
 
         # Return an compliant root directory, or nil should the :root_dir field not exist

@@ -31,14 +31,14 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
   end
 
   def perform
-    logger.info "Calling #{__method__} in the #{self.class} class"
-    logger.info "Current directory is #{@directory}"
+    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
+    Workflow.logger.info "Current directory is #{@directory}"
 
-    logger.info 'Beginning to execute EnergyPlus measures.'
+    Workflow.logger.info 'Beginning to execute EnergyPlus measures.'
     OpenStudio::Workflow::Util::Measure.apply_measures(:energyplus, @registry, options)
-    logger.info('Finished applying EnergyPlus measures.')
+    Workflow.logger.info('Finished applying EnergyPlus measures.')
 
-    logger.info 'Saving measure output attributes JSON'
+    Workflow.logger.info 'Saving measure output attributes JSON'
     File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
       f << JSON.pretty_generate(@registry[:output_attributes])
     end

@@ -33,14 +33,14 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
   end
 
   def perform
-    logger.info "Calling #{__method__} in the #{self.class} class"
-    logger.info "Current directory is #{@directory}"
+    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
+    Workflow.logger.info "Current directory is #{@directory}"
 
-    logger.info 'Beginning to execute OpenStudio measures.'
+    Workflow.logger.info 'Beginning to execute OpenStudio measures.'
     Measure.apply_measures(:openstudio, @registry, @options)
-    logger.info('Finished applying OpenStudio measures.')
+    Workflow.logger.info('Finished applying OpenStudio measures.')
 
-    logger.info 'Saving measure output attributes JSON'
+    Workflow.logger.info 'Saving measure output attributes JSON'
     # @todo config this to be optional
     File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
       f << JSON.pretty_generate(@registry[:output_attributes])

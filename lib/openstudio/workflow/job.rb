@@ -8,8 +8,8 @@ module OpenStudio
         @registry = registry
         @results = {}
 
-        logger.info "#{self.class} passed the following options #{@options}"
-        logger.info "#{self.class} passed the following registry #{@registry.to_hash}" if @options[:debug]
+        Workflow.logger.info "#{self.class} passed the following options #{@options}"
+        Workflow.logger.info "#{self.class} passed the following registry #{@registry.to_hash}" if @options[:debug]
       end
     end
 

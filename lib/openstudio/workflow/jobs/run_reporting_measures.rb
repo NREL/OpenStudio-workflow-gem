@@ -31,8 +31,8 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
-    @logger.info 'RunPostProcess Retrieving datapoint and problem'
+    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
+    Workflow.logger.info 'RunPostProcess Retrieving datapoint and problem'
 
     begin
       # Do something because
@@ -44,38 +44,38 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
       # @todo add empty arguments and allow for options overload, also disenable
       step = {measure_dir_name: measure_dir_name}
       step_options = {measure_search_array: File.absolute_path(File.join(standard_report_dir, '..'))}
-      logger.info 'Running packaged Standard Reports measures'
+      Workflow.logger.info 'Running packaged Standard Reports measures'
       begin
         apply_measure(@registry, step, step_options)
       rescue => e
-        logger.warn "Error applying Standard Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
+        Workflow.logger.warn "Error applying Standard Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
       end
 
       # Run Calibration Reports
-      logger.info "Found #{@model.getUtilityBills.length} utility bills"
+      Workflow.logger.info "Found #{@model.getUtilityBills.length} utility bills"
       if @model.getUtilityBills.length > 0
         calibration_report_dir = OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s
         measure_dir_name = File.basename(calibration_report_dir)
         step = {measure_dir_name: measure_dir_name}
         step_options = {measure_search_array: File.absolute_path(File.join(calibration_report_dir, '..'))}
-        logger.info 'Running packaged Calibration Reports measures'
+        Workflow.logger.info 'Running packaged Calibration Reports measures'
         begin
           apply_measure(@registry, step, step_options)
         rescue => e
-          logger.warn "Error applying Calibration Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
+          Workflow.logger.warn "Error applying Calibration Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
         end
       end
 
-      logger.info 'Finished Running Packaged Measures'
+      Workflow.logger.info 'Finished Running Packaged Measures'
 
       # Apply reporting measures
-      logger.info 'Beginning to execute OpenStudio measures.'
+      Workflow.logger.info 'Beginning to execute OpenStudio measures.'
       OpenStudio::Workflow::Util::Measure.apply_measures(:reporting, @registry, options)
-      logger.info('Finished applying OpenStudio measures.')
+      Workflow.logger.info('Finished applying OpenStudio measures.')
 
       # Writing reporting measure attributes json
       # @todo check that measure_attributes exists where it should across all three measure applicators
-      logger.info 'Saving reporting measures output attributes JSON'
+      Workflow.logger.info 'Saving reporting measures output attributes JSON'
       File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
         f << JSON.pretty_generate(@registry[:output_attributes])
       end
@@ -85,7 +85,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
 
       # Write out the obj function file
       # @todo add File.close
-      logger.info "Objective Function JSON is #{objective_functions}"
+      Workflow.logger.info "Objective Function JSON is #{objective_functions}"
       obj_fun_file = "#{@registry[:directory]}/objectives.json"
       FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
       File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(objective_functions) }

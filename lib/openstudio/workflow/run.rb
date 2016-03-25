@@ -82,13 +82,14 @@ module OpenStudio
         @job_results = {}
 
         # Initialize the MultiDelegator logger
-        logger(@options[:targets])
+        Workflow.logger(@options[:targets])
 
         # By default blow away the entire run directory every time and recreate it
+        puts @registry.to_hash
         FileUtils.rm_rf(@registry[:run_dir]) if File.exist?(@registry[:run_dir])
         FileUtils.mkdir_p(@registry[:run_dir])
 
-        logger.info "Initializing directory #{@registry[:directory]} for simulation with options #{@options}"
+        Workflow.logger.info "Initializing directory #{@registry[:directory]} for simulation with options #{@options}"
 
         # Define the state and transitions
         @current_state = :queued
@@ -100,18 +101,18 @@ module OpenStudio
       # @todo add a catch if any job fails
       # @todo make a block method to provide feedback
       def run
-        logger.info "Starting workflow in #{@registry[:directory]}"
+        Workflow.logger.info "Starting workflow in #{@registry[:directory]}"
         begin
           while @current_state != :finished && @current_state != :errored
             sleep 2
             step
           end
 
-          logger.info 'Finished workflow - communicating results and zipping files'
+          Workflow.logger.info 'Finished workflow - communicating results and zipping files'
 
           # @todo (nlong) This should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
           if @job_results[:run_reporting_measures]
-            logger.info 'Sending the reporting measures results back to the adapter'
+            Workflow.logger.info 'Sending the reporting measures results back to the adapter'
             @adapter.communicate_results @registry[:directory], @job_results[:run_reporting_measures]
           end
         ensure
@@ -121,7 +122,7 @@ module OpenStudio
             @adapter.communicate_complete @registry[:directory]
           end
 
-          logger.info 'Workflow complete'
+          Workflow.logger.info 'Workflow complete'
           # Write out the TimeLogger once again in case the run_reporting_measures didn't exist
           @registry[:time_logger].save(File.join(@registry[:directory], 'profile.json'))
 

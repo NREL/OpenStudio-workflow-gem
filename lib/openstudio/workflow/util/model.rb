@@ -21,7 +21,7 @@ module OpenStudio
         #   model is found, 3 - an empty model if the model value is set to nil
         #
         def load_seed_osm(directory, model, model_search_array)
-          logger.info 'Loading seed model'
+          Workflow.logger.info 'Loading seed model'
           if model
             osm_path = nil
             if Pathname.new(model).absolute?
@@ -36,12 +36,12 @@ module OpenStudio
               end
             end
             unless osm_path
-              logger.warn 'The seed OSM file was not found on the filesystem'
+              Workflow.logger.warn 'The seed OSM file was not found on the filesystem'
               return nil
             end
-            logger.info "Seed OSM file with precedence in the file system is #{osm_path}"
+            Workflow.logger.info "Seed OSM file with precedence in the file system is #{osm_path}"
             unless File.exist? osm_path
-              logger.warn 'The seed OSM file could not be found on the filesystem'
+              Workflow.logger.warn 'The seed OSM file could not be found on the filesystem'
               osm_path = false
             end
           else
@@ -51,11 +51,11 @@ module OpenStudio
           end
 
           # Load the model and return it
-          logger.info "Reading in seed model #{osm_path}"
+          Workflow.logger.info "Reading in seed model #{osm_path}"
           translator = OpenStudio::OSVersion::VersionTranslator.new
           loaded_model = translator.loadModel(osm_path)
           fail 'OpenStudio model can not be loaded. Please investigate' unless loaded_model.is_initialized?
-          logger.warn 'OpenStudio model is empty or could not be loaded' if loaded_model.empty?
+          Workflow.logger.warn 'OpenStudio model is empty or could not be loaded' if loaded_model.empty?
           loaded_model.get
         end
 
@@ -74,7 +74,7 @@ module OpenStudio
         # @return [Object] Returns and OpenStudio::Workspace object
         #
         def translate_to_energyplus(model)
-          logger.info 'Translate object to EnergyPlus IDF in Prep for EnergyPlus Measure'
+          Workflow.logger.info 'Translate object to EnergyPlus IDF in Prep for EnergyPlus Measure'
           a = ::Time.now
           # ensure objects exist for reporting purposes
           model.getFacility
@@ -82,7 +82,7 @@ module OpenStudio
           forward_translator = OpenStudio::EnergyPlus::ForwardTranslator.new
           model_idf = forward_translator.translateModel(@model)
           b = ::Time.now
-          logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
+          Workflow.logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
           model_idf
         end
 
@@ -96,7 +96,7 @@ module OpenStudio
         def save_osm(model, save_directory, name = 'in.osm')
           osm_filename = File.join(save_directory, name)
           File.open(osm_filename, 'w') { |f| f << model.to_s }
-          logger.info "Saved the OSM model as #{osm_filename}"
+          Workflow.logger.info "Saved the OSM model as #{osm_filename}"
         end
 
         # Saves an OpenStudio IDF model object to file
@@ -109,7 +109,7 @@ module OpenStudio
         def save_idf(model_idf, save_directory, name = 'in.idf')
           idf_filename = File.join(save_directory, name)
           File.open(idf_filename, 'w') { |f| f << model_idf.to_s }
-          logger.info "Saved the IDF model as #{idf_filename}"
+          Workflow.logger.info "Saved the IDF model as #{idf_filename}"
         end
       end
     end

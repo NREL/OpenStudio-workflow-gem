@@ -7,10 +7,10 @@ describe 'OSW Integration' do
     # best to keep the analysis_root_path empty when using the programmatic interface and rely on unzipping the data
     # to the run directory
     adapter_options = {
-        workflow_filename: 'compact.osw'
+        workflow_filename: File.join('compact.osw')
     }
-    adapter = OpenStudio::Workflow.load_adapter 'local', options[adapter_options]
-    relative_osw = './../../files/compact_osw'
+    adapter = OpenStudio::Workflow.load_adapter 'local', adapter_options
+    relative_osw = File.join(__FILE__, './../../../files/compact_osw')
     run_options = {
         debug: true
     }

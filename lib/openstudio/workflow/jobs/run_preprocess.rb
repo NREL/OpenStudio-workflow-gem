@@ -27,17 +27,17 @@ class RunPreprocess < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
 
     # Ensure that the directory is created (but it should already be at this point)
     FileUtils.mkdir_p(@registry[:run_dir])
 
     # Copy in the weather file defined in the registry, or alternately in the options
     if @registry[:wf]
-      @logger.info "Weather file for EnergyPlus simulation is #{@registry[:wf]}"
+      Workflow.logger.info "Weather file for EnergyPlus simulation is #{@registry[:wf]}"
       FileUtils.copy(@registry[:wf], "#{@registry[:root_dir]}/in.epw")
     elsif @options[:simulation_weather_file]
-      @logger.warn "Using weather file defined in options: #{@options[:simulation_weather_file]}"
+      Workflow.logger.warn "Using weather file defined in options: #{@options[:simulation_weather_file]}"
       FileUtils.copy(@options[:simulation_weather_file], "#{@registry[:root_dir]}/in.epw")
     else
       fail "EPW file not found or not sent to #{self.class}"
@@ -46,7 +46,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
     # Save the model objects in the registry to the run directory
     # @todo what about no osm
     if File.exist?("#{@registry[:root_dir]}/in.idf")
-      @logger.warn 'IDF (in.idf) already exists in the run directory. Will simulate using this file'
+      Workflow.logger.warn 'IDF (in.idf) already exists in the run directory. Will simulate using this file'
     else
       save_idf(@registry[:model_idf], @registry[:root_dir])
       save_osm(@registry[:model], @registry[:root_dir])

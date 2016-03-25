@@ -37,26 +37,30 @@ module OpenStudio
 
         # Get the OSW file from the local filesystem
         #
-        def get_workflow(directory, options = {})
+        def get_workflow(directory, options = nil)
           defaults = { workflow_filename: 'workflow.osw', format: 'json' }
+          options ||= self.options
           options = defaults.merge(options)
 
           # how do we log within this file?
-          if File.exist? "#{directory}/#{options[:datapoint_filename]}"
-            ::JSON.load(File.read("#{directory}/#{options[:datapoint_filename]}"), symbolize_names: true)
+          osw_abs_path = File.absolute_path(File.join(directory, options[:workflow_filename]))
+          if File.exist? osw_abs_path
+            ::JSON.parse(File.read(osw_abs_path), {symbolize_names: true})
           else
-            fail "Workflow file does not exist for #{directory}/#{options[:datapoint_filename]}"
+            fail "Workflow file does not exist for #{osw_abs_path}"
           end
         end
 
         # Get the associated OSD (datapoint) file from the local filesystem
         #
-        def get_datapoint(directory, options = {})
+        def get_datapoint(directory, options = nil)
           defaults = { datapoint_filename: 'datapoint.osd', format: 'json' }
+          options ||= self.options
           options = defaults.merge(options)
 
-          if File.exist? "#{directory}/#{options[:problem_filename]}"
-            ::JSON.load(File.read("#{directory}/#{options[:problem_filename]}"), symbolize_names: true)
+          osd_abs_path = File.absolute_path(File.join(directory, options[:datapoint_filename]))
+          if File.exist? osd_abs_path
+            ::JSON.parse(File.read(osd_abs_path), {symbolize_names: true})
           else
             nil
           end
@@ -64,12 +68,14 @@ module OpenStudio
 
         # Get the associated OSA (analysis) definition from the local filesystem
         #
-        def get_analysis(directory, options = {})
+        def get_analysis(directory, options = nil)
           defaults = { analysis_filename: 'analysis.osa', format: 'json' }
+          options ||= self.options
           options = defaults.merge(options)
 
-          if File.exist? "#{directory}/#{options[:problem_filename]}"
-            ::JSON.load(File.read("#{directory}/#{options[:problem_filename]}"), symbolize_names: true)
+          osa_abs_path = File.absolute_path(File.join(directory, options[:analysis_filename]))
+          if File.exist? osa_abs_path
+            ::JSON.parse(File.read(osa_abs_path), {symbolize_names: true})
           else
             nil
           end
@@ -92,7 +98,7 @@ module OpenStudio
           if results.is_a? Hash
             File.open("#{directory}/data_point_out.json", 'w') { |f| f << JSON.pretty_generate(results) }
           else
-            pp "Unknown datapoint result type. Please handle #{results.class}"
+            puts "Unknown datapoint result type. Please handle #{results.class}"
             # data_point_json_path = OpenStudio::Path.new(run_dir) / OpenStudio::Path.new('data_point_out.json')
             # os_data_point.saveJSON(data_point_json_path, true)
           end

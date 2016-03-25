@@ -118,7 +118,7 @@ module OpenStudio
       #
       def to_hash
         result = {}
-        self.each do |key, value|
+        @results_cache.each_pair do |key, value|
           result[key] = value
         end
 

@@ -50,10 +50,9 @@ module OpenStudio
 
   # @todo (rhorsey) move the load and energyplus methods into the core CLI
   module Workflow
-    extend self
 
     # Log the message sent to the logger
-    def logger(targets=nil)
+    def self.logger(targets=nil)
       @logger ||= ::Logger.new MultiDelegator.delegate(:write, :close).to(targets)
       @logger
     end
@@ -129,7 +128,7 @@ module OpenStudio
     # @param destination [String] Path to extract to
     # @param overwrite [Boolean] If true, will overwrite any extracted file that may already exist
     #
-    def extract_archive(archive_filename, destination, overwrite = true)
+    def self.extract_archive(archive_filename, destination, overwrite = true)
       Zip::File.open(archive_filename) do |zf|
         zf.each do |f|
           f_path = File.join(destination, f.name)
@@ -145,7 +144,7 @@ module OpenStudio
       end
     end
 
-    def load_adapter(name, adapter_options = {})
+    def self.load_adapter(name, adapter_options = {})
       require "openstudio/workflow/adapters/#{name.downcase}"
       klass_name = name.to_s.split('_').map(&:capitalize) * ''
       # pp "#{klass_name} is the adapter class name"

@@ -25,7 +25,7 @@ module OpenStudio
           end
           weather_file = get_weather_file_from_osm(model) if weather_file == nil
           fail 'Could not locate the weather file in the filesystem. Please see the log' if weather_file == false
-          logger.warn 'The weather file could not be determined. Please see the log for details' unless weather_file
+          Workflow.logger.warn 'The weather file could not be determined. Please see the log for details' unless weather_file
           weather_file
         end
 
@@ -45,7 +45,7 @@ module OpenStudio
           wf = nil
           # grab the weather file out of the OSM if it exists
           if model.weatherFile.empty?
-            logger.warn 'No weather file defined in the model'
+            Workflow.logger.warn 'No weather file defined in the model'
           else
             p = model.weatherFile.get.path.get.to_s.gsub('file://', '')
             if File.exist? p
@@ -54,9 +54,9 @@ module OpenStudio
               # this is the weather file from the OSM model
               wf = File.absolute_path(@model.weatherFile.get.path.get.to_s)
             end
-            logger.info "The weather file path found in the model object: #{wf}"
+            Workflow.logger.info "The weather file path found in the model object: #{wf}"
             unless File.exist? wf
-              logger.warn 'The weather file could not be found on the filesystem.'
+              Workflow.logger.warn 'The weather file could not be found on the filesystem.'
               wf = false
             end
           end
@@ -91,12 +91,12 @@ module OpenStudio
             end
           end
           unless weather_file
-            logger.warn 'The weather file was not found on the filesystem'
+            Workflow.logger.warn 'The weather file was not found on the filesystem'
             return nil
           end
-          logger.info "Weather file with precedence in the file system is #{weather_file}"
+          Workflow.logger.info "Weather file with precedence in the file system is #{weather_file}"
           unless File.exist? weather_file
-            logger.warn 'The weather file could not be found on the filesystem'
+            Workflow.logger.warn 'The weather file could not be found on the filesystem'
             weather_file = false
           end
           weather_file

@@ -49,18 +49,18 @@ module OpenStudio
             results[:standard_report_legacy] = h
           end
 
-          logger.info 'Saving the result hash to file'
+          Workflow.logger.info 'Saving the result hash to file'
           File.open("#{run_dir}/results.json", 'w') { |f| f << JSON.pretty_generate(results) }
 
           if @registry[:analysis]
-            logger.info 'Iterating over Analysis JSON Output Variables'
+            Workflow.logger.info 'Iterating over Analysis JSON Output Variables'
             # Save the objective functions to the object for sending back to the simulation executive
 
             if @analysis_json[:analysis] && @analysis_json[:analysis][:output_variables]
               @analysis_json[:analysis][:output_variables].each do |variable|
                 # determine which ones are the objective functions (code smell: todo: use enumerator)
                 if variable[:objective_function]
-                  logger.info "Looking for objective function #{variable[:name]}"
+                  Workflow.logger.info "Looking for objective function #{variable[:name]}"
                   # TODO: move this to cleaner logic. Use ostruct?
                   k, v = variable[:name].split('.')
 
@@ -68,19 +68,19 @@ module OpenStudio
                   if results.key?(k.to_sym) && !results[k.to_sym][v.to_sym].nil?
                     objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = results[k.to_sym][v.to_sym]
                     if variable[:objective_function_target]
-                      logger.info "Found objective function target for #{variable[:name]}"
+                      Workflow.logger.info "Found objective function target for #{variable[:name]}"
                       objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_target].to_f
                     end
                     if variable[:scaling_factor]
-                      logger.info "Found scaling factor for #{variable[:name]}"
+                      Workflow.logger.info "Found scaling factor for #{variable[:name]}"
                       objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = variable[:scaling_factor].to_f
                     end
                     if variable[:objective_function_group]
-                      logger.info "Found objective function group for #{variable[:name]}"
+                      Workflow.logger.info "Found objective function group for #{variable[:name]}"
                       objective_functions["objective_function_group_#{variable[:objective_function_index] + 1}"] = variable[:objective_function_group].to_f
                     end
                   else
-                    logger.warn "No results for objective function #{variable[:name]}"
+                    Workflow.logger.warn "No results for objective function #{variable[:name]}"
                     objective_functions["objective_function_#{variable[:objective_function_index] + 1}"] = Float::MAX
                     objective_functions["objective_function_target_#{variable[:objective_function_index] + 1}"] = nil
                     objective_functions["scaling_factor_#{variable[:objective_function_index] + 1}"] = nil
@@ -101,7 +101,7 @@ module OpenStudio
         #
         def translate_csv_to_json(run_dir)
           if File.exist?("#{run_dir}/eplustbl.csv")
-            logger.info 'Translating EnergyPlus table CSV to JSON file'
+            Workflow.logger.info 'Translating EnergyPlus table CSV to JSON file'
             results = {}
             csv = CSV.read("#{run_dir}/eplustbl.csv")
             csv.transpose.each do |k, v|
@@ -113,7 +113,7 @@ module OpenStudio
               results["#{short_name}_display_name".to_sym] = longname
             end
 
-            logger.info 'Saving results to json'
+            Workflow.logger.info 'Saving results to json'
 
             # save out results
             File.open("#{run_dir}/standard_report_legacy.json", 'w') { |f| f << JSON.pretty_generate(results) }
@@ -134,7 +134,7 @@ module OpenStudio
             if Hash === h
               h.each_key do |key|
                 if key.to_s =~ regex
-                  logger.warn "Renaming result key '#{key}' to remove invalid characters"
+                  Workflow.logger.warn "Renaming result key '#{key}' to remove invalid characters"
                 end
               end
               Hash[h.map { |k, v| [k.to_s.gsub(regex, '_').squeeze('_').gsub(/[_\s]+$/, '').chomp.to_sym, rename_keys[v]] }]
@@ -183,7 +183,7 @@ module OpenStudio
 
           # Remove empty directories in run folder
           Dir["#{run_dir}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w(. ..)).empty? }.each do |d|
-            logger.info "Removing empty directory #{d}"
+            Workflow.logger.info "Removing empty directory #{d}"
             Dir.rmdir d
           end
 

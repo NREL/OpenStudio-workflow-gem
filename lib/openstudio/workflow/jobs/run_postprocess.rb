@@ -31,10 +31,10 @@ class RunPostprocess < OpenStudio::Workflow::Job
   end
 
   def perform
-    logger.info "Calling #{__method__} in the #{self.class} class"
+    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
 
     begin
-      logger.info 'Begining cleanup of the run directory'
+      Workflow.logger.info 'Begining cleanup of the run directory'
       OpenStudio::Workflow::Util::PostProcess.cleanup(@registry[:root_dir])
     rescue => e
       fail "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

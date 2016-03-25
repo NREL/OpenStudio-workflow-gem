@@ -2,14 +2,14 @@ module OpenStudio
   module Workflow
     class Job
       def initialize(adapter, registry, options = {})
-        defaults ||= {}
+        defaults ||= {debug: false}
         @options = defaults.merge(options)
         @adapter = adapter
         @registry = registry
         @results = {}
 
         logger.info "#{self.class} passed the following options #{@options}"
-        logger.info "#{self.class} passed the following registry #{@registry.to_hash}"
+        logger.info "#{self.class} passed the following registry #{@registry.to_hash}" if @options[:debug]
       end
     end
 

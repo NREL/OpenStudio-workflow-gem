@@ -145,8 +145,6 @@ module OpenStudio
       end
     end
 
-    private
-
     def load_adapter(name, adapter_options = {})
       require "openstudio/workflow/adapters/#{name.downcase}"
       klass_name = name.to_s.split('_').map(&:capitalize) * ''

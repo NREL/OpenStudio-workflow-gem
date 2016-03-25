@@ -38,7 +38,7 @@ module OpenStudio
         # Get the OSW file from the local filesystem
         #
         def get_workflow(directory, options = {})
-          defaults = { datapoint_filename: 'workflow.osw', format: 'json' }
+          defaults = { workflow_filename: 'workflow.osw', format: 'json' }
           options = defaults.merge(options)
 
           # how do we log within this file?
@@ -52,7 +52,7 @@ module OpenStudio
         # Get the associated OSD (datapoint) file from the local filesystem
         #
         def get_datapoint(directory, options = {})
-          defaults = { problem_filename: 'datapoint.osd', format: 'json' }
+          defaults = { datapoint_filename: 'datapoint.osd', format: 'json' }
           options = defaults.merge(options)
 
           if File.exist? "#{directory}/#{options[:problem_filename]}"
@@ -65,7 +65,7 @@ module OpenStudio
         # Get the associated OSA (analysis) definition from the local filesystem
         #
         def get_analysis(directory, options = {})
-          defaults = { problem_filename: 'analysis.osa', format: 'json' }
+          defaults = { analysis_filename: 'analysis.osa', format: 'json' }
           options = defaults.merge(options)
 
           if File.exist? "#{directory}/#{options[:problem_filename]}"

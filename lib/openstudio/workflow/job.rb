@@ -1,6 +1,8 @@
 module OpenStudio
   module Workflow
     class Job
+      # @todo (rhorsey) adapter is for output? - DLM
+      # @todo (rhorsey) registry should be a member of WorkflowRunner, pass WorkflowRunner in here instead - DLM
       def initialize(adapter, registry, options = {})
         defaults ||= {debug: false}
         @options = defaults.merge(options)

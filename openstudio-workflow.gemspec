@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'bundler', '~> 1.6'
   s.add_development_dependency 'rake'
+  s.add_development_dependency 'json-schema'
 
   s.add_runtime_dependency 'colored', '~> 1.2'
   s.add_runtime_dependency 'rubyzip', '~> 1.1.7'

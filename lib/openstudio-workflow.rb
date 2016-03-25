@@ -18,7 +18,8 @@
 ######################################################################
 
 require 'fileutils'
-require 'securerandom' # uuids
+ # @todo (rhorsey) OpenStudio does have class UUID, do we really need to keep securerandom as a dependency? - DLM
+require 'securerandom' # uuids 
 require 'json' # needed for a single pretty generate call
 require 'pathname'
 
@@ -33,9 +34,11 @@ require_relative 'openstudio/workflow/util'
 require 'openstudio'
 require_relative 'openstudio/workflow_runner'
 
+ # @todo (rhorsey) what is this for?  can we remove it? - DLM
 ENV['OPENSTUDIO_WORKFLOW'] = 'true'
 
 # some core extensions
+# @todo (rhorsey) is this really needed? extensions to built in classes are not a great idea, they may conflict with other people's code - DLM
 class String
   def to_underscore
     gsub(/::/, '/')
@@ -50,9 +53,10 @@ module OpenStudio
 
   # @todo (rhorsey) move the load and energyplus methods into the core CLI
   module Workflow
+    extend self
 
     # Log the message sent to the logger
-    def self.logger(targets=nil)
+    def logger(targets=nil)
       @logger ||= ::Logger.new MultiDelegator.delegate(:write, :close).to(targets)
       @logger
     end
@@ -128,7 +132,8 @@ module OpenStudio
     # @param destination [String] Path to extract to
     # @param overwrite [Boolean] If true, will overwrite any extracted file that may already exist
     #
-    def self.extract_archive(archive_filename, destination, overwrite = true)
+    def extract_archive(archive_filename, destination, overwrite = true)
+      # @todo (rhorsey) OpenStudio does have classes ZipFile and UnzipFile, do we really need to keep rubyzip as a dependency? - DLM
       Zip::File.open(archive_filename) do |zf|
         zf.each do |f|
           f_path = File.join(destination, f.name)
@@ -144,7 +149,7 @@ module OpenStudio
       end
     end
 
-    def self.load_adapter(name, adapter_options = {})
+    def load_adapter(name, adapter_options = {})
       require "openstudio/workflow/adapters/#{name.downcase}"
       klass_name = name.to_s.split('_').map(&:capitalize) * ''
       # pp "#{klass_name} is the adapter class name"

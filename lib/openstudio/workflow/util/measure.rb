@@ -28,6 +28,7 @@ module OpenStudio
         # @return [Void]
         #
         def apply_measures(measure_type, registry, options = {})
+          # @todo (rhorsey) need to get rid of registrym this can all come from the workflow json in the runner - DLM
           workflow = registry[:workflow]
           directory = registry[:directory]
           measure_search_array = options[:measure_search_array]
@@ -204,6 +205,8 @@ module OpenStudio
         #
         def apply_measure(registry, step, options = {})
           require_relative '../../workflow_runner'
+          
+          # @todo (rhorsey) runner should be passed in here - DLM
 
           measure_search_array = options[:measure_search_array]
           measure_search_array ||= ['measures']

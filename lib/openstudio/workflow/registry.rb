@@ -9,6 +9,9 @@ module OpenStudio
     #   definitions. Note that hashes can be passed into the registry as follows: hash = {...};
     #   Registry.new.register(:hash) { hash } or Registry.new.register(:hash) { {...} }. This class will likely absorb
     #   un-abstracted elements of the adapter class, see Workflow#Adapter
+    
+    # @todo (rhorsey) registry should be a member of WorkflowRunner - DLM
+    # @todo (rhorsey) how is this different than a regular hash?  why is it important to be able to register keys with blocks that return values instead of values, looks like the block is called on insert anyway? let's not go crazy on performance optimizations until we have to - DLM
     class Registry
       def initialize
         @items = {}

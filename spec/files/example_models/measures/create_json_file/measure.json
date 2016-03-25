@@ -1,9 +1,0 @@
-{
-  "classname": "CreateJsonFile",
-  "name": "create_json_file",
-  "display_name": "Create Json File",
-  "measure_type": "RubyMeasure",
-  "arguments": [
-
-  ]
-}

@@ -13,8 +13,8 @@ module OpenStudio
       end
     end
 
-    def self.new_class(current_state, adapter, registry, options = {})
-      new_job = Object.const_get(current_state).new(adapter, registry, options)
+    def self.new_class(current_job, adapter, registry, options = {})
+      new_job = Object.const_get(current_job).new(adapter, registry, options)
       return new_job
     end
   end

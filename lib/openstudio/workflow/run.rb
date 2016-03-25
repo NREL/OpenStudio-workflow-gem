@@ -32,35 +32,19 @@ module OpenStudio
       attr_reader :final_message
       attr_reader :job_results
 
-      # load the default set of transitions
+      # Define the default set of jobs. Note that the states of :queued of :finished need to exist for all job arrays.
       #
-      def self.default_transition
+      def self.default_jobs
         [
-          { from: :queued, to: :initialization },
-          { from: :initialization, to: :os_measures },
-          { from: :os_measures, to: :translator },
-          { from: :translator, to: :ep_measures },
-          { from: :ep_measures, to: :preprocess },
-          { from: :preprocess, to: :simulation },
-          { from: :simulation, to: :reporting_measures },
-          { from: :reporting_measures, to: :postprocess },
-          { from: :postprocess, to: :finished }
-        ]
-      end
-
-      # load the default set of states  Note that the states of :queued of :finished need to exist for all cases.
-      #
-      def self.default_states
-        [
-          { state: :queued, options: { initial: true } },
-          { state: :initialization, options: { after_enter: :run_initialization } },
-          { state: :os_measures, options: { after_enter: :run_os_measures } },
-          { state: :translator, options: { after_enter: :run_translation } },
-          { state: :ep_measures, options: { after_enter: :run_ep_measures } },
-          { state: :preprocess, options: { after_enter: :run_preprocess } },
-          { state: :simulation, options: { after_enter: :run_energyplus } },
-          { state: :reporting_measures, options: { after_enter: :run_reporting_measures } },
-          { state: :postprocess, options: { after_enter: :run_postprocess } },
+          { state: :queued, next_state: :initialization, options: { initial: true } },
+          { state: :initialization, next_state: :os_measures, job: :run_initialization, options: {} },
+          { state: :os_measures, next_state: :translator, job: :run_os_measures, options: {} },
+          { state: :translator, next_state: :ep_measures, job: :run_translation, options: {} },
+          { state: :ep_measures, next_state: :preprocess, job: :run_ep_measures, options: {} },
+          { state: :preprocess, next_state: :simulation, job: :run_preprocess, options: {} },
+          { state: :simulation, next_state: :reporting_measures, job: :run_energyplus, options: {} },
+          { state: :reporting_measures, next_state: :postprocess, job: :run_reporting_measures, options: {} },
+          { state: :postprocess, next_state: :finished, job: :run_postprocess, options: {} },
           { state: :finished },
           { state: :errored }
         ]
@@ -91,9 +75,7 @@ module OpenStudio
         @registry.register(:time_logger) { TimeLogger.new }
         @registry.register(:workflow_arguments) { Hash.new }
         defaults = {
-          transitions: OpenStudio::Workflow::Run.default_transition,
-          states: OpenStudio::Workflow::Run.default_states,
-          jobs: {},
+          jobs: OpenStudio::Workflow::Run.default_jobs,
           targets: [STDOUT, File.join(@registry[:run_dir], 'run.log')]
         }
         @options = defaults.merge(options)
@@ -108,8 +90,9 @@ module OpenStudio
 
         logger.info "Initializing directory #{@registry[:directory]} for simulation with options #{@options}"
 
-        # load the state machine
-        machine
+        # Define the state and transitions
+        @current_state = :queued
+        @jobs = @options[:jobs]
       end
 
       # execute the workflow defined in the state object
@@ -157,8 +140,8 @@ module OpenStudio
       #
       def step
         next_state
-
-        klass = OpenStudio::Workflow.new_class(@current_state, @adapter, @registry, options)
+        job = @jobs.find { |h| h[:state] == @current_state }[:job]
+        klass = OpenStudio::Workflow.new_class(job, @adapter, @registry, options)
         @job_results[@current_state.to_sym] = klass.perform
       rescue => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
@@ -188,19 +171,9 @@ module OpenStudio
 
       private
 
-      # Create a state machine from the predefined transitions methods.  This will initialize in the :queued state
-      #   and then load in the transitions from the @options hash
-      #
-      def machine
-        logger.info 'Initializing state machine'
-        @current_state = :queued
-
-        @transitions = @options[:transitions]
-      end
-
       def next_state
         logger.info "Current state: '#{@current_state}'"
-        ns = @transitions.find { |h| h[:from] == @current_state }[:to]
+        ns = @jobs.find { |h| h[:state] == @current_state }[:next_state]
         logger.info "Next state will be: '#{ns}'"
 
         # Set the next state before calling the method

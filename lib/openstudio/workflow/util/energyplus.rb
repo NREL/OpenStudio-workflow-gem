@@ -157,6 +157,9 @@ module OpenStudio
         #
         def energyplus_preprocess(idf_filename)
           logger.info 'Running EnergyPlus Preprocess'
+          
+          # @todo (rhorsey) need to add report requests for all reporting measures - DLM
+          # https://github.com/NREL/OpenStudio/blob/develop/openstudiocore/src/pat_app/Measures/ReportRequest/measure.rb
 
           fail "Could not find IDF file in run directory (#{idf_filename})" unless File.exist? idf_filename
 

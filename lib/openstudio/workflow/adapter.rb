@@ -20,6 +20,7 @@
 # Adapter class to decide where to obtain instructions to run the simulation workflow
 module OpenStudio
   module Workflow
+    # @todo (rhorsey) seems like we should have separate InputAdapters for getting Workflow JSON and OutputAdapters for posting results/errors/status - DLM
     class Adapter
       attr_accessor :options
 
@@ -32,30 +33,37 @@ module OpenStudio
       # class << self
       # attr_reader :problem
 
+      # @todo (rhorsey) input method - DLM
       def load(filename, options = {})
         instance.load(filename, options)
       end
 
+      # @todo (rhorsey) output method - DLM
       def communicate_started(id, _options = {})
         instance.communicate_started id
       end
 
+      # @todo (rhorsey) remove - DLM
       def get_datapoint(id, options = {})
         instance.get_datapoint id, options
       end
 
+      # @todo (rhorsey) remove - DLM
       def get_problem(id, options = {})
         instance.get_problem id, options
       end
 
+      # @todo (rhorsey) output method - DLM
       def communicate_results(id, results)
         instance.communicate_results id, results
       end
 
+      # @todo (rhorsey) output method - DLM
       def communicate_complete(id)
         instance.communicate_complete id
       end
 
+      # @todo (rhorsey) output method - DLM
       def communicate_failure(id)
         instance.communicate_failure id
       end

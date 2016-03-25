@@ -34,6 +34,7 @@ module OpenStudio
 
       # Define the default set of jobs. Note that the states of :queued of :finished need to exist for all job arrays.
       #
+      # @todo (rhorsey) this can just be an array of :state, :initialization, and :options; :next_state is unneccesary since we don't want to allow branching - DLM
       def self.default_jobs
         [
           { state: :queued, next_state: :initialization, options: { initial: true } },
@@ -69,13 +70,16 @@ module OpenStudio
         @transitions = {}
 
         # Initialize some values into @registry
+        # @todo (rhorsey) this should initialize the WorkflowRunner instead - DLM
         @registry = Registry.new
+        # @todo (rhorsey) these keys, e.g. :directory, :run_dir, etc; are effectively a new, undocumented schema, do we really want that?  can we just stick with the OSW format? - DLM
         @registry.register(:directory) { get_directory directory }
         @registry.register(:run_dir) { get_run_dir(adapter.get_workflow(@registry[:directory]), @registry[:directory]) }
         @registry.register(:time_logger) { TimeLogger.new }
         @registry.register(:workflow_arguments) { Hash.new }
         defaults = {
           jobs: OpenStudio::Workflow::Run.default_jobs,
+           # @todo (rhorsey) OpenStudio Logger should be a target?  The runner.registerXXX methods should be a target? - DLM
           targets: [STDOUT, File.join(@registry[:run_dir], 'run.log')]
         }
         @options = defaults.merge(options)
@@ -110,6 +114,7 @@ module OpenStudio
           logger.info 'Finished workflow - communicating results and zipping files'
 
           # @todo (nlong) This should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
+          # @todo (rhorsey) why does this need to be handled specially?  if it needs to happen right now instead of later in the ensure block, can't this happen in the Job since the Job has access to the adapter? - DLM
           if @job_results[:run_reporting_measures]
             logger.info 'Sending the reporting measures results back to the adapter'
             @adapter.communicate_results @registry[:directory], @job_results[:run_reporting_measures]
@@ -126,6 +131,7 @@ module OpenStudio
           @registry[:time_logger].save(File.join(@registry[:directory], 'profile.json'))
 
           # @todo (nlong) define the outputs and figure out how to show it correctly
+          # @todo (rhorsey) seems like we need to list objective functions in the OSW? - DLM
           obj_function_array ||= ['NA']
 
           # Print the objective functions to the screen even though the file is being used right now

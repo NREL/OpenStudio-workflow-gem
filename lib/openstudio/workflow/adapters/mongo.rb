@@ -22,6 +22,7 @@ require_relative '../adapter'
 module OpenStudio
   module Workflow
     module Adapters
+      # @todo (rhorsey) seems like Mongo adapters should be WebAdapters that use an API instead of talking to database directly - DLM
       class MongoLog
         def initialize(datapoint_model)
           fail 'Mongo is not supported as an adapter in the branch of the WFG. Please use develop or master.'

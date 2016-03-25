@@ -57,7 +57,7 @@ module OpenStudio
 
     # Log the message sent to the logger
     def logger(targets=nil)
-      @logger ||= ::Logger.new MultiDelegator.delegate(:write, :close).to(targets)
+      @logger ||= ::Logger.new MultiDelegator.delegate(:write, :close).to(*targets)
       @logger
     end
 

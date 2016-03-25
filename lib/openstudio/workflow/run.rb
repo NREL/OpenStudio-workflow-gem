@@ -38,7 +38,7 @@ module OpenStudio
       def self.default_jobs
         [
           { state: :queued, next_state: :initialization, options: { initial: true } },
-          { state: :initialization, next_state: :os_measures, job: :run_initialization, options: {} },
+          { state: :initialization, next_state: :os_measures, job: :RunInitialization, options: {} },
           { state: :os_measures, next_state: :translator, job: :run_os_measures, options: {} },
           { state: :translator, next_state: :ep_measures, job: :run_translation, options: {} },
           { state: :ep_measures, next_state: :preprocess, job: :run_ep_measures, options: {} },
@@ -80,7 +80,7 @@ module OpenStudio
         defaults = {
           jobs: OpenStudio::Workflow::Run.default_jobs,
            # @todo (rhorsey) OpenStudio Logger should be a target?  The runner.registerXXX methods should be a target? - DLM
-          targets: [STDOUT, File.join(@registry[:run_dir], 'run.log')]
+          targets: [STDOUT, File.open(File.join(@registry[:directory], 'run.log'), 'a')]
         }
         @options = defaults.merge(options)
         @job_results = {}
@@ -89,7 +89,6 @@ module OpenStudio
         Workflow.logger(@options[:targets])
 
         # By default blow away the entire run directory every time and recreate it
-        puts @registry.to_hash
         FileUtils.rm_rf(@registry[:run_dir]) if File.exist?(@registry[:run_dir])
         FileUtils.mkdir_p(@registry[:run_dir])
 
@@ -160,7 +159,7 @@ module OpenStudio
         # Make sure to set the instance variable @error to true in order to stop the :step
         # event from being fired.
         @final_message = "Found error in state '#{@current_state}' with message #{args}}"
-        logger.error @final_message
+        Workflow.logger.error @final_message
 
         # transition to an error state
         @current_state = :errored
@@ -179,9 +178,9 @@ module OpenStudio
       private
 
       def next_state
-        logger.info "Current state: '#{@current_state}'"
+        Workflow.logger.info "Current state: '#{@current_state}'"
         ns = @jobs.find { |h| h[:state] == @current_state }[:next_state]
-        logger.info "Next state will be: '#{ns}'"
+        Workflow.logger.info "Next state will be: '#{ns}'"
 
         # Set the next state before calling the method
         @current_state = ns

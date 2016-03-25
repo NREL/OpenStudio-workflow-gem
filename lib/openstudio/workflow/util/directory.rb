@@ -15,7 +15,7 @@ module OpenStudio
           abs_dir = nil
           abs_dir = directory if Pathname.new(directory).absolute?
           abs_dir = File.join(Dir.pwd, directory) unless abs_dir
-          abs_dir
+          File.absolute_path(abs_dir)
         end
 
         # Returns the run_directory with correct precedence

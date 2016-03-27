@@ -20,6 +20,7 @@
 # Run precanned post processing to extract object functions
 
 require_relative '../util/post_process'
+include OpenStudio::Workflow::Util::PostProcess
 
 # Clean up the run directory. Currently this class does nothing else, although eventually cleanup should become driven
 # and responsive to options
@@ -31,14 +32,13 @@ class RunPostprocess < OpenStudio::Workflow::Job
   end
 
   def perform
-    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.info "Calling #{__method__} in the #{self.class} class"
 
-    begin
-      Workflow.logger.info 'Begining cleanup of the run directory'
-      OpenStudio::Workflow::Util::PostProcess.cleanup(@registry[:root_dir])
-    rescue => e
-      fail "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-    end
+    @logger.info 'Beginning cleanup of the run directory'
+    cleanup(@registry[:run_dir], @registry[:directory])
+    @logger.info 'Finished cleanup of the run directory'
+
+    @logger.info 'Finished postprocess'
 
     results = {}
   end

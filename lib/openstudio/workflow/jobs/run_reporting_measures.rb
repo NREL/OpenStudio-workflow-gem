@@ -24,76 +24,79 @@ require 'ostruct'
 class RunReportingMeasures < OpenStudio::Workflow::Job
 
   require_relative '../util'
-  include OpenStudio::Workflow::Util
+  include OpenStudio::Workflow::Util::Measure
+  include OpenStudio::Workflow::Util::PostProcess
 
   def initialize(adapter, registry, options = {})
     super
   end
 
   def perform
-    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
-    Workflow.logger.info 'RunPostProcess Retrieving datapoint and problem'
+    @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.info 'RunPostProcess Retrieving datapoint and problem'
 
+    # Ensure output_attributes is initialized in the registry
+    @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
+
+    # Do something because
+    translate_csv_to_json @registry[:root_dir]
+
+    # Run Standard Reports
+    standard_report_dir = OpenStudio::BCLMeasure.standardReportMeasure.directory.to_s
+    measure_dir_name = File.basename(standard_report_dir)
+    standard_report_dir = File.absolute_path(File.join(standard_report_dir, '..'))
+    relative_path = Pathname.new(standard_report_dir).relative_path_from(Pathname.new(@registry[:directory])).to_s
+    # @todo add empty arguments and allow for options overload, also disenable
+    step = {measure_dir_name: measure_dir_name, arguments: []}
+    step_options = {measure_search_array: [relative_path]}
+    @logger.info 'Running packaged Standard Reports measures'
     begin
-      # Do something because
-      translate_csv_to_json @registry[:root_dir]
+      apply_measure(@registry, step, step_options)
+    rescue => e
+      @logger.warn "Error applying Standard Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
+    end
 
-      # Run Standard Reports
-      standard_report_dir = OpenStudio::BCLMeasure.standardReportMeasure.directory.to_s
-      measure_dir_name = File.basename(standard_report_dir)
-      # @todo add empty arguments and allow for options overload, also disenable
-      step = {measure_dir_name: measure_dir_name}
-      step_options = {measure_search_array: File.absolute_path(File.join(standard_report_dir, '..'))}
-      Workflow.logger.info 'Running packaged Standard Reports measures'
+    # Run Calibration Reports
+    @logger.info "Found #{@model.getUtilityBills.length} utility bills"
+    if @model.getUtilityBills.length > 0
+      calibration_report_dir = OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s
+      measure_dir_name = File.basename(calibration_report_dir)
+      calibration_report_dir = File.absolute_path(File.join(calibration_report_dir, '..'))
+      relative_path = Pathname.new(calibration_report_dir).relative_path_from(Pathname.new(@registry[:directory])).to_s
+      step = {measure_dir_name: measure_dir_name, arguments: []}
+      step_options = {measure_search_array: [relative_path]}
+      @logger.info 'Running packaged Calibration Reports measures'
       begin
         apply_measure(@registry, step, step_options)
       rescue => e
-        Workflow.logger.warn "Error applying Standard Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
+        @logger.warn "Error applying Calibration Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
       end
-
-      # Run Calibration Reports
-      Workflow.logger.info "Found #{@model.getUtilityBills.length} utility bills"
-      if @model.getUtilityBills.length > 0
-        calibration_report_dir = OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s
-        measure_dir_name = File.basename(calibration_report_dir)
-        step = {measure_dir_name: measure_dir_name}
-        step_options = {measure_search_array: File.absolute_path(File.join(calibration_report_dir, '..'))}
-        Workflow.logger.info 'Running packaged Calibration Reports measures'
-        begin
-          apply_measure(@registry, step, step_options)
-        rescue => e
-          Workflow.logger.warn "Error applying Calibration Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
-        end
-      end
-
-      Workflow.logger.info 'Finished Running Packaged Measures'
-
-      # Apply reporting measures
-      Workflow.logger.info 'Beginning to execute OpenStudio measures.'
-      OpenStudio::Workflow::Util::Measure.apply_measures(:reporting, @registry, options)
-      Workflow.logger.info('Finished applying OpenStudio measures.')
-
-      # Writing reporting measure attributes json
-      # @todo check that measure_attributes exists where it should across all three measure applicators
-      Workflow.logger.info 'Saving reporting measures output attributes JSON'
-      File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
-        f << JSON.pretty_generate(@registry[:output_attributes])
-      end
-
-      # Run somthing else
-      results, objective_functions = PostProcess.run_extract_inputs_and_outputs @registry[:run_dir]
-
-      # Write out the obj function file
-      # @todo add File.close
-      Workflow.logger.info "Objective Function JSON is #{objective_functions}"
-      obj_fun_file = "#{@registry[:directory]}/objectives.json"
-      FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
-      File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(objective_functions) }
-
-    rescue => e
-      fail "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
     end
 
-    results
+    @logger.info 'Finished Running Packaged Measures'
+
+    # Apply reporting measures
+    @logger.info 'Beginning to execute OpenStudio measures.'
+    apply_measures(:reporting, @registry, @options)
+    @logger.info('Finished applying OpenStudio measures.')
+
+    # Writing reporting measure attributes json
+    # @todo check that measure_attributes exists where it should across all three measure applicators
+    @logger.info 'Saving reporting measures output attributes JSON'
+    File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
+      f << JSON.pretty_generate(@registry[:output_attributes])
+    end
+
+    # Run something else
+    results, objective_functions = run_extract_inputs_and_outputs @registry[:run_dir]
+
+    # Write out the obj function file
+    # @todo add File.close
+    @logger.info "Objective Function JSON is #{objective_functions}"
+    obj_fun_file = "#{@registry[:directory]}/objectives.json"
+    FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
+    File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(objective_functions) }
+
+    results = {}
   end
 end

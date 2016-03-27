@@ -28,16 +28,18 @@ class RunTranslation < OpenStudio::Workflow::Job
   end
 
   def perform
-    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.info "Calling #{__method__} in the #{self.class} class"
 
-    Workflow.logger.info 'Begining the translation to IDF'
+    @logger.info 'Beginning the translation to IDF'
     @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]
     model_idf = translate_to_energyplus @registry[:model]
-    @registry.register(:model_idf) { model_idf }
     @registry[:time_logger].stop('Translating to EnergyPlus') if @registry[:time_logger]
-    Workflow.logger.info 'Sucesfully translated to IDF'
+    @registry.register(:model_idf) { model_idf }
+    @logger.info 'Successfully translated to IDF'
 
-    # return the results back to the caller -- always
+    idf_name = save_idf(@registry[:model], @registry[:root_dir])
+    @logger.info "Saved IDF as #{idf_name}"
+
     results = {}
   end
 end

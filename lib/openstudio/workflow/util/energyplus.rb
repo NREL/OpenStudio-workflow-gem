@@ -190,7 +190,7 @@ module OpenStudio
           end
 
           if needs_monthlyoutput
-            monthly_report_idf = File.join(File.dirname(__FILE__), 'monthly_report.idf')
+            monthly_report_idf = File.join(File.dirname(__FILE__), '../jobs/resources/monthly_report.idf')
             idf_file = OpenStudio::IdfFile.load(File.read(monthly_report_idf), 'EnergyPlus'.to_IddFileType).get
             idf.addObjects(idf_file.objects)
           end

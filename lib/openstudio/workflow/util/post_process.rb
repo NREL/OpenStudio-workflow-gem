@@ -151,14 +151,14 @@ module OpenStudio
         # @param [String] run_dir
         # @todo (rhorsey) What is the @reports directory referring to?
         #
-        def cleanup(run_dir)
+        def cleanup(run_dir, directory)
           # move any of the reporting file to the 'reports' directory for serverside access
-          FileUtils.mkdir_p "#{@directory}/reports"
+          FileUtils.mkdir_p "#{directory}/reports"
 
           # try to find the energyplus result file
           eplus_html = "#{run_dir}/eplustbl.htm"
           unless File.exist? eplus_html
-            eplus_html = Dir["#{@directory}/*EnergyPlus*/eplustbl.htm"].last || nil
+            eplus_html = Dir["#{directory}/*EnergyPlus*/eplustbl.htm"].last || nil
           end
 
           if eplus_html
@@ -166,7 +166,7 @@ module OpenStudio
               # do some encoding on the html if possible
               html = File.read(eplus_html)
               html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
-              File.open("#{@directory}/reports/eplustbl.html", 'w') { |f| f << html }
+              File.open("#{directory}/reports/eplustbl.html", 'w') { |f| f << html }
             end
           end
 
@@ -177,7 +177,7 @@ module OpenStudio
             measure_class_name = File.basename(File.dirname(report)).to_underscore
             file_ext = File.extname(report)
             append_str = File.basename(report, '.*')
-            new_file_name = "#{@directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"
+            new_file_name = "#{directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"
             FileUtils.copy report, new_file_name
           end
 

@@ -4,7 +4,7 @@
   <uid>490a2af3-7b64-4915-bf9e-9a3a7b525a17</uid>
   <version_id>22c341d1-64e2-486d-a430-f30d3c6f9ad4</version_id>
   <xml_checksum>2AC0F979</xml_checksum>
-  <class_name></class_name>
+  <class_name>SetEnergyPlusInfiltrationFlowRatePerFloorArea</class_name>
   <display_name>Set EnergyPlus Infiltration Flow Rate Per Floor Area</display_name>
   <description>Set the flow rate per floor area value for all infiltration objects in the model. Input values are in SI units.</description>
   <modeler_description>Affected infiltration objects will have "Design Flor Rate Calculation Method" set to "Flow/Area" and the "Flow per Zone Floor Area" set to the requested SI value.</modeler_description>

@@ -37,10 +37,10 @@ module OpenStudio
 
         # Get the OSW file from the local filesystem
         #
-        def get_workflow(directory, options = nil)
+        def get_workflow(directory, options = {})
           defaults = { workflow_filename: 'workflow.osw', format: 'json' }
-          options ||= self.options
-          options = defaults.merge(options)
+          defaults.merge! self.options
+          options = defaults.merge options
 
           # how do we log within this file?
           osw_abs_path = File.absolute_path(File.join(directory, options[:workflow_filename]))
@@ -53,10 +53,10 @@ module OpenStudio
 
         # Get the associated OSD (datapoint) file from the local filesystem
         #
-        def get_datapoint(directory, options = nil)
+        def get_datapoint(directory, options = {})
           defaults = { datapoint_filename: 'datapoint.osd', format: 'json' }
-          options ||= self.options
-          options = defaults.merge(options)
+          defaults.merge! self.options
+          options = defaults.merge options
 
           osd_abs_path = File.absolute_path(File.join(directory, options[:datapoint_filename]))
           if File.exist? osd_abs_path
@@ -68,10 +68,10 @@ module OpenStudio
 
         # Get the associated OSA (analysis) definition from the local filesystem
         #
-        def get_analysis(directory, options = nil)
+        def get_analysis(directory, options = {})
           defaults = { analysis_filename: 'analysis.osa', format: 'json' }
-          options ||= self.options
-          options = defaults.merge(options)
+          defaults.merge! self.options
+          options = defaults.merge options
 
           osa_abs_path = File.absolute_path(File.join(directory, options[:analysis_filename]))
           if File.exist? osa_abs_path

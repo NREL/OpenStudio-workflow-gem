@@ -19,35 +19,40 @@
 
 class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
 
+  require_relative '../util'
+  include OpenStudio::Workflow::Util::Measure
+  include OpenStudio::Workflow::Util::Model
+
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   # @todo fix where osm and idf are saved
   def initialize(adapter, registry, options = {})
     super
-
-    @model_idf = nil
-
   end
 
   def perform
-    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
-    Workflow.logger.info "Current directory is #{@directory}"
+    @logger.info "Calling #{__method__} in the #{self.class} class"
 
-    Workflow.logger.info 'Beginning to execute EnergyPlus measures.'
-    OpenStudio::Workflow::Util::Measure.apply_measures(:energyplus, @registry, options)
-    Workflow.logger.info('Finished applying EnergyPlus measures.')
+    # Ensure output_attributes is initialized in the registry
+    @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
+    
+    @logger.info 'Beginning to execute EnergyPlus measures.'
+    apply_measures(:energyplus, @registry, @options)
+    @logger.info('Finished applying EnergyPlus measures.')
 
-    Workflow.logger.info 'Saving measure output attributes JSON'
+    @logger.info 'Saving measure output attributes JSON'
     File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
       f << JSON.pretty_generate(@registry[:output_attributes])
     end
 
     @registry[:time_logger].start('Saving OSM and IDF') if @registry[:time_logger]
-    OpenStudio::Workflow::Util::Model.save_osm(@registry[:model], @registry[:root_dir])
-    OpenStudio::Workflow::Util::Model.save_idf(@registry[:model], @registry[:root_dir])
+    osm_name = save_osm(@registry[:model], @registry[:root_dir])
+    idf_name = save_idf(@registry[:model], @registry[:root_dir])
     @registry[:time_logger].stop('Saving OSM and IDF') if @registry[:time_logger]
+    @logger.info "Saved OSM as #{osm_name}"
+    @logger.info "Saved IDF as #{idf_name}"
 
-    @results
+    results = {}
   end
 end

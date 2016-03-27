@@ -21,35 +21,37 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
   # Mixin the required util modules
   require_relative '../util'
-  include OpenStudio::Workflow::Util
+  include OpenStudio::Workflow::Util::Measure
+  include OpenStudio::Workflow::Util::Model
 
   # Initialize
   # param directory: base directory where the simulation files are prepared
   # param logger: logger object in which to write log messages
   def initialize(adapter, registry, options = {})
-    defaults = { format: 'hash', analysis_root_path: '.' }
     super
-    @results = {}
   end
 
   def perform
-    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
-    Workflow.logger.info "Current directory is #{@directory}"
+    @logger.info "Calling #{__method__} in the #{self.class} class"
 
-    Workflow.logger.info 'Beginning to execute OpenStudio measures.'
-    Measure.apply_measures(:openstudio, @registry, @options)
-    Workflow.logger.info('Finished applying OpenStudio measures.')
+    # Ensure output_attributes is initialized in the registry
+    @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
 
-    Workflow.logger.info 'Saving measure output attributes JSON'
-    # @todo config this to be optional
+    @logger.info 'Beginning to execute OpenStudio measures.'
+    apply_measures(:openstudio, @registry, @options)
+    @logger.info('Finished applying OpenStudio measures.')
+
+    @logger.info 'Saving measure output attributes JSON'
+    # @todo (rhorsey) config this to be optional
     File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
       f << JSON.pretty_generate(@registry[:output_attributes])
     end
 
     @registry[:time_logger].start('Saving OSM') if @registry[:time_logger]
-    Model.save_osm(@registry[:model], @registry[:root_dir])
+    osm_name = save_osm(@registry[:model], @registry[:root_dir])
     @registry[:time_logger].stop('Saving OSM') if @registry[:time_logger]
+    @logger.info "Saved model as #{osm_name}"
 
-    @results
+    results = {}
   end
 end

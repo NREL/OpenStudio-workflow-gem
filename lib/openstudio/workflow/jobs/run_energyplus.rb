@@ -30,16 +30,21 @@ class RunEnergyPlus < OpenStudio::Workflow::Job
   end
 
   def perform
-    Workflow.logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.info "Calling #{__method__} in the #{self.class} class"
 
     #Checks and configuration
     fail 'No run_dir specified in the registry' unless @registry[:run_dir]
     @options[:energyplus_path] ? ep_path = @options[:energyplus_path] : ep_path = nil
-    Workflow.logger.warn "Using EnergyPlus path specified in options #{ep_path}" if ep_path
+    @logger.warn "Using EnergyPlus path specified in options #{ep_path}" if ep_path
 
     @registry[:time_logger].start('Running EnergyPlus') if @registry[:time_logger]
     results = call_energyplus(@registry[:run_dir], ep_path)
     @registry[:time_logger].stop('Running EnergyPlus') if @registry[:time_logger]
+    @logger.info 'Completed the EnergyPlus simulation'
+
+    sql_path = File.join(@registry[:run_dir], 'eplusout.sql')
+    @registry.register(:sql) { sql_path } if File.exist? sql_path
+    @logger.warn "Unable to find sql file at #{sql_path}" unless @registry[:sql]
 
     results
   end

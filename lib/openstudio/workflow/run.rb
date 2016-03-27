@@ -38,14 +38,22 @@ module OpenStudio
       def self.default_jobs
         [
           { state: :queued, next_state: :initialization, options: { initial: true } },
-          { state: :initialization, next_state: :os_measures, job: :RunInitialization, options: {} },
-          { state: :os_measures, next_state: :translator, job: :run_os_measures, options: {} },
-          { state: :translator, next_state: :ep_measures, job: :run_translation, options: {} },
-          { state: :ep_measures, next_state: :preprocess, job: :run_ep_measures, options: {} },
-          { state: :preprocess, next_state: :simulation, job: :run_preprocess, options: {} },
-          { state: :simulation, next_state: :reporting_measures, job: :run_energyplus, options: {} },
-          { state: :reporting_measures, next_state: :postprocess, job: :run_reporting_measures, options: {} },
-          { state: :postprocess, next_state: :finished, job: :run_postprocess, options: {} },
+          { state: :initialization, next_state: :os_measures, job: :RunInitialization,
+            file: './jobs/run_initialization.rb', options: {} },
+          { state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
+            file: './jobs/run_os_measures.rb', options: {} },
+          { state: :translator, next_state: :ep_measures, job: :RunTranslation,
+            file: './jobs/run_translation.rb', options: {} },
+          { state: :ep_measures, next_state: :preprocess, job: :RunEnergyPlusMeasures,
+            file: './jobs/run_ep_measures.rb', options: {} },
+          { state: :preprocess, next_state: :simulation, job: :RunPreprocess,
+            file: './jobs/run_preprocess.rb' , options: {} },
+          { state: :simulation, next_state: :reporting_measures, job: :RunEnergyPlus,
+            file: './jobs/run_energyplus.rb', options: {} },
+          { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
+            file: './jobs/run_reporting_measures.rb', options: {} },
+          { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+            file: './jobs/run_postprocess.rb', options: {} },
           { state: :finished },
           { state: :errored }
         ]
@@ -85,12 +93,13 @@ module OpenStudio
         @options = defaults.merge(options)
         @job_results = {}
 
-        # Initialize the MultiDelegator logger
-        Workflow.logger(@options[:targets])
-
         # By default blow away the entire run directory every time and recreate it
         FileUtils.rm_rf(@registry[:run_dir]) if File.exist?(@registry[:run_dir])
         FileUtils.mkdir_p(@registry[:run_dir])
+
+        # Initialize the MultiDelegator logger
+        Workflow.logger(@options[:targets])
+        @registry.register(:logger) { Workflow.logger }
 
         Workflow.logger.info "Initializing directory #{@registry[:directory]} for simulation with options #{@options}"
 
@@ -106,6 +115,7 @@ module OpenStudio
       def run
         Workflow.logger.info "Starting workflow in #{@registry[:directory]}"
         begin
+          next_state
           while @current_state != :finished && @current_state != :errored
             sleep 2
             step
@@ -145,10 +155,11 @@ module OpenStudio
       # Step through the states, if there is an error (e.g. exception) then go to error
       #
       def step
-        next_state
-        job = @jobs.find { |h| h[:state] == @current_state }[:job]
-        klass = OpenStudio::Workflow.new_class(job, @adapter, @registry, options)
+        step_instance = @jobs.find { |h| h[:state] == @current_state }
+        require_relative step_instance[:file]
+        klass = OpenStudio::Workflow.new_class(step_instance[:job], @adapter, @registry, options)
         @job_results[@current_state.to_sym] = klass.perform
+        next_state
       rescue => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
       end

@@ -307,7 +307,7 @@ class DencityReports < OpenStudio::Ruleset::ReportingUserScript
       runner.registerValue("orientation", building_rotation, "deg")
       metadata[metadata.length] = ["orientation", "Building Orientation", "Orientation", "Degrees of building north axis off of true north", "degrees_angular", "double", "FALSE"]
 
-      floor_to_floor_height = building.nominalFloortoFloorHeight
+      floor_to_floor_height = building.nominalFloortoFloorHeight.get
       runner.registerValue("floor_to_floor_height", floor_to_floor_height, "m")
       metadata[metadata.length] = ["floor_to_floor_height", "Floor to Floor Height", "Flr-to-Flr Height", "Nominal floor to floor height of building", "meter", "double", "FALSE"]
 

@@ -3,15 +3,16 @@ module OpenStudio
     class Job
       # @todo (rhorsey) adapter is for output? - DLM
       # @todo (rhorsey) registry should be a member of WorkflowRunner, pass WorkflowRunner in here instead - DLM
-      def initialize(adapter, registry, options = {})
+      def initialize(adapter, registry, options = {}, defaults = nil)
         defaults ||= {debug: false}
         @options = defaults.merge(options)
         @adapter = adapter
         @registry = registry
+        @logger = @registry[:logger]
         @results = {}
 
-        Workflow.logger.info "#{self.class} passed the following options #{@options}"
-        Workflow.logger.info "#{self.class} passed the following registry #{@registry.to_hash}" if @options[:debug]
+        @logger.info "#{self.class} passed the following options #{@options}"
+        @logger.info "#{self.class} passed the following registry #{@registry.to_hash}" if @options[:debug]
       end
     end
 

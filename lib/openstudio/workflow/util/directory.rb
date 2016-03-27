@@ -42,14 +42,14 @@ module OpenStudio
           File.absolute_path(run_dir)
         end
 
-        # Return an compliant root directory, or nil should the :root_dir field not exist
+        # Return an compliant absolute root directory
         #
         # @param [Hash] workflow The OSW hash to parse for the root directory. The order of precedence for paths is as
         #   follows: 1 - an absolute path defined in :root_dir, 2 - the current working directory joined with the
         #   relative path defined in :root_dir
-        # @return [String, nil] Returns an absolute path as a string if :root_dir is defined, otherwise nil
+        # @return [String] Returns an absolute path as a string if :root_dir is defined, otherwise nil
         #
-        def get_root_dir(workflow)
+        def get_root_dir(workflow, directory)
           root_dir = nil
           if workflow[:root_dir]
             if Pathname.new(workflow[:root_dir]).absolute?
@@ -57,8 +57,10 @@ module OpenStudio
             else
               root_dir = File.join(Dir.pwd, root_dir)
             end
+          else
+            root_dir = directory
           end
-          root_dir
+          File.absolute_path(root_dir)
         end
       end
     end

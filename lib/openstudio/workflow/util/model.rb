@@ -7,6 +7,8 @@ module OpenStudio
       # the gem for loading IDFs to be safe
       #
       module Model
+        
+        require 'logger'
 
         # Method to create / load a seed OSM file
         #
@@ -20,8 +22,9 @@ module OpenStudio
         #   joined with the OSM file and appended to the directory, with each entry in the array searched until the osm
         #   model is found, 3 - an empty model if the model value is set to nil
         #
-        def load_seed_osm(directory, model, model_search_array)
-          Workflow.logger.info 'Loading seed model'
+        def load_seed_osm(directory, model, model_search_array = [], logger=nil)
+          logger = ::Logger.new(STDOUT) unless logger
+          logger.info 'Loading seed model'
           if model
             osm_path = nil
             if Pathname.new(model).absolute?
@@ -36,26 +39,26 @@ module OpenStudio
               end
             end
             unless osm_path
-              Workflow.logger.warn 'The seed OSM file was not found on the filesystem'
+              logger.warn 'The seed OSM file was not found on the filesystem'
               return nil
             end
-            Workflow.logger.info "Seed OSM file with precedence in the file system is #{osm_path}"
+            logger.info "Seed OSM file with precedence in the file system is #{osm_path}"
             unless File.exist? osm_path
-              Workflow.logger.warn 'The seed OSM file could not be found on the filesystem'
+              logger.warn 'The seed OSM file could not be found on the filesystem'
               osm_path = false
             end
           else
             # @todo this is hardcoded, move to constant
             osm_path = File.join(directory, 'files/empty.osm')
-            File.open(osm_path).close
+            File.open(osm_path, 'a').close
           end
 
           # Load the model and return it
-          Workflow.logger.info "Reading in seed model #{osm_path}"
+          logger.info "Reading in seed model #{osm_path}"
           translator = OpenStudio::OSVersion::VersionTranslator.new
           loaded_model = translator.loadModel(osm_path)
-          fail 'OpenStudio model can not be loaded. Please investigate' unless loaded_model.is_initialized?
-          Workflow.logger.warn 'OpenStudio model is empty or could not be loaded' if loaded_model.empty?
+          fail 'OpenStudio model can not be loaded. Please investigate' unless loaded_model.is_initialized
+          logger.warn 'OpenStudio model is empty or could not be loaded' if loaded_model.empty?
           loaded_model.get
         end
 
@@ -72,17 +75,19 @@ module OpenStudio
         # @param [Object] model the OpenStudio::Model instance to translate into an OpenStudio::Workspace object -- see
         #   the OpenStudio SDK for details on the process
         # @return [Object] Returns and OpenStudio::Workspace object
+        # @todo (rhorsey) rescue errors here
         #
-        def translate_to_energyplus(model)
-          Workflow.logger.info 'Translate object to EnergyPlus IDF in Prep for EnergyPlus Measure'
+        def translate_to_energyplus(model, logger=nil)
+          logger = ::Logger.new(STDOUT) unless logger
+          logger.info 'Translate object to EnergyPlus IDF in Prep for EnergyPlus Measure'
           a = ::Time.now
           # ensure objects exist for reporting purposes
           model.getFacility
           model.getBuilding
           forward_translator = OpenStudio::EnergyPlus::ForwardTranslator.new
-          model_idf = forward_translator.translateModel(@model)
+          model_idf = forward_translator.translateModel(model)
           b = ::Time.now
-          Workflow.logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
+          logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
           model_idf
         end
 
@@ -91,12 +96,12 @@ module OpenStudio
         # @param [Object] model The OpenStudio::Model instance to save to file
         # @param [String] save_directory Folder to save the model in
         # @param [String] name ('in.osm') Option to define a non-standard name
-        # @return [Void]
+        # @return [String] OSM file name
         #
         def save_osm(model, save_directory, name = 'in.osm')
           osm_filename = File.join(save_directory, name)
           File.open(osm_filename, 'w') { |f| f << model.to_s }
-          Workflow.logger.info "Saved the OSM model as #{osm_filename}"
+          osm_filename
         end
 
         # Saves an OpenStudio IDF model object to file
@@ -104,12 +109,12 @@ module OpenStudio
         # @param [Object] model The OpenStudio::Workspace instance to save to file
         # @param [String] save_directory Folder to save the model in
         # @param [String] name ('in.osm') Option to define a non-standard name
-        # @return [Void]
+        # @return [String] IDF file name
         #
         def save_idf(model_idf, save_directory, name = 'in.idf')
           idf_filename = File.join(save_directory, name)
           File.open(idf_filename, 'w') { |f| f << model_idf.to_s }
-          Workflow.logger.info "Saved the IDF model as #{idf_filename}"
+          idf_filename
         end
       end
     end

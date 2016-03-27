@@ -85,7 +85,7 @@
 						"null"
 					]
 				},
-				"osa_hash": {
+				"osa_checksum": {
 					"description": "Checksum of the .osa file from which this file was generated, or null if not generated from a .osa file",
 					"type": [
 						"number",
@@ -99,7 +99,7 @@
 						"null"
 					]
 				},
-				"osd_hash": {
+				"osd_checksum": {
 					"description": "Checksum of the .osd file from which this file was generated, or null if not generated from a .osd file",
 					"type": [
 						"number",
@@ -117,6 +117,26 @@
 				"id": {
 					"description": "UUID of this file",
 					"type": "string"
+				},
+				"run_directory": {
+					"description": "Path to the run directory: note that a run folder will be created in the target location",
+					"type": "string"
+				},
+				"file_paths": {
+					"description": "A set of ordered directories relative to root_directory to search for required files and libraries",
+					"type": "array",
+					"items": {
+						"description": "A path relative to the root_dir which should be searched for support files and folders",
+						"type": "string"
+					}
+				},
+				"measure_paths": {
+					"description": "A set of ordered directories relative to root_directory to search for required measures",
+					"type": "array",
+					"items": {
+						"description": "A path relative to the root_directory which should be searched for support files and folders",
+						"type": "string"
+					}
 				}
 			},
 			"required": [

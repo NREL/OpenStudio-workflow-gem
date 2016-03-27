@@ -33,8 +33,9 @@ module OpenStudio
           logger = registry[:logger]
           workflow = registry[:workflow]
           directory = registry[:directory]
-          measure_search_array = options[:measure_search_array]
-          measure_search_array ||= ['measures']
+          measure_search_array = options[:measure_search_array] ? options[:measure_search_array] : []
+          measure_search_array.concat @registry[:measure_paths] if @registry[:measure_paths]
+          measure_search_array = ['measures'] if measure_search_array == []
           registry[:time_logger].start "#{measure_type}:apply_measure" if registry[:time_logger]
           fail "The 'steps' array of the OSW is required." unless workflow[:steps]
           logger.info "Finding measures of type #{measure_type.to_s}"
@@ -122,7 +123,7 @@ module OpenStudio
           logger = ::Logger.new(STDOUT) unless logger
           state = 'openstudio'
           steps = workflow[:steps]
-          measure_search_array = workflow[:measure_paths] unless workflow[:measure_paths]
+          measure_search_array = workflow[:measure_paths] if workflow[:measure_paths]
           measure_search_array ||= ['measures']
           steps.each_with_index do |step, index|
             begin
@@ -213,8 +214,9 @@ module OpenStudio
           # @todo (rhorsey) runner should be passed in here - DLM
 
           logger = registry[:logger]
-          measure_search_array = options[:measure_search_array]
-          measure_search_array ||= ['measures']
+          measure_search_array = options[:measure_search_array] ? options[:measure_search_array] : []
+          measure_search_array.concat @registry[:measure_paths] if @registry[:measure_paths]
+          measure_search_array = ['measures'] if measure_search_array == []
           measure_dir_name = step[:measure_dir_name]
           analysis = registry[:analysis]
           datapoint = registry[:datapoint]

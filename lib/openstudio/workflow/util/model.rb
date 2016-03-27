@@ -31,7 +31,8 @@ module OpenStudio
               osm_path = model
             else
               model_search_array.each do |model_dir|
-                fail "The path #{model_dir} does not exist" unless File.exists? File.join(directory, model_dir)
+                logger.warn "The path #{model_dir} does not exist" unless File.exists? File.join(directory, model_dir)
+                next unless File.exists? File.join(directory, model_dir)
                 if Dir.entries(File.join(directory, model_dir)).include? model
                   osm_path = File.absolute_path(File.join(directory, model_dir, model))
                   break

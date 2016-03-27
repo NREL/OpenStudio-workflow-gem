@@ -29,13 +29,13 @@ module OpenStudio
         #
         def get_run_dir(workflow, directory)
           run_dir = nil
-          if workflow[:run_dir]
-            if Pathname(workflow[:run_dir]).absolute?
-              run_dir = workflow[:run_dir]
-            elsif get_root_dir(workflow)
-              run_dir = File.join(get_root_dir(workflow), workflow[:run_dir])
+          if workflow[:run_directory]
+            if Pathname(workflow[:run_directory]).absolute?
+              run_dir = File.join(workflow[:run_dirdirectory], 'run')
+            elsif get_root_dir(workflow, directory)
+              run_dir = File.join(get_root_dir(workflow, directory), workflow[:run_directory], 'run')
             else
-              run_dir = File.join(Dir.pwd, workflow[:run_dir])
+              run_dir = File.join(Dir.pwd, workflow[:run_dirirectory], 'run')
             end
           end
           run_dir = File.join(get_directory(directory), 'run') unless run_dir

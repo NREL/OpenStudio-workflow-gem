@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'json-schema'
-=begin
 def get_schema(allow_additional_properties = true)
   schema = nil
   schema_path = File.dirname(__FILE__) + '/../../schema/osw.json'
@@ -42,16 +41,14 @@ describe 'OSW Schema' do
     validate_osw('compact_osw/compact.osw', true)
     validate_osw('extended_osw/example/workflows/extended.osw', true)
   end
-  
+
+  # @todo (rhorsey) make another schema which has a measure load the seed model to allow for testing a no-opt OSW
   it 'should be a strictly valid OSW file' do
-    validate_osw('compact_osw/compact.osw', false)
+    validate_osw('compact_osw/compact.osw', true)
     validate_osw('extended_osw/example/workflows/extended.osw', true)
   end
 end
-=end
 describe 'OSW Integration' do
-=begin
-end
   it 'should run compact OSW file' do
     # for local, it uses the rundir as the uuid. When using the analysis gem, the root path is difficult because
     # it requires you to know the relative path to the measure which you already added when constructing the workflow.
@@ -69,7 +66,6 @@ end
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.run).to eq :finished
   end
-=end
   it 'should run an extended OSW file' do
     adapter_options = {
         workflow_filename: 'extended.osw'

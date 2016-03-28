@@ -4,6 +4,7 @@ module OpenStudio
     # Hard load utils for the moment
     #
     module Util
+      require_relative 'util/io'
       require_relative 'util/measure'
       require_relative 'util/type_casting'
       require_relative 'util/directory'

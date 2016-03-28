@@ -6,7 +6,7 @@ include OpenStudio::Workflow::Util::TypeCasting
 class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   # Allow former arguments and the current weatherfile path to be set and read
   # TODO: Consider having the former arguments passed in in initialization, and define as attr_reader
-   # @todo (rhorsey) some of this stuff is in C++ - DLM
+  # @todo (rhorsey) some of this stuff is in C++ - DLM
   attr_accessor :former_workflow_arguments
   attr_accessor :weatherfile_path
 

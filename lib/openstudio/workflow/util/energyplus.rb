@@ -61,6 +61,7 @@ module OpenStudio
             dest_file = "#{run_directory}/#{File.basename(file)}"
             energyplus_files << dest_file
 
+            # @todo (rhorsey) don't need to do this copy - DLM
             energyplus_exe = File.basename(dest_file) if File.basename(dest_file) =~ ENERGYPLUS_REGEX
             expand_objects_exe = File.basename(dest_file) if File.basename(dest_file) =~ EXPAND_OBJECTS_REGEX
             FileUtils.copy file, dest_file
@@ -68,6 +69,9 @@ module OpenStudio
 
           fail "Could not find EnergyPlus executable in #{energyplus_path}" unless energyplus_exe
           fail "Could not find ExpandObjects executable in #{energyplus_path}" unless expand_objects_exe
+          
+          Workflow.logger.info "EnergyPlus executable path is #{energyplus_exe}"
+          Workflow.logger.info "ExpandObjects executable path is #{expand_objects_exe}"
 
           return energyplus_files, energyplus_exe, expand_objects_exe
         end
@@ -89,8 +93,10 @@ module OpenStudio
             Dir.chdir(run_directory)
             Workflow.logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
+            command = Util.popen_command("./#{expand_objects_exe}")
+            Workflow.logger.info "Running command '#{command}'"
             File.open('stdout-expandobject', 'w') do |file|
-              IO.popen("./#{expand_objects_exe}") do |io|
+              IO.popen(command) do |io|
                 while (line = io.gets)
                   file << line
                 end
@@ -104,8 +110,10 @@ module OpenStudio
             end
 
             # create stdout
+            command = Util.popen_command("./#{energyplus_exe} 2>&1")
+            Workflow.logger.info "Running command '#{command}'"
             File.open('stdout-energyplus', 'w') do |file|
-              IO.popen("./#{energyplus_exe} 2>&1") do |io|
+              IO.popen(command) do |io|
                 while (line = io.gets)
                   file << line
                 end

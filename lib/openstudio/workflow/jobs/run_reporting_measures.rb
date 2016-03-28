@@ -41,40 +41,6 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     # Do something because
     translate_csv_to_json @registry[:root_dir]
 
-    # Run Standard Reports
-    standard_report_dir = OpenStudio::BCLMeasure.standardReportMeasure.directory.to_s
-    measure_dir_name = File.basename(standard_report_dir)
-    standard_report_dir = File.absolute_path(File.join(standard_report_dir, '..'))
-    relative_path = Pathname.new(standard_report_dir).relative_path_from(Pathname.new(@registry[:directory])).to_s
-    # @todo add empty arguments and allow for options overload, also disenable
-    step = {measure_dir_name: measure_dir_name, arguments: []}
-    step_options = {measure_search_array: [relative_path]}
-    @logger.info 'Running packaged Standard Reports measures'
-    begin
-      apply_measure(@registry, step, step_options)
-    rescue => e
-      @logger.warn "Error applying Standard Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
-    end
-
-    # Run Calibration Reports
-    @logger.info "Found #{@model.getUtilityBills.length} utility bills"
-    if @model.getUtilityBills.length > 0
-      calibration_report_dir = OpenStudio::BCLMeasure.calibrationReportMeasure.directory.to_s
-      measure_dir_name = File.basename(calibration_report_dir)
-      calibration_report_dir = File.absolute_path(File.join(calibration_report_dir, '..'))
-      relative_path = Pathname.new(calibration_report_dir).relative_path_from(Pathname.new(@registry[:directory])).to_s
-      step = {measure_dir_name: measure_dir_name, arguments: []}
-      step_options = {measure_search_array: [relative_path]}
-      @logger.info 'Running packaged Calibration Reports measures'
-      begin
-        apply_measure(@registry, step, step_options)
-      rescue => e
-        @logger.warn "Error applying Calibration Reports measure. Failed with #{e.message}, #{e.backtrace.join("\n")} \n Continuing."
-      end
-    end
-
-    @logger.info 'Finished Running Packaged Measures'
-
     # Apply reporting measures
     @logger.info 'Beginning to execute OpenStudio measures.'
     apply_measures(:reporting, @registry, @options)

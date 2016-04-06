@@ -3,20 +3,16 @@ class ExtendedRunner < OpenStudio::Ruleset::OSRunner
   # Allow former arguments to be set and read
   # TODO: Consider having the former arguments passed in in initialization, and define as attr_reader
   attr_accessor :former_workflow_arguments
+  attr_accessor :past_results
   attr_reader :workflow_arguments
 
   # Add in @workflow_arguments
-  def initialize(multi_logger, analysis_hash, datapoint_hash, output_attributes)
+  def initialize(multi_logger, analysis_hash, datapoint_hash)
     @multi_logger = multi_logger
     @analysis = analysis_hash
     @datapoint = datapoint_hash
-    @results = output_attributes
     @workflow_arguments = nil
     super()
-  end
-
-  def past_results
-    return @results
   end
 
   def analysis

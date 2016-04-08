@@ -18,6 +18,7 @@
 ######################################################################
 
 require_relative 'util/directory'
+require_relative 'registry'
 
 # Run Class for OpenStudio workflow.  All comments here need some love, as well as the code itself
 module OpenStudio
@@ -34,7 +35,6 @@ module OpenStudio
 
       # Define the default set of jobs. Note that the states of :queued of :finished need to exist for all job arrays.
       #
-      # @todo (rhorsey) this can just be an array of :state, :initialization, and :options; :next_state is unneccesary since we don't want to allow branching - DLM
       def self.default_jobs
         [
           { state: :queued, next_state: :initialization, options: { initial: true } },
@@ -88,13 +88,15 @@ module OpenStudio
         defaults = {
           jobs: OpenStudio::Workflow::Run.default_jobs,
            # @todo (rhorsey) OpenStudio Logger should be a target?  The runner.registerXXX methods should be a target? - DLM
-          targets: [STDOUT, File.open(File.join(@registry[:directory], 'run.log'), 'a')]
+          targets: [STDOUT, File.open(File.join(@registry[:directory], 'run.log'), 'a')],
+          preserve_run_dir: false
         }
         @options = defaults.merge(options)
         @job_results = {}
 
         # By default blow away the entire run directory every time and recreate it
-        FileUtils.rm_rf(@registry[:run_dir]) if File.exist?(@registry[:run_dir])
+
+        FileUtils.rm_rf(@registry[:run_dir]) if File.exist?(@registry[:run_dir]) unless @options[:preserve_run_dir]
         FileUtils.mkdir_p(@registry[:run_dir])
 
         # Initialize the MultiDelegator logger

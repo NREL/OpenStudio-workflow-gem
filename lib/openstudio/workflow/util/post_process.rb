@@ -11,6 +11,16 @@ module OpenStudio
       #
       module PostProcess
 
+        # This method loads a sql file into OpenStudio and returns it
+        #
+        # @param [String] sql_file Absolute path to the sql file to be loaded
+        # @return [Object, nil] The OpenStudio::SqlFile object, or nil if it could not be found
+        #
+        def load_sql_file(sql_file)
+          return nil unless File.exist? sql_file
+          OpenStudio::SqlFile.new(@sql_filename)
+        end
+
         # This method parses all sorts of stuff which something needs
         #
         # @param [String] run_dir The directory that the simulation was run in
@@ -149,7 +159,6 @@ module OpenStudio
         # A general post-processing step which could be made significantly more modular
         #
         # @param [String] run_dir
-        # @todo (rhorsey) What is the @reports directory referring to?
         #
         def cleanup(run_dir, directory)
           # move any of the reporting file to the 'reports' directory for serverside access

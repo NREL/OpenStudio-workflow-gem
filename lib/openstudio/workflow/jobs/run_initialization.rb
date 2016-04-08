@@ -75,7 +75,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     else
       file_search_paths = @options[:file_paths]
     end
-    @registry.register(:model) { load_seed_osm(@registry[:root_dir], model_name, file_search_paths, @logger) }
+    @registry.register(:model) { load_osm(@registry[:root_dir], model_name, file_search_paths, @logger) }
 
     # Load the weather file, should it exist and be findable
     @logger.info 'Getting the initial weather file'
@@ -84,6 +84,6 @@ class RunInitialization < OpenStudio::Workflow::Job
     @logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
 
     # return the results back to the caller -- always
-    results = {}
+    {}
   end
 end

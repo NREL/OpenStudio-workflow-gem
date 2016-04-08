@@ -10,21 +10,22 @@ module OpenStudio
         
         require 'logger'
 
-        # Method to create / load a seed OSM file
+        # Method to create / load an OSM file
         #
         # @param [String] directory The base directory to append all relative directories to
         # @param [String] model The OSM file being searched for. If not the name of the file this parameter should be
         #   the absolute path specifying it's location
         # @param [Array] model_search_array The set of precedence ordered relative directories to search for the wf in.
         #   A typical entry might look like `['files', '../../files']`
+        # @param [Object] logger An optional logger to use for finding the OSM model
         # @return [Object] The return from this method is a loaded OSM or a failure. The order of precedence for paths
         #   is as follows: 1 - an absolute path defined in model, 2 - the model_search_array, should it be defined,
         #   joined with the OSM file and appended to the directory, with each entry in the array searched until the osm
         #   model is found, 3 - an empty model if the model value is set to nil
         #
-        def load_seed_osm(directory, model, model_search_array = [], logger=nil)
+        def load_osm(directory, model, model_search_array = [], logger=nil)
           logger = ::Logger.new(STDOUT) unless logger
-          logger.info 'Loading seed model'
+          logger.info 'Loading OSM model'
           if model
             osm_path = nil
             if Pathname.new(model).absolute?
@@ -40,14 +41,11 @@ module OpenStudio
               end
             end
             unless osm_path
-              logger.warn 'The seed OSM file was not found on the filesystem'
+              logger.warn 'The OSM file was not found on the filesystem'
               return nil
             end
-            logger.info "Seed OSM file with precedence in the file system is #{osm_path}"
-            unless File.exist? osm_path
-              logger.warn 'The seed OSM file could not be found on the filesystem'
-              osm_path = false
-            end
+            logger.info "The OSM file with precedence in the file system is #{osm_path}"
+            fail 'The OSM file could not be found on the filesystem' unless File.exist? osm_path
           else
             # @todo this is hardcoded, move to constant
             osm_path = File.join(directory, 'files/empty.osm')
@@ -55,7 +53,7 @@ module OpenStudio
           end
 
           # Load the model and return it
-          logger.info "Reading in seed model #{osm_path}"
+          logger.info "Reading in OSM model #{osm_path}"
           translator = OpenStudio::OSVersion::VersionTranslator.new
           loaded_model = translator.loadModel(osm_path)
           fail 'OpenStudio model can not be loaded. Please investigate' unless loaded_model.is_initialized
@@ -63,12 +61,51 @@ module OpenStudio
           loaded_model.get
         end
 
-        # Method to create / load a seed IDF file. Not yet implemented
+        # Method to create / load an IDF file
         #
-        # @todo (rhorsey) this method needs to be written
+        # @param [String] directory The base directory to append all relative directories to
+        # @param [String] model The IDF file being searched for. If not the name of the file this parameter should be
+        #   the absolute path specifying it's location
+        # @param [Array] model_search_array The set of precedence ordered relative directories to search for the wf in.
+        #   A typical entry might look like `['files', '../../files']`
+        # @param [Object] logger An optional logger to use for finding the idf model
+        # @return [Object] The return from this method is a loaded IDF or a failure. The order of precedence for paths
+        #   is as follows: 1 - an absolute path defined in model, 2 - the model_search_array, should it be defined,
+        #   joined with the IDF file and appended to the directory, with each entry in the array searched until the IDF
+        #   model is found, 3 - an empty model if the model value is set to nil
         #
-        def load_seed_idf
-          fail 'Method not yet implemented'
+        def load_idf(directory, idf_model, model_search_array = [], logger=nil)
+          logger = ::Logger.new(STDOUT) unless logger
+          logger.info 'Loading IDF model'
+          if idf_model
+            idf_path = nil
+            if Pathname.new(idf_model).absolute?
+              idf_path = idf_model
+            else
+              model_search_array.each do |model_dir|
+                logger.warn "The path #{model_dir} does not exist" unless File.exists? File.join(directory, model_dir)
+                next unless File.exists? File.join(directory, model_dir)
+                if Dir.entries(File.join(directory, model_dir)).include? idf_model
+                  idf_path = File.absolute_path(File.join(directory, model_dir, idf_model))
+                  break
+                end
+              end
+            end
+            unless idf_path
+              logger.warn 'The IDF file was not found on the filesystem'
+              return nil
+            end
+            logger.info "The IDF file with precedence in the file system is #{idf_path}"
+            fail 'The IDF file could not be found on the filesystem' unless File.exist? idf_path
+          else
+            # @todo this is hardcoded, move to constant
+            osm_path = File.join(directory, 'files/empty.idf')
+            File.open(osm_path, 'a').close
+          end
+
+          # Load the IDF into a workspace object and return it
+          logger.info "Reading in IDF model #{idf_path}"
+          OpenStudio::Workspace.load(idf_path).get
         end
 
         # Translates a OpenStudio model object into an OpenStudio IDF object

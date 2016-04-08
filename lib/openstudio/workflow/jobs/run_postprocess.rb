@@ -28,11 +28,19 @@ include OpenStudio::Workflow::Util::PostProcess
 class RunPostprocess < OpenStudio::Workflow::Job
 
   def initialize(adapter, registry, options = {})
-    super
+    defaults = {
+        cleanup: true
+    }
+    super(adapter, registry, options, defaults)
   end
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
+
+    unless @options[:cleanup]
+      @logger.info 'Flag for cleanup in options set to false. Moving to next step.'
+      return {}
+    end
 
     @logger.info 'Beginning cleanup of the run directory'
     cleanup(@registry[:run_dir], @registry[:directory])
@@ -40,7 +48,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
 
     @logger.info 'Finished postprocess'
 
-    results = {}
+    {}
   end
 
 

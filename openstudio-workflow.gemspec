@@ -16,11 +16,11 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.0.0'
 
-  s.files = Dir.glob('lib/**/*') + %w(README.md CHANGELOG.md Rakefile exe/openstudio_cli)
-  s.executables = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  s.files = Dir.glob('lib/**/*') + %w(README.md CHANGELOG.md Rakefile bin/openstudio_cli)
+  s.executables << 'openstudio_cli'
   s.require_path = 'lib'
 
   s.add_development_dependency 'bundler', '~> 1.6'
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'json-schema'
+  s.add_development_dependency 'rake', '~> 0'
+  s.add_development_dependency 'json-schema', '~> 0'
 end

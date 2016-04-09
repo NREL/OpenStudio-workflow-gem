@@ -1,4 +1,4 @@
-#!/usr/exe/env ruby
+#!/usr/bin/env ruby
 
 Signal.trap('INT') { abort }
 
@@ -542,7 +542,7 @@ class ListCommands
   end
 end
 
-# FROM VAGRANT exe - the code used to invoke the CLI action
+# FROM VAGRANT bin - the code used to invoke the CLI action
 # Split arguments by "--" if its there, we'll recombine them later
 $argv = ARGV.dup
 if $argv.include? '--verbose'

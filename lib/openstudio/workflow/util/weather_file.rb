@@ -86,7 +86,7 @@ module OpenStudio
             wf_search_array.each do |wf_dir|
               logger.warn "The path #{wf_dir} does not exist" unless File.exists? File.join(directory, wf_dir)
               next unless File.exists? File.join(directory, wf_dir)
-              if Dir.entries(File.join(directory, wf_dir)).include? wf
+              if Dir.entries(File.join(directory, wf_dir)).include? File.basename(wf)
                 weather_file = File.absolute_path(File.join(directory, wf_dir, wf))
                 break
               end

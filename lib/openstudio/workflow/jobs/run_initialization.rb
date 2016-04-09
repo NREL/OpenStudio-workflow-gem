@@ -30,8 +30,8 @@ class RunInitialization < OpenStudio::Workflow::Job
   def initialize(adapter, registry, options = {})
     defaults = {
         verify_osw: true,
-        measure_paths: ['measures', '../../measures'],
-        file_paths: ['files', 'weather', '../../files', '../../weather'],
+        measure_paths: ['measures', '../../measures', './'],
+        file_paths: ['files', 'weather', '../../files', '../../weather', './'],
 
     }
     super(adapter, registry, options, defaults)

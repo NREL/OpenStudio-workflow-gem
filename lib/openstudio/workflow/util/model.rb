@@ -34,7 +34,7 @@ module OpenStudio
               model_search_array.each do |model_dir|
                 logger.warn "The path #{model_dir} does not exist" unless File.exists? File.join(directory, model_dir)
                 next unless File.exists? File.join(directory, model_dir)
-                if Dir.entries(File.join(directory, model_dir)).include? model
+                if Dir.entries(File.join(directory, model_dir)).include? File.basename(model)
                   osm_path = File.absolute_path(File.join(directory, model_dir, model))
                   break
                 end
@@ -85,7 +85,7 @@ module OpenStudio
               model_search_array.each do |model_dir|
                 logger.warn "The path #{model_dir} does not exist" unless File.exists? File.join(directory, model_dir)
                 next unless File.exists? File.join(directory, model_dir)
-                if Dir.entries(File.join(directory, model_dir)).include? idf_model
+                if Dir.entries(File.join(directory, model_dir)).include? File.basename(idf_model)
                   idf_path = File.absolute_path(File.join(directory, model_dir, idf_model))
                   break
                 end

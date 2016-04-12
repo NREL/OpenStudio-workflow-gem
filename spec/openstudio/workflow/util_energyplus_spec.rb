@@ -1,10 +1,12 @@
-require 'spec_helper'
+require_relative './../../spec_helper'
 
 describe 'EnergyPlus Module' do
 
   it 'should find EnergyPlus' do
-    # todo (rhorsey) - How can I test this method?  If I change it to self.find_energyplus in energyplus.rb then other methods break - DLM
-    OpenStudio::Workflow::Util::EnergyPlus.find_energyplus
+    include OpenStudio::Workflow::Util::EnergyPlus
+    energyplus_dir = find_energyplus
+    expect(energyplus_dir).to be_instance_of String
+    expect(File.exist?(energyplus_dir)).to eq true
   end
 
 end

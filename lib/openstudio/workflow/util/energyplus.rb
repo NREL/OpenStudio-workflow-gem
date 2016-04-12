@@ -4,10 +4,10 @@ module OpenStudio
 
       # The methods needed to run simulations using EnergyPlus are stored here. See the run_simulation class for
       #   implementation details.
-      # @todo Get Nick to explain how to handle the require clause here
-      #
       module EnergyPlus
 
+        require_relative 'io'
+        include OpenStudio::Workflow::Util::IO
         ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i
         EXPAND_OBJECTS_REGEX = /^expandobjects\D{0,4}$/i
 
@@ -93,27 +93,27 @@ module OpenStudio
             Dir.chdir(run_directory)
             Workflow.logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
-            command = Util.popen_command("./#{expand_objects_exe}")
+            command = popen_command("./#{expand_objects_exe}")
             Workflow.logger.info "Running command '#{command}'"
             File.open('stdout-expandobject', 'w') do |file|
-              IO.popen(command) do |io|
+              ::IO.popen(command) do |io|
                 while (line = io.gets)
                   file << line
                 end
               end
             end
 
-            # Check if expand objects did anythying
+            # Check if expand objects did anything
             if File.exist? 'expanded.idf'
               FileUtils.mv('in.idf', 'pre-expand.idf', force: true) if File.exist?('in.idf')
               FileUtils.mv('expanded.idf', 'in.idf', force: true)
             end
 
             # create stdout
-            command = Util.popen_command("./#{energyplus_exe} 2>&1")
+            command = popen_command("./#{energyplus_exe} 2>&1")
             Workflow.logger.info "Running command '#{command}'"
             File.open('stdout-energyplus', 'w') do |file|
-              IO.popen(command) do |io|
+              ::IO.popen(command) do |io|
                 while (line = io.gets)
                   file << line
                 end

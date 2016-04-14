@@ -783,6 +783,7 @@ end
 # Configure Gems to load the correct Gem files
 # @see http://rubygems.rubyforge.org/rubygems-update/Gem.html
 local_dir = ENV['OPENSTUDIO_GEM_PATH'] ? ENV['OPENSTUDIO_GEM_PATH'] : "~/OpenStudio/v#{OpenStudio.openStudioVersion}"
+local_dir = File.absolute_path(local_dir)
 ENV['GEM_PATH'] = OpenStudio::Workflow::Util::IO.is_windows? ? local_dir.gsub('/', '\\') : local_dir
 $logger.debug "Set environment variable GEM_PATH to #{ENV['GEM_PATH']}"
 ENV['GEM_HOME'] = OpenStudio::Workflow::Util::IO.is_windows? ? '\\' : '/'

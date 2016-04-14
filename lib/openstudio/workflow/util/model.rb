@@ -47,9 +47,7 @@ module OpenStudio
             logger.info "The OSM file with precedence in the file system is #{osm_path}"
             fail 'The OSM file could not be found on the filesystem' unless File.exist? osm_path
           else
-            # @todo this is hardcoded, move to constant
-            osm_path = File.join(directory, 'files/empty.osm')
-            File.open(osm_path, 'a').close
+            return OpenStudio::Model::Model.new
           end
 
           # Load the model and return it

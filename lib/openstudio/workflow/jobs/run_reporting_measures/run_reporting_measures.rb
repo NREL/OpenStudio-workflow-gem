@@ -25,7 +25,7 @@ class RunReportingMeasures
   # Mixin the MeasureApplication module to apply measures
   include OpenStudio::Workflow::ApplyMeasures
 
-  def initialize(directory, logger, time_logger, adapter, workflow_arguments, options = {})
+  def initialize(directory, logger, time_logger, adapter, workflow_arguments, past_results, options = {})
     defaults = {}
     @options = defaults.merge(options)
     @directory = directory
@@ -34,6 +34,7 @@ class RunReportingMeasures
     @logger = logger
     @time_logger = time_logger
     @workflow_arguments = workflow_arguments
+    @past_results = past_results
     @results = {}
     @output_attributes = {}
 

@@ -128,7 +128,7 @@ module OpenStudio
             measure = Object.const_get(measure_name).new
             runner = ExtendedRunner.new(@logger, @analysis_json, @datapoint_json)
             runner.former_workflow_arguments = @workflow_arguments
-            runner.past_results = @output_attributes
+            runner.past_results = @past_results
           rescue => e
             log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
             raise log_message
@@ -212,9 +212,11 @@ module OpenStudio
           begin
             measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
             @output_attributes[workflow_item[:name].to_sym] = measure_attributes[:attributes]
+            @past_results[workflow_item[:name].to_sym] = measure_attributes[:attributes]
 
             # add an applicability flag to all the measure results
             @output_attributes[workflow_item[:name].to_sym][:applicable] = result.value.value != -1
+            @past_results[workflow_item[:name].to_sym][:applicable] = result.value.value != -1
           rescue => e
             log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
             @logger.error log_message

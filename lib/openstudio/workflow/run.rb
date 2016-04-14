@@ -95,6 +95,7 @@ module OpenStudio
         @directory = directory
         @time_logger = TimeLogger.new
         @workflow_arguments = {}
+        @past_results = {}
         # TODO: run directory is a convention right now. Move to a configuration item
         @run_directory = "#{@directory}/run"
 
@@ -310,7 +311,7 @@ module OpenStudio
         require_relative "jobs/#{from_method}/#{from_method}"
         klass_name = from_method.to_s.split('_').map(&:capitalize) * ''
         @logger.info "Getting method for state transition '#{from_method}'"
-        klass = Object.const_get(klass_name).new(@directory, @logger, @time_logger, @adapter, @workflow_arguments, get_job_options)
+        klass = Object.const_get(klass_name).new(@directory, @logger, @time_logger, @adapter, @workflow_arguments, @past_results, get_job_options)
         klass
       end
     end

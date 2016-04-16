@@ -22,8 +22,9 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     @results = output_attributes
     @workflow_arguments = nil
     
-    # @todo (macumber) C++ class should take WorkflowJSON in constructor
-    super()
+    # @todo (rhorsey) pass in the real WorkflowJSON here
+    workflow = OpenStudio::WorkflowJSON.new
+    super(workflow)
   end
 
   def past_results

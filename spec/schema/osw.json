@@ -143,6 +143,7 @@
 					}
 				},
 				"run_method": {
+					"description": "Describes which measures in the workflow should be run.  Default is RunAll.  ApplySingleMeasure is used in apply meausre now.",
 					"type": "string",
 					"enum": [
 						"RunAll",

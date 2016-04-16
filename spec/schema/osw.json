@@ -141,6 +141,16 @@
 						"description": "A path relative to the root_directory which should be searched for support files and folders",
 						"type": "string"
 					}
+				},
+				"run_method": {
+					"type": "string",
+					"enum": [
+						"RunAll",
+						"RunModelMeasures",
+						"RunModelAndEnergyPlusMeasures",
+						"RunReportingMeasures",
+						"ApplySingleMeasure"
+					]
 				}
 			},
 			"required": [

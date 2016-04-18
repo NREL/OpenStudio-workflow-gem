@@ -17,30 +17,41 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require 'logger'
+require_relative '../output_adapter'
 
-class Logger
-  def format_message(severity, datetime, _progname, msg)
-    "[%s %s] %s\n" % [datetime.strftime('%H:%M:%S.%6N'), severity, msg]
-  end
-end
+# Local file based workflow
+module OpenStudio
+  module Workflow
+    module Adapters
+      class Socket < OutputAdapter
+        def initialize(options = {})
+          super
+        end
 
-# Class to allow multiple logging paths
-class MultiDelegator
-  def initialize(*targets)
-    @targets = targets
-  end
+        def communicate_started
 
-  def self.delegate(*methods)
-    methods.each do |m|
-      define_method(m) do |*args|
-        @targets.map { |t| t.send(m, *args) }
+        end
+
+        def communicate_results(directory, results)
+
+        end
+
+        def communicate_complete
+
+        end
+
+        def communicate_failure
+
+        end
+
+        def communicate_objective_function(objectives, options = {})
+
+        end
+
+        def communicate_transition(message, type, options = {})
+
+        end
       end
     end
-    self
-  end
-
-  class <<self
-    alias_method :to, :new
   end
 end

@@ -71,6 +71,7 @@ module OpenStudio
         #   is as follows: 1 - an absolute path defined in model, 2 - the model_search_array, should it be defined,
         #   joined with the IDF file and appended to the directory, with each entry in the array searched until the IDF
         #   model is found, 3 - an empty model if the model value is set to nil
+        # @todo (macumber) Add in Forward translator support to the loaded IDF
         #
         def load_idf(directory, idf_model, model_search_array = [], logger=nil)
           logger = ::Logger.new(STDOUT) unless logger

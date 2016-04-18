@@ -12,7 +12,7 @@ describe 'Load the correct gems' do
     puts cli_file
     puts test_gem_path
     puts workflow_file
-    res = system "ruby -I #{lib_file} #{cli_file} --gem_path #{test_gem_path} run -w #{workflow_file} -m"
+    res = system "ruby -I #{lib_file} #{cli_file} --gem_path #{test_gem_path} run -w #{workflow_file} -m --verbose"
 
     expect(res).to eq true
   end

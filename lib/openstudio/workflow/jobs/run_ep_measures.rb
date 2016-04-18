@@ -17,17 +17,14 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+# This class runs all EnergyPlus measures defined in the OSW
 class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
 
   require_relative '../util'
   include OpenStudio::Workflow::Util::Measure
   include OpenStudio::Workflow::Util::Model
 
-  # Initialize
-  # param directory: base directory where the simulation files are prepared
-  # param logger: logger object in which to write log messages
-  # @todo fix where osm and idf are saved
-  def initialize(adapter, registry, options = {})
+  def initialize(input_adapter, output_adapter, registry, options = {})
     super
   end
 
@@ -36,16 +33,19 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
 
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
-    
+
+    # Apply the EnergyPlus measures
+    @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute EnergyPlus measures.'
     apply_measures(:energyplus, @registry, @options)
     @logger.info('Finished applying EnergyPlus measures.')
 
-    @logger.info 'Saving measure output attributes JSON'
-    File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
-      f << JSON.pretty_generate(@registry[:output_attributes])
-    end
+    # Send the measure output attributes to the output adapter
+    @logger.info 'Communicating measure output attributes to the output adapter'
+    @output_adapter.communicate_measure_attributes @registry[:output_attributes]
 
+    # Save both the OSM and IDF if the :debug option is true
+    return nil unless @options[:debug]
     @registry[:time_logger].start('Saving OSM and IDF') if @registry[:time_logger]
     osm_name = save_osm(@registry[:model], @registry[:root_dir])
     idf_name = save_idf(@registry[:model], @registry[:root_dir])
@@ -53,6 +53,6 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
     @logger.info "Saved OSM as #{osm_name}"
     @logger.info "Saved IDF as #{idf_name}"
 
-    results = {}
+    nil
   end
 end

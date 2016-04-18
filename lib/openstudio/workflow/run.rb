@@ -28,8 +28,8 @@ module OpenStudio
       attr_accessor :registry
 
       attr_reader :options
-      attr_reader :adapter
-      attr_reader :final_state
+      attr_reader :input_adapter
+      attr_reader :output_adapter
       attr_reader :final_message
       attr_reader :job_results
 
@@ -71,8 +71,9 @@ module OpenStudio
       # @option options [Hash] :jobs ???
       # @todo (rhorsey) establish definitive documentation on all option parameters
       #
-      def initialize(adapter, directory, options = {})
-        @adapter = adapter
+      def initialize(input_adapter, output_adapter, directory, options = {})
+        @input_adapter = input_adapter
+        @output_adapter = output_adapter
         @final_message = ''
         @current_state = nil
         @transitions = {}
@@ -82,20 +83,21 @@ module OpenStudio
         @registry = Registry.new
         # @todo (rhorsey) these keys, e.g. :directory, :run_dir, etc; are effectively a new, undocumented schema, do we really want that?  can we just stick with the OSW format? - DLM
         @registry.register(:directory) { get_directory directory }
-        @registry.register(:run_dir) { get_run_dir(adapter.get_workflow(@registry[:directory]), @registry[:directory]) }
-        @registry.register(:time_logger) { TimeLogger.new }
+        @registry.register(:run_dir) { get_run_dir(@input_adapter.get_workflow(@registry[:directory]), @registry[:directory]) }
         @registry.register(:workflow_arguments) { Hash.new }
         defaults = {
           jobs: OpenStudio::Workflow::Run.default_jobs,
            # @todo (rhorsey) OpenStudio Logger should be a target?  The runner.registerXXX methods should be a target? - DLM
           targets: [STDOUT, File.open(File.join(@registry[:directory], 'run.log'), 'a')],
-          preserve_run_dir: false
+          preserve_run_dir: false,
+          debug: false,
+          profile: true
         }
         @options = defaults.merge(options)
-        @job_results = {}
+        @registry.register(:time_logger) { TimeLogger.new } if @options[:profile]
+
 
         # By default blow away the entire run directory every time and recreate it
-
         FileUtils.rm_rf(@registry[:run_dir]) if File.exist?(@registry[:run_dir]) unless @options[:preserve_run_dir]
         FileUtils.mkdir_p(@registry[:run_dir])
 
@@ -124,31 +126,17 @@ module OpenStudio
           end
 
           Workflow.logger.info 'Finished workflow - communicating results and zipping files'
-
-          # @todo (nlong) This should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
-          # @todo (rhorsey) why does this need to be handled specially?  if it needs to happen right now instead of later in the ensure block, can't this happen in the Job since the Job has access to the adapter? - DLM
-          if @job_results[:run_reporting_measures]
-            Workflow.logger.info 'Sending the reporting measures results back to the adapter'
-            @adapter.communicate_results @registry[:directory], @job_results[:run_reporting_measures]
-          end
         ensure
           if @current_state == :errored
-            @adapter.communicate_failure @registry[:directory]
+            @output_adapter.communicate_failure
           else
-            @adapter.communicate_complete @registry[:directory]
+            @output_adapter.communicate_complete
           end
 
           Workflow.logger.info 'Workflow complete'
-          # Write out the TimeLogger once again in case the run_reporting_measures didn't exist
-          @registry[:time_logger].save(File.join(@registry[:directory], 'profile.json'))
 
-          # @todo (nlong) define the outputs and figure out how to show it correctly
-          # @todo (rhorsey) seems like we need to list objective functions in the OSW? - DLM
-          obj_function_array ||= ['NA']
-
-          # Print the objective functions to the screen even though the file is being used right now
-          # Note as well that we can't guarantee that the csv format will be in the right order
-          puts obj_function_array.join(',')
+          # Write out the TimeLogger to the filesystem
+          @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
         end
 
         @current_state
@@ -159,14 +147,20 @@ module OpenStudio
       def step
         step_instance = @jobs.find { |h| h[:state] == @current_state }
         require_relative step_instance[:file]
-        klass = OpenStudio::Workflow.new_class(step_instance[:job], @adapter, @registry, options)
-        @job_results[@current_state.to_sym] = klass.perform
+        klass = OpenStudio::Workflow.new_class(step_instance[:job], @input_adapter, @output_adapter, @registry, options)
+        @output_adapter.communicate_transition("Starting state #{@current_state}", :state)
+        state_return = klass.perform
+        if state_return
+          @output_adapter.communicate_transition("Returned from state #{@current_state} with message #{state_return}", :state)
+        else
+          @output_adapter.communicate_transition("Returned from state #{@current_state}", :state)
+        end
         next_state
       rescue => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
       end
 
-      # call back for when there is an exception running any of the state transitions
+      # Error handling for when there is an exception running any of the state transitions
       #
       def step_error(*args)
         # Make sure to set the instance variable @error to true in order to stop the :step
@@ -178,27 +172,23 @@ module OpenStudio
         @current_state = :errored
       end
 
-      # final state
-      # @todo (rhorsey) Why do we need this?
+      # Return the finished state and exit
       #
-      def run_finished(adapter, registry, options)
+      def run_finished(_, _, _)
         logger.info "Running #{__method__}"
 
         @current_state
       end
-      alias_method :final_state, :run_finished
 
       private
 
+      # Advance the @current_state to the next state
+      #
       def next_state
         Workflow.logger.info "Current state: '#{@current_state}'"
         ns = @jobs.find { |h| h[:state] == @current_state }[:next_state]
         Workflow.logger.info "Next state will be: '#{ns}'"
-
-        # Set the next state before calling the method
         @current_state = ns
-
-        # do not return anything, the step method uses the @current_state variable to call run_#{next_state}
       end
     end
   end

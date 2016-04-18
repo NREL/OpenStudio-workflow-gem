@@ -17,6 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+# Run any OpenStudio measures contained in the OSW
 class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
   # Mixin the required util modules
@@ -24,10 +25,7 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
   include OpenStudio::Workflow::Util::Measure
   include OpenStudio::Workflow::Util::Model
 
-  # Initialize
-  # param directory: base directory where the simulation files are prepared
-  # param logger: logger object in which to write log messages
-  def initialize(adapter, registry, options = {})
+  def initialize(input_adapter, output_adapter, registry, options = {})
     super
   end
 
@@ -37,21 +35,23 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
 
+    # Execute the OpenStudio measures
+    @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute OpenStudio measures.'
     apply_measures(:openstudio, @registry, @options)
     @logger.info('Finished applying OpenStudio measures.')
 
-    @logger.info 'Saving measure output attributes JSON'
-    # @todo (rhorsey) config this to be optional
-    File.open("#{@registry[:run_dir]}/measure_attributes.json", 'w') do |f|
-      f << JSON.pretty_generate(@registry[:output_attributes])
-    end
+    # Send the measure output attributes to the output adapter
+    @logger.info 'Communicating measure output attributes to the output adapter'
+    @output_adapter.communicate_measure_attributes @registry[:output_attributes]
 
+    # Save the OSM if the :debug option is true
+    return nil unless @options[:debug]
     @registry[:time_logger].start('Saving OSM') if @registry[:time_logger]
     osm_name = save_osm(@registry[:model], @registry[:root_dir])
     @registry[:time_logger].stop('Saving OSM') if @registry[:time_logger]
     @logger.info "Saved model as #{osm_name}"
 
-    results = {}
+    nil
   end
 end

@@ -23,13 +23,14 @@ class RunTranslation < OpenStudio::Workflow::Job
   require_relative '../util/model'
   include OpenStudio::Workflow::Util::Model
 
-  def initialize(adapter, registry, options = {})
+  def initialize(input_adapter, output_adapter, registry, options = {})
     super
   end
 
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
 
+    # Translate the OSM to an IDF
     @logger.info 'Beginning the translation to IDF'
     @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]
     model_idf = translate_to_energyplus @registry[:model]
@@ -37,9 +38,11 @@ class RunTranslation < OpenStudio::Workflow::Job
     @registry.register(:model_idf) { model_idf }
     @logger.info 'Successfully translated to IDF'
 
+    # Save the generated IDF file if the :debug option is true
+    return nil unless @options[:debug]
     idf_name = save_idf(@registry[:model], @registry[:root_dir])
     @logger.info "Saved IDF as #{idf_name}"
 
-    results = {}
+    nil
   end
 end

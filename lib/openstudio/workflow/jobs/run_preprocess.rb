@@ -17,13 +17,14 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+# Prepares the directory for the EnergyPlus simulation
 class RunPreprocess < OpenStudio::Workflow::Job
 
   require_relative '../util'
   include OpenStudio::Workflow::Util::EnergyPlus
   include OpenStudio::Workflow::Util::Model
 
-  def initialize(adapter, registry, options = {})
+  def initialize(input_adapter, output_adapter, registry, options = {})
     super
   end
 
@@ -45,7 +46,6 @@ class RunPreprocess < OpenStudio::Workflow::Job
     end
 
     # Save the model objects in the registry to the run directory
-    # @todo (dlm) what about the no osm case? Can we just `unless @registry[:model]` it?
     if File.exist?("#{@registry[:run_dir]}/in.idf")
       @logger.warn 'IDF (in.idf) already exists in the run directory. Will simulate using this file'
     else
@@ -59,7 +59,6 @@ class RunPreprocess < OpenStudio::Workflow::Job
     @registry[:time_logger].start('Running EnergyPlus Preprocess Script') if @registry[:time_logger]
     @logger.info "Finished Preprocess job"
 
-
-    results = {}
+    nil
   end
 end

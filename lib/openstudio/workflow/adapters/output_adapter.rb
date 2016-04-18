@@ -17,55 +17,46 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# Adapter class to decide where to obtain instructions to run the simulation workflow
 module OpenStudio
   module Workflow
-    # @todo (rhorsey) seems like we should have separate InputAdapters for getting Workflow JSON and OutputAdapters for posting results/errors/status - DLM
-    class Adapter
+
+    require 'zip'
+
+    # Base class for all output adapters. These methods define the expected return behavior of the adapter instance
+    # @todo (rhorsey, macumber) remove the RubyZip dependency and replace with OS Zip
+    class OutputAdapters
       attr_accessor :options
 
       def initialize(options = {})
         @options = options
-        @log = nil
-        @datapoint = nil
       end
 
-      # class << self
-      # attr_reader :problem
-
-      # @todo (rhorsey) input method - DLM
-      def load(filename, options = {})
-        instance.load(filename, options)
+      def communicate_started
+        instance.communicate_started
       end
 
-      # @todo (rhorsey) output method - DLM
-      def communicate_started(id, _options = {})
-        instance.communicate_started id
+      def communicate_transition(message, type, options = {})
+        instance.communicate_transition message, type, options
       end
 
-      # @todo (rhorsey) remove - DLM
-      def get_datapoint(id, options = {})
-        instance.get_datapoint id, options
+      def communicate_measure_attributes(measure_attributes, options = {})
+        instance.communicate_measure_attributes measure_attributes, options
       end
 
-      # @todo (rhorsey) remove - DLM
-      def get_problem(id, options = {})
-        instance.get_problem id, options
+      def communicate_objective_function(objectives, options = {})
+        instance.communicate_objective_function objectives, options
       end
 
-      # @todo (rhorsey) output method - DLM
-      def communicate_results(id, results)
-        instance.communicate_results id, results
+      def communicate_results(directory, results)
+        instance.communicate_results directory, results
       end
 
-      # @todo (rhorsey) output method - DLM
-      def communicate_complete(id)
-        instance.communicate_complete id
+      def communicate_complete
+        instance.communicate_complete
       end
 
-      # @todo (rhorsey) output method - DLM
-      def communicate_failure(id)
-        instance.communicate_failure id
+      def communicate_failure
+        instance.communicate_failure
       end
 
       protected
@@ -124,6 +115,7 @@ module OpenStudio
       #
       # @param directory [String] The data point directory to zip up.
       # @return nil
+      #
       def zip_results(directory)
         # create zip file using a system call
         if Dir.exist?(directory) && File.directory?(directory)

@@ -17,21 +17,19 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# Run precanned post processing to extract object functions
-
-require_relative '../util/post_process'
-include OpenStudio::Workflow::Util::PostProcess
-
 # Clean up the run directory. Currently this class does nothing else, although eventually cleanup should become driven
 # and responsive to options
-#
 class RunPostprocess < OpenStudio::Workflow::Job
 
-  def initialize(adapter, registry, options = {})
+  require_relative '../util/post_process'
+  include OpenStudio::Workflow::Util::PostProcess
+
+  def initialize(input_adapter, output_adapter, registry, options = {})
     defaults = {
         cleanup: true
     }
-    super(adapter, registry, options, defaults)
+    options = defaults.merge(options)
+    super
   end
 
   def perform
@@ -48,7 +46,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
 
     @logger.info 'Finished postprocess'
 
-    {}
+    nil
   end
 
 

@@ -17,21 +17,39 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require_relative '../adapter'
+require_relative '../output_adapter'
 
+# Local file based workflow
 module OpenStudio
   module Workflow
     module Adapters
-      # @todo (rhorsey) seems like Mongo adapters should be WebAdapters that use an API instead of talking to database directly - DLM
-      class MongoLog
-        def initialize(datapoint_model)
-          fail 'Mongo is not supported as an adapter in the branch of the WFG. Please use develop or master.'
-        end
-      end
-
-      class Mongo < Adapter
+      class Web < OutputAdapter
         def initialize(options = {})
-          fail 'Mongo is not supported as an adapter in the branch of the WFG. Please use develop or master.'
+          super
+        end
+
+        def communicate_started
+
+        end
+
+        def communicate_results(directory, results)
+
+        end
+
+        def communicate_complete
+
+        end
+
+        def communicate_failure
+
+        end
+
+        def communicate_objective_function(objectives, options = {})
+
+        end
+
+        def communicate_transition(message, type, options = {})
+
         end
       end
     end

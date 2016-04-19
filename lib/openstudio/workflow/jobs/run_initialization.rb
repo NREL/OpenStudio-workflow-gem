@@ -18,7 +18,6 @@
 ######################################################################
 
 # Run the initialization job to run validations and initializations
-# @todo include util submodules specifically
 class RunInitialization < OpenStudio::Workflow::Job
 
   require_relative '../util'
@@ -27,34 +26,32 @@ class RunInitialization < OpenStudio::Workflow::Job
   include OpenStudio::Workflow::Util::Model
   include OpenStudio::Workflow::Util::Measure
 
-  def initialize(adapter, registry, options = {})
+  def initialize(input_adapter, output_adapter, registry, options = {})
     defaults = {
         verify_osw: true,
-        measure_paths: ['measures', '../../measures', './'],
-        file_paths: ['files', 'weather', '../../files', '../../weather', './'],
-
+        measure_paths: %w{measures ../../measures ./},
+        file_paths: %w{files weather ../../files ../../weather ./}
     }
-    super(adapter, registry, options, defaults)
+    options = defaults.merge(options)
+    super
   end
 
-  # This method starts the adapter and verifies the OSW if the options contain verify_osw
   def perform
     @logger.info "Calling #{__method__} in the #{self.class} class"
 
-    # Start the adapter
-    # @todo (rhorsey) Figure out how to deprecate this
-    @logger.info 'Starting communication with the adapter'
-    @adapter.communicate_started @registry[:directory]
+    # Communicate that the workflow has been started
+    @logger.info 'Registering that the workflow has started with the adapter'
+    @output_adapter.communicate_started
 
     # Load various files and set basic directories for the registry
-    @registry.register(:workflow) { @adapter.get_workflow(@registry[:directory], @options) }
+    @registry.register(:workflow) { @input_adapter.get_workflow(@registry[:directory], @options) }
     @logger.info 'Retrieved the workflow from the adapter'
     fail 'Specified workflow was nil' unless @registry[:workflow]
     @registry.register(:root_dir) { get_root_dir(@registry[:workflow], @registry[:directory]) }
     @logger.info "The root_dir for the analysis is #{@registry[:root_dir]}"
-    @registry.register(:datapoint) { @adapter.get_datapoint(@registry[:directory], @options) }
+    @registry.register(:datapoint) { @input_adapter.get_datapoint(@registry[:directory], @options) }
     @logger.info 'Found associated OSD file' if @registry[:datapoint]
-    @registry.register(:analysis) { @adapter.get_analysis(@registry[:directory], @options) }
+    @registry.register(:analysis) { @input_adapter.get_analysis(@registry[:directory], @options) }
     @logger.info 'Found associated OSA file' if @registry[:analysis]
     @registry.register(:measure_paths) { @registry[:workflow][:measure_paths] } if @registry[:workflow][:measure_paths]
     @logger.info "Set measure_paths array in the registry to #{@registry[:measure_paths]}" if @registry[:measure_paths]
@@ -68,14 +65,19 @@ class RunInitialization < OpenStudio::Workflow::Job
     end
 
     # Load or create the seed OSM object
-    @logger.info 'Finding and loading the seed OSM file'
+    @logger.info 'Finding and loading the seed file'
     model_name = @registry[:workflow][:seed_model] ? @registry[:workflow][:seed_model] : nil
     if @registry[:file_paths]
       file_search_paths = @registry[:file_paths].concat @options[:file_paths]
     else
       file_search_paths = @options[:file_paths]
     end
-    @registry.register(:model) { load_osm(@registry[:root_dir], model_name, file_search_paths, @logger) }
+    if File.extname(model_name) == '.idf'
+      @registry.register(:model_idf) { load_idf(@registry[:root_dir], model_name, file_search_paths, @logger) }
+      @registry.register(:model) { load_osm(@registry[:root_dir], nil, file_search_paths, @logger) }
+    else
+      @registry.register(:model) { load_osm(@registry[:root_dir], model_name, file_search_paths, @logger) }
+    end
 
     # Load the weather file, should it exist and be findable
     @logger.info 'Getting the initial weather file'
@@ -83,7 +85,6 @@ class RunInitialization < OpenStudio::Workflow::Job
     @registry.register(:wf) { get_weather_file(@registry[:root_dir], wf, file_search_paths, @registry[:model], @logger) }
     @logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
 
-    # return the results back to the caller -- always
-    {}
+    nil
   end
 end

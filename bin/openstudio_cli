@@ -25,7 +25,9 @@ Signal.trap('INT') { abort }
 require 'openstudio-workflow'
 require 'optparse'
 require 'irb'
+require 'json'
 include OpenStudio::Workflow::Util::IO
+include OpenStudio::Workflow::Util::Directory
 
 $logger = Logger.new(STDOUT)
 $logger.level = Logger::WARN
@@ -320,8 +322,12 @@ class Run
     osw_path = File.absolute_path(File.join(Dir.pwd, osw_path)) unless Pathname.new(osw_path).absolute?
     $logger.debug "Path for the OSW: #{osw_path}"
 
-    adapter_options = {workflow_filename: File.basename(osw_path)}
-    adapter = OpenStudio::Workflow.load_adapter 'local', adapter_options
+    base_dir = get_directory File.dirname(osw_path)
+    run_dir = get_run_dir ::JSON.parse(File.read(osw_path), {symbolize_names: true}), base_dir
+
+    adapter_options = {workflow_filename: File.basename(osw_path), output_directory: run_dir}
+    input_adapter = OpenStudio::Workflow.load_input_adapter 'local', adapter_options
+    output_adapter = OpenStudio::Workflow.load_output_adapter 'local', adapter_options
     run_options = options[:debug] ? {debug: true, cleanup: false} : {}
     if options[:no_simulation]
       run_options[:jobs] = [
@@ -354,7 +360,7 @@ class Run
       run_options[:load_simulation_sql] = true
       run_options[:preserve_run_dir] = true
     end
-    k = OpenStudio::Workflow::Run.new adapter, File.dirname(osw_path), run_options
+    k = OpenStudio::Workflow::Run.new input_adapter, output_adapter, File.dirname(osw_path), run_options
     k.run
 
     0

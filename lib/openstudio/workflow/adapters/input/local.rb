@@ -17,22 +17,15 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require_relative '../adapter'
+require_relative '../input_adapter'
 
 # Local file based workflow
 module OpenStudio
   module Workflow
-    module Adapters
-      class Local < Adapter
+    module InputAdapter
+      class Local < InputAdapters
         def initialize(options = {})
           super
-        end
-
-        # Tell the system that the process has started
-        #
-        def communicate_started(directory, _options = {})
-          # Watch out for namespace conflicts (::Time is okay but Time is OpenStudio::Time)
-          File.open("#{directory}/started.job", 'w') { |f| f << "Started Workflow #{::Time.now}" }
         end
 
         # Get the OSW file from the local filesystem
@@ -79,30 +72,6 @@ module OpenStudio
           else
             nil
           end
-        end
-
-        def communicate_complete(directory)
-          File.open("#{directory}/finished.job", 'w') { |f| f << "Finished Workflow #{::Time.now}" }
-        end
-
-        # Final state of the simulation. The os_directory is the run directory and may be needed to
-        # zip up the results of the simuation.
-        def communicate_failure(directory)
-          File.open("#{directory}/failed.job", 'w') { |f| f << "Failed Workflow #{::Time.now}" }
-          # @communicate_module.communicate_failure(@communicate_object, os_directory)
-        end
-
-        def communicate_results(directory, results)
-          zip_results(directory)
-
-          if results.is_a? Hash
-            File.open("#{directory}/data_point_out.json", 'w') { |f| f << JSON.pretty_generate(results) }
-          else
-            puts "Unknown datapoint result type. Please handle #{results.class}"
-            # data_point_json_path = OpenStudio::Path.new(run_dir) / OpenStudio::Path.new('data_point_out.json')
-            # os_data_point.saveJSON(data_point_json_path, true)
-          end
-          # end
         end
       end
     end

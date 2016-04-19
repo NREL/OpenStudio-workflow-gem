@@ -24,8 +24,7 @@ module OpenStudio
         # @option options [Array] :measure_search_array An ordered set of measure directories used to search for
         #   step[:measure_dir_name], e.g. ['measures', '../../measures']
         # @option options [Object] :time_logger A special logger used to debug performance issues
-        # @option options [Bool] :no_adapter Allows for the apply measure method to be used without an adapter, however
-        #   as a result the analysis, workflow, and datapoint hashes are unavailable through the runner for the measure
+        # @option options [Object] :output_adapter An output adapter to register measure transitions to
         # @return [Void]
         #
         def apply_measures(measure_type, registry, options = {})
@@ -47,7 +46,9 @@ module OpenStudio
             measure_instance_type = get_measure_type(mrb_path, class_name).to_s
             if measure_instance_type == MEASURE_CLASSES[measure_type]
               logger.info "Found measure #{class_name} in #{mrb_path} of type #{measure_type}. Applying now."
+              options[:output_adapter].communicate_transition("Applying #{class_name}", :measure) if options[:output_adapter]
               apply_measure(registry, step, options)
+              options[:output_adapter].communicate_transition("Applied #{class_name}", :measure) if options[:output_adapter]
               logger.info 'Moving to the next workflow step.'
             else
               logger.info "Skipping measure #{class_name} in #{mrb_path} of type #{measure_type}"
@@ -203,8 +204,6 @@ module OpenStudio
         # @option options [Array] :measure_search_array Ordered set of measure directories used to search for
         #   step[:measure_dir_name], e.g. ['measures', '../../measures']
         # @option options [Object] :time_logger Special logger used to debug performance issues
-        # @option options [Bool] :no_adapter Allows for the apply measure method to be used without an adapter, however
-        #   as a result the analysis, workflow, and datapoint hashes are unavailable through the runner for the measure
         # @return [Hash, String] Returns two objects. The first is the (potentially) updated output_attributes hash, and
         #   the second is the (potentially) updated current_weather_filepath
         #

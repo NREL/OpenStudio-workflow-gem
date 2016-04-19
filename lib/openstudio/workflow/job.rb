@@ -1,12 +1,11 @@
 module OpenStudio
   module Workflow
     class Job
-      # @todo (rhorsey) adapter is for output? - DLM
       # @todo (rhorsey) registry should be a member of WorkflowRunner, pass WorkflowRunner in here instead - DLM
-      def initialize(adapter, registry, options = {}, defaults = nil)
-        defaults ||= {debug: false}
-        @options = defaults.merge(options)
-        @adapter = adapter
+      def initialize(input_adapter, output_adapter, registry, options = {})
+        @options = options
+        @input_adapter = input_adapter
+        @output_adapter = output_adapter
         @registry = registry
         @logger = @registry[:logger]
         @results = {}
@@ -16,8 +15,8 @@ module OpenStudio
       end
     end
 
-    def self.new_class(current_job, adapter, registry, options = {})
-      new_job = Object.const_get(current_job).new(adapter, registry, options)
+    def self.new_class(current_job, input_adapter, output_adapter, registry, options = {})
+      new_job = Object.const_get(current_job).new(input_adapter, output_adapter, registry, options)
       return new_job
     end
   end

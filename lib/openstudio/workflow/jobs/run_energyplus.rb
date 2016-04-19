@@ -17,15 +17,13 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+# This class runs the EnergyPlus simulation
 class RunEnergyPlus < OpenStudio::Workflow::Job
 
   require_relative '../util/energyplus'
   include OpenStudio::Workflow::Util::EnergyPlus
 
-  # Initialize
-  # param directory: base directory where the simulation files are prepared
-  # param logger: logger object in which to write log messages
-  def initialize(adapter, registry, options = {})
+  def initialize(input_adapter, output_adapter, registry, options = {})
     super
   end
 
@@ -38,7 +36,7 @@ class RunEnergyPlus < OpenStudio::Workflow::Job
     @logger.warn "Using EnergyPlus path specified in options #{ep_path}" if ep_path
 
     @registry[:time_logger].start('Running EnergyPlus') if @registry[:time_logger]
-    results = call_energyplus(@registry[:run_dir], ep_path)
+    call_energyplus(@registry[:run_dir], ep_path)
     @registry[:time_logger].stop('Running EnergyPlus') if @registry[:time_logger]
     @logger.info 'Completed the EnergyPlus simulation'
 
@@ -46,6 +44,6 @@ class RunEnergyPlus < OpenStudio::Workflow::Job
     @registry.register(:sql) { sql_path } if File.exist? sql_path
     @logger.warn "Unable to find sql file at #{sql_path}" unless @registry[:sql]
 
-    results
+    nil
   end
 end

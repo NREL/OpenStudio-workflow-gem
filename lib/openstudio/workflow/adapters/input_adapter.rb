@@ -17,30 +17,31 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require 'logger'
+# Adapter class to decide where to obtain instructions to run the simulation workflow
+module OpenStudio
+  module Workflow
 
-class Logger
-  def format_message(severity, datetime, _progname, msg)
-    "[%s %s] %s\n" % [datetime.strftime('%H:%M:%S.%6N'), severity, msg]
-  end
-end
+    # Base class for input adapters. These methods define the expected interface for different input adapters
+    class InputAdapters
+      attr_accessor :options
 
-# Class to allow multiple logging paths
-class MultiDelegator
-  def initialize(*targets)
-    @targets = targets
-  end
+      def initialize(options = {})
+        @options = options
+        @log = nil
+        @datapoint = nil
+      end
 
-  def self.delegate(*methods)
-    methods.each do |m|
-      define_method(m) do |*args|
-        @targets.map { |t| t.send(m, *args) }
+      def load(filename, options = {})
+        instance.load(filename, options)
+      end
+
+      def get_datapoint(id, options = {})
+        instance.get_datapoint id, options
+      end
+
+      def get_problem(id, options = {})
+        instance.get_problem id, options
       end
     end
-    self
-  end
-
-  class <<self
-    alias_method :to, :new
   end
 end

@@ -72,7 +72,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     else
       file_search_paths = @options[:file_paths]
     end
-    if File.extname(model_name) == '.idf'
+    if model_name && File.extname(model_name) == '.idf'
       @registry.register(:model_idf) { load_idf(@registry[:root_dir], model_name, file_search_paths, @logger) }
       @registry.register(:model) { load_osm(@registry[:root_dir], nil, file_search_paths, @logger) }
     else

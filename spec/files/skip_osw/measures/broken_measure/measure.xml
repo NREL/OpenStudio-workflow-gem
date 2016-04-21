@@ -2,22 +2,13 @@
   <schema_version>3.0</schema_version>
   <name>broken_measure</name>
   <uid>49d1132f-b6ee-413f-bea7-26cd5e910a5a</uid>
-  <version_id>8d7afcbd-6ee4-491c-b1bc-130801030cd7</version_id>
+  <version_id>c507518f-8674-4195-8692-7accac3e2c80</version_id>
   <xml_checksum>2AF3A68E</xml_checksum>
   <class_name>BrokenMeasure</class_name>
   <display_name>BrokenMeasure</display_name>
   <description></description>
   <modeler_description></modeler_description>
-  <arguments>
-    <argument>
-      <name>space_name</name>
-      <display_name>New space name</display_name>
-      <description>This name will be used as the name of the new space.</description>
-      <type>String</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-    </argument>
-  </arguments>
+  <arguments/>
   <provenances/>
   <tags>
     <tag>Envelope.Form</tag>
@@ -46,17 +37,6 @@
   </attributes>
   <files>
     <file>
-      <version>
-        <software_program>OpenStudio</software_program>
-        <identifier>1.10.0</identifier>
-        <min_compatible>1.10.0</min_compatible>
-      </version>
-      <filename>measure.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>script</usage_type>
-      <checksum>BFA54242</checksum>
-    </file>
-    <file>
       <filename>broken_measure_test.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
@@ -67,6 +47,17 @@
       <filetype>osm</filetype>
       <usage_type>test</usage_type>
       <checksum>C4F35230</checksum>
+    </file>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>1.10.0</identifier>
+        <min_compatible>1.10.0</min_compatible>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>0929FBA9</checksum>
     </file>
   </files>
 </measure>

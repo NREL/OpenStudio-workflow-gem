@@ -18,7 +18,6 @@
 ######################################################################
 
 require 'fileutils'
-require 'securerandom'
 require 'json'
 require 'pathname'
 

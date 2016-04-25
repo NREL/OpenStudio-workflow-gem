@@ -79,7 +79,7 @@ module OpenStudio
 
     def load_input_adapter(name, adapter_options = {})
       require adapter_options[:load_path] if adapter_options.keys.to_s.include? 'load_path'
-      require_relative "openstudio/workflow/adapters/input/#{name.downcase}" unless adapter_options.keys.include? 'load_path'
+      require "openstudio/workflow/adapters/input/#{name.downcase}" unless adapter_options.keys.include? 'load_path'
       klass_name = name.to_s.split('_').map(&:capitalize) * ''
       # pp "#{klass_name} is the adapter class name"
       OpenStudio::Workflow::InputAdapter.const_get(klass_name).new(adapter_options)
@@ -88,7 +88,7 @@ module OpenStudio
 
     def load_output_adapter(name, adapter_options = {})
       require adapter_options[:load_path] if adapter_options.keys.to_s.include? 'load_path'
-      require_relative "openstudio/workflow/adapters/output/#{name.downcase}" unless adapter_options.keys.include? 'load_path'
+      require "openstudio/workflow/adapters/output/#{name.downcase}" unless adapter_options.keys.include? 'load_path'
       klass_name = name.to_s.split('_').map(&:capitalize) * ''
       # pp "#{klass_name} is the adapter class name"
       OpenStudio::Workflow::OutputAdapter.const_get(klass_name).new(adapter_options)

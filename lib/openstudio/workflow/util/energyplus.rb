@@ -6,7 +6,7 @@ module OpenStudio
       #   implementation details.
       module EnergyPlus
 
-        require_relative 'io'
+        require 'openstudio/workflow/util/io'
         include OpenStudio::Workflow::Util::IO
         ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i
         EXPAND_OBJECTS_REGEX = /^expandobjects\D{0,4}$/i

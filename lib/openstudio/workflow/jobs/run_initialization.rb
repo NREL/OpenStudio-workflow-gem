@@ -20,7 +20,7 @@
 # Run the initialization job to run validations and initializations
 class RunInitialization < OpenStudio::Workflow::Job
 
-  require_relative '../util'
+  require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::Directory
   include OpenStudio::Workflow::Util::WeatherFile
   include OpenStudio::Workflow::Util::Model

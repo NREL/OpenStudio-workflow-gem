@@ -64,7 +64,7 @@ module OpenStudio
         
         begin
           require 'zip'
-        rescue Exception => e
+        rescue LoadError 
           return false
         end
         

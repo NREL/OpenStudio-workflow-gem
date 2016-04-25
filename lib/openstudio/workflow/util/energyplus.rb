@@ -198,9 +198,16 @@ module OpenStudio
           end
 
           if needs_monthlyoutput
-            monthly_report_idf = File.join(File.dirname(__FILE__), '../jobs/resources/monthly_report.idf')
-            idf_file = OpenStudio::IdfFile.load(File.read(monthly_report_idf), 'EnergyPlus'.to_IddFileType).get
-            idf.addObjects(idf_file.objects)
+            begin
+              # TODO: Make this better. Nobody wants the gem version in the path
+              monthly_report_idf_text = EmbeddedScripting::getFileAsString(':/openstudio-workflow-1.0.0.alpha.0/lib/openstudio/workflow/jobs/resources/monthly_report.idf')
+              idf_file = OpenStudio::IdfFile.load(monthly_report_idf_text, 'EnergyPlus'.to_IddFileType).get
+              idf.addObjects(idf_file.objects)
+            rescue
+              monthly_report_idf = File.join(File.dirname(__FILE__), '../jobs/resources/monthly_report.idf')
+              idf_file = OpenStudio::IdfFile.load(File.read(monthly_report_idf), 'EnergyPlus'.to_IddFileType).get
+              idf.addObjects(idf_file.objects)
+            end
           end
 
           # These are supposedly needed for the calibration report

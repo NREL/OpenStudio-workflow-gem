@@ -307,13 +307,13 @@ class DencityReports < OpenStudio::Ruleset::ReportingUserScript
       runner.registerValue("orientation", building_rotation, "deg")
       metadata[metadata.length] = ["orientation", "Building Orientation", "Orientation", "Degrees of building north axis off of true north", "degrees_angular", "double", "FALSE"]
 
-      floor_to_floor_height = building.nominalFloortoFloorHeight.get
-      runner.registerValue("floor_to_floor_height", floor_to_floor_height, "m")
-      metadata[metadata.length] = ["floor_to_floor_height", "Floor to Floor Height", "Flr-to-Flr Height", "Nominal floor to floor height of building", "meter", "double", "FALSE"]
+      #floor_to_floor_height = building.nominalFloortoFloorHeight.get
+      #runner.registerValue("floor_to_floor_height", floor_to_floor_height, "m")
+      #metadata[metadata.length] = ["floor_to_floor_height", "Floor to Floor Height", "Flr-to-Flr Height", "Nominal floor to floor height of building", "meter", "double", "FALSE"]
 
-      total_building_volume = building_area * floor_to_floor_height
-      runner.registerValue("total_building_volume", total_building_volume, "m3")
-      metadata[metadata.length] = ["total_building_volume", "Total Building Volume", "Volume", "Building volume calculated by multiplying floor to floor height and footprint", "cubic_meter", "double", "FALSE"]
+      #total_building_volume = building_area * floor_to_floor_height
+      #runner.registerValue("total_building_volume", total_building_volume, "m3")
+      #metadata[metadata.length] = ["total_building_volume", "Total Building Volume", "Volume", "Building volume calculated by multiplying floor to floor height and footprint", "cubic_meter", "double", "FALSE"]
 
       total_occupancy = building.numberOfPeople
       runner.registerValue("total_occupancy", total_occupancy, "people")

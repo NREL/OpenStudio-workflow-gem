@@ -52,8 +52,11 @@ module OpenStudio
 
           # Load the model and return it
           logger.info "Reading in OSM model #{osm_path}"
-          translator = OpenStudio::OSVersion::VersionTranslator.new
-          loaded_model = translator.loadModel(osm_path)
+          # TODO: get translator working in embedded.
+          # Need to embed idd files
+          #translator = OpenStudio::OSVersion::VersionTranslator.new
+          #loaded_model = translator.loadModel(osm_path)
+          loaded_model = OpenStudio::Model::Model::load(osm_path)
           fail 'OpenStudio model can not be loaded. Please investigate' unless loaded_model.is_initialized
           logger.warn 'OpenStudio model is empty or could not be loaded' if loaded_model.empty?
           loaded_model.get

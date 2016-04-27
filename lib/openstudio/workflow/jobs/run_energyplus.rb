@@ -20,7 +20,7 @@
 # This class runs the EnergyPlus simulation
 class RunEnergyPlus < OpenStudio::Workflow::Job
 
-  require_relative '../util/energyplus'
+  require 'openstudio/workflow/util/energyplus'
   include OpenStudio::Workflow::Util::EnergyPlus
 
   def initialize(input_adapter, output_adapter, registry, options = {})

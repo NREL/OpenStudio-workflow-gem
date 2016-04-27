@@ -20,8 +20,6 @@
 module OpenStudio
   module Workflow
 
-    require 'zip'
-
     # Base class for all output adapters. These methods define the expected return behavior of the adapter instance
     # @todo (rhorsey, macumber) remove the RubyZip dependency and replace with OS Zip
     class OutputAdapters
@@ -63,6 +61,13 @@ module OpenStudio
 
       # Zip up a folder and it's contents
       def zip_directory(directory, zip_filename, pattern = '*')
+        
+        begin
+          require 'zip'
+        rescue LoadError 
+          return false
+        end
+        
         # Submethod for adding the directory to the zip folder.
         def add_directory_to_zip(zip_file, local_directory, root_directory)
           Dir[File.join("#{local_directory}", '**', '**')].each do |file|

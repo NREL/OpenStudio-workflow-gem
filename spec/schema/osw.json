@@ -118,6 +118,10 @@
 					"description": "UUID of this file",
 					"type": "string"
 				},
+				"root": {
+					"description": "Path to the root directory against which relative paths are evaluated.  If root is empty, the directory containing the osw is used.",
+					"type": "string"
+				},
 				"run_directory": {
 					"description": "Path to the run directory: note that a run folder will be created in the target location",
 					"type": "string"

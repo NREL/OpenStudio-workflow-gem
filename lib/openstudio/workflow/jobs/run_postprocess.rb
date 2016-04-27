@@ -21,7 +21,7 @@
 # and responsive to options
 class RunPostprocess < OpenStudio::Workflow::Job
 
-  require_relative '../util/post_process'
+  require 'openstudio/workflow/util/post_process'
   include OpenStudio::Workflow::Util::PostProcess
 
   def initialize(input_adapter, output_adapter, registry, options = {})

@@ -23,15 +23,6 @@
 					"value": 10.76
 				}
 			]
-		},
-		{
-			"measure_dir_name": "DencityReports",
-			"arguments": [
-				{
-					"name": "output_format",
-					"value": "CSV"
-				}
-			]
-		}
+    }
 	]
 }

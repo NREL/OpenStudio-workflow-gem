@@ -40,21 +40,21 @@ module OpenStudio
         [
           { state: :queued, next_state: :initialization, options: { initial: true } },
           { state: :initialization, next_state: :os_measures, job: :RunInitialization,
-            file: './jobs/run_initialization.rb', options: {} },
+            file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
           { state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
-            file: './jobs/run_os_measures.rb', options: {} },
+            file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {} },
           { state: :translator, next_state: :ep_measures, job: :RunTranslation,
-            file: './jobs/run_translation.rb', options: {} },
+            file: 'openstudio/workflow/jobs/run_translation.rb', options: {} },
           { state: :ep_measures, next_state: :preprocess, job: :RunEnergyPlusMeasures,
-            file: './jobs/run_ep_measures.rb', options: {} },
+            file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {} },
           { state: :preprocess, next_state: :simulation, job: :RunPreprocess,
-            file: './jobs/run_preprocess.rb' , options: {} },
+            file: 'openstudio/workflow/jobs/run_preprocess.rb' , options: {} },
           { state: :simulation, next_state: :reporting_measures, job: :RunEnergyPlus,
-            file: './jobs/run_energyplus.rb', options: {} },
+            file: 'openstudio/workflow/jobs/run_energyplus.rb', options: {} },
           { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
-            file: './jobs/run_reporting_measures.rb', options: {} },
+            file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
           { state: :postprocess, next_state: :finished, job: :RunPostprocess,
-            file: './jobs/run_postprocess.rb', options: {} },
+            file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
           { state: :finished },
           { state: :errored }
         ]
@@ -148,7 +148,7 @@ module OpenStudio
       #
       def step
         step_instance = @jobs.find { |h| h[:state] == @current_state }
-        require_relative step_instance[:file]
+        require step_instance[:file]
         klass = OpenStudio::Workflow.new_class(step_instance[:job], @input_adapter, @output_adapter, @registry, options)
         @output_adapter.communicate_transition("Starting state #{@current_state}", :state)
         state_return = klass.perform

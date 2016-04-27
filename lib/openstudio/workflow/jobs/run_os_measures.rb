@@ -21,7 +21,7 @@
 class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
   # Mixin the required util modules
-  require_relative '../util'
+  require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::Measure
   include OpenStudio::Workflow::Util::Model
 

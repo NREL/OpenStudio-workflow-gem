@@ -20,7 +20,7 @@
 # Prepares the directory for the EnergyPlus simulation
 class RunPreprocess < OpenStudio::Workflow::Job
 
-  require_relative '../util'
+  require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::EnergyPlus
   include OpenStudio::Workflow::Util::Model
 

@@ -17,7 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require_relative '../output_adapter'
+require 'openstudio/workflow/adapters/output_adapter'
 
 # Local file based workflow
 module OpenStudio

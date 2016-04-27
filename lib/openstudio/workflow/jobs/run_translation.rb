@@ -28,7 +28,7 @@ class RunTranslation < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     # Translate the OSM to an IDF
     @logger.info 'Beginning the translation to IDF'
@@ -41,7 +41,7 @@ class RunTranslation < OpenStudio::Workflow::Job
     # Save the generated IDF file if the :debug option is true
     return nil unless @options[:debug]
     idf_name = save_idf(@registry[:model], @registry[:root_dir])
-    @logger.info "Saved IDF as #{idf_name}"
+    @logger.debug "Saved IDF as #{idf_name}"
 
     nil
   end

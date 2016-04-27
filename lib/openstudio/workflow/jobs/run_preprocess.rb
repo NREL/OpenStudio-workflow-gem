@@ -29,7 +29,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     # Ensure that the directory is created (but it should already be at this point)
     FileUtils.mkdir_p(@registry[:run_dir])
@@ -57,7 +57,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
     @registry[:time_logger].start('Running EnergyPlus Preprocess Script') if @registry[:time_logger]
     energyplus_preprocess("#{@registry[:run_dir]}/in.idf")
     @registry[:time_logger].start('Running EnergyPlus Preprocess Script') if @registry[:time_logger]
-    @logger.info "Finished Preprocess job"
+    @logger.info "Finished preprocess job for EnergyPlus simulation"
 
     nil
   end

@@ -33,7 +33,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     unless @options[:cleanup]
       @logger.info 'Flag for cleanup in options set to false. Moving to next step.'

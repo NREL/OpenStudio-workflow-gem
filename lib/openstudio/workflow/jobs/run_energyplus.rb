@@ -28,13 +28,14 @@ class RunEnergyPlus < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     #Checks and configuration
     fail 'No run_dir specified in the registry' unless @registry[:run_dir]
     @options[:energyplus_path] ? ep_path = @options[:energyplus_path] : ep_path = nil
     @logger.warn "Using EnergyPlus path specified in options #{ep_path}" if ep_path
 
+    @logger.info 'Starting the EnergyPlus simulation'
     @registry[:time_logger].start('Running EnergyPlus') if @registry[:time_logger]
     call_energyplus(@registry[:run_dir], ep_path)
     @registry[:time_logger].stop('Running EnergyPlus') if @registry[:time_logger]

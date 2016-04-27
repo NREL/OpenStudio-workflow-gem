@@ -19,6 +19,7 @@
 
 require_relative 'util/directory'
 require_relative 'registry'
+require 'logger'
 
 # Run Class for OpenStudio workflow.  All comments here need some love, as well as the code itself
 module OpenStudio
@@ -102,7 +103,8 @@ module OpenStudio
         FileUtils.mkdir_p(@registry[:run_dir])
 
         # Initialize the MultiDelegator logger
-        Workflow.logger(@options[:targets])
+        logger_level = @options[:debug] ? ::Logger::DEBUG : ::Logger::WARN
+        Workflow.logger(@options[:targets], logger_level)
         @registry.register(:logger) { Workflow.logger }
 
         Workflow.logger.info "Initializing directory #{@registry[:directory]} for simulation with options #{@options}"

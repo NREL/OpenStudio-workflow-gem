@@ -208,7 +208,7 @@ module OpenStudio
         #   the second is the (potentially) updated current_weather_filepath
         #
         def apply_measure(registry, step, options = {})
-          require_relative '../../workflow_runner'
+          require 'openstudio/workflow_runner'
           
           # @todo (rhorsey) runner should be passed in here - DLM
 

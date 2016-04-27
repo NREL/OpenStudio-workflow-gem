@@ -20,7 +20,7 @@
 # Run the initialization job to validate the directory and initialize the adapters.
 class RunTranslation < OpenStudio::Workflow::Job
 
-  require_relative '../util/model'
+  require 'openstudio/workflow/util/model'
   include OpenStudio::Workflow::Util::Model
 
   def initialize(input_adapter, output_adapter, registry, options = {})

@@ -22,7 +22,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
 
   require 'csv'
   require 'ostruct'
-  require_relative '../util'
+  require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::Model
   include OpenStudio::Workflow::Util::Measure
   include OpenStudio::Workflow::Util::PostProcess

@@ -2,8 +2,9 @@
   <schema_version>3.0</schema_version>
   <name>dencity_reports</name>
   <uid>4f939be0-fe1c-11e3-a3ac-0800200c9a66</uid>
-  <version_id>5dbbecc1-55ab-4113-8c8b-dca006df2d53</version_id>
-  <xml_checksum>2C8A3EEF</xml_checksum>
+  <version_id>f773cdb8-b5e9-47db-bfed-bbc10aff986a</version_id>
+  <version_modified>20160426T215418Z</version_modified>
+  <xml_checksum>9F9D8C87</xml_checksum>
   <class_name>DencityReports</class_name>
   <display_name>Dencity Reports</display_name>
   <description>Default reports needed for DEnCity</description>
@@ -32,6 +33,7 @@
       </choices>
     </argument>
   </arguments>
+  <outputs/>
   <provenances/>
   <tags>
     <tag>Reporting.QAQC</tag>
@@ -58,7 +60,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>CAD52B50</checksum>
+      <checksum>5CEB2C25</checksum>
     </file>
   </files>
 </measure>

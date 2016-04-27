@@ -4,34 +4,25 @@
 	"steps": [
 		{
 			"measure_dir_name": "IncreaseWallRValue",
-			"arguments": []
+			"arguments": {}
 		},
 		{
 			"measure_dir_name": "IncreaseRoofRValue",
-			"arguments": [
-				{
-					"name": "r_value",
-					"value": 45
-				}
-			]
+			"arguments": {
+				"r_value": 45
+			}
 		},
 		{
 			"measure_dir_name": "SetEplusInfiltration",
-			"arguments": [
-				{
-					"name": "flowPerZoneFloorArea",
-					"value": 10.76
-				}
-			]
+			"arguments": {
+				"flowPerZoneFloorArea": 10.76
+			}
 		},
 		{
 			"measure_dir_name": "DencityReports",
-			"arguments": [
-				{
-					"name": "output_format",
-					"value": "CSV"
-				}
-			]
+			"arguments": {
+				"output_format": "CSV"
+			}
 		}
 	]
 }

@@ -168,21 +168,23 @@ module OpenStudio
 
         # Sets the argument map for argument_map argument pair
         #
-        # @param [Object] argument_map See the OpenStudio SDK for a description of the ArgumentMap structure
-        # @param [Object] argument See the OpenStudio SDK for a description of the Argument structure
+        # @param [Object] argument_map See the OpenStudio SDK for a description of the OSArgumentMap structure
+        # @param [Object] argument_name, user defined argument name
+        # @param [Object] argument_value, user defined argument value
+        # @param [Object] logger, logger object 
         # @return [Object] Returns an updated ArgumentMap object
         #
-        def apply_arguments(argument_map, argument, logger)
-          unless argument[:value].nil?
-            logger.info "Setting argument value '#{argument[:name]}' to '#{argument[:value]}'"
+        def apply_arguments(argument_map, argument_name, argument_value, logger)
+          unless argument_value.nil?
+            logger.info "Setting argument value '#{argument_name}' to '#{argument_value}'"
 
-            v = argument_map[argument[:name]]
-            fail "Could not find argument map in measure for '#{argument[:name]}' with value '#{argument[:value]}'" unless v
-            value_set = v.setValue(argument[:value])
-            fail "Could not set argument '#{argument[:name]}' of value '#{argument[:value]}' on model" unless value_set
-            argument_map[argument[:name]] = v.clone
+            v = argument_map[argument_name.to_s]
+            fail "Could not find argument '#{argument_name}' in argument_map" unless v
+            value_set = v.setValue(argument_value)
+            fail "Could not set argument '#{argument_name}' to value '#{argument_value}'" unless value_set
+            argument_map[argument_name.to_s] = v.clone
           else
-            logger.warn "Value for argument '#{argument[:name]}' not set in argument list therefore will use default"
+            logger.warn "Value for argument '#{argument_name}' not set in argument list therefore will use default"
           end
         end
 
@@ -196,8 +198,8 @@ module OpenStudio
         # @param [Object] model The model object being used in the measure, either a OSM or IDF
         # @param [Hash] step Definition of the to be run by the workflow
         # @option step [String] :measure_dir_name The name of the directory which contains the measure files
-        # @option step [Array] :arguments Ordered name value hashes which define the arguments to the measure, e.g.
-        #   [{name: 'has_bool', value: true}, {name: 'cost', value: 3.1}]
+        # @option step [Object] :arguments name value hash which defines the arguments to the measure, e.g.
+        #   {has_bool: true, cost: 3.1}
         # @param output_attributes [Hash] The results of previous measure applications which are persisted through the
         #   runner to allow measures to react to previous events in the workflow
         # @param [Hash] options ({}) User-specified options used to override defaults
@@ -287,8 +289,8 @@ module OpenStudio
               # Set argument values
               logger.info "Iterating over arguments for workflow item '#{step[:measure_dir_name]}'"
               if step[:arguments]
-                step[:arguments].each do |argument|
-                  success = apply_arguments(argument_map, argument, logger)
+                step[:arguments].each_pair do |argument_name, argument_value|
+                  success = apply_arguments(argument_map, argument_name, argument_value, logger)
                   fail 'Could not set arguments' unless success
                 end
               end

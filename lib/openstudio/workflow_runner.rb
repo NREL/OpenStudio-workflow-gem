@@ -43,6 +43,8 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   end
 
   # Overloaded argument parsing
+  # validateUserArguments(const std::vector<OSArgument>& script_arguments, const std::map<std::string, OSArgument>& user_arguments);
+  # DLM: the only purpose of this call is to popluate @workflow_arguments.  Once WorkflowJSON is merged we will not need this, we can then remove the TypeCasting module
   def validateUserArguments(script_arguments, user_arguments)
     @workflow_arguments = {}
     user_arguments.each do |hash|

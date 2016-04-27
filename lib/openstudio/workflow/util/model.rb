@@ -119,7 +119,7 @@ module OpenStudio
         #
         def translate_to_energyplus(model, logger=nil)
           logger = ::Logger.new(STDOUT) unless logger
-          logger.info 'Translate object to EnergyPlus IDF in Prep for EnergyPlus Measure'
+          logger.info 'Translate object to EnergyPlus IDF in preparation for EnergyPlus'
           a = ::Time.now
           # ensure objects exist for reporting purposes
           model.getFacility

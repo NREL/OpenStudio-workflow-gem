@@ -33,7 +33,7 @@ class RunTranslation < OpenStudio::Workflow::Job
     # Translate the OSM to an IDF
     @logger.info 'Beginning the translation to IDF'
     @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]
-    model_idf = translate_to_energyplus @registry[:model]
+    model_idf = translate_to_energyplus @registry[:model], @logger
     @registry[:time_logger].stop('Translating to EnergyPlus') if @registry[:time_logger]
     @registry.register(:model_idf) { model_idf }
     @logger.info 'Successfully translated to IDF'

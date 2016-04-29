@@ -40,7 +40,7 @@ module OpenStudio
         [
           { state: :queued, next_state: :initialization, options: { initial: true } },
           { state: :initialization, next_state: :os_measures, job: :RunInitialization,
-            file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
+            file: 'openstudio/workflow/jobs/run_initialization', options: {} },
           { state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
             file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {} },
           { state: :translator, next_state: :ep_measures, job: :RunTranslation,

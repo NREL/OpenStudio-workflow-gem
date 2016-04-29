@@ -31,16 +31,24 @@ module OpenStudio
         @datapoint = nil
       end
 
-      def load(filename, options = {})
-        instance.load(filename, options)
+      def get_workflow(id)
+        instance.get_workflow id
       end
 
-      def get_datapoint(id, options = {})
-        instance.get_datapoint id, options
+      def get_datapoint(id)
+        instance.get_datapoint id
       end
 
-      def get_problem(id, options = {})
-        instance.get_problem id, options
+      def get_problem(id)
+        instance.get_problem id
+      end
+
+      def base_directory(id)
+        instance.base_directory id
+      end
+
+      def run_directory(id)
+        instance.run_directory id
       end
     end
   end

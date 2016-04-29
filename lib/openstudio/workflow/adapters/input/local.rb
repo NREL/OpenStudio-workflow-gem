@@ -24,16 +24,19 @@ module OpenStudio
   module Workflow
     module InputAdapter
       class Local < InputAdapters
+
+        require 'openstudio/workflow/util/directory'
+        include OpenStudio::Workflow::Util::Directory
+
         def initialize(options = {})
           super
         end
 
         # Get the OSW file from the local filesystem
         #
-        def get_workflow(directory, options = {})
+        def get_workflow(directory)
           defaults = { workflow_filename: 'workflow.osw', format: 'json' }
-          defaults.merge! self.options
-          options = defaults.merge options
+          options = defaults.merge! self.options
 
           # how do we log within this file?
           osw_abs_path = File.absolute_path(File.join(directory, options[:workflow_filename]))
@@ -46,10 +49,9 @@ module OpenStudio
 
         # Get the associated OSD (datapoint) file from the local filesystem
         #
-        def get_datapoint(directory, options = {})
+        def get_datapoint(directory)
           defaults = { datapoint_filename: 'datapoint.osd', format: 'json' }
-          defaults.merge! self.options
-          options = defaults.merge options
+          options = defaults.merge! self.options
 
           osd_abs_path = File.absolute_path(File.join(directory, options[:datapoint_filename]))
           if File.exist? osd_abs_path
@@ -61,10 +63,9 @@ module OpenStudio
 
         # Get the associated OSA (analysis) definition from the local filesystem
         #
-        def get_analysis(directory, options = {})
+        def get_analysis(directory)
           defaults = { analysis_filename: 'analysis.osa', format: 'json' }
-          defaults.merge! self.options
-          options = defaults.merge options
+          options = defaults.merge! self.options
 
           osa_abs_path = File.absolute_path(File.join(directory, options[:analysis_filename]))
           if File.exist? osa_abs_path
@@ -72,6 +73,19 @@ module OpenStudio
           else
             nil
           end
+        end
+
+        # Get the directory that will be used by the run class using the directory util
+        #
+        def base_directory(directory)
+          get_directory(directory)
+        end
+
+        # Get the run directory that will be used by the run class using the directory util
+        #
+        def run_directory(directory)
+          workflow_hash = get_workflow(directory)
+          get_run_dir(workflow_hash, get_directory(directory))
         end
       end
     end

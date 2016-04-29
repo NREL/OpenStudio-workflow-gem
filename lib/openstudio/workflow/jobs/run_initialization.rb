@@ -44,14 +44,14 @@ class RunInitialization < OpenStudio::Workflow::Job
     @output_adapter.communicate_started
 
     # Load various files and set basic directories for the registry
-    @registry.register(:workflow) { @input_adapter.get_workflow(@registry[:directory], @options) }
+    @registry.register(:workflow) { @input_adapter.get_workflow(@registry[:directory]) }
     @logger.debug 'Retrieved the workflow from the adapter'
     fail 'Specified workflow was nil' unless @registry[:workflow]
     @registry.register(:root_dir) { get_root_dir(@registry[:workflow], @registry[:directory]) }
     @logger.debug "The root_dir for the analysis is #{@registry[:root_dir]}"
-    @registry.register(:datapoint) { @input_adapter.get_datapoint(@registry[:directory], @options) }
+    @registry.register(:datapoint) { @input_adapter.get_datapoint(@registry[:directory]) }
     @logger.debug 'Found associated OSD file' if @registry[:datapoint]
-    @registry.register(:analysis) { @input_adapter.get_analysis(@registry[:directory], @options) }
+    @registry.register(:analysis) { @input_adapter.get_analysis(@registry[:directory]) }
     @logger.debug 'Found associated OSA file' if @registry[:analysis]
     @registry.register(:measure_paths) { @registry[:workflow][:measure_paths] } if @registry[:workflow][:measure_paths]
     @logger.debug "Set measure_paths array in the registry to #{@registry[:measure_paths]}" if @registry[:measure_paths]
@@ -73,11 +73,15 @@ class RunInitialization < OpenStudio::Workflow::Job
     else
       file_search_paths = @options[:file_paths]
     end
-    if File.extname(model_name) == '.idf'
-      @registry.register(:model_idf) { load_idf(@registry[:root_dir], model_name, file_search_paths, @logger) }
-      @registry.register(:model) { load_osm(@registry[:root_dir], nil, file_search_paths, @logger) }
+    if model_name
+      if File.extname(model_name) == '.idf'
+        @registry.register(:model_idf) { load_idf(@registry[:root_dir], model_name, file_search_paths, @logger) }
+        @registry.register(:model) { load_osm(@registry[:root_dir], nil, file_search_paths, @logger) }
+      else
+        @registry.register(:model) { load_osm(@registry[:root_dir], model_name, file_search_paths, @logger) }
+      end
     else
-      @registry.register(:model) { load_osm(@registry[:root_dir], model_name, file_search_paths, @logger) }
+      @registry.register(:model) { OpenStudio::Model::Model.new() }
     end
 
     # Load the weather file, should it exist and be findable

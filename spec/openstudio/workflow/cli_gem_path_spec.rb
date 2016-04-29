@@ -8,10 +8,6 @@ describe 'Load the correct gems' do
     cli_file = File.absolute_path(File.join(__FILE__, '../../../../bin/openstudio_cli'))
     test_gem_path = File.absolute_path(File.join(__FILE__, '../../../files/local_gem_path'))
     workflow_file = File.absolute_path(File.join(__FILE__, '../../../files/local_gem_exec_osw/workflow.osw'))
-    puts lib_file
-    puts cli_file
-    puts test_gem_path
-    puts workflow_file
     res = system "ruby -I #{lib_file} #{cli_file} --gem_path #{test_gem_path} run -w #{workflow_file} -m --verbose"
 
     expect(res).to eq true

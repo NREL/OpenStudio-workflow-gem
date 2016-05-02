@@ -47,6 +47,18 @@ describe 'OpenStudio::Workflow' do
     end
   end
 
+  it 'should inherit rails env in adapter' do
+    options = {}
+    defaults = { adapter_options: { rails_env: :development } }
+    options = defaults.merge(options)
+
+    expect(options[:adapter_options][:rails_env]).to eq :development
+
+    options = { adapter_options: { rails_env: :local } }
+    options = defaults.merge(options)
+    expect(options[:adapter_options][:rails_env]).to eq :local
+  end
+
   it 'should set the OPENSTUDIO_WORKFLOW env variable' do
     expect(ENV['OPENSTUDIO_WORKFLOW_UNSET']).to eq nil
     expect(ENV['OPENSTUDIO_WORKFLOW']).to eq 'true'

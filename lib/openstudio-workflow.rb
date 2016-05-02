@@ -60,7 +60,7 @@ module OpenStudio
 
     # Create a new workflow instance using the defined adapter and UUID
     def load(adapter_name, run_directory, options = {})
-      defaults = { adapter_options: {} }
+      defaults = { adapter_options: { rails_env: :development } }
       options = defaults.merge(options)
 
       # Convert various paths to absolute paths

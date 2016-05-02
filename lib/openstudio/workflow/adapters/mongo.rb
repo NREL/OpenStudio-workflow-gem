@@ -46,7 +46,7 @@ module OpenStudio
           base_path = @options[:mongoid_path] ? @options[:mongoid_path] : "#{File.dirname(__FILE__)}/mongo"
 
           Dir["#{base_path}/models/*.rb"].each { |f| require f }
-          Mongoid.load!("#{base_path}/mongoid.yml", :development)
+          Mongoid.load!("#{base_path}/mongoid.yml", @options[:rails_env])
         end
 
         # Tell the system that the process has started

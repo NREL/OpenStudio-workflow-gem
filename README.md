@@ -1,6 +1,6 @@
 # OpenStudio::Workflow
-[![Circle CI](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0.svg?style=svg)](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0)
-[![Coverage Status](https://coveralls.io/repos/NREL/OpenStudio-workflow-gem/badge.svg?branch=EnergyPlus-8.3.0&service=github)](https://coveralls.io/github/NREL/OpenStudio-workflow-gem?branch=EnergyPlus-8.3.0)
+[![Circle CI](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/develop.svg?style=svg)](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/develop)
+[![Coverage Status](https://coveralls.io/repos/NREL/OpenStudio-workflow-gem/badge.svg?branch=develop&service=github)](https://coveralls.io/github/NREL/OpenStudio-workflow-gem?branch=develop)
 [![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
 
 Run an EnergyPlus simulation using a file-based workflow that is read from a Local or MongoDB adapter.
@@ -23,10 +23,6 @@ and in your path.  On Mac/Linux it is easiest to add the following to your .bash
 Add this line to your application's Gemfile:
 
     gem 'OpenStudio-workflow'
-
-Use this line if you want the bleeding edge:
-
-    gem 'OpenStudio-workflow', github: 'NREL/OpenStudio-workflow-gem', branch: 'EnergyPlus-8.2.0'
 
 And then execute:
     

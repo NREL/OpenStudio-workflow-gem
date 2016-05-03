@@ -48,15 +48,30 @@ describe 'OpenStudio::Workflow' do
   end
 
   it 'should inherit rails env in adapter' do
+    defaults = { adapter_options: {} }
+
     options = {}
-    defaults = { adapter_options: { rails_env: :development } }
     options = defaults.merge(options)
+    options[:adapter_options][:rails_env] = :development unless options[:adapter_options][:rails_env]
 
     expect(options[:adapter_options][:rails_env]).to eq :development
 
     options = { adapter_options: { rails_env: :local } }
     options = defaults.merge(options)
+    options[:adapter_options][:rails_env] = :development unless options[:adapter_options][:rails_env]
     expect(options[:adapter_options][:rails_env]).to eq :local
+
+    options = {
+        datapoint_id: '4f0b5de0-babf-0131-609d-080027880ca6',
+        analysis_root_path: 'spec/files/example_models',
+        adapter_options: {
+            mongoid_path: './spec/files/mongoid'
+        }
+    }
+    options = defaults.merge(options)
+    options[:adapter_options][:rails_env] = :development unless options[:adapter_options][:rails_env]
+    expect(options[:adapter_options][:rails_env]).to eq :development
+
   end
 
   it 'should set the OPENSTUDIO_WORKFLOW env variable' do

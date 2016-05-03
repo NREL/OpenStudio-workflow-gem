@@ -5,7 +5,7 @@ gemspec
 
 # always install these dependencies for connecting to mongo
 gem 'mongoid', '~> 3.1.6'
-gem 'paperclip', '~> 4.1.1'
+gem 'paperclip', '~> 4.3'
 gem 'mongoid-paperclip', require: 'mongoid_paperclip'
 gem 'delayed_job_mongoid'
 
@@ -22,7 +22,7 @@ group :test do
   gem 'coveralls', require: false
   gem 'ruby-prof', '~> 0.15.1'
   gem 'openstudio-analysis', github: 'NREL/OpenStudio-analysis-gem', branch: 'develop'
-  gem 'rspec', '~> 3.3'
+  gem 'rspec', '~> 3.4'
   gem 'ci_reporter_rspec'
   gem 'rubocop'
   gem 'rubocop-checkstyle_formatter'

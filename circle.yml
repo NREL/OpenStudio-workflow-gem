@@ -1,4 +1,7 @@
 machine:
+  ruby:
+    version:
+      2.0.0-p647
   services:
     - docker
 

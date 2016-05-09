@@ -30,6 +30,12 @@
 			"description": "Result is populated when the workflow step is run.",
 			"type": "object",
 			"properties": {
+				"started_at": {
+					"$ref": "#/definitions/Timestamp"
+				},
+				"completed_at": {
+					"$ref": "#/definitions/Timestamp"
+				},
 				"value": {
 					"description": "Overall result value of the measure.",
 					"type": "string",
@@ -81,7 +87,25 @@
 					"items": {
 						"$ref": "#/definitions/Output File"
 					}
+				},
+				"stdout": {
+					"description": "Output written to standard out during workflow step.",
+					"type": "string"
+				},
+				"stderr": {
+					"description": "Output written to standard error during workflow step.",
+					"type": "string"
 				}
+			},
+			"dependencies": {
+				"completed_at": [
+					"value",
+					"errors",
+					"warnings",
+					"info",
+					"attributes",
+					"files"
+				]
 			},
 			"additionalProperties": false
 		},
@@ -136,6 +160,9 @@
 				"steps": {
 					"$ref": "#/definitions/Workflow Steps"
 				},
+				"energplus_translator_result": {
+					"$ref": "#/definitions/Workflow Step Result"
+				},
 				"energyplus_result": {
 					"$ref": "#/definitions/Workflow Step Result"
 				},
@@ -173,6 +200,13 @@
 				},
 				"created_at": {
 					"$ref": "#/definitions/Timestamp"
+				},
+				"started_at": {
+					"$ref": "#/definitions/Timestamp"
+				},
+				"current_step": {
+					"description": "Index of current workflow step, first step is index 0.  If running EnergyPlus, current step refers to last step before EnergyPlus.",
+					"type": "number"
 				},
 				"updated_at": {
 					"$ref": "#/definitions/Timestamp"
@@ -219,6 +253,15 @@
 			"required": [
 				"steps"
 			],
+			"dependencies": {
+				"completed_at": [
+					"completed_status"
+				],
+				"started_at": [
+					"current_step",
+					"updated_at"
+				]
+			},
 			"additionalProperties": false
 		},
 		"Argument Array": {

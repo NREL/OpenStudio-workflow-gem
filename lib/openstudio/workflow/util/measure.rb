@@ -6,6 +6,7 @@ module OpenStudio
       #
       module Measure
 
+        # DLM: why reparse the xml, you can use the BCLMeasure class?
         require 'rexml/document'
         require 'logger'
 

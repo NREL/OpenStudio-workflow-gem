@@ -41,7 +41,7 @@ module OpenStudio
 
           # how do we log within this file?
           if File.exist? "#{directory}/#{options[:datapoint_filename]}"
-            ::MultiJson.load(File.read("#{directory}/#{options[:datapoint_filename]}"), symbolize_keys: true)
+            ::JSON.parse(File.read("#{directory}/#{options[:datapoint_filename]}"), symbolize_names: true)
           else
             fail "Data point file does not exist for #{directory}/#{options[:datapoint_filename]}"
           end
@@ -54,7 +54,7 @@ module OpenStudio
           options = defaults.merge(options)
 
           if File.exist? "#{directory}/#{options[:problem_filename]}"
-            ::MultiJson.load(File.read("#{directory}/#{options[:problem_filename]}"), symbolize_keys: true)
+            ::JSON.parse(File.read("#{directory}/#{options[:problem_filename]}"), symbolize_names: true)
           else
             fail "Problem file does not exist for #{directory}/#{options[:problem_filename]}"
           end

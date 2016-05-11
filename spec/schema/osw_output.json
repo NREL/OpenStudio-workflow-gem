@@ -109,8 +109,8 @@
 			},
 			"additionalProperties": false
 		},
-		"Workflow Step": {
-			"description": "Hash defining an indivigual measure",
+		"Measure Step": {
+			"description": "This step runs a measure with given arguments.  The measure can either be a Model, EnergyPlus, or Reporting Model.",
 			"type": "object",
 			"properties": {
 				"measure_dir_name": {
@@ -130,27 +130,140 @@
 			],
 			"additionalProperties": false
 		},
+		"ModelToIdf Step": {
+			"description": "This step converts the Model to EnergyPlus IDF",
+			"type": "object",
+			"properties": {
+				"model_to_idf": {
+					"type": "boolean",
+					"enum": [
+						true
+					],
+					"default": true
+				},
+				"result": {
+					"$ref": "#/definitions/Workflow Step Result"
+				}
+			},
+			"required": [
+				"model_to_idf"
+			],
+			"additionalProperties": false
+		},
+		"EnergyPlus Step": {
+			"description": "This step runs EnergyPlus as well as ExpandObjects and preprocessing the IDF.",
+			"type": "object",
+			"properties": {
+				"expand_objects": {
+					"type": "boolean",
+					"default": true
+				},
+				"energyplus_preprocess": {
+					"type": "boolean",
+					"default": true
+				},
+				"energyplus": {
+					"type": "boolean",
+					"default": true
+				},
+				"result": {
+					"$ref": "#/definitions/Workflow Step Result"
+				}
+			},
+			"required": [
+				"energyplus"
+			],
+			"additionalProperties": false
+		},
+		"Post Process Step": {
+			"description": "This step deletes temporary files and copies results to a known location.  Omitting this step is equivalent to setting post_process equal to none.",
+			"type": "object",
+			"properties": {
+				"post_process": {
+					"type": "string",
+					"enum": [
+						"None",
+						"Normal",
+						"Maximum"
+					]
+				},
+				"result": {
+					"$ref": "#/definitions/Workflow Step Result"
+				}
+			},
+			"required": [
+				"post_process"
+			],
+			"additionalProperties": false
+		},
 		"Workflow Steps": {
 			"description": "Array of measures to be executed in the simulation process",
 			"type": "array",
 			"items": {
-				"$ref": "#/definitions/Workflow Step"
+				"type": "object",
+				"additionalProperties": false,
+				"oneOf": [
+					{
+						"$ref": "#/definitions/Measure Step"
+					},
+					{
+						"$ref": "#/definitions/ModelToIdf Step"
+					},
+					{
+						"$ref": "#/definitions/EnergyPlus Step"
+					},
+					{
+						"$ref": "#/definitions/Post Process Step"
+					}
+				]
 			}
 		},
 		"Seed Definition": {
 			"title": "seed_file",
-			"description": "String defining the filepath for the seed model relative to the osw file",
+			"description": "String defining the filename for the seed model in the file_paths",
 			"type": "string"
 		},
 		"Weather Definition": {
 			"title": "weather_file",
-			"description": "String defining the filepath for the weather file relative to the osw instance",
+			"description": "String defining the filename for the weather file in the file_paths",
 			"type": "string"
 		},
 		"OpenStudioWorkflow Schema": {
 			"description": "JSON Schema for the OpenStudioWorkflow (OSW) file format",
 			"type": "object",
 			"properties": {
+				"file_format_version": {
+					"description": "Currently 0.1, however will infered to be the default of the software package unless otherwise specified",
+					"type": "number"
+				},
+				"id": {
+					"description": "UUID of this file",
+					"type": "string"
+				},
+				"root": {
+					"description": "Path to the root directory against which relative paths are evaluated.  If root is empty, the directory containing the osw is used.",
+					"type": "string"
+				},
+				"run_directory": {
+					"description": "Path to the run directory relative to root directory: note that a run folder will be created in the target location",
+					"type": "string"
+				},
+				"file_paths": {
+					"description": "A set of ordered directories relative to root_directory to search for required files and libraries",
+					"type": "array",
+					"items": {
+						"description": "A path relative to the root_dir which should be searched for support files and folders",
+						"type": "string"
+					}
+				},
+				"measure_paths": {
+					"description": "A set of ordered directories relative to root_directory to search for required measures",
+					"type": "array",
+					"items": {
+						"description": "A path relative to the root_directory which should be searched for support files and folders",
+						"type": "string"
+					}
+				},
 				"weather_file": {
 					"$ref": "#/definitions/Weather Definition"
 				},
@@ -159,16 +272,6 @@
 				},
 				"steps": {
 					"$ref": "#/definitions/Workflow Steps"
-				},
-				"energplus_translator_result": {
-					"$ref": "#/definitions/Workflow Step Result"
-				},
-				"energyplus_result": {
-					"$ref": "#/definitions/Workflow Step Result"
-				},
-				"file_format_version": {
-					"description": "Currently 0.1, however will infered to be the default of the software package unless otherwise specified",
-					"type": "number"
 				},
 				"osa_id": {
 					"description": "UUID of the .osa file fron which this file was generated, or null if not generated from a .osa file",
@@ -205,7 +308,7 @@
 					"$ref": "#/definitions/Timestamp"
 				},
 				"current_step": {
-					"description": "Index of current workflow step, first step is index 0.  If running EnergyPlus, current step refers to last step before EnergyPlus.",
+					"description": "Index of current workflow step, first step is index 0. Index remains at the last running step if error occurs.",
 					"type": "number"
 				},
 				"updated_at": {
@@ -215,39 +318,12 @@
 					"$ref": "#/definitions/Timestamp"
 				},
 				"completed_status": {
+					"description": "If the workflow is complete records if it failed or succeeded.",
 					"type": "string",
 					"enum": [
 						"Success",
 						"Fail"
 					]
-				},
-				"id": {
-					"description": "UUID of this file",
-					"type": "string"
-				},
-				"root": {
-					"description": "Path to the root directory against which relative paths are evaluated.  If root is empty, the directory containing the osw is used.",
-					"type": "string"
-				},
-				"run_directory": {
-					"description": "Path to the run directory: note that a run folder will be created in the target location",
-					"type": "string"
-				},
-				"file_paths": {
-					"description": "A set of ordered directories relative to root_directory to search for required files and libraries",
-					"type": "array",
-					"items": {
-						"description": "A path relative to the root_dir which should be searched for support files and folders",
-						"type": "string"
-					}
-				},
-				"measure_paths": {
-					"description": "A set of ordered directories relative to root_directory to search for required measures",
-					"type": "array",
-					"items": {
-						"description": "A path relative to the root_directory which should be searched for support files and folders",
-						"type": "string"
-					}
 				}
 			},
 			"required": [

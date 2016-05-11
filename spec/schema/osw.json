@@ -2,30 +2,6 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"$ref": "#/definitions/OpenStudioWorkflow Schema",
 	"definitions": {
-		"Argument": {
-			"title": "argument",
-			"description": "Hash defining a single measure input",
-			"type": "object",
-			"properties": {
-				"name": {
-					"description": "Machine readable argument name as defined in the measure.xml",
-					"type": "string"
-				},
-				"value": {
-					"description": "Value that the argument is to be set to",
-					"type": [
-						"string",
-						"number",
-						"boolean"
-					]
-				}
-			},
-			"required": [
-				"name",
-				"value"
-			],
-			"additionalProperties": false
-		},
 		"Workflow Step": {
 			"description": "Hash defining an indivigual measure",
 			"type": "object",
@@ -35,7 +11,7 @@
 					"type": "string"
 				},
 				"arguments": {
-					"$ref": "#/definitions/Argument Array"
+					"type": "object"
 				}
 			},
 			"required": [
@@ -147,13 +123,6 @@
 				"steps"
 			],
 			"additionalProperties": false
-		},
-		"Argument Array": {
-			"description": "Array defining inputs to the measure",
-			"type": "array",
-			"items": {
-				"$ref": "#/definitions/Argument"
-			}
 		}
 	}
 }

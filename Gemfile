@@ -4,6 +4,7 @@ source 'http://rubygems.org'
 gemspec
 
 group :test do
+  gem 'json-schema', '~> 2.6'
   gem 'nokogiri', '1.6.5'
   gem 'coveralls', require: false
   gem 'ruby-prof', '0.15.8'

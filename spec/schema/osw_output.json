@@ -2,232 +2,6 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"$ref": "#/definitions/OpenStudioWorkflow Schema",
 	"definitions": {
-		"Argument": {
-			"title": "argument",
-			"description": "Hash defining a single measure input",
-			"type": "object",
-			"properties": {
-				"name": {
-					"description": "Machine readable argument name as defined in the measure.xml",
-					"type": "string"
-				},
-				"value": {
-					"description": "Value that the argument is to be set to",
-					"type": [
-						"string",
-						"number",
-						"boolean"
-					]
-				}
-			},
-			"required": [
-				"name",
-				"value"
-			],
-			"additionalProperties": false
-		},
-		"Workflow Step Result": {
-			"description": "Result is populated when the workflow step is run.",
-			"type": "object",
-			"properties": {
-				"started_at": {
-					"$ref": "#/definitions/Timestamp"
-				},
-				"completed_at": {
-					"$ref": "#/definitions/Timestamp"
-				},
-				"value": {
-					"description": "Overall result value of the measure.",
-					"type": "string",
-					"enum": [
-						"Success",
-						"Fail",
-						"NotApplicable"
-					]
-				},
-				"initial_condition": {
-					"description": "Condition of the model before the workflow step",
-					"type": "string"
-				},
-				"final_condition": {
-					"description": "Condition of the model after the workflow step",
-					"type": "string"
-				},
-				"errors": {
-					"description": "Any errors that ocurred during the workflow step.  Simulation workflow will halt if any errors are present.",
-					"type": "array",
-					"items": {
-						"type": "string"
-					}
-				},
-				"warnings": {
-					"description": "Any warnings that occurred during the workflow step.  Simulation workflow will not halt due to precense of warnings.",
-					"type": "array",
-					"items": {
-						"type": "string"
-					}
-				},
-				"info": {
-					"description": "Any info messages that occur during the workflow step.",
-					"type": "array",
-					"items": {
-						"type": "string"
-					}
-				},
-				"attributes": {
-					"description": "Named output attributes that are added using runner.registerValue",
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/Output Attribute"
-					}
-				},
-				"files": {
-					"description": "New files that are generated during the worfklow step",
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/Output File"
-					}
-				},
-				"stdout": {
-					"description": "Output written to standard out during workflow step.",
-					"type": "string"
-				},
-				"stderr": {
-					"description": "Output written to standard error during workflow step.",
-					"type": "string"
-				}
-			},
-			"dependencies": {
-				"completed_at": [
-					"value",
-					"errors",
-					"warnings",
-					"info",
-					"attributes",
-					"files"
-				]
-			},
-			"additionalProperties": false
-		},
-		"Measure Step": {
-			"description": "This step runs a measure with given arguments.  The measure can either be a Model, EnergyPlus, or Reporting Model.",
-			"type": "object",
-			"properties": {
-				"measure_dir_name": {
-					"description": "Measure directory name containing the measure.rb file",
-					"type": "string"
-				},
-				"arguments": {
-					"$ref": "#/definitions/Argument Array"
-				},
-				"result": {
-					"$ref": "#/definitions/Workflow Step Result"
-				}
-			},
-			"required": [
-				"measure_dir_name",
-				"arguments"
-			],
-			"additionalProperties": false
-		},
-		"ModelToIdf Step": {
-			"description": "This step converts the Model to EnergyPlus IDF",
-			"type": "object",
-			"properties": {
-				"model_to_idf": {
-					"type": "boolean",
-					"enum": [
-						true
-					],
-					"default": true
-				},
-				"result": {
-					"$ref": "#/definitions/Workflow Step Result"
-				}
-			},
-			"required": [
-				"model_to_idf"
-			],
-			"additionalProperties": false
-		},
-		"EnergyPlus Step": {
-			"description": "This step runs EnergyPlus as well as ExpandObjects and preprocessing the IDF.",
-			"type": "object",
-			"properties": {
-				"expand_objects": {
-					"type": "boolean",
-					"default": true
-				},
-				"energyplus_preprocess": {
-					"type": "boolean",
-					"default": true
-				},
-				"energyplus": {
-					"type": "boolean",
-					"default": true
-				},
-				"result": {
-					"$ref": "#/definitions/Workflow Step Result"
-				}
-			},
-			"required": [
-				"energyplus"
-			],
-			"additionalProperties": false
-		},
-		"Post Process Step": {
-			"description": "This step deletes temporary files and copies results to a known location.  Omitting this step is equivalent to setting post_process equal to none.",
-			"type": "object",
-			"properties": {
-				"post_process": {
-					"type": "string",
-					"enum": [
-						"None",
-						"Normal",
-						"Maximum"
-					]
-				},
-				"result": {
-					"$ref": "#/definitions/Workflow Step Result"
-				}
-			},
-			"required": [
-				"post_process"
-			],
-			"additionalProperties": false
-		},
-		"Workflow Steps": {
-			"description": "Array of measures to be executed in the simulation process",
-			"type": "array",
-			"items": {
-				"type": "object",
-				"additionalProperties": false,
-				"oneOf": [
-					{
-						"$ref": "#/definitions/Measure Step"
-					},
-					{
-						"$ref": "#/definitions/ModelToIdf Step"
-					},
-					{
-						"$ref": "#/definitions/EnergyPlus Step"
-					},
-					{
-						"$ref": "#/definitions/Post Process Step"
-					}
-				]
-			}
-		},
-		"Seed Definition": {
-			"title": "seed_file",
-			"description": "String defining the filename for the seed model in the file_paths",
-			"type": "string"
-		},
-		"Weather Definition": {
-			"title": "weather_file",
-			"description": "String defining the filename for the weather file in the file_paths",
-			"type": "string"
-		},
 		"OpenStudioWorkflow Schema": {
 			"description": "JSON Schema for the OpenStudioWorkflow (OSW) file format",
 			"type": "object",
@@ -340,12 +114,214 @@
 			},
 			"additionalProperties": false
 		},
-		"Argument Array": {
-			"description": "Array defining inputs to the measure",
+		"Workflow Step Result": {
+			"description": "Result is populated when the workflow step is run.",
+			"type": "object",
+			"properties": {
+				"started_at": {
+					"$ref": "#/definitions/Timestamp"
+				},
+				"completed_at": {
+					"$ref": "#/definitions/Timestamp"
+				},
+				"step_result": {
+					"description": "Overall result value of the measure.",
+					"type": "string",
+					"enum": [
+						"Success",
+						"Fail",
+						"NotApplicable"
+					]
+				},
+				"initial_condition": {
+					"description": "Condition of the model before the workflow step",
+					"type": "string"
+				},
+				"final_condition": {
+					"description": "Condition of the model after the workflow step",
+					"type": "string"
+				},
+				"step_errors": {
+					"description": "Any errors that ocurred during the workflow step.  Simulation workflow will halt if any errors are present.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"step_warnings": {
+					"description": "Any warnings that occurred during the workflow step.  Simulation workflow will not halt due to precense of warnings.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"step_info": {
+					"description": "Any info messages that occur during the workflow step.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"step_values": {
+					"description": "Named output attributes that are added using runner.registerValue",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Output Attribute"
+					}
+				},
+				"step_files": {
+					"description": "New files that are generated during the worfklow step",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Output File"
+					}
+				},
+				"stdout": {
+					"description": "Output written to standard out during workflow step.",
+					"type": "string"
+				},
+				"stderr": {
+					"description": "Output written to standard error during workflow step.",
+					"type": "string"
+				}
+			},
+			"dependencies": {
+				"completed_at": [
+					"step_result",
+					"step_errors",
+					"step_warnings",
+					"step_info",
+					"step_values",
+					"step_files"
+				]
+			},
+			"additionalProperties": false
+		},
+		"Measure Step": {
+			"description": "This step runs a measure with given arguments.  The measure can either be a Model, EnergyPlus, or Reporting Model.",
+			"type": "object",
+			"properties": {
+				"measure_dir_name": {
+					"description": "Measure directory name containing the measure.rb file",
+					"type": "string"
+				},
+				"arguments": {
+					"type": "object",
+					"properties": {
+						"__SKIP__": {
+							"description": "If present and true, the __SKIP__ measure step will be skipped",
+							"type": "boolean",
+							"default": false
+						}
+					}
+				},
+				"result": {
+					"$ref": "#/definitions/Workflow Step Result"
+				}
+			},
+			"required": [
+				"measure_dir_name",
+				"arguments"
+			],
+			"additionalProperties": false
+		},
+		"ModelToIdf Step": {
+			"description": "This step converts the Model to EnergyPlus IDF",
+			"type": "object",
+			"properties": {
+				"model_to_idf": {
+					"type": "boolean",
+					"enum": [
+						true
+					],
+					"default": true
+				},
+				"result": {
+					"$ref": "#/definitions/Workflow Step Result"
+				}
+			},
+			"required": [
+				"model_to_idf"
+			],
+			"additionalProperties": false
+		},
+		"EnergyPlus Step": {
+			"description": "This step runs EnergyPlus as well as ExpandObjects and preprocessing the IDF.",
+			"type": "object",
+			"properties": {
+				"expand_objects": {
+					"type": "boolean",
+					"default": true
+				},
+				"energyplus_preprocess": {
+					"type": "boolean",
+					"default": true
+				},
+				"energyplus": {
+					"type": "boolean",
+					"default": true
+				},
+				"result": {
+					"$ref": "#/definitions/Workflow Step Result"
+				}
+			},
+			"required": [
+				"energyplus"
+			],
+			"additionalProperties": false
+		},
+		"Post Process Step": {
+			"description": "This step deletes temporary files and copies results to a known location.  Omitting this step is equivalent to setting post_process equal to none.",
+			"type": "object",
+			"properties": {
+				"post_process": {
+					"type": "string",
+					"enum": [
+						"None",
+						"Normal",
+						"Maximum"
+					]
+				},
+				"result": {
+					"$ref": "#/definitions/Workflow Step Result"
+				}
+			},
+			"required": [
+				"post_process"
+			],
+			"additionalProperties": false
+		},
+		"Workflow Steps": {
+			"description": "Array of measures to be executed in the simulation process",
 			"type": "array",
 			"items": {
-				"$ref": "#/definitions/Argument"
+				"type": "object",
+				"additionalProperties": false,
+				"oneOf": [
+					{
+						"$ref": "#/definitions/Measure Step"
+					},
+					{
+						"$ref": "#/definitions/ModelToIdf Step"
+					},
+					{
+						"$ref": "#/definitions/EnergyPlus Step"
+					},
+					{
+						"$ref": "#/definitions/Post Process Step"
+					}
+				]
 			}
+		},
+		"Seed Definition": {
+			"title": "seed_file",
+			"description": "String defining the filename for the seed model in the file_paths",
+			"type": "string"
+		},
+		"Weather Definition": {
+			"title": "weather_file",
+			"description": "String defining the filename for the weather file in the file_paths",
+			"type": "string"
 		},
 		"Output Attribute": {
 			"type": "object",

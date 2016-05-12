@@ -249,26 +249,28 @@
 			],
 			"additionalProperties": false
 		},
+		"Workflow Step": {
+			"type": "object",
+			"oneOf": [
+				{
+					"$ref": "#/definitions/Measure Step"
+				},
+				{
+					"$ref": "#/definitions/ModelToIdf Step"
+				},
+				{
+					"$ref": "#/definitions/EnergyPlus Step"
+				},
+				{
+					"$ref": "#/definitions/Post Process Step"
+				}
+			]
+		},
 		"Workflow Steps": {
 			"description": "Array of measures to be executed in the simulation process",
 			"type": "array",
 			"items": {
-				"type": "object",
-				"additionalProperties": false,
-				"oneOf": [
-					{
-						"$ref": "#/definitions/Measure Step"
-					},
-					{
-						"$ref": "#/definitions/ModelToIdf Step"
-					},
-					{
-						"$ref": "#/definitions/EnergyPlus Step"
-					},
-					{
-						"$ref": "#/definitions/Post Process Step"
-					}
-				]
+				"$ref": "#/definitions/Workflow Step"
 			}
 		},
 		"Seed Definition": {

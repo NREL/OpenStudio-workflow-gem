@@ -48,7 +48,7 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
     return nil unless @options[:debug]
     @registry[:time_logger].start('Saving OSM and IDF') if @registry[:time_logger]
     osm_name = save_osm(@registry[:model], @registry[:root_dir])
-    idf_name = save_idf(@registry[:model], @registry[:root_dir])
+    idf_name = save_idf(@registry[:model_idf], @registry[:root_dir])
     @registry[:time_logger].stop('Saving OSM and IDF') if @registry[:time_logger]
     @logger.debug "Saved OSM as #{osm_name}"
     @logger.debug "Saved IDF as #{idf_name}"

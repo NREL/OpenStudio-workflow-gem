@@ -241,7 +241,7 @@ module OpenStudio
             measure_wd = find_measure_dir(directory, measure_dir_name, measure_search_array, @registry[:logger])
             fail "Unable to find measure directory #{measure_dir_name} in #{measure_search_array}" unless measure_wd
             measure_run_dir = File.join(run_dir, "#{step_index}_#{measure_dir_name}")
-            logger.debug "Creating run directory for measure in #{measure_wd}"
+            logger.debug "Creating run directory for measure in #{measure_run_dir}"
             FileUtils.mkdir_p measure_run_dir
             Dir.chdir measure_run_dir
 
@@ -270,7 +270,7 @@ module OpenStudio
             end
 
             arguments = nil
-
+            skip_measure = false
             begin
 
               # Initialize arguments which may be model dependent
@@ -294,8 +294,14 @@ module OpenStudio
               logger.debug "Iterating over arguments for workflow item '#{step[:measure_dir_name]}'"
               if step[:arguments]
                 step[:arguments].each_pair do |argument_name, argument_value|
-                  success = apply_arguments(argument_map, argument_name, argument_value, logger)
-                  fail 'Could not set arguments' unless success
+                  if argument_name == '__SKIP__'
+                    if argument_value
+                      skip_measure = true
+                    end
+                  else
+                    success = apply_arguments(argument_map, argument_name, argument_value, logger)
+                    fail 'Could not set arguments' unless success
+                  end
                 end
               end
             rescue => e
@@ -303,60 +309,63 @@ module OpenStudio
               raise log_message
             end
 
-            begin
-              logger.debug "Calling measure.run for '#{measure_name}'"
-              if measure_type.to_s == MEASURE_CLASSES[:openstudio]
-                measure.run(@model, runner, argument_map)
-              elsif measure_type.to_s == MEASURE_CLASSES[:energyplus]
-                runner.setLastOpenStudioModel(@model)
-                measure.run(@model_idf, runner, argument_map)
-              else
-                runner.setLastOpenStudioModel(@model)
-                runner.setLastEnergyPlusWorkspace(@model_idf)
-                runner.setLastEnergyPlusSqlFilePath(@sql_filename)
-                measure.run(runner, argument_map)
-              end
-              logger.debug "Finished measure.run for '#{measure_name}'"
+            if !skip_measure
+              begin
+                logger.debug "Calling measure.run for '#{measure_name}'"
+                if measure_type.to_s == MEASURE_CLASSES[:openstudio]
+                  measure.run(@model, runner, argument_map)
+                elsif measure_type.to_s == MEASURE_CLASSES[:energyplus]
+                  runner.setLastOpenStudioModel(@model)
+                  measure.run(@model_idf, runner, argument_map)
+                else
+                  runner.setLastOpenStudioModel(@model)
+                  runner.setLastEnergyPlusWorkspace(@model_idf)
+                  runner.setLastEnergyPlusSqlFilePath(@sql_filename)
+                  measure.run(runner, argument_map)
+                end
+                logger.debug "Finished measure.run for '#{measure_name}'"
 
-              # Run garbage collector after every measure to help address race conditions
-              GC.start
-            rescue => e
-              log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-              raise log_message
-            end
-
-            begin
-              result = runner.result
-              fail "Measure #{measure_name} reported an error, check log" if result.errors.size != 0
-              logger.debug "Running of measure '#{measure_name}' completed. Post-processing measure output"
-
-              unless @wf == runner.weatherfile_path
-                logger.debug "Updating the weather file to be '#{runner.weatherfile_path}'"
-                registry.register(:wf) { runner.weatherfile_path }
+                # Run garbage collector after every measure to help address race conditions
+                GC.start
+              rescue => e
+                log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+                raise log_message
               end
 
-              # @todo add note about why reasignment and not eval
-              registry.register(:model) { @model }
-              registry.register(:model_idf) { @model_idf }
-              registry.register(:sql) { @sql }
+              begin
+                result = runner.result
+                fail "Measure #{measure_name} reported an error, check log" if result.errors.size != 0
+                logger.debug "Running of measure '#{measure_name}' completed. Post-processing measure output"
 
-            rescue => e
-              log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-              raise log_message
+                unless @wf == runner.weatherfile_path
+                  logger.debug "Updating the weather file to be '#{runner.weatherfile_path}'"
+                  registry.register(:wf) { runner.weatherfile_path }
+                end
+
+                # @todo add note about why reasignment and not eval
+                registry.register(:model) { @model }
+                registry.register(:model_idf) { @model_idf }
+                registry.register(:sql) { @sql }
+
+              rescue => e
+                log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+                raise log_message
+              end
+
+              begin
+                measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
+                output_attributes[measure_name.to_sym] = measure_attributes[:attributes]
+
+                # Add an applicability flag to all the measure results
+                output_attributes[measure_name.to_sym][:applicable] = result.value.value != -1
+                registry.register(:output_attributes) { output_attributes }
+              rescue => e
+                log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+                logger.error log_message
+              end
+              
             end
-
-            begin
-              measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
-              output_attributes[measure_name.to_sym] = measure_attributes[:attributes]
-
-              # Add an applicability flag to all the measure results
-              output_attributes[measure_name.to_sym][:applicable] = result.value.value != -1
-              registry.register(:output_attributes) { output_attributes }
-            rescue => e
-              log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-              logger.error log_message
-            end
-
+            
           rescue => e
             log_message = "#{__FILE__} failed with message #{e.message} in #{e.backtrace.join("\n")}"
             logger.error log_message

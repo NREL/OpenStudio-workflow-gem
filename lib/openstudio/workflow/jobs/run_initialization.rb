@@ -67,7 +67,7 @@ class RunInitialization < OpenStudio::Workflow::Job
 
     # Load or create the seed OSM object
     @logger.debug 'Finding and loading the seed file'
-    model_name = @registry[:workflow][:seed_model] ? @registry[:workflow][:seed_model] : nil
+    model_name = @registry[:workflow][:seed_file] ? @registry[:workflow][:seed_file] : nil
     if @registry[:file_paths]
       file_search_paths = @registry[:file_paths].concat @options[:file_paths]
     else

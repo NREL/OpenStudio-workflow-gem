@@ -21,16 +21,13 @@
 class RunInitialization < OpenStudio::Workflow::Job
 
   require 'openstudio/workflow/util'
-  include OpenStudio::Workflow::Util::Directory
   include OpenStudio::Workflow::Util::WeatherFile
   include OpenStudio::Workflow::Util::Model
   include OpenStudio::Workflow::Util::Measure
 
   def initialize(input_adapter, output_adapter, registry, options = {})
     defaults = {
-        verify_osw: true,
-        measure_paths: %w{measures ../../measures ./},
-        file_paths: %w{files weather ../../files ../../weather ./}
+        verify_osw: true
     }
     options = defaults.merge(options)
     super
@@ -44,17 +41,33 @@ class RunInitialization < OpenStudio::Workflow::Job
     @output_adapter.communicate_started
 
     # Load various files and set basic directories for the registry
-    @registry.register(:workflow) { @input_adapter.get_workflow(@registry[:directory]) }
-    @logger.debug 'Retrieved the workflow from the adapter'
+    @registry.register(:workflow) { @input_adapter.workflow }
     fail 'Specified workflow was nil' unless @registry[:workflow]
-    @registry.register(:root_dir) { get_root_dir(@registry[:workflow], @registry[:directory]) }
+    @logger.debug 'Retrieved the workflow from the adapter'
+    
+    @registry.register(:osw_dir) { @input_adapter.osw_dir }
+    @logger.debug "osw_dir is #{@registry[:osw_dir]}"
+    
+    @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow], @registry[:osw_dir]) }
+    @logger.debug 'Initialized runner'
+    
+    @registry.register(:workflow_json) { @registry[:runner].workflow }
+    @logger.debug "Initialized workflow_json of class #{@registry[:runner].class}"
+    
+    @registry.register(:root_dir) { @registry[:workflow_json].absoluteRootDir }
     @logger.debug "The root_dir for the analysis is #{@registry[:root_dir]}"
-    @registry.register(:datapoint) { @input_adapter.get_datapoint(@registry[:directory]) }
+    
+    @registry.register(:datapoint) { @input_adapter.datapoint }
     @logger.debug 'Found associated OSD file' if @registry[:datapoint]
-    @registry.register(:analysis) { @input_adapter.get_analysis(@registry[:directory]) }
+    
+    @registry.register(:analysis) { @input_adapter.analysis }
     @logger.debug 'Found associated OSA file' if @registry[:analysis]
+    
+    # TODO: should not need these, use workflow_json.findMeasure instead
     @registry.register(:measure_paths) { @registry[:workflow][:measure_paths] } if @registry[:workflow][:measure_paths]
     @logger.debug "Set measure_paths array in the registry to #{@registry[:measure_paths]}" if @registry[:measure_paths]
+    
+    # TODO: should not need these, use workflow_json.findFile instead
     @registry.register(:file_paths) { @registry[:workflow][:file_paths] } if @registry[:workflow][:file_paths]
     @logger.debug "Set measure_paths array in the registry to #{@registry[:file_paths]}" if @registry[:file_paths]
 
@@ -66,6 +79,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     end
 
     # Load or create the seed OSM object
+    # TODO: use workflow_json.findFile instead
     @logger.debug 'Finding and loading the seed file'
     model_name = @registry[:workflow][:seed_file] ? @registry[:workflow][:seed_file] : nil
     if @registry[:file_paths]
@@ -85,6 +99,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     end
 
     # Load the weather file, should it exist and be findable
+    # TODO: use workflow_json.findFile instead
     @logger.debug 'Getting the initial weather file'
     @registry[:workflow][:weather_file] ? wf = @registry[:workflow][:weather_file] : wf = nil
     @registry.register(:wf) { get_weather_file(@registry[:root_dir], wf, file_search_paths, @registry[:model], @logger) }

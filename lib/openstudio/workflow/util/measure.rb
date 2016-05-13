@@ -32,10 +32,11 @@ module OpenStudio
           # @todo (rhorsey) need to get rid of registrym this can all come from the workflow json in the runner - DLM
           logger = registry[:logger]
           workflow = registry[:workflow]
-          directory = registry[:directory]
+          directory = registry[:root_dir]
           measure_search_array = options[:measure_search_array] ? options[:measure_search_array] : []
           measure_search_array.concat @registry[:measure_paths] if @registry[:measure_paths]
           measure_search_array = ['measures'] if measure_search_array == []
+          logger.debug "measure_search_array is #{measure_search_array}"
           registry[:time_logger].start "#{measure_type}:apply_measure" if registry[:time_logger]
           fail "The 'steps' array of the OSW is required." unless workflow[:steps]
           logger.debug "Finding measures of type #{measure_type.to_s}"
@@ -224,14 +225,17 @@ module OpenStudio
           analysis = registry[:analysis]
           datapoint = registry[:datapoint]
           workflow = registry[:workflow]
-          directory = registry[:directory]
+          directory = registry[:root_dir]
           run_dir = registry[:run_dir]
           fail 'No run directory set in the registry' unless run_dir
           output_attributes = registry[:output_attributes]
+          
+          # todo: get weather file from appropriate location 
           @wf = registry[:wf]
           @model = registry[:model]
           @model_idf = registry[:model_idf]
           @sql_filename = registry[:sql]
+          
           logger.debug "Starting #{__method__} for #{step[:measure_dir_name]}"
           registry[:time_logger].start("Measure:#{measure_dir_name}") if registry[:time_logger]
           current_dir = Dir.pwd
@@ -261,31 +265,27 @@ module OpenStudio
               measure = Object.const_get(measure_name).new
               measure_type = measure.class.ancestors[1].to_s
               fail "Measure #{measure_name} is of type #{measure_type}, which is unknown to the Workflow Gem." unless MEASURE_CLASSES.values.include? measure_type
-              runner = WorkflowRunner.new( logger, workflow, analysis, datapoint, output_attributes)
+              runner = registry[:runner]
               
-              if runner.workflow_json
+              if runner.openstudio_2
                 # we have OS 2.X capabilties
-                #runner.setLastOpenStudioModel(const openstudio::model::Model& lastOpenStudioModel); #DLM - keep
+                runner.setLastOpenStudioModel(@model) if @model
                 #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
-                #runner.setLastEnergyPlusWorkspace(const openstudio::Workspace& lastEnergyPlusWorkspace); #DLM - keep
+                runner.setLastEnergyPlusWorkspace(@model_idf) if @model_idf
                 #runner.setLastEnergyPlusWorkspacePath(const openstudio::path& lastEnergyPlusWorkspacePath); #DLM - deprecate?
-                #runner.setLastEnergyPlusSqlFilePath(const openstudio::path& lastEnergyPlusSqlFilePath); #DLM - keep
-                #runner.setLastEpwFilePath(const openstudio::path& lastEpwFilePath); #DLM - deprecate?
-                #runner.setUnitsPreference(const std::string& unitsPreference); #DLM - keep
-                #runner.setLanguagePreference(const std::string& languagePreference); #DLM - keep
-                
-                #runner.setCurrentStep(step) #DLM - temporary, prefer to keep runner around for lifetime of workflow and just call incement_step for each measure, this way does not keep previousResults
+                runner.setLastEnergyPlusSqlFilePath(@sql_filename) if @sql_filename
+                runner.setLastEpwFilePath(@wf) if @wf
               else
                 # we have OS 1.X
-                #runner.setLastOpenStudioModel(const openstudio::model::Model& lastOpenStudioModel); #DLM - keep
+                runner.setLastOpenStudioModel(@model) if @model
                 #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
-                #runner.setLastEnergyPlusWorkspace(const openstudio::Workspace& lastEnergyPlusWorkspace); #DLM - keep
+                runner.setLastEnergyPlusWorkspace(@model_idf) if @model_idf
                 #runner.setLastEnergyPlusWorkspacePath(const openstudio::path& lastEnergyPlusWorkspacePath); #DLM - deprecate?
-                #runner.setLastEnergyPlusSqlFilePath(const openstudio::path& lastEnergyPlusSqlFilePath); #DLM - keep
-                #runner.setLastEpwFilePath(const openstudio::path& lastEpwFilePath); #DLM - deprecate?
+                runner.setLastEnergyPlusSqlFilePath(@sql_filename) if @sql_filename
+                runner.setLastEpwFilePath(@wf) if @wf
               end
               
-              runner.weatherfile_path = @wf #DLM - deprecate?
+              #runner.weatherfile_path = @wf #DLM - deprecate?
             rescue => e
               # @todo (rhorsey) Clean up the error class here.
               log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
@@ -338,12 +338,8 @@ module OpenStudio
                 if measure_type.to_s == MEASURE_CLASSES[:openstudio]
                   measure.run(@model, runner, argument_map)
                 elsif measure_type.to_s == MEASURE_CLASSES[:energyplus]
-                  runner.setLastOpenStudioModel(@model)
                   measure.run(@model_idf, runner, argument_map)
                 else
-                  runner.setLastOpenStudioModel(@model)
-                  runner.setLastEnergyPlusWorkspace(@model_idf)
-                  runner.setLastEnergyPlusSqlFilePath(@sql_filename)
                   measure.run(runner, argument_map)
                 end
                 logger.debug "Finished measure.run for '#{measure_name}'"
@@ -359,16 +355,19 @@ module OpenStudio
                 result = runner.result
                 fail "Measure #{measure_name} reported an error, check log" if result.errors.size != 0
                 logger.debug "Running of measure '#{measure_name}' completed. Post-processing measure output"
-
-                unless @wf == runner.weatherfile_path
-                  logger.debug "Updating the weather file to be '#{runner.weatherfile_path}'"
-                  registry.register(:wf) { runner.weatherfile_path }
-                end
+                
+                # TODO: fix this
+                #unless @wf == runner.weatherfile_path
+                #  logger.debug "Updating the weather file to be '#{runner.weatherfile_path}'"
+                #  registry.register(:wf) { runner.weatherfile_path }
+                #end
 
                 # @todo add note about why reasignment and not eval
                 registry.register(:model) { @model }
                 registry.register(:model_idf) { @model_idf }
                 registry.register(:sql) { @sql }
+                
+                runner.incrementStep
 
               rescue => e
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

@@ -6,6 +6,13 @@ SimpleCov.start do
   add_filter 'spec/files'
 end
 
+# for testing with OpenStudio 1.X
+$LOAD_PATH.unshift('E:\openstudio\build\OSCore-prefix\src\OSCore-build\ruby\Debug')
+
+# for testing with OpenStudio 2.X
+#$LOAD_PATH.unshift('E:\openstudio-2-0\build\OSCore-prefix\src\OSCore-build\ruby\Debug')
+
+# for all testing
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 

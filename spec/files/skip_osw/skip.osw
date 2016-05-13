@@ -1,0 +1,50 @@
+{
+	"weather_file": "srrl_2013_amy.epw",
+	"seed_model": "seb.osm",
+	"steps": [
+		{
+			"measure_dir_name": "IncreaseWallRValue",
+			"arguments": [
+        {
+					"name": "__SKIP__",
+					"value": false
+				}
+      ]
+		},
+    {
+			"measure_dir_name": "broken_measure",
+			"arguments": [
+				{
+					"name": "__SKIP__",
+					"value": true
+				}
+      ]
+		},
+		{
+			"measure_dir_name": "IncreaseRoofRValue",
+			"arguments": [
+				{
+					"name": "r_value",
+					"value": 45
+				},
+        {
+					"name": "__SKIP__",
+					"value": false
+				}
+			]
+		},
+		{
+			"measure_dir_name": "SetEplusInfiltration",
+			"arguments": [
+				{
+					"name": "flowPerZoneFloorArea",
+					"value": 10.76
+				},
+        {
+					"name": "__SKIP__",
+					"value": false
+				}
+			]
+		}
+	]
+}

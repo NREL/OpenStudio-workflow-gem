@@ -7,8 +7,8 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   # Allow former arguments and the current weatherfile path to be set and read
   # TODO: Consider having the former arguments passed in in initialization, and define as attr_reader
   # @todo (rhorsey) some of this stuff is in C++ - DLM
-  attr_accessor :former_workflow_arguments
-  attr_accessor :weatherfile_path
+  attr_accessor :former_workflow_arguments #DLM - deprecate in OS 2.0
+  attr_accessor :weatherfile_path #DLM - deprecate?
 
   # Add in @workflow_arguments
   # @todo (rhorsey) WorkflowRunner should persist throughout the life of a Workflow, it should rely on methods in OSRunner when possible- DLM
@@ -17,13 +17,25 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   def initialize(multi_logger, workflow_hash, analysis_hash, datapoint_hash, output_attributes)
     @multi_logger = multi_logger
     @workflow = workflow_hash
+    @workflow_json = nil
     @analysis = analysis_hash
     @datapoint = datapoint_hash
     @results = output_attributes
     @workflow_arguments = nil
     
-    # @todo (macumber) C++ class should take WorkflowJSON in constructor
-    super()
+    begin
+      # OpenStudio 2.X
+      @multi_logger.info JSON.pretty_generate(workflow)
+      @workflow_json = OpenStudio::WorkflowJSON.new(JSON.fast_generate(workflow))
+      @workflow_json.setOswDir(".") # @todo (rhorsey) - get the directory of the osw
+      @multi_logger.info "WorkflowJSON available #{@workflow_json}"
+      super(@workflow_json)
+    rescue Exception => e 
+      # OpenStudio 1.X
+      @multi_logger.warn e.message
+      @multi_logger.info "WorkflowJSON unavailable"
+      super()
+    end
   end
 
   def past_results
@@ -32,6 +44,10 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
 
   def workflow
     @workflow
+  end
+  
+  def workflow_json
+    @workflow_json
   end
 
   def analysis

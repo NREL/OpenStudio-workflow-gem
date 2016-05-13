@@ -1,0 +1,8 @@
+{
+	"steps": [
+		{
+			"measure_dir_name": "SetWeatherFile",
+			"arguments": []
+		}
+	]
+}

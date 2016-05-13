@@ -262,7 +262,30 @@ module OpenStudio
               measure_type = measure.class.ancestors[1].to_s
               fail "Measure #{measure_name} is of type #{measure_type}, which is unknown to the Workflow Gem." unless MEASURE_CLASSES.values.include? measure_type
               runner = WorkflowRunner.new( logger, workflow, analysis, datapoint, output_attributes)
-              runner.weatherfile_path = @wf
+              
+              if runner.workflow_json
+                # we have OS 2.X capabilties
+                #runner.setLastOpenStudioModel(const openstudio::model::Model& lastOpenStudioModel); #DLM - keep
+                #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
+                #runner.setLastEnergyPlusWorkspace(const openstudio::Workspace& lastEnergyPlusWorkspace); #DLM - keep
+                #runner.setLastEnergyPlusWorkspacePath(const openstudio::path& lastEnergyPlusWorkspacePath); #DLM - deprecate?
+                #runner.setLastEnergyPlusSqlFilePath(const openstudio::path& lastEnergyPlusSqlFilePath); #DLM - keep
+                #runner.setLastEpwFilePath(const openstudio::path& lastEpwFilePath); #DLM - deprecate?
+                #runner.setUnitsPreference(const std::string& unitsPreference); #DLM - keep
+                #runner.setLanguagePreference(const std::string& languagePreference); #DLM - keep
+                
+                #runner.setCurrentStep(step) #DLM - temporary, prefer to keep runner around for lifetime of workflow and just call incement_step for each measure, this way does not keep previousResults
+              else
+                # we have OS 1.X
+                #runner.setLastOpenStudioModel(const openstudio::model::Model& lastOpenStudioModel); #DLM - keep
+                #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
+                #runner.setLastEnergyPlusWorkspace(const openstudio::Workspace& lastEnergyPlusWorkspace); #DLM - keep
+                #runner.setLastEnergyPlusWorkspacePath(const openstudio::path& lastEnergyPlusWorkspacePath); #DLM - deprecate?
+                #runner.setLastEnergyPlusSqlFilePath(const openstudio::path& lastEnergyPlusSqlFilePath); #DLM - keep
+                #runner.setLastEpwFilePath(const openstudio::path& lastEpwFilePath); #DLM - deprecate?
+              end
+              
+              runner.weatherfile_path = @wf #DLM - deprecate?
             rescue => e
               # @todo (rhorsey) Clean up the error class here.
               log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"

@@ -145,7 +145,7 @@ module OpenStudio
         # @return [String] OSM file name
         #
         def save_osm(model, save_directory, name = 'in.osm')
-          osm_filename = File.join(save_directory, name)
+          osm_filename = File.join(save_directory.to_s, name.to_s)
           File.open(osm_filename, 'w') { |f| f << model.to_s }
           osm_filename
         end
@@ -158,7 +158,7 @@ module OpenStudio
         # @return [String] IDF file name
         #
         def save_idf(model_idf, save_directory, name = 'in.idf')
-          idf_filename = File.join(save_directory, name)
+          idf_filename = File.join(save_directory.to_s, name.to_s)
           File.open(idf_filename, 'w') { |f| f << model_idf.to_s }
           idf_filename
         end

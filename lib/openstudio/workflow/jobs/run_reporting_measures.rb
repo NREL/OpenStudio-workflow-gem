@@ -70,7 +70,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     # Apply reporting measures
     @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute Reporting measures.'
-    apply_measures(:reporting, @registry, @options)
+    apply_measures('ReportingMeasure'.to_MeasureType, @registry, @options)
     @logger.info('Finished applying Reporting measures.')
 
     # Send the updated measure_attributes to the output adapter

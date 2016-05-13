@@ -17,6 +17,30 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+# WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X
+class WorkflowStep_Shim
+  
+  def initialize(step, index)
+    @step = step
+    @index = index
+  end
+  
+  def index
+    @index
+  end
+  
+  # std::string measureDirName() const;
+  def measureDirName
+    @step[:measure_dir_name]
+  end
+    
+  #std::map<std::string, Variant> arguments() const;
+  def arguments
+    # TODO: match C++
+    @step[:arguments]
+  end
+end
+
 # WorkflowJSON_Shim provides a shim interface to the WorkflowJSON class in OpenStudio 2.X when running in OpenStudio 1.X
 class WorkflowJSON_Shim
   
@@ -33,7 +57,7 @@ class WorkflowJSON_Shim
   # Returns the absolute path to the directory this workflow was loaded from or saved to.  Returns current working dir for new WorkflowJSON.
   # openstudio::path oswDir() const;
   def oswDir
-    @osw_dir
+    OpenStudio::toPath(@osw_dir)
   end
 
   # Returns the root directory, default value is '.'. Evaluated relative to oswDir if not absolute.
@@ -41,14 +65,14 @@ class WorkflowJSON_Shim
   # openstudio::path absoluteRootDir() const;
   def rootDir
     if @workflow[:root_dir]
-      @workflow[:root_dir]
+      OpenStudio::toPath(@workflow[:root_dir])
     else
-      @osw_dir
+      OpenStudio::toPath(@osw_dir)
     end
   end
   
   def absoluteRootDir
-    File.absolute_path(rootDir, @osw_dir)
+    OpenStudio::toPath(File.absolute_path(rootDir.to_s, @osw_dir.to_s))
   end
   
   # Returns the run directory, default value is './run'. Evaluated relative to rootDir if not absolute. 
@@ -56,33 +80,53 @@ class WorkflowJSON_Shim
   #openstudio::path absoluteRunDir() const;
   def runDir
     if @workflow[:run_directory]
-      @workflow[:run_directory]
+      OpenStudio::toPath(@workflow[:run_directory])
     else
-      './run'
+      OpenStudio::toPath('./run')
     end
   end
   
   def absoluteRunDir
-    File.absolute_path(runDir, rootDir)
+    OpenStudio::toPath(File.absolute_path(runDir.to_s, rootDir.to_s))
   end
   
   # Returns the paths that will be searched in order for files, default value is './files/'. Evaluated relative to rootDir if not absolute. 
   # std::vector<openstudio::path> filePaths() const;
   # std::vector<openstudio::path> absoluteFilePaths() const;
   def filePaths
-    OpenStudio::PathVector.new
-    
-    #file_paths: %w{files weather ../../files ../../weather ./}
+    result = OpenStudio::PathVector.new
+    if @workflow[:file_paths]
+      @workflow[:file_paths].each do |file_path|
+        result << OpenStudio::toPath(file_path)
+      end
+    else
+      result << OpenStudio::toPath("./files")
+      result << OpenStudio::toPath("./weather")
+      result << OpenStudio::toPath("../../files")
+      result << OpenStudio::toPath("../../weather")
+      result << OpenStudio::toPath("./")
+    end
+    result
   end
   
   def absoluteFilePaths
-    OpenStudio::PathVector.new
+    result = OpenStudio::PathVector.new
+    filePaths.each do |file_path|
+      result << OpenStudio::toPath(File.absolute_path(file_path.to_s, rootDir.to_s))
+    end
+    result
   end
 
   # Attempts to find a file by name, searches through filePaths in order and returns first match. 
   # boost::optional<openstudio::path> findFile(const openstudio::path& file);
   # boost::optional<openstudio::path> findFile(const std::string& fileName);
   def findFile(file)
+    absoluteFilePaths.each do |file_path|
+      result = File.join(file_path.to_s, file.to_s)
+      if File.exists?(result)
+        return OpenStudio::OptionalPath.new(OpenStudio::toPath(result))
+      end
+    end
     OpenStudio::OptionalPath.new
   end
 
@@ -90,38 +134,68 @@ class WorkflowJSON_Shim
   # std::vector<openstudio::path> measurePaths() const;
   # std::vector<openstudio::path> absoluteMeasurePaths() const;
   def measurePaths
-    OpenStudio::PathVector.new
-    
-    #measure_paths: %w{measures ../../measures ./},
+    result = OpenStudio::PathVector.new
+    if @workflow[:measure_paths]
+      @workflow[:measure_paths].each do |measure_path|
+        result << OpenStudio::toPath(measure_path)
+      end
+    else
+      result << OpenStudio::toPath("./measures")
+      result << OpenStudio::toPath("../../measures")
+      result << OpenStudio::toPath("./")
+    end
+    result
   end
   
   def absoluteMeasurePaths
-    OpenStudio::PathVector.new
+    result = OpenStudio::PathVector.new
+    measurePaths.each do |measure_path|
+      result << OpenStudio::toPath(File.absolute_path(measure_path.to_s, rootDir.to_s))
+    end
+    result
   end
   
   # Attempts to find a measure by name, searches through measurePaths in order and returns first match. */
   # boost::optional<openstudio::path> findMeasure(const openstudio::path& measureDir);
   # boost::optional<openstudio::path> findMeasure(const std::string& measureDirName);
-  def findMeasure
+  def findMeasure(measureDir)
+    absoluteMeasurePaths.each do |measure_path|
+      result = File.join(measure_path.to_s, measureDir.to_s)
+      if File.exists?(result)
+        return OpenStudio::OptionalPath.new(OpenStudio::toPath(result))
+      end
+    end
     OpenStudio::OptionalPath.new
   end
 
-  # Returns the seed file path. Evaluated relative to filePaths if not absolute. */
+  # Returns the seed file path. Evaluated relative to filePaths if not absolute. 
   # boost::optional<openstudio::path> seedFile() const;
   def seedFile
-    OpenStudio::OptionalPath.new
+    result = OpenStudio::OptionalPath.new
+    if @workflow[:seed_file]
+      result = findFile(@workflow[:seed_file])
+    end
+    result
   end
 
-  # Returns the weather file path. Evaluated relative to filePaths if not absolute. */
+  # Returns the weather file path. Evaluated relative to filePaths if not absolute. 
   # boost::optional<openstudio::path> weatherFile() const;
   def weatherFile
-    OpenStudio::OptionalPath.new
+    result = OpenStudio::OptionalPath.new
+    if @workflow[:weather_file]
+      result = findFile(@workflow[:weather_file])
+    end
+    result
   end
   
   # Returns the workflow steps. */
   # std::vector<WorkflowStep> workflowSteps() const;
   def workflowSteps
-    []
+    result = []
+    @workflow[:steps].each_with_index do |step, index|
+      result << WorkflowStep_Shim.new(step, index)
+    end
+    result
   end
   
 end

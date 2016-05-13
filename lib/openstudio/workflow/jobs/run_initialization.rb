@@ -34,6 +34,7 @@ class RunInitialization < OpenStudio::Workflow::Job
   end
 
   def perform
+    # DLM: why are there multiple loggers running around?  there is one in the registry can we just use that?
     @logger.info "Calling #{__method__} in the #{self.class} class"
 
     # Communicate that the workflow has been started
@@ -52,7 +53,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     @logger.debug 'Initialized runner'
     
     @registry.register(:workflow_json) { @registry[:runner].workflow }
-    @logger.debug "Initialized workflow_json of class #{@registry[:runner].class}"
+    @logger.debug "Initialized workflow_json of class #{@registry[:workflow_json].class}"
     
     @registry.register(:root_dir) { @registry[:workflow_json].absoluteRootDir }
     @logger.debug "The root_dir for the analysis is #{@registry[:root_dir]}"
@@ -74,7 +75,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     # Validate the OSW measures if the flag is set to true, (the default state)
     if @options[:verify_osw]
       @logger.info 'Attempting to validate the measure workflow'
-      validate_measures(@registry[:workflow], @registry[:root_dir], @logger)
+      validate_measures(@registry, @logger)
       @logger.info 'Validated the measure workflow'
     end
 

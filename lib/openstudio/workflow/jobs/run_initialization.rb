@@ -54,8 +54,9 @@ class RunInitialization < OpenStudio::Workflow::Job
     
     @registry.register(:workflow_json) { @registry[:runner].workflow }
     @logger.debug "Initialized workflow_json of class #{@registry[:workflow_json].class}"
+    workflow_json = @registry[:workflow_json]
     
-    @registry.register(:root_dir) { @registry[:workflow_json].absoluteRootDir }
+    @registry.register(:root_dir) { workflow_json.absoluteRootDir }
     @logger.debug "The root_dir for the analysis is #{@registry[:root_dir]}"
     
     @registry.register(:datapoint) { @input_adapter.datapoint }
@@ -64,14 +65,6 @@ class RunInitialization < OpenStudio::Workflow::Job
     @registry.register(:analysis) { @input_adapter.analysis }
     @logger.debug 'Found associated OSA file' if @registry[:analysis]
     
-    # TODO: should not need these, use workflow_json.findMeasure instead
-    @registry.register(:measure_paths) { @registry[:workflow][:measure_paths] } if @registry[:workflow][:measure_paths]
-    @logger.debug "Set measure_paths array in the registry to #{@registry[:measure_paths]}" if @registry[:measure_paths]
-    
-    # TODO: should not need these, use workflow_json.findFile instead
-    @registry.register(:file_paths) { @registry[:workflow][:file_paths] } if @registry[:workflow][:file_paths]
-    @logger.debug "Set measure_paths array in the registry to #{@registry[:file_paths]}" if @registry[:file_paths]
-
     # Validate the OSW measures if the flag is set to true, (the default state)
     if @options[:verify_osw]
       @logger.info 'Attempting to validate the measure workflow'
@@ -80,30 +73,55 @@ class RunInitialization < OpenStudio::Workflow::Job
     end
 
     # Load or create the seed OSM object
-    # TODO: use workflow_json.findFile instead
     @logger.debug 'Finding and loading the seed file'
-    model_name = @registry[:workflow][:seed_file] ? @registry[:workflow][:seed_file] : nil
-    if @registry[:file_paths]
-      file_search_paths = @registry[:file_paths].concat @options[:file_paths]
-    else
-      file_search_paths = @options[:file_paths]
-    end
-    if model_name
-      if File.extname(model_name) == '.idf'
-        @registry.register(:model_idf) { load_idf(@registry[:root_dir], model_name, file_search_paths, @logger) }
-        @registry.register(:model) { load_osm(@registry[:root_dir], nil, file_search_paths, @logger) }
+    model_path = workflow_json.seedFile
+    if !model_path.empty?
+    
+      model_full_path = workflow_json.findFile(model_path.get)
+      if model_full_path.empty?
+        fail "Seed model #{model_path.get} specified in OSW cannot be found"
+      end
+      model_full_path = model_full_path.get
+      
+      if File.extname(model_full_path.to_s) == '.idf'
+        @registry.register(:model_idf) { load_idf(model_full_path, @logger) }
+        @registry.register(:model) { nil }
       else
-        @registry.register(:model) { load_osm(@registry[:root_dir], model_name, file_search_paths, @logger) }
+        @registry.register(:model) { load_osm(model_full_path, @logger) }
       end
     else
       @registry.register(:model) { OpenStudio::Model::Model.new() }
     end
 
-    # Load the weather file, should it exist and be findable
-    # TODO: use workflow_json.findFile instead
+    # Find the weather file, should it exist and be findable
     @logger.debug 'Getting the initial weather file'
-    @registry[:workflow][:weather_file] ? wf = @registry[:workflow][:weather_file] : wf = nil
-    @registry.register(:wf) { get_weather_file(@registry[:root_dir], wf, file_search_paths, @registry[:model], @logger) }
+    weather_path = workflow_json.weatherFile
+    if weather_path.empty?
+      @logger.debug 'No weather file specified in OSW, looking in model'
+      if @registry[:model]
+        model = @registry[:model]
+        if !model.weatherFile.empty?
+          weather_path = model.weatherFile.get.path
+        end
+      end
+    end
+    
+    if !weather_path.empty?
+      weather_path = weather_path.get
+      @logger.debug 'Searching for weather file #{weather_path}'
+      
+      weather_full_path = workflow_json.findFile(weather_path)
+      if weather_full_path.empty?
+        weather_full_path = workflow_json.findFile(File.basename(weather_path.to_s))
+      end
+      
+      if weather_full_path.empty?
+        fail "Weather file #{weather_path} specified but cannot be found"
+      end
+      weather_full_path = weather_full_path.get
+      
+      @registry.register(:wf) {weather_full_path}
+    end
     @logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
 
     nil

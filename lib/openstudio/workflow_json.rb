@@ -173,7 +173,7 @@ class WorkflowJSON_Shim
   def seedFile
     result = OpenStudio::OptionalPath.new
     if @workflow[:seed_file]
-      result = findFile(@workflow[:seed_file])
+      result = OpenStudio::toPath(@workflow[:seed_file])
     end
     result
   end
@@ -183,7 +183,7 @@ class WorkflowJSON_Shim
   def weatherFile
     result = OpenStudio::OptionalPath.new
     if @workflow[:weather_file]
-      result = findFile(@workflow[:weather_file])
+      result = OpenStudio::toPath(@workflow[:weather_file])
     end
     result
   end

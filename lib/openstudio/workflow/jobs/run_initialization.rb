@@ -120,7 +120,7 @@ class RunInitialization < OpenStudio::Workflow::Job
       end
       weather_full_path = weather_full_path.get
       
-      @registry.register(:wf) {weather_full_path}
+      @registry.register(:wf) {weather_full_path.to_s}
     end
     @logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
 

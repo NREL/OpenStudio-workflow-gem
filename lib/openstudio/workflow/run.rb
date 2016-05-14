@@ -78,8 +78,25 @@ module OpenStudio
         # DLM - what is final_message?
         @final_message = ''
         @current_state = nil
-        @registry = Registry.new
         
+        # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time
+        # - logger - general logger
+        # - time_logger - logger for doing profiling, deprecate
+        # - workflow - the current OSW parsed as a Ruby Hash
+        # - workflow_json - the current WorkflowJSON object
+        # - osw_dir - the directory the OSW was loaded from as a string
+        # - root_dir - the root directory in the OSW as a string
+        # - run_dir - the run directory for the simulation as a string
+        # - datapoint - the current OSD parsed as a Ruby Hash
+        # - analysis - the current OSA parsed as a Ruby Hash
+        # - runner - the current OSRunner object
+        # - model - the current OpenStudio Model object, updated after each step
+        # - model_idf - the current EnergyPlus Workspace object, updated after each step
+        # - wf - the path to the current weather file as a string, updated after each step
+        # - output_attributes - ? - deprecate
+        # - sql - the path to the current EnergyPlus SQL file as a string
+        @registry = Registry.new
+
         # get the input osw
         @input_adapter = OpenStudio::Workflow::InputAdapter::Local.new(osw_path)
 

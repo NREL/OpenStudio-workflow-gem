@@ -28,8 +28,15 @@ module OpenStudio
           
           logger.debug "Finding measures of type #{measure_type.valueName}"
           workflow_steps.each do |step|
-            measure_dir_name = step.measureDirName
 
+            if @registry[:openstudio_2]
+              if !step.to_MeasureStep.empty?
+                step = step.to_MeasureStep.get
+              end
+            end
+            
+            measure_dir_name = step.measureDirName
+              
             measure_dir = workflow_json.findMeasure(measure_dir_name)
             fail "Cannot find #{measure_dir_name}" if measure_dir.empty?
             measure_dir = measure_dir.get
@@ -73,12 +80,18 @@ module OpenStudio
           steps.each_with_index do |step, index|
             begin
               logger.debug "Validating step #{index}"
+              
+              if @registry[:openstudio_2]
+                if !step.to_MeasureStep.empty?
+                  step = step.to_MeasureStep.get
+                end
+              end
 
               # Verify the existence of the required files
               measure_dir_name = step.measureDirName
 
               measure_dir = workflow_json.findMeasure(measure_dir_name)
-              fail "Cannot find #{measure_dir_name}" if measure_dir.empty?
+              fail "Cannot find measure #{measure_dir_name}" if measure_dir.empty?
               measure_dir = measure_dir.get
               
               measure = OpenStudio::BCLMeasure.load(measure_dir)
@@ -126,6 +139,30 @@ module OpenStudio
             logger.warn "Value for argument '#{argument_name}' not set in argument list therefore will use default"
           end
         end
+        
+        def apply_arguments_2(argument_map, argument_name, argument_value, logger)
+          unless argument_value.nil?
+            logger.info "Setting argument value '#{argument_name}' to '#{argument_value}'"
+
+            v = argument_map[argument_name.to_s]
+            fail "Could not find argument '#{argument_name}' in argument_map" unless v
+            value_set = false
+            variant_type = argument_value.variantType
+            if variant_type == "String".to_VariantType
+              value_set = v.setValue(argument_value.valueAsString)
+            elsif variant_type == "Double".to_VariantType
+              value_set = v.setValue(argument_value.valueAsDouble)
+            elsif variant_type == "Integer".to_VariantType
+              value_set = v.setValue(argument_value.valueAsInteger)
+            elsif variant_type == "Boolean".to_VariantType
+              value_set = v.setValue(argument_value.valueAsBoolean)
+            end
+            fail "Could not set argument '#{argument_name}' to value '#{argument_value}'" unless value_set
+            argument_map[argument_name.to_s] = v.clone
+          else
+            logger.warn "Value for argument '#{argument_name}' not set in argument list therefore will use default"
+          end
+        end
 
         # Method to allow for a single measure of any type to be run
         #
@@ -166,24 +203,13 @@ module OpenStudio
           @model_idf = registry[:model_idf]
           @sql_filename = registry[:sql]
           
-          if runner.openstudio_2
-            # we have OS 2.X capabilties
-            runner.setLastOpenStudioModel(@model) if @model
-            #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
-            runner.setLastEnergyPlusWorkspace(@model_idf) if @model_idf
-            #runner.setLastEnergyPlusWorkspacePath(const openstudio::path& lastEnergyPlusWorkspacePath); #DLM - deprecate?
-            runner.setLastEnergyPlusSqlFilePath(@sql_filename) if @sql_filename
-            runner.setLastEpwFilePath(@wf) if @wf
-          else
-            # we have OS 1.X
-            runner.setLastOpenStudioModel(@model) if @model
-            #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
-            runner.setLastEnergyPlusWorkspace(@model_idf) if @model_idf
-            #runner.setLastEnergyPlusWorkspacePath(const openstudio::path& lastEnergyPlusWorkspacePath); #DLM - deprecate?
-            runner.setLastEnergyPlusSqlFilePath(@sql_filename) if @sql_filename
-            runner.setLastEpwFilePath(@wf) if @wf
-          end
-              
+          runner.setLastOpenStudioModel(@model) if @model
+          #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
+          runner.setLastEnergyPlusWorkspace(@model_idf) if @model_idf
+          #runner.setLastEnergyPlusWorkspacePath(const openstudio::path& lastEnergyPlusWorkspacePath); #DLM - deprecate?
+          runner.setLastEnergyPlusSqlFilePath(@sql_filename) if @sql_filename
+          runner.setLastEpwFilePath(@wf) if @wf
+
           logger.debug "Starting #{__method__} for #{measure_dir_name}"
           registry[:time_logger].start("Measure:#{measure_dir_name}") if registry[:time_logger]
           current_dir = Dir.pwd
@@ -199,9 +225,7 @@ module OpenStudio
             fail "Cannot load measure at #{measure_dir}" if measure.empty?
             measure = measure.get
             
-            step_index = step.index
-            runner_index = runner.currentStep
-            fail "step_index #{step_index} does not match runner_index #{runner_index}" if step_index != runner_index
+            step_index = runner.currentStep
 
             measure_run_dir = File.join(run_dir, "#{step_index}_#{measure_dir_name}")
             logger.debug "Creating run directory for measure in #{measure_run_dir}"
@@ -254,22 +278,21 @@ module OpenStudio
 
               # Set argument values
               logger.debug "Iterating over arguments for workflow item '#{measure_dir_name}'"
-              if runner.openstudio_2
-                # TODO
-                fail "Not implemented"
-              else
-                step.arguments.each_pair do |argument_name, argument_value|
-                  if argument_name == '__SKIP__'
-                    if argument_value
-                      skip_measure = true
-                    end
+              step.arguments.each do |argument_name, argument_value|
+                if argument_name == '__SKIP__'
+                  if argument_value
+                    skip_measure = true
+                  end
+                else
+                  if registry[:openstudio_2]
+                    success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
                   else
                     success = apply_arguments(argument_map, argument_name, argument_value, logger)
-                    fail 'Could not set arguments' unless success
                   end
+                  fail 'Could not set arguments' unless success
                 end
               end
-  
+
             rescue => e
               log_message = "Error assigning argument in measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
               raise log_message
@@ -296,7 +319,14 @@ module OpenStudio
 
               begin
                 result = runner.result
-                fail "Measure #{measure_name} reported an error, check log" if result.errors.size != 0
+                
+                errors = []
+                if registry[:openstudio_2]
+                  errors = result.stepErrors
+                else
+                  errors = result.errors
+                end
+                fail "Measure #{measure_name} reported an error, check log" if errors.size != 0
                 logger.debug "Running of measure '#{measure_dir_name}' completed. Post-processing measure output"
                 
                 # TODO: fix this

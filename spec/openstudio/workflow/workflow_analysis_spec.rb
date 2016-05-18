@@ -21,6 +21,9 @@ describe 'OSW Integration' do
     k = OpenStudio::Workflow::Run.new osw_path, run_options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.run).to eq :finished
+    
+    osw_out_path = File.join(__FILE__, './../../../files/compact_osw/compact.osw.out')
+    
   end
   
   it 'should run an extended OSW file' do

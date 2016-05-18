@@ -17,16 +17,24 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X
-class WorkflowStep_Shim
+# WorkflowStepResult_Shim provides a shim interface to the WorkflowStepResult class in OpenStudio 2.X when running in OpenStudio 1.X
+class WorkflowStepResult_Shim
   
-  def initialize(step, index)
-    @step = step
-    @index = index
+  def initialize()
   end
   
   def index
     @index
+  end
+
+end
+
+
+# WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X
+class WorkflowStep_Shim
+  
+  def initialize(step)
+    @step = step
   end
   
   # std::string measureDirName() const;
@@ -192,8 +200,8 @@ class WorkflowJSON_Shim
   # std::vector<WorkflowStep> workflowSteps() const;
   def workflowSteps
     result = []
-    @workflow[:steps].each_with_index do |step, index|
-      result << WorkflowStep_Shim.new(step, index)
+    @workflow[:steps].each do |step|
+      result << WorkflowStep_Shim.new(step)
     end
     result
   end

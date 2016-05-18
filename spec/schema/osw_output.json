@@ -22,6 +22,10 @@
 					"description": "Path to the run directory relative to root directory: note that a run folder will be created in the target location",
 					"type": "string"
 				},
+				"out_path": {
+					"description": "Path to write output OSW when done.  Relative to root directory.  ",
+					"type": "string"
+				},
 				"file_paths": {
 					"description": "A set of ordered directories relative to root_directory to search for required files and libraries",
 					"type": "array",

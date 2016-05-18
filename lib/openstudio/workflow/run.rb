@@ -80,8 +80,9 @@ module OpenStudio
         @current_state = nil
         
         # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time
-        # - logger - general logger
-        # - time_logger - logger for doing profiling, deprecate
+        # - openstudio_2 - true if we are running in OpenStudio 2.X environment
+        # - logger - general logger - this is already a module constant, deprecate
+        # - time_logger - logger for doing profiling - time to run each step will be captured in OSResult, deprecate
         # - workflow - the current OSW parsed as a Ruby Hash
         # - workflow_json - the current WorkflowJSON object
         # - osw_dir - the directory the OSW was loaded from as a string
@@ -96,7 +97,16 @@ module OpenStudio
         # - output_attributes - ? - deprecate
         # - sql - the path to the current EnergyPlus SQL file as a string
         @registry = Registry.new
-
+        
+        openstudio_2 = false
+        begin
+          # OpenStudio 2.X test
+          OpenStudio::WorkflowJSON.new()
+          openstudio_2 = true
+        rescue Exception => e 
+        end
+        @registry.register(:openstudio_2) { openstudio_2 }
+        
         # get the input osw
         @input_adapter = OpenStudio::Workflow::InputAdapter::Local.new(osw_path)
 
@@ -107,6 +117,7 @@ module OpenStudio
           @output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new({output_directory: @input_adapter.run_dir})
         end
         
+        @registry.register(:osw_path) { @input_adapter.osw_path }
         @registry.register(:osw_dir) { @input_adapter.osw_dir }
         @registry.register(:run_dir) { @input_adapter.run_dir }
         
@@ -132,6 +143,8 @@ module OpenStudio
 
         Workflow.logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
 
+        Workflow.logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
+         
         # Define the state and transitions
         @current_state = :queued
         @jobs = @options[:jobs]
@@ -162,6 +175,14 @@ module OpenStudio
 
           # Write out the TimeLogger to the filesystem
           @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
+          
+          # save workflow with results
+          if @registry[:openstudio_2] 
+            out_path = @registry[:workflow_json].absoluteOutPath
+            @registry[:workflow_json].saveAs(out_path)
+          else
+            # todo: implement
+          end
         end
 
         @current_state

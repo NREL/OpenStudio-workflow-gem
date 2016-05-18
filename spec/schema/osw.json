@@ -22,6 +22,10 @@
 					"description": "Path to the run directory relative to root directory: note that a run folder will be created in the target location",
 					"type": "string"
 				},
+				"out_path": {
+					"description": "Path to write output OSW when done.  Relative to root directory.  ",
+					"type": "string"
+				},
 				"file_paths": {
 					"description": "A set of ordered directories relative to root_directory to search for required files and libraries",
 					"type": "array",
@@ -136,7 +140,7 @@
 					"description": "Named output attributes that are added using runner.registerValue",
 					"type": "array",
 					"items": {
-						"$ref": "#/definitions/Output Attribute"
+						"$ref": "#/definitions/Workflow Step Value"
 					}
 				},
 				"step_files": {
@@ -283,20 +287,6 @@
 			"description": "String defining the filename for the weather file in the file_paths",
 			"type": "string"
 		},
-		"Output Attribute": {
-			"type": "object",
-			"properties": {
-				"name": {
-					"type": "string"
-				},
-				"value": {}
-			},
-			"required": [
-				"name",
-				"value"
-			],
-			"additionalProperties": false
-		},
 		"Output File": {
 			"type": "object",
 			"properties": {
@@ -312,6 +302,32 @@
 		"Timestamp": {
 			"description": "ISO8601 string defining a fully qualified date time",
 			"type": "string"
+		},
+		"Workflow Step Value": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"display_name": {
+					"type": "string"
+				},
+				"units": {
+					"type": "string"
+				},
+				"value": {
+					"type": [
+						"string",
+						"number",
+						"boolean"
+					]
+				}
+			},
+			"required": [
+				"name",
+				"value"
+			],
+			"additionalProperties": false
 		}
 	}
 }

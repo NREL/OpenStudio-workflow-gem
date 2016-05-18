@@ -54,7 +54,7 @@ module OpenStudio
           File.dirname(@osw_abs_path)
         end
         
-        # Create a temporary WorkflowJSON to compute run directory
+        # Get the run dir
         #
         def run_dir
           result = File.join(osw_dir, 'run')
@@ -62,12 +62,13 @@ module OpenStudio
             begin
               workflow_json = nil
               begin
+                # Create a temporary WorkflowJSON to compute run directory
                 workflow_json = OpenStudio::WorkflowJSON.new(JSON.fast_generate(workflow))
                 workflow_json.setOswDir(osw_dir)
               rescue Exception => e 
                 workflow_json = WorkflowJSON_Shim.new(workflow, osw_dir)
               end
-              result = workflow_json.absoluteRunDir
+              result = workflow_json.absoluteRunDir.to_s
             rescue
             end
           end

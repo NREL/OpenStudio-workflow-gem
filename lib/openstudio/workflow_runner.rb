@@ -23,34 +23,23 @@ require_relative 'workflow_json'
 # Provide shims to support OpenStudio 2.X functionality in OpenStudio 1.X
 class WorkflowRunner < OpenStudio::Ruleset::OSRunner
 
-  def initialize(multi_logger, workflow, osw_dir)
+  def initialize(multi_logger, workflow_json, openstudio_2)
     @multi_logger = multi_logger
-    @workflow_json = nil
-    @openstudio_2 = false
+    @workflow_json = workflow_json
+    @openstudio_2 = openstudio_2
 
     begin
       # OpenStudio 2.X
-      @workflow_json = OpenStudio::WorkflowJSON.new(JSON.fast_generate(workflow))
-      @workflow_json.setOswDir(osw_dir)
-      @openstudio_2 = true
-      @multi_logger.info "WorkflowJSON available"
       super(@workflow_json)
     rescue Exception => e 
       # OpenStudio 1.X
-      @multi_logger.warn e.message
-      @multi_logger.info "WorkflowJSON unavailable"
-      @workflow = workflow
-      @workflow_json = WorkflowJSON_Shim.new(workflow, osw_dir)
+      @workflow = workflow_json.workflow
       @current_step = 0
       @previous_results = OpenStudio::Ruleset::OSResultVector.new
       @units_preference = "SI"
       @language_preference = "EN"
       super()
     end
-  end
-  
-  def openstudio_2
-    @openstudio_2
   end
   
   # Returns the workflow currently being run. New in OS 2.0. 

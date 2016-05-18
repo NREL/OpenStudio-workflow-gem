@@ -49,22 +49,28 @@ class RunInitialization < OpenStudio::Workflow::Job
     @registry.register(:osw_dir) { @input_adapter.osw_dir }
     @logger.debug "osw_dir is #{@registry[:osw_dir]}"
     
-    @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow], @registry[:osw_dir]) }
-    @logger.debug 'Initialized runner'
-    
-    @registry.register(:workflow_json) { @registry[:runner].workflow }
-    @logger.debug "Initialized workflow_json of class #{@registry[:workflow_json].class}"
-    workflow_json = @registry[:workflow_json]
-    
-    @registry.register(:root_dir) { workflow_json.absoluteRootDir }
-    @logger.debug "The root_dir for the analysis is #{@registry[:root_dir]}"
-    
     @registry.register(:datapoint) { @input_adapter.datapoint }
     @logger.debug 'Found associated OSD file' if @registry[:datapoint]
     
     @registry.register(:analysis) { @input_adapter.analysis }
     @logger.debug 'Found associated OSA file' if @registry[:analysis]
     
+    # create the real WorkflowJSON here, we will be able to edit this during the run
+    if @registry[:openstudio_2]
+      workflow_json = OpenStudio::WorkflowJSON.new(JSON.fast_generate(@registry[:workflow]))
+      workflow_json.setOswDir(@registry[:osw_dir])
+    else
+      workflow_json = WorkflowJSON_Shim.new(@registry[:workflow], @registry[:osw_dir])
+    end
+    @registry.register(:workflow_json) { workflow_json }
+    
+    @registry.register(:root_dir) { workflow_json.absoluteRootDir }
+    @logger.debug "The root_dir for the analysis is #{@registry[:root_dir]}"
+    
+    # create the runner with our WorkflowJSON
+    @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow_json], @registry[:openstudio_2]) }
+    @logger.debug 'Initialized runner'
+
     # Validate the OSW measures if the flag is set to true, (the default state)
     if @options[:verify_osw]
       @logger.info 'Attempting to validate the measure workflow'

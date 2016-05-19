@@ -178,6 +178,8 @@ module OpenStudio
           
           # save workflow with results
           if @registry[:openstudio_2] 
+            @registry[:workflow_json].setCompletedStatus('Success')
+            
             out_path = @registry[:workflow_json].absoluteOutPath
             @registry[:workflow_json].saveAs(out_path)
           else
@@ -214,6 +216,8 @@ module OpenStudio
         @final_message = "Found error in state '#{@current_state}' with message #{args}}"
         Workflow.logger.error @final_message
 
+        @registry[:workflow_json].setCompletedStatus('Fail')
+        
         # transition to an error state
         @current_state = :errored
       end

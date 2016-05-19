@@ -52,26 +52,6 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     end
   end
 
-  # Returns the current step in the workflow being run, indexing starts at 0. New in OS 2.0. 
-  # unsigned currentStep() const;
-  def currentStep
-    if @openstudio_2
-      super
-    else
-      @current_step
-    end
-  end
-
-  # Returns results from the previous steps that were run. New in OS 2.0.
-  # std::vector<OSResult> previousResults() const;
-  def previousResults
-    if @openstudio_2
-      super
-    else
-      @previous_results
-    end
-  end
-
   # Returns preferred unit system, either 'IP' or 'SI'. New in OS 2.0. */
   # std::string unitsPreference() const;
   def unitsPreference

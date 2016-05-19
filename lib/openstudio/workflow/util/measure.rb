@@ -225,7 +225,7 @@ module OpenStudio
             fail "Cannot load measure at #{measure_dir}" if measure.empty?
             measure = measure.get
             
-            step_index = runner.currentStep
+            step_index = workflow_json.currentStepIndex
 
             measure_run_dir = File.join(run_dir, "#{step_index}_#{measure_dir_name}")
             logger.debug "Creating run directory for measure in #{measure_run_dir}"

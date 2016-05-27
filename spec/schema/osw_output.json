@@ -22,8 +22,8 @@
 					"description": "Path to the run directory relative to root directory: note that a run folder will be created in the target location",
 					"type": "string"
 				},
-				"out_path": {
-					"description": "Path to write output OSW when done.  Relative to root directory.  ",
+				"out_name": {
+					"description": "Name of the output OSW file, will be in same directory as input OSW to ensure that all relative file paths remain valid.",
 					"type": "string"
 				},
 				"file_paths": {
@@ -174,7 +174,7 @@
 					}
 				},
 				"step_files": {
-					"description": "New files that are generated during the worfklow step",
+					"description": "New files that are generated during the worfklow step.  Relative file paths are evaluated relative to the root dir",
 					"type": "array",
 					"items": {
 						"$ref": "#/definitions/Output File"

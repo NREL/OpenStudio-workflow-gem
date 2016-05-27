@@ -1,4 +1,5 @@
 {
+  "weather_file": "srrl_2013_amy.epw",
 	"steps": [
 		{
 			"measure_dir_name": "SetWeatherFile",

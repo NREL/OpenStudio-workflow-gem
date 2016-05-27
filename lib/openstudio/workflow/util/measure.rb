@@ -298,7 +298,11 @@ module OpenStudio
               raise log_message
             end
 
-            if !skip_measure
+            if skip_measure
+              # just increment
+              runner.incrementStep
+            else
+            
               begin
                 logger.debug "Calling measure.run for '#{measure_dir_name}'"
                 if measure_type == 'ModelMeasure'.to_MeasureType
@@ -313,6 +317,9 @@ module OpenStudio
                 # Run garbage collector after every measure to help address race conditions
                 GC.start
               rescue => e
+                # incrementStep must be called after run
+                runner.incrementStep
+                
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
                 raise log_message
               end
@@ -320,6 +327,9 @@ module OpenStudio
               begin
                 result = runner.result
                 
+                # incrementStep must be called after run
+                runner.incrementStep
+
                 errors = []
                 if registry[:openstudio_2]
                   errors = result.stepErrors
@@ -339,8 +349,6 @@ module OpenStudio
                 registry.register(:model) { @model }
                 registry.register(:model_idf) { @model_idf }
                 registry.register(:sql) { @sql }
-                
-                runner.incrementStep
 
               rescue => e
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

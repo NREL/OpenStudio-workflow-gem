@@ -33,9 +33,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       super(@workflow_json)
     rescue Exception => e 
       # OpenStudio 1.X
-      @workflow = workflow_json.workflow
-      @current_step = 0
-      @previous_results = OpenStudio::Ruleset::OSResultVector.new
+      @workflow = workflow_json
       @units_preference = "SI"
       @language_preference = "EN"
       super()
@@ -48,7 +46,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     if @openstudio_2
       super
     else
-      @workflow_json
+      @workflow
     end
   end
 
@@ -72,14 +70,35 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     end
   end
   
+  # called right when each measure is run
+  # only called in OpenStudio 1.X
+  # virtual void prepareForUserScriptRun(const UserScript& userScript);
+  def prepareForUserScriptRun(userScript)
+  
+    #m_result.setStartedAt(DateTime::nowUTC());
+    
+    # todo: capture std out and err
+
+    # todo: get initial list of files
+    
+    super
+  end
+  
   # incrementing step copies result to previous results
   # void incrementStep();
   def incrementStep
     if @openstudio_2
       super
     else
-      @previous_results << self.result
-      @current_step += 1
+      # todo: restore stdout and stderr
+
+      # todo: check for created files
+
+      # m_result.setCompletedAt(DateTime::nowUTC());
+    
+      # todo: currentStep->setResult(m_result);, get info from self.result which returns OSResult
+
+      @workflow.incrementStep()    
     end
   end
 

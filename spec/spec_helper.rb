@@ -10,7 +10,7 @@ end
 #$LOAD_PATH.unshift('E:\openstudio\build\OSCore-prefix\src\OSCore-build\ruby\Debug')
 
 # for testing with OpenStudio 2.X
-$LOAD_PATH.unshift('E:\openstudio-2-0\build\OSCore-prefix\src\OSCore-build\ruby\Debug')
+#$LOAD_PATH.unshift('E:\openstudio-2-0\build\OSCore-prefix\src\OSCore-build\ruby\Debug')
 
 # for all testing
 $LOAD_PATH.unshift(File.dirname(__FILE__))

@@ -103,7 +103,7 @@ module OpenStudio
           # OpenStudio 2.X test
           OpenStudio::WorkflowJSON.new()
           openstudio_2 = true
-        rescue Exception => e 
+        rescue NameError => e 
         end
         @registry.register(:openstudio_2) { openstudio_2 }
         
@@ -121,8 +121,19 @@ module OpenStudio
         @registry.register(:osw_dir) { @input_adapter.osw_dir }
         @registry.register(:run_dir) { @input_adapter.run_dir }
         
+        # DLM: need to check that we have correct permissions to all these paths
+        
         # By default blow away the entire run directory every time and recreate it
-        FileUtils.rm_rf(@registry[:run_dir]) if File.exist?(@registry[:run_dir]) unless options[:preserve_run_dir]
+        if !options[:preserve_run_dir]
+          
+          if File.exist?(@registry[:run_dir])
+            # logger is not initialized yet (it needs run dir to exist for log)
+            puts "Removing existing run directory #{@registry[:run_dir]}" if options[:debug]
+          
+            # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
+            FileUtils.rm_rf(@registry[:run_dir])
+          end
+        end
         FileUtils.mkdir_p(@registry[:run_dir])
         
         defaults = {
@@ -140,10 +151,10 @@ module OpenStudio
         logger_level = @options[:debug] ? ::Logger::DEBUG : ::Logger::WARN
         Workflow.logger(@options[:targets], logger_level)
         @registry.register(:logger) { Workflow.logger }
-
-        Workflow.logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
-
+        
         Workflow.logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
+        
+        Workflow.logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
          
         # Define the state and transitions
         @current_state = :queued
@@ -177,14 +188,11 @@ module OpenStudio
           @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
           
           # save workflow with results
-          if @registry[:openstudio_2] 
-            @registry[:workflow_json].setCompletedStatus('Success')
-            
-            out_path = @registry[:workflow_json].absoluteOutPath
-            @registry[:workflow_json].saveAs(out_path)
-          else
-            # todo: implement
-          end
+          @registry[:workflow_json].setCompletedStatus('Success')
+          
+          out_path = @registry[:workflow_json].absoluteOutPath
+          @registry[:workflow_json].saveAs(out_path)
+
         end
 
         @current_state

@@ -49,12 +49,32 @@ class WorkflowStep_Shim
   end
 end
 
+class Optional_Shim
+  def initialize(obj)
+    @obj = obj
+  end
+  
+  def empty?
+    @obj.nil?
+  end
+  
+  def is_initialized
+    !@obj.nil?
+  end  
+  
+  def get
+    fail "Uninitialize" if @obj.nil?
+    @obj
+  end  
+end
+
 # WorkflowJSON_Shim provides a shim interface to the WorkflowJSON class in OpenStudio 2.X when running in OpenStudio 1.X
 class WorkflowJSON_Shim
   
   def initialize(workflow, osw_dir)
     @workflow = workflow
     @osw_dir = osw_dir
+    @current_step_index = 0
   end
   
   # std::string string(bool includeHash=true) const;
@@ -66,6 +86,42 @@ class WorkflowJSON_Shim
   # openstudio::path oswDir() const;
   def oswDir
     OpenStudio::toPath(@osw_dir)
+  end
+  
+  def saveAs(path)
+    File.open(path.to_s, 'w') do |file|
+      file << JSON::pretty_generate(@workflow)
+    end
+  end
+  
+  # Sets the started at time.
+  def start
+    @workflow[:started_at] = Time.now.utc
+  end
+  
+  # Get the current step index.
+  def currentStepIndex
+    @current_step_index
+  end
+
+  # Get the current step.
+  # boost::optional<WorkflowStep> currentStep() const;
+  def currentStep
+    steps = @workflow[:steps]
+    
+    step = nil
+    if @current_step_index < steps.size
+      step = WorkflowStep_Shim.new(steps[@current_step_index])
+    end
+    return Optional_Shim.new(step)
+  end
+
+  # Increments current step, returns true if there is another step. 
+  # bool incrementStep();
+  def incrementStep
+    @current_step_index += 1
+    # todo
+    return true
   end
 
   # Returns the root directory, default value is '.'. Evaluated relative to oswDir if not absolute.
@@ -96,6 +152,18 @@ class WorkflowJSON_Shim
   
   def absoluteRunDir
     OpenStudio::toPath(File.absolute_path(runDir.to_s, rootDir.to_s))
+  end
+  
+  def outPath
+    if @workflow[:out_name]
+      OpenStudio::toPath(@workflow[:out_name])
+    else
+      OpenStudio::toPath('./out.osw')
+    end  
+  end
+  
+  def absoluteOutPath
+    OpenStudio::toPath(File.absolute_path(outPath.to_s, oswDir.to_s))
   end
   
   # Returns the paths that will be searched in order for files, default value is './files/'. Evaluated relative to rootDir if not absolute. 
@@ -204,6 +272,10 @@ class WorkflowJSON_Shim
       result << WorkflowStep_Shim.new(step)
     end
     result
+  end
+  
+  def setCompletedStatus(status)
+    # todo
   end
   
 end

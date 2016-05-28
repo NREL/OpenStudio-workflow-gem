@@ -17,38 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# WorkflowStepResult_Shim provides a shim interface to the WorkflowStepResult class in OpenStudio 2.X when running in OpenStudio 1.X
-class WorkflowStepResult_Shim
-  
-  def initialize()
-  end
-  
-  def index
-    @index
-  end
-
-end
-
-
-# WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X
-class WorkflowStep_Shim
-  
-  def initialize(step)
-    @step = step
-  end
-  
-  # std::string measureDirName() const;
-  def measureDirName
-    @step[:measure_dir_name]
-  end
-    
-  #std::map<std::string, Variant> arguments() const;
-  def arguments
-    # TODO: match C++
-    @step[:arguments]
-  end
-end
-
+# Optional_Shim provides a wrapper that looks like an OpenStudio Optional 
 class Optional_Shim
   def initialize(obj)
     @obj = obj
@@ -66,6 +35,50 @@ class Optional_Shim
     fail "Uninitialized Optional_Shim" if @obj.nil?
     @obj
   end  
+end
+
+# WorkflowStepResult_Shim provides a shim interface to the WorkflowStepResult class in OpenStudio 2.X when running in OpenStudio 1.X
+class WorkflowStepResult_Shim
+  
+  def initialize(result)
+    @result = result
+  end
+  
+  def result
+    @result
+  end
+
+end
+
+# WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X
+class WorkflowStep_Shim
+  
+  def initialize(step)
+    @step = step
+  end
+  
+  def step
+    @step
+  end
+  
+  def result
+    if @step[:result]
+      Optional_Shim.new(WorkflowStepResult_Shim.new(@step[:result]))
+    else
+      Optional_Shim.new
+    end
+  end
+  
+  # std::string measureDirName() const;
+  def measureDirName
+    @step[:measure_dir_name]
+  end
+    
+  #std::map<std::string, Variant> arguments() const;
+  def arguments
+    # TODO: match C++
+    @step[:arguments]
+  end
 end
 
 # WorkflowJSON_Shim provides a shim interface to the WorkflowJSON class in OpenStudio 2.X when running in OpenStudio 1.X

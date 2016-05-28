@@ -15,6 +15,11 @@ describe 'OSW Integration' do
   
   it 'should run compact OSW file' do
     osw_path = File.join(__FILE__, './../../../files/compact_osw/compact.osw')
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    
+    FileUtils.rm_rf(osw_out_path) if File.exists?(osw_out_path)
+    expect(File.exists?(osw_out_path)).to eq false
+    
     run_options = {
         debug: true
     }
@@ -22,8 +27,20 @@ describe 'OSW Integration' do
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.run).to eq :finished
     
-    osw_out_path = File.join(__FILE__, './../../../files/compact_osw/compact.osw.out')
+    expect(File.exists?(osw_out_path)).to eq true
     
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, :symbolize_names => true)
+    end
+    
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq "Success"
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    osw_out[:steps].each do |step|
+      expect(step[:result]).to_not be_nil
+    end
   end
   
   it 'should run an extended OSW file' do

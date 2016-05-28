@@ -75,8 +75,13 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   # virtual void prepareForUserScriptRun(const UserScript& userScript);
   def prepareForUserScriptRun(userScript)
   
-    #m_result.setStartedAt(DateTime::nowUTC());
-    
+    current_step = @workflow.currentStep
+      
+    if !current_step.empty?
+      current_step.get.step[:result] = {}
+      current_step.get.step[:result][:started_at] = Time.now.utc
+    end
+      
     # todo: capture std out and err
 
     # todo: get initial list of files
@@ -90,14 +95,73 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     if @openstudio_2
       super
     else
+      
+      current_step = @workflow.currentStep
+      
+      if current_step.empty?
+        fail "Cannot find current_step"
+      end
+      current_step = current_step.get
+
+      os_result = self.result
+      
+      if current_step.step[:result].nil?
+        # skipped
+        current_step.step[:result] = {}
+        current_step.step[:result][:started_at] = Time.now.utc
+        current_step.step[:result][:step_result] = "Skip"
+      else
+        current_step.step[:result][:step_result] = os_result.value.valueName
+      end      
+    
+      current_step.step[:result][:completed_at] = Time.now.utc
+      
       # todo: restore stdout and stderr
 
       # todo: check for created files
 
-      # m_result.setCompletedAt(DateTime::nowUTC());
-    
-      # todo: currentStep->setResult(m_result);, get info from self.result which returns OSResult
+      current_step.step[:result][:step_errors] = []
+      os_result.errors.each do |error|
+        current_step.step[:result][:step_errors] << error.logMessage
+      end
+      
+      current_step.step[:result][:step_warnings] = []
+      os_result.warnings.each do |warning|
+        current_step.step[:result][:step_warnings] << warning.logMessage
+      end
+      
+      current_step.step[:result][:step_info] = []
+      os_result.info.each do |info|
+        current_step.step[:result][:step_info] << info.logMessage
+      end
 
+      if !os_result.initialCondition.empty?
+        current_step.step[:result][:initial_condition] = os_result.initialCondition.get.logMessage
+      end
+
+      if !os_result.finalCondition.empty?
+        current_step.step[:result][:final_condition] = os_result.finalCondition.get.logMessage
+      end
+
+      current_step.step[:result][:step_values] = []
+      os_result.attributes.each do |attribute|
+        
+        result = nil
+        if attribute.valueType == "Boolean".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsBoolean}
+        elsif attribute.valueType == "Double".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsDouble}
+        elsif attribute.valueType == "Integer".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsInteger}
+        elsif attribute.valueType == "Unsigned".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsUnsigned}
+        elsif attribute.valueType == "String".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsString}
+        end
+
+        current_step.step[:result][:step_values] << result if not result.nil?
+      end
+      
       @workflow.incrementStep()    
     end
   end

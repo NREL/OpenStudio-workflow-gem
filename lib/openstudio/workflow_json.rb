@@ -63,7 +63,7 @@ class Optional_Shim
   end  
   
   def get
-    fail "Uninitialize" if @obj.nil?
+    fail "Uninitialized Optional_Shim" if @obj.nil?
     @obj
   end  
 end
@@ -120,8 +120,12 @@ class WorkflowJSON_Shim
   # bool incrementStep();
   def incrementStep
     @current_step_index += 1
-    # todo
-    return true
+    
+    if @current_step_index < @workflow[:steps].size
+      return true
+    end
+    
+    return false
   end
 
   # Returns the root directory, default value is '.'. Evaluated relative to oswDir if not absolute.
@@ -275,7 +279,8 @@ class WorkflowJSON_Shim
   end
   
   def setCompletedStatus(status)
-    # todo
+    @workflow[:completed_status] = status
+    @workflow[:completed_at] = Time.now.utc
   end
   
 end

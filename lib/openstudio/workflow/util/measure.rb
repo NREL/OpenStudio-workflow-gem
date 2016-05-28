@@ -279,7 +279,7 @@ module OpenStudio
               # Set argument values
               logger.debug "Iterating over arguments for workflow item '#{measure_dir_name}'"
               step.arguments.each do |argument_name, argument_value|
-                if argument_name == '__SKIP__'
+                if argument_name.to_s == '__SKIP__'
                   if argument_value
                     skip_measure = true
                   end

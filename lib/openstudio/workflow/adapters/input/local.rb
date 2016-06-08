@@ -17,7 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require_relative '../../../workflow_json'
+require 'openstudio/workflow_json'
 
 # Local file based workflow
 module OpenStudio

@@ -19,6 +19,7 @@ module OpenStudio
         #   defined but not in the filesystem
         #
         def get_weather_file(directory, wf, wf_search_array, model, logger=nil)
+          # TODO: this logic needs some updating, weather file should come from current model, found using search paths
           logger ||= ::Logger.new(STDOUT) unless logger
           if wf
             weather_file = get_weather_file_from_fs(directory, wf, wf_search_array, logger)

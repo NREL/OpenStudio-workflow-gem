@@ -21,7 +21,7 @@
 class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
   # Mixin the required util modules
-  require_relative '../util'
+  require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::Measure
   include OpenStudio::Workflow::Util::Model
 
@@ -30,7 +30,7 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
@@ -38,11 +38,11 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
     # Execute the OpenStudio measures
     @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute OpenStudio measures.'
-    apply_measures(:openstudio, @registry, @options)
+    apply_measures('ModelMeasure'.to_MeasureType, @registry, @options)
     @logger.info('Finished applying OpenStudio measures.')
 
     # Send the measure output attributes to the output adapter
-    @logger.info 'Communicating measure output attributes to the output adapter'
+    @logger.debug 'Communicating measure output attributes to the output adapter'
     @output_adapter.communicate_measure_attributes @registry[:output_attributes]
 
     # Save the OSM if the :debug option is true
@@ -50,7 +50,7 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
     @registry[:time_logger].start('Saving OSM') if @registry[:time_logger]
     osm_name = save_osm(@registry[:model], @registry[:root_dir])
     @registry[:time_logger].stop('Saving OSM') if @registry[:time_logger]
-    @logger.info "Saved model as #{osm_name}"
+    @logger.debug "Saved model as #{osm_name}"
 
     nil
   end

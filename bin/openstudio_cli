@@ -322,24 +322,22 @@ class Run
     osw_path = File.absolute_path(File.join(Dir.pwd, osw_path)) unless Pathname.new(osw_path).absolute?
     $logger.debug "Path for the OSW: #{osw_path}"
 
-    base_dir = get_directory File.dirname(osw_path)
-    run_dir = get_run_dir ::JSON.parse(File.read(osw_path), {symbolize_names: true}), base_dir
-
-    adapter_options = {workflow_filename: File.basename(osw_path), output_directory: run_dir}
+    adapter_options = {workflow_filename: File.basename(osw_path)}
     input_adapter = OpenStudio::Workflow.load_input_adapter 'local', adapter_options
+    adapter_options[:output_directory] = input_adapter.run_directory File.dirname(osw_path)
     output_adapter = OpenStudio::Workflow.load_output_adapter 'local', adapter_options
     run_options = options[:debug] ? {debug: true, cleanup: false} : {}
     if options[:no_simulation]
       run_options[:jobs] = [
         { state: :queued, next_state: :initialization, options: { initial: true } },
         { state: :initialization, next_state: :os_measures, job: :RunInitialization,
-          file: './jobs/run_initialization.rb', options: {} },
+          file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
         { state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
-          file: './jobs/run_os_measures.rb', options: {} },
+          file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {} },
         { state: :translator, next_state: :ep_measures, job: :RunTranslation,
-          file: './jobs/run_translation.rb', options: {} },
+          file: 'openstudio/workflow/jobs/run_translation.rb', options: {} },
         { state: :ep_measures, next_state: :finished, job: :RunEnergyPlusMeasures,
-          file: './jobs/run_ep_measures.rb', options: {} },
+          file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {} },
         { state: :finished },
         { state: :errored }
       ]
@@ -347,11 +345,11 @@ class Run
       run_options[:jobs] = [
         { state: :queued, next_state: :initialization, options: { initial: true } },
         { state: :initialization, next_state: :reporting_measures, job: :RunInitialization,
-          file: './jobs/run_initialization.rb', options: {} },
+          file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
         { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
-          file: './jobs/run_reporting_measures.rb', options: {} },
+          file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
         { state: :postprocess, next_state: :finished, job: :RunPostprocess,
-          file: './jobs/run_postprocess.rb', options: {} },
+          file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
         { state: :finished },
         { state: :errored }
       ]

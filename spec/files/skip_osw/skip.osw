@@ -4,47 +4,29 @@
 	"steps": [
 		{
 			"measure_dir_name": "IncreaseWallRValue",
-			"arguments": [
-        {
-					"name": "__SKIP__",
-					"value": false
-				}
-      ]
+			"arguments": {
+        "__SKIP__": false
+      }
 		},
     {
 			"measure_dir_name": "broken_measure",
-			"arguments": [
-				{
-					"name": "__SKIP__",
-					"value": true
-				}
-      ]
+			"arguments": {
+        "__SKIP__": true
+      }
 		},
 		{
 			"measure_dir_name": "IncreaseRoofRValue",
-			"arguments": [
-				{
-					"name": "r_value",
-					"value": 45
-				},
-        {
-					"name": "__SKIP__",
-					"value": false
-				}
-			]
+			"arguments": {
+        "r_value": 45,
+        "__SKIP__": false
+      }
 		},
 		{
 			"measure_dir_name": "SetEplusInfiltration",
-			"arguments": [
-				{
-					"name": "flowPerZoneFloorArea",
-					"value": 10.76
-				},
-        {
-					"name": "__SKIP__",
-					"value": false
-				}
-			]
+			"arguments": {
+        "flowPerZoneFloorArea": 10.76,
+        "__SKIP__": false
+      }
 		}
 	]
 }

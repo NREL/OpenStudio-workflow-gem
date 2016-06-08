@@ -2,7 +2,7 @@ module OpenStudio
   module Workflow
     module Util
 
-      require_relative 'measure'
+      require 'openstudio/workflow/util/measure'
       require 'csv'
       
       # This module serves as a wrapper around various post-processing tasks used to manage outputs

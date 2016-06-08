@@ -17,41 +17,69 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require_relative '../input_adapter'
+require_relative '../../../workflow_json'
 
 # Local file based workflow
 module OpenStudio
   module Workflow
     module InputAdapter
-      class Local < InputAdapters
-        def initialize(options = {})
-          super
+      class Local 
+
+        def initialize(osw_path = './workflow.osw')
+          @osw_abs_path = File.absolute_path(osw_path, Dir.pwd)
+          
+          if File.exist? @osw_abs_path
+            @workflow = ::JSON.parse(File.read(@osw_abs_path), {symbolize_names: true})
+          else
+            @workflow = nil
+          end          
         end
 
         # Get the OSW file from the local filesystem
         #
-        def get_workflow(directory, options = {})
-          defaults = { workflow_filename: 'workflow.osw', format: 'json' }
-          defaults.merge! self.options
-          options = defaults.merge options
-
-          # how do we log within this file?
-          osw_abs_path = File.absolute_path(File.join(directory, options[:workflow_filename]))
-          if File.exist? osw_abs_path
-            ::JSON.parse(File.read(osw_abs_path), {symbolize_names: true})
-          else
-            fail "Workflow file does not exist for #{osw_abs_path}"
-          end
+        def workflow
+          fail "Could not read workflow from #{@osw_abs_path}" if @workflow.nil?
+          @workflow
         end
-
+        
+        # Get the OSW path
+        #
+        def osw_path
+          @osw_abs_path
+        end
+        
+        # Get the OSW dir
+        #
+        def osw_dir
+          File.dirname(@osw_abs_path)
+        end
+        
+        # Get the run dir
+        #
+        def run_dir
+          result = File.join(osw_dir, 'run')
+          if workflow
+            begin
+              workflow_json = nil
+              begin
+                # Create a temporary WorkflowJSON to compute run directory
+                workflow_json = OpenStudio::WorkflowJSON.new(JSON.fast_generate(workflow))
+                workflow_json.setOswDir(osw_dir)
+              rescue Exception => e 
+                workflow_json = WorkflowJSON_Shim.new(workflow, osw_dir)
+              end
+              result = workflow_json.absoluteRunDir.to_s
+            rescue
+            end
+          end
+          result
+        end
+        
         # Get the associated OSD (datapoint) file from the local filesystem
         #
-        def get_datapoint(directory, options = {})
-          defaults = { datapoint_filename: 'datapoint.osd', format: 'json' }
-          defaults.merge! self.options
-          options = defaults.merge options
-
-          osd_abs_path = File.absolute_path(File.join(directory, options[:datapoint_filename]))
+        def datapoint
+          # DLM: should this come from the OSW?  the osd id and checksum are specified there.
+          osd_abs_path = File.join(osw_dir, 'datapoint.osd')
           if File.exist? osd_abs_path
             ::JSON.parse(File.read(osd_abs_path), {symbolize_names: true})
           else
@@ -61,18 +89,16 @@ module OpenStudio
 
         # Get the associated OSA (analysis) definition from the local filesystem
         #
-        def get_analysis(directory, options = {})
-          defaults = { analysis_filename: 'analysis.osa', format: 'json' }
-          defaults.merge! self.options
-          options = defaults.merge options
-
-          osa_abs_path = File.absolute_path(File.join(directory, options[:analysis_filename]))
+        def analysis
+          # DLM: should this come from the OSW?  the osd id and checksum are specified there.
+          osa_abs_path = File.join(osw_dir, 'analysis.osa')
           if File.exist? osa_abs_path
             ::JSON.parse(File.read(osa_abs_path), {symbolize_names: true})
           else
             nil
           end
         end
+
       end
     end
   end

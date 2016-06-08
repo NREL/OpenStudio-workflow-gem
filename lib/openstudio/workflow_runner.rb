@@ -1,72 +1,169 @@
-require_relative 'workflow/util/type_casting'
-include OpenStudio::Workflow::Util::TypeCasting
+######################################################################
+#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
+#  All rights reserved.
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License, or (at your option) any later version.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+######################################################################
+
+require_relative 'workflow_json'
 
 # Extend OS Runner to persist measure information throughout the workflow
- # @todo (rhorsey) WorkflowRunner should be created at the beginning of a workflow and carried throughout - DLM
+# Provide shims to support OpenStudio 2.X functionality in OpenStudio 1.X
 class WorkflowRunner < OpenStudio::Ruleset::OSRunner
-  # Allow former arguments and the current weatherfile path to be set and read
-  # TODO: Consider having the former arguments passed in in initialization, and define as attr_reader
-  # @todo (rhorsey) some of this stuff is in C++ - DLM
-  attr_accessor :former_workflow_arguments #DLM - deprecate in OS 2.0
-  attr_accessor :weatherfile_path #DLM - deprecate?
 
-  # Add in @workflow_arguments
-  # @todo (rhorsey) WorkflowRunner should persist throughout the life of a Workflow, it should rely on methods in OSRunner when possible- DLM
-  # @todo (rhorsey) analysis_hash and datapoint_hash should not be present - DLM
-  # @todo (rhorsey) what is output_attributes for? - DLM
-  def initialize(multi_logger, workflow_hash, analysis_hash, datapoint_hash, output_attributes)
+  def initialize(multi_logger, workflow_json, openstudio_2)
     @multi_logger = multi_logger
-    @workflow = workflow_hash
-    @workflow_json = nil
-    @analysis = analysis_hash
-    @datapoint = datapoint_hash
-    @results = output_attributes
-    @workflow_arguments = nil
-    
+    @workflow_json = workflow_json
+    @openstudio_2 = openstudio_2
+
     begin
       # OpenStudio 2.X
-      @multi_logger.info JSON.pretty_generate(workflow)
-      @workflow_json = OpenStudio::WorkflowJSON.new(JSON.fast_generate(workflow))
-      @workflow_json.setOswDir(".") # @todo (rhorsey) - get the directory of the osw
-      @multi_logger.info "WorkflowJSON available #{@workflow_json}"
       super(@workflow_json)
     rescue Exception => e 
       # OpenStudio 1.X
-      @multi_logger.warn e.message
-      @multi_logger.info "WorkflowJSON unavailable"
+      @workflow = workflow_json
+      @units_preference = "SI"
+      @language_preference = "EN"
       super()
     end
   end
-
-  def past_results
-    @results
+  
+  # Returns the workflow currently being run. New in OS 2.0. 
+  # WorkflowJSON workflow() const;
+  def workflow
+    if @openstudio_2
+      super
+    else
+      @workflow
+    end
   end
 
-  def workflow
-    @workflow
+  # Returns preferred unit system, either 'IP' or 'SI'. New in OS 2.0. */
+  # std::string unitsPreference() const;
+  def unitsPreference
+    if @openstudio_2
+      super
+    else
+      @units_preference
+    end
   end
   
-  def workflow_json
-    @workflow_json
-  end
-
-  def analysis
-    @analysis
-  end
-
-  def datapoint
-    @datapoint
-  end
-
-  # Overloaded argument parsing
-  def validateUserArguments(script_arguments, user_arguments)
-    @workflow_arguments = {}
-    user_arguments.each do |hash|
-      value = cast_os_type(hash, user_arguments)
-      @workflow_arguments[hash.to_sym] = value if value
+  # Returns preferred language, e.g. 'en' or 'fr'. New in OS 2.0. */
+  # std::string languagePreference() const;
+  def languagePreference
+    if @openstudio_2
+      super
+    else
+      @language_preference
     end
+  end
+  
+  # called right when each measure is run
+  # only called in OpenStudio 1.X
+  # virtual void prepareForUserScriptRun(const UserScript& userScript);
+  def prepareForUserScriptRun(userScript)
+  
+    current_step = @workflow.currentStep
+      
+    if !current_step.empty?
+      current_step.get.step[:result] = {}
+      current_step.get.step[:result][:started_at] = Time.now.utc
+    end
+      
+    # todo: capture std out and err
 
+    # todo: get initial list of files
+    
     super
+  end
+  
+  # incrementing step copies result to previous results
+  # void incrementStep();
+  def incrementStep
+    if @openstudio_2
+      super
+    else
+      
+      current_step = @workflow.currentStep
+      
+      if current_step.empty?
+        fail "Cannot find current_step"
+      end
+      current_step = current_step.get
+
+      os_result = self.result
+      
+      if current_step.step[:result].nil?
+        # skipped
+        current_step.step[:result] = {}
+        current_step.step[:result][:started_at] = Time.now.utc
+        current_step.step[:result][:step_result] = "Skip"
+      else
+        current_step.step[:result][:step_result] = os_result.value.valueName
+      end      
+    
+      current_step.step[:result][:completed_at] = Time.now.utc
+      
+      # todo: restore stdout and stderr
+
+      # todo: check for created files
+
+      current_step.step[:result][:step_errors] = []
+      os_result.errors.each do |error|
+        current_step.step[:result][:step_errors] << error.logMessage
+      end
+      
+      current_step.step[:result][:step_warnings] = []
+      os_result.warnings.each do |warning|
+        current_step.step[:result][:step_warnings] << warning.logMessage
+      end
+      
+      current_step.step[:result][:step_info] = []
+      os_result.info.each do |info|
+        current_step.step[:result][:step_info] << info.logMessage
+      end
+
+      if !os_result.initialCondition.empty?
+        current_step.step[:result][:initial_condition] = os_result.initialCondition.get.logMessage
+      end
+
+      if !os_result.finalCondition.empty?
+        current_step.step[:result][:final_condition] = os_result.finalCondition.get.logMessage
+      end
+
+      current_step.step[:result][:step_values] = []
+      os_result.attributes.each do |attribute|
+        
+        result = nil
+        if attribute.valueType == "Boolean".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsBoolean}
+        elsif attribute.valueType == "Double".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsDouble}
+        elsif attribute.valueType == "Integer".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsInteger}
+        elsif attribute.valueType == "Unsigned".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsUnsigned}
+        elsif attribute.valueType == "String".to_AttributeValueType
+          result = {:name => attribute.name, :value => attribute.valueAsString}
+        end
+
+        current_step.step[:result][:step_values] << result if not result.nil?
+      end
+      
+      @workflow.incrementStep()    
+    end
   end
 
   # Overload registerInfo

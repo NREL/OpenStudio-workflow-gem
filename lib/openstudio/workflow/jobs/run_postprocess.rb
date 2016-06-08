@@ -21,7 +21,7 @@
 # and responsive to options
 class RunPostprocess < OpenStudio::Workflow::Job
 
-  require_relative '../util/post_process'
+  require 'openstudio/workflow/util/post_process'
   include OpenStudio::Workflow::Util::PostProcess
 
   def initialize(input_adapter, output_adapter, registry, options = {})
@@ -33,7 +33,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     unless @options[:cleanup]
       @logger.info 'Flag for cleanup in options set to false. Moving to next step.'
@@ -41,7 +41,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
     end
 
     @logger.info 'Beginning cleanup of the run directory'
-    cleanup(@registry[:run_dir], @registry[:directory])
+    cleanup(@registry[:run_dir], @registry[:root_dir])
     @logger.info 'Finished cleanup of the run directory'
 
     @logger.info 'Finished postprocess'

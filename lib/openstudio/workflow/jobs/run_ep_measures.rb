@@ -20,7 +20,7 @@
 # This class runs all EnergyPlus measures defined in the OSW
 class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
 
-  require_relative '../util'
+  require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::Measure
   include OpenStudio::Workflow::Util::Model
 
@@ -29,7 +29,7 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
   end
 
   def perform
-    @logger.info "Calling #{__method__} in the #{self.class} class"
+    @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
@@ -37,21 +37,21 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
     # Apply the EnergyPlus measures
     @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute EnergyPlus measures.'
-    apply_measures(:energyplus, @registry, @options)
+    apply_measures('EnergyPlusMeasure'.to_MeasureType, @registry, @options)
     @logger.info('Finished applying EnergyPlus measures.')
 
     # Send the measure output attributes to the output adapter
-    @logger.info 'Communicating measure output attributes to the output adapter'
+    @logger.debug 'Communicating measure output attributes to the output adapter'
     @output_adapter.communicate_measure_attributes @registry[:output_attributes]
 
     # Save both the OSM and IDF if the :debug option is true
     return nil unless @options[:debug]
     @registry[:time_logger].start('Saving OSM and IDF') if @registry[:time_logger]
     osm_name = save_osm(@registry[:model], @registry[:root_dir])
-    idf_name = save_idf(@registry[:model], @registry[:root_dir])
+    idf_name = save_idf(@registry[:model_idf], @registry[:root_dir])
     @registry[:time_logger].stop('Saving OSM and IDF') if @registry[:time_logger]
-    @logger.info "Saved OSM as #{osm_name}"
-    @logger.info "Saved IDF as #{idf_name}"
+    @logger.debug "Saved OSM as #{osm_name}"
+    @logger.debug "Saved IDF as #{idf_name}"
 
     nil
   end

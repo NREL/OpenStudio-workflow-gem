@@ -3,7 +3,7 @@
 	"steps": [
 		{
 			"measure_dir_name": "test_local_gem_installation",
-			"arguments": []
+			"arguments": {}
 		}
 	]
 }

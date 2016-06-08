@@ -52,35 +52,23 @@
 				},
 				"file_format_version": {
 					"description": "Currently 0.1, however will infered to be the default of the software package unless otherwise specified",
-					"type": "number"
+					"type": "string"
 				},
 				"osa_id": {
 					"description": "UUID of the .osa file fron which this file was generated, or null if not generated from a .osa file",
-					"type": [
-						"string",
-						"null"
-					]
+					"type": "string"
 				},
 				"osa_checksum": {
 					"description": "Checksum of the .osa file from which this file was generated, or null if not generated from a .osa file",
-					"type": [
-						"number",
-						"null"
-					]
+					"type": "string"
 				},
 				"osd_id": {
 					"description": "UUID of the .osd file from which this file was generated, or null if not generated from a .osd file",
-					"type": [
-						"string",
-						"null"
-					]
+					"type": "string"
 				},
 				"osd_checksum": {
 					"description": "Checksum of the .osd file from which this file was generated, or null if not generated from a .osd file",
-					"type": [
-						"number",
-						"null"
-					]
+					"type": "string"
 				},
 				"created_at": {
 					"description": "ISO8601 string defining the time at which this file was created",

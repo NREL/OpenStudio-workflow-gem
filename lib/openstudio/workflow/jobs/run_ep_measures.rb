@@ -37,7 +37,7 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
     # Apply the EnergyPlus measures
     @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute EnergyPlus measures.'
-    apply_measures(:energyplus, @registry, @options)
+    apply_measures('EnergyPlusMeasure'.to_MeasureType, @registry, @options)
     @logger.info('Finished applying EnergyPlus measures.')
 
     # Send the measure output attributes to the output adapter

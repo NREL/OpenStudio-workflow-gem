@@ -38,7 +38,7 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
     # Execute the OpenStudio measures
     @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute OpenStudio measures.'
-    apply_measures(:openstudio, @registry, @options)
+    apply_measures('ModelMeasure'.to_MeasureType, @registry, @options)
     @logger.info('Finished applying OpenStudio measures.')
 
     # Send the measure output attributes to the output adapter

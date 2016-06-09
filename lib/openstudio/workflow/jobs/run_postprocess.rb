@@ -41,7 +41,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
     end
 
     @logger.info 'Beginning cleanup of the run directory'
-    cleanup(@registry[:run_dir], @registry[:directory])
+    cleanup(@registry[:run_dir], @registry[:root_dir])
     @logger.info 'Finished cleanup of the run directory'
 
     @logger.info 'Finished postprocess'

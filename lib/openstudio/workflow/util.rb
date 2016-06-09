@@ -7,7 +7,6 @@ module OpenStudio
       require 'openstudio/workflow/util/io'
       require 'openstudio/workflow/util/measure'
       require 'openstudio/workflow/util/type_casting'
-      require 'openstudio/workflow/util/directory'
       require 'openstudio/workflow/util/weather_file'
       require 'openstudio/workflow/util/model'
       require 'openstudio/workflow/util/energyplus'

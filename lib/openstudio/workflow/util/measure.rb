@@ -6,112 +6,61 @@ module OpenStudio
       #
       module Measure
 
-        # DLM: why reparse the xml, you can use the BCLMeasure class?
-        require 'rexml/document'
-        require 'logger'
-
-        MEASURE_CLASSES = {
-            openstudio: 'OpenStudio::Ruleset::ModelUserScript',
-            energyplus: 'OpenStudio::Ruleset::WorkspaceUserScript',
-            reporting: 'OpenStudio::Ruleset::ReportingUserScript'
-        }
-
         # Wrapper method around #apply_measure to allow all measures of a type to be executed
         #
-        # @param [String] measure_type Accepts openstudio, energyplus, or reporting as inputs
-        # @param [String] registry Location of the datapoint directory to run. This is needed
-        #   independent of the adapter that is being used. Note that the simulation will actually run in 'run'
+        # @param [String] measure_type Accepts OpenStudio::MeasureType argument
+        # @param [Object] registry Hash access to objects
         # @param [Hash] options ({}) User-specified options used to override defaults
-        # @option options [Array] :measure_search_array An ordered set of measure directories used to search for
-        #   step[:measure_dir_name], e.g. ['measures', '../../measures']
         # @option options [Object] :time_logger A special logger used to debug performance issues
         # @option options [Object] :output_adapter An output adapter to register measure transitions to
         # @return [Void]
         #
         def apply_measures(measure_type, registry, options = {})
-          # @todo (rhorsey) need to get rid of registrym this can all come from the workflow json in the runner - DLM
+        
+          # DLM: time_logger is in the registry but docs say it is in options?
+          registry[:time_logger].start "#{measure_type.valueName}:apply_measures" if registry[:time_logger]
+
           logger = registry[:logger]
-          workflow = registry[:workflow]
-          directory = registry[:directory]
-          measure_search_array = options[:measure_search_array] ? options[:measure_search_array] : []
-          measure_search_array.concat @registry[:measure_paths] if @registry[:measure_paths]
-          measure_search_array = ['measures'] if measure_search_array == []
-          registry[:time_logger].start "#{measure_type}:apply_measure" if registry[:time_logger]
-          fail "The 'steps' array of the OSW is required." unless workflow[:steps]
-          logger.debug "Finding measures of type #{measure_type.to_s}"
-          workflow[:steps].each_with_index do |step, step_index|
-            measure_dir_name = step[:measure_dir_name]
-            measure_path = find_measure_dir(directory, measure_dir_name, measure_search_array, @registry[:logger])
-            class_name = measure_class_name(File.absolute_path(File.join(measure_path, 'measure.xml')))
-            mrb_path = File.absolute_path(File.join(measure_path, 'measure.rb'))
-            measure_instance_type = get_measure_type(mrb_path, class_name).to_s
-            if measure_instance_type == MEASURE_CLASSES[measure_type]
-              logger.info "Found measure #{class_name} in #{mrb_path} of type #{measure_type}. Applying now."
+          workflow_json = registry[:workflow_json]
+          
+          workflow_steps = workflow_json.workflowSteps
+          fail "The 'steps' array of the OSW is required." unless workflow_steps
+          
+          logger.debug "Finding measures of type #{measure_type.valueName}"
+          workflow_steps.each do |step|
+
+            if @registry[:openstudio_2]
+              if !step.to_MeasureStep.empty?
+                step = step.to_MeasureStep.get
+              end
+            end
+            
+            measure_dir_name = step.measureDirName
+              
+            measure_dir = workflow_json.findMeasure(measure_dir_name)
+            fail "Cannot find #{measure_dir_name}" if measure_dir.empty?
+            measure_dir = measure_dir.get
+            
+            measure = OpenStudio::BCLMeasure.load(measure_dir)
+            fail "Cannot load measure at #{measure_dir}" if measure.empty?
+            measure = measure.get
+            
+            class_name = measure.className
+            measure_instance_type = measure.measureType
+            if measure_instance_type == measure_type
+              logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
+              
+              # DLM: why is output_adapter in options instead of registry?
               options[:output_adapter].communicate_transition("Applying #{class_name}", :measure) if options[:output_adapter]
-              apply_measure(registry, step, step_index, options)
+              apply_measure(registry, step, options)
               options[:output_adapter].communicate_transition("Applied #{class_name}", :measure) if options[:output_adapter]
               logger.info 'Moving to the next workflow step.'
             else
-              logger.debug "Skipping measure #{class_name} in #{mrb_path} of type #{measure_type}"
+              logger.debug "Skipping measure #{class_name} of type #{measure_type.valueName}"
             end
           end
-          registry[:time_logger].stop "#{measure_type}:apply_measure" if registry[:time_logger]
-
-        end
-
-        # Shortcut for finding the measure_dir_name in measure_search_array
-        #
-        # @param [String] directory base Directory used for relative paths
-        # @param [String] measure_dir_name Directory name of the measure, typically from an OSW
-        # @param [Array] measure_search_array Ordered set of relative measure directories used to search for each
-        #   step[:measure_dir_name] in, e.g. ['measures', '../../measures']
-        # @return [nil, String] The path of the measure is returned as a string, or if the measure_dir_name folder is
-        #   not found the value nil is returned
-        #
-        def find_measure_dir(directory, measure_dir_name, measure_search_array, logger=nil)
-          logger ||= ::Logger.new(STDOUT)
-          measure_path = nil
-          measure_search_array.each do |measure_dir|
-            logger.warn "The path #{measure_dir} does not exist" unless File.exists? File.join(directory, measure_dir)
-            next unless File.exists? File.join(directory, measure_dir)
-            if Dir.entries(File.join(directory, measure_dir)).include? measure_dir_name
-              measure_path = File.absolute_path(File.join(directory, measure_dir, measure_dir_name))
-              break
-            end
-          end
-          measure_path
-        end
-
-        # Shortcut for getting the class name of a measure
-        #
-        # @param [String] mxml_path Path to the measure.xml file to parse
-        # @return [String] The class Name of the measure
-        #
-        def measure_class_name(mxml_path)
-          mxml_path = File.new File.join(mxml_path)
-          mxml = REXML::Document.new mxml_path
-          mxml.elements['*/class_name'].text
-        end
-
-        # Shortcut for getting the type of a measure
-        #
-        # @param [String] mrb_path The absolute path to the measure.rb file of interest
-        # @param [String] measure_class The classname of the measure which is used to determine the script's ancestors
-        # @return [String] The stringifed ruleset child class which defines what sort of measure is being examined
-        #
-        def get_measure_type(mrb_path, measure_class)
-          begin
-            require mrb_path
-          rescue
-            fail "Unable to require #{mrb_path}. Please ensure this can be required and then retry."
-          end
-          begin
-            measure = Object.const_get(measure_class).new
-            measure.class.ancestors[1].to_s
-          rescue => e
-            # @todo Over time figure out which error classes should get what error messages
-            fail "Error. Failed with #{e.message}, #{e.backtrace.join("\n")}"
-          end
+          
+          registry[:time_logger].stop "#{measure_type.valueName}:apply_measures" if registry[:time_logger]
         end
 
         # Determine if a given workflow can find and load all measures defined in steps
@@ -121,45 +70,47 @@ module OpenStudio
         # @param [String] directory The directory that will be passed to the find_measure_dir method
         # @return [true] If the method doesn't fail the workflow measures were validated
         #
-        def validate_measures(workflow, directory, logger=nil)
-          logger = ::Logger.new(STDOUT) unless logger
-          state = 'openstudio'
-          steps = workflow[:steps]
-          measure_search_array = workflow[:measure_paths] if workflow[:measure_paths]
-          measure_search_array ||= ['measures']
+        def validate_measures(registry, logger)
+        
+          logger = registry[:logger] if logger.nil?
+          workflow_json = registry[:workflow_json]
+          
+          state = 'ModelMeasure'.to_MeasureType
+          steps = workflow_json.workflowSteps
           steps.each_with_index do |step, index|
             begin
               logger.debug "Validating step #{index}"
+              
+              if @registry[:openstudio_2]
+                if !step.to_MeasureStep.empty?
+                  step = step.to_MeasureStep.get
+                end
+              end
 
               # Verify the existence of the required files
-              measure_dir_name = step[:measure_dir_name]
-              measure_path = find_measure_dir(directory, measure_dir_name, measure_search_array, logger)
-              fail "Could not find #{measure_dir_name} in #{measure_search_array}." unless measure_path
-              folder_contents = Dir.entries measure_path
-              fail "No measure.rb file found in #{measure_path}" unless folder_contents.include? 'measure.rb'
-              fail "No measure.xml file found in #{measure_path}" unless folder_contents.include? 'measure.xml'
+              measure_dir_name = step.measureDirName
 
-              # Ensure that the measure class_name is retrievable
-              mxml_path = File.absolute_path(File.join(measure_path,'measure.xml'))
-              class_name = measure_class_name mxml_path
-              fail "Unable to find the class_name element in #{mxml_path}" unless class_name
-              logger.debug "Found measure dir #{measure_path} to have a measure class_name of #{class_name}"
-
-              # Attempt to load the measure and verify the class_name
-              mrb_path = File.join(measure_path, 'measure.rb')
-              measure_type = get_measure_type(mrb_path, class_name)
-              logger.debug "Successfully initialized an instance of #{class_name} from #{mrb_path} of type #{measure_type}."
+              measure_dir = workflow_json.findMeasure(measure_dir_name)
+              fail "Cannot find measure #{measure_dir_name}" if measure_dir.empty?
+              measure_dir = measure_dir.get
+              
+              measure = OpenStudio::BCLMeasure.load(measure_dir)
+              fail "Cannot load measure at #{measure_dir}" if measure.empty?
+              measure = measure.get
+              
+              class_name = measure.className
+              measure_instance_type = measure.measureType
 
               # Ensure that measures are in order, i.e. no OS after E+, E+ or OS after Reporting
-              if measure_type == MEASURE_CLASSES[:openstudio]
-                fail "OpenStudio measure #{step['measure_dir_name']} called after transition to EnergyPlus." if state != 'openstudio'
-              elsif measure_type == MEASURE_CLASSES[:energyplus]
-                state = 'energyplus' if state == 'openstudio'
-                fail "EnergyPlus measure #{step['measure_dir_name']} called after Energyplus simulation." if state == 'reporting'
-              elsif measure_type == MEASURE_CLASSES[:reporting]
-                state = 'reporting' if state == 'energyplus'
+              if measure_instance_type == 'ModelMeasure'.to_MeasureType
+                fail "OpenStudio measure #{measure_dir} called after transition to EnergyPlus." if state != 'ModelMeasure'.to_MeasureType
+              elsif measure_instance_type == "EnergyPlusMeasure".to_MeasureType
+                state = 'EnergyPlusMeasure'.to_MeasureType if state == 'ModelMeasure'.to_MeasureType
+                fail "EnergyPlus measure #{measure_dir} called after Energyplus simulation." if state == 'ReportingMeasure'.to_MeasureType
+              elsif measure_instance_type == 'ReportingMeasure'.to_MeasureType
+                state = 'ReportingMeasure'.to_MeasureType if state == 'EnergyPlusMeasure'.to_MeasureType
               else
-                fail "Error: Class type of #{class_name} is unrecognized by OpenStudio"
+                fail "Error: MeasureType #{measure_instance_type.valueName} of measure #{measure_dir} is not supported"
               end
 
               logger.debug "Validated step #{index}"
@@ -188,6 +139,30 @@ module OpenStudio
             logger.warn "Value for argument '#{argument_name}' not set in argument list therefore will use default"
           end
         end
+        
+        def apply_arguments_2(argument_map, argument_name, argument_value, logger)
+          unless argument_value.nil?
+            logger.info "Setting argument value '#{argument_name}' to '#{argument_value}'"
+
+            v = argument_map[argument_name.to_s]
+            fail "Could not find argument '#{argument_name}' in argument_map" unless v
+            value_set = false
+            variant_type = argument_value.variantType
+            if variant_type == "String".to_VariantType
+              value_set = v.setValue(argument_value.valueAsString)
+            elsif variant_type == "Double".to_VariantType
+              value_set = v.setValue(argument_value.valueAsDouble)
+            elsif variant_type == "Integer".to_VariantType
+              value_set = v.setValue(argument_value.valueAsInteger)
+            elsif variant_type == "Boolean".to_VariantType
+              value_set = v.setValue(argument_value.valueAsBoolean)
+            end
+            fail "Could not set argument '#{argument_name}' to value '#{argument_value}'" unless value_set
+            argument_map[argument_name.to_s] = v.clone
+          else
+            logger.warn "Value for argument '#{argument_name}' not set in argument list therefore will use default"
+          end
+        end
 
         # Method to allow for a single measure of any type to be run
         #
@@ -210,59 +185,70 @@ module OpenStudio
         # @return [Hash, String] Returns two objects. The first is the (potentially) updated output_attributes hash, and
         #   the second is the (potentially) updated current_weather_filepath
         #
-        def apply_measure(registry, step, step_index, options = {})
-          require 'openstudio/workflow_runner'
-
-          # @todo (rhorsey) runner should be passed in here - DLM
-          # @todo (someone) we need to append the workflow step number to the measure run_dir
+        def apply_measure(registry, step, options = {})
 
           logger = registry[:logger]
-          measure_search_array = options[:measure_search_array] ? options[:measure_search_array] : []
-          measure_search_array.concat @registry[:measure_paths] if @registry[:measure_paths]
-          measure_search_array = ['measures'] if measure_search_array == []
-          measure_dir_name = step[:measure_dir_name]
-          analysis = registry[:analysis]
-          datapoint = registry[:datapoint]
-          workflow = registry[:workflow]
-          directory = registry[:directory]
+          runner = registry[:runner]
+          workflow_json = registry[:workflow_json]
+          measure_dir_name = step.measureDirName
+     
           run_dir = registry[:run_dir]
           fail 'No run directory set in the registry' unless run_dir
+          
           output_attributes = registry[:output_attributes]
+          
+          # todo: get weather file from appropriate location 
           @wf = registry[:wf]
           @model = registry[:model]
           @model_idf = registry[:model_idf]
           @sql_filename = registry[:sql]
-          logger.debug "Starting #{__method__} for #{step[:measure_dir_name]}"
+          
+          runner.setLastOpenStudioModel(@model) if @model
+          #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
+          runner.setLastEnergyPlusWorkspace(@model_idf) if @model_idf
+          #runner.setLastEnergyPlusWorkspacePath(const openstudio::path& lastEnergyPlusWorkspacePath); #DLM - deprecate?
+          runner.setLastEnergyPlusSqlFilePath(@sql_filename) if @sql_filename
+          runner.setLastEpwFilePath(@wf) if @wf
+
+          logger.debug "Starting #{__method__} for #{measure_dir_name}"
           registry[:time_logger].start("Measure:#{measure_dir_name}") if registry[:time_logger]
           current_dir = Dir.pwd
 
           success = nil
           begin
-            measure_wd = find_measure_dir(directory, measure_dir_name, measure_search_array, @registry[:logger])
-            fail "Unable to find measure directory #{measure_dir_name} in #{measure_search_array}" unless measure_wd
+          
+            measure_dir = workflow_json.findMeasure(measure_dir_name)
+            fail "Cannot find #{measure_dir_name}" if measure_dir.empty?
+            measure_dir = measure_dir.get
+            
+            measure = OpenStudio::BCLMeasure.load(measure_dir)
+            fail "Cannot load measure at #{measure_dir}" if measure.empty?
+            measure = measure.get
+            
+            step_index = workflow_json.currentStepIndex
+
             measure_run_dir = File.join(run_dir, "#{step_index}_#{measure_dir_name}")
             logger.debug "Creating run directory for measure in #{measure_run_dir}"
             FileUtils.mkdir_p measure_run_dir
             Dir.chdir measure_run_dir
-
-            measure_path = File.join(measure_wd, 'measure.rb')
-            measure_name = measure_class_name(File.join(measure_wd, 'measure.xml'))
+            
             logger.debug "Apply measure running in #{Dir.pwd}"
 
-            measure_path = File.absolute_path(measure_path) unless (Pathname.new measure_path).absolute?
-            fail "`measure.rb` file does not exist in #{measure_path}" unless File.exist? measure_path
+            class_name = measure.className
+            measure_type = measure.measureType
+            
+            measure_path = measure.primaryRubyScriptPath
+            fail "Measure does not have a primary ruby script specified" if measure_path.empty?
+            measure_path = measure_path.get
+            fail "#{measure_path} file does not exist" unless File.exist?(measure_path.to_s)
+            
             logger.debug "Loading Measure from #{measure_path}"
 
-            measure = nil
-            runner = nil
+            measure_object = nil
             result = nil
             begin
-              require measure_path
-              measure = Object.const_get(measure_name).new
-              measure_type = measure.class.ancestors[1].to_s
-              fail "Measure #{measure_name} is of type #{measure_type}, which is unknown to the Workflow Gem." unless MEASURE_CLASSES.values.include? measure_type
-              runner = WorkflowRunner.new( logger, workflow, analysis, datapoint, output_attributes)
-              runner.weatherfile_path = @wf
+              load measure_path.to_s
+              measure_object = Object.const_get(class_name).new
             rescue => e
               # @todo (rhorsey) Clean up the error class here.
               log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
@@ -273,13 +259,13 @@ module OpenStudio
             skip_measure = false
             begin
 
-              # Initialize arguments which may be model dependent
-              if measure_type == MEASURE_CLASSES[:openstudio]
-                arguments = measure.arguments(@model)
-              elsif measure_type == MEASURE_CLASSES[:energyplus]
-                arguments = measure.arguments(@model_idf)
-              else measure_type == MEASURE_CLASSES[:reporting]
-                arguments = measure.arguments
+              # Initialize arguments which may be model dependent, don't allow arguments method access to real model in case it changes something
+              if measure_type == 'ModelMeasure'.to_MeasureType
+                arguments = measure_object.arguments(@model.clone(true).to_Model)
+              elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
+                arguments = measure_object.arguments(@model_idf.clone(true))
+              else measure_type == 'ReportingMeasure'.to_MeasureType
+                arguments = measure_object.arguments
               end
 
               # Create argument map and initialize all the arguments
@@ -291,56 +277,73 @@ module OpenStudio
               end
 
               # Set argument values
-              logger.debug "Iterating over arguments for workflow item '#{step[:measure_dir_name]}'"
-              if step[:arguments]
-                step[:arguments].each_pair do |argument_name, argument_value|
-                  if argument_name == '__SKIP__'
-                    if argument_value
-                      skip_measure = true
-                    end
+              logger.debug "Iterating over arguments for workflow item '#{measure_dir_name}'"
+              step.arguments.each do |argument_name, argument_value|
+                if argument_name.to_s == '__SKIP__'
+                  if argument_value
+                    skip_measure = true
+                  end
+                else
+                  if registry[:openstudio_2]
+                    success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
                   else
                     success = apply_arguments(argument_map, argument_name, argument_value, logger)
-                    fail 'Could not set arguments' unless success
                   end
+                  fail 'Could not set arguments' unless success
                 end
               end
+
             rescue => e
               log_message = "Error assigning argument in measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
               raise log_message
             end
 
-            if !skip_measure
+            if skip_measure
+              # just increment
+              runner.incrementStep
+            else
+            
               begin
-                logger.debug "Calling measure.run for '#{measure_name}'"
-                if measure_type.to_s == MEASURE_CLASSES[:openstudio]
-                  measure.run(@model, runner, argument_map)
-                elsif measure_type.to_s == MEASURE_CLASSES[:energyplus]
-                  runner.setLastOpenStudioModel(@model)
-                  measure.run(@model_idf, runner, argument_map)
-                else
-                  runner.setLastOpenStudioModel(@model)
-                  runner.setLastEnergyPlusWorkspace(@model_idf)
-                  runner.setLastEnergyPlusSqlFilePath(@sql_filename)
-                  measure.run(runner, argument_map)
+                logger.debug "Calling measure.run for '#{measure_dir_name}'"
+                if measure_type == 'ModelMeasure'.to_MeasureType
+                  measure_object.run(@model, runner, argument_map)
+                elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
+                  measure_object.run(@model_idf, runner, argument_map)
+                elsif measure_type == 'ReportingMeasure'.to_MeasureType
+                  measure_object.run(runner, argument_map)
                 end
-                logger.debug "Finished measure.run for '#{measure_name}'"
+                logger.debug "Finished measure.run for '#{measure_dir_name}'"
 
                 # Run garbage collector after every measure to help address race conditions
                 GC.start
               rescue => e
+                # incrementStep must be called after run
+                runner.incrementStep
+                
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
                 raise log_message
               end
 
               begin
                 result = runner.result
-                fail "Measure #{measure_name} reported an error, check log" if result.errors.size != 0
-                logger.debug "Running of measure '#{measure_name}' completed. Post-processing measure output"
+                
+                # incrementStep must be called after run
+                runner.incrementStep
 
-                unless @wf == runner.weatherfile_path
-                  logger.debug "Updating the weather file to be '#{runner.weatherfile_path}'"
-                  registry.register(:wf) { runner.weatherfile_path }
+                errors = []
+                if registry[:openstudio_2]
+                  errors = result.stepErrors
+                else
+                  errors = result.errors
                 end
+                fail "Measure #{measure_name} reported an error, check log" if errors.size != 0
+                logger.debug "Running of measure '#{measure_dir_name}' completed. Post-processing measure output"
+                
+                # TODO: fix this
+                #unless @wf == runner.weatherfile_path
+                #  logger.debug "Updating the weather file to be '#{runner.weatherfile_path}'"
+                #  registry.register(:wf) { runner.weatherfile_path }
+                #end
 
                 # @todo add note about why reasignment and not eval
                 registry.register(:model) { @model }
@@ -352,17 +355,18 @@ module OpenStudio
                 raise log_message
               end
 
-              begin
-                measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
-                output_attributes[measure_name.to_sym] = measure_attributes[:attributes]
-
-                # Add an applicability flag to all the measure results
-                output_attributes[measure_name.to_sym][:applicable] = result.value.value != -1
-                registry.register(:output_attributes) { output_attributes }
-              rescue => e
-                log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-                logger.error log_message
-              end
+              # TODO: figure out what this is used for, should be able to get this from runner.previousResults
+              #begin
+              #  measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
+              #  output_attributes[measure_name.to_sym] = measure_attributes[:attributes]
+              #
+              #  # Add an applicability flag to all the measure results
+              #  output_attributes[measure_name.to_sym][:applicable] = result.value.value != -1
+              #  registry.register(:output_attributes) { output_attributes }
+              #rescue => e
+              #  log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+              #  logger.error log_message
+              #end
               
             end
             
@@ -374,7 +378,7 @@ module OpenStudio
             Dir.chdir current_dir
             registry[:time_logger].stop("Measure:#{measure_dir_name}") if registry[:time_logger]
 
-            logger.info "Finished #{__method__} for #{measure_name} in #{@registry[:time_logger].delta("Measure:#{measure_name}")} s"
+            logger.info "Finished #{__method__} for #{measure_dir_name} in #{@registry[:time_logger].delta("Measure:#{measure_dir_name}")} s"
           end
         end
       end

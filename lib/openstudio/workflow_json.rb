@@ -17,6 +17,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
+require 'pathname'
+
 # Optional_Shim provides a wrapper that looks like an OpenStudio Optional 
 class Optional_Shim
   def initialize(obj)
@@ -214,8 +216,20 @@ class WorkflowJSON_Shim
   # boost::optional<openstudio::path> findFile(const openstudio::path& file);
   # boost::optional<openstudio::path> findFile(const std::string& fileName);
   def findFile(file)
+    file = file.to_s
+    
+    # check if absolute and exists
+    if Pathname.new(file).absolute?
+      if File.exists?(file)
+        return OpenStudio::OptionalPath.new(OpenStudio::toPath(file))
+      end
+      
+      # absolute path does not exist
+      return OpenStudio::OptionalPath.new
+    end
+  
     absoluteFilePaths.each do |file_path|
-      result = File.join(file_path.to_s, file.to_s)
+      result = File.join(file_path.to_s, file)
       if File.exists?(result)
         return OpenStudio::OptionalPath.new(OpenStudio::toPath(result))
       end

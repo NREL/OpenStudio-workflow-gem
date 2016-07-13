@@ -266,8 +266,20 @@ class WorkflowJSON_Shim
   # boost::optional<openstudio::path> findMeasure(const openstudio::path& measureDir);
   # boost::optional<openstudio::path> findMeasure(const std::string& measureDirName);
   def findMeasure(measureDir)
+    measureDir = measureDir.to_s
+  
+    # check if absolute and exists
+    if Pathname.new(measureDir).absolute?
+      if File.exists?(measureDir)
+        return OpenStudio::OptionalPath.new(OpenStudio::toPath(measureDir))
+      end
+      
+      # absolute path does not exist
+      return OpenStudio::OptionalPath.new
+    end
+    
     absoluteMeasurePaths.each do |measure_path|
-      result = File.join(measure_path.to_s, measureDir.to_s)
+      result = File.join(measure_path.to_s, measureDir)
       if File.exists?(result)
         return OpenStudio::OptionalPath.new(OpenStudio::toPath(result))
       end

@@ -112,7 +112,7 @@ module OpenStudio
 
         # create the output adapter
         if options[:output_adapter]
-          # TODO
+          @output_adapter = options[:output_adapter]
         else
           @output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new({output_directory: @input_adapter.run_dir})
         end

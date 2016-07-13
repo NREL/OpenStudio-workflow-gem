@@ -336,7 +336,7 @@ module OpenStudio
                 else
                   errors = result.errors
                 end
-                fail "Measure #{measure_name} reported an error, check log" if errors.size != 0
+                fail "Measure #{measure_dir_name} reported an error, check log" if errors.size != 0
                 logger.debug "Running of measure '#{measure_dir_name}' completed. Post-processing measure output"
                 
                 # TODO: fix this

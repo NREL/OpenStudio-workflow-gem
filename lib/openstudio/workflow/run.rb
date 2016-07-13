@@ -177,8 +177,10 @@ module OpenStudio
           Workflow.logger.info 'Finished workflow - communicating results and zipping files'
         ensure
           if @current_state == :errored
+            @registry[:workflow_json].setCompletedStatus('Fail')
             @output_adapter.communicate_failure
           else
+            @registry[:workflow_json].setCompletedStatus('Success')
             @output_adapter.communicate_complete
           end
 
@@ -188,8 +190,6 @@ module OpenStudio
           @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
           
           # save workflow with results
-          @registry[:workflow_json].setCompletedStatus('Success')
-          
           out_path = @registry[:workflow_json].absoluteOutPath
           @registry[:workflow_json].saveAs(out_path)
 
@@ -224,8 +224,6 @@ module OpenStudio
         @final_message = "Found error in state '#{@current_state}' with message #{args}}"
         Workflow.logger.error @final_message
 
-        @registry[:workflow_json].setCompletedStatus('Fail')
-        
         # transition to an error state
         @current_state = :errored
       end

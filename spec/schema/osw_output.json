@@ -219,7 +219,7 @@
 			        },
 			        "modeler_description": {
 			          "type": "string"
-			        }
+			        },
 				"result": {
 					"$ref": "#/definitions/Workflow Step Result"
 				}

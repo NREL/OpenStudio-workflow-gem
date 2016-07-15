@@ -83,6 +83,7 @@ module OpenStudio
         # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time
         # - openstudio_2 - true if we are running in OpenStudio 2.X environment
         # - logger - general logger - this is already a module constant, deprecate
+        # - log_targets - IO devices that are being logged to
         # - time_logger - logger for doing profiling - time to run each step will be captured in OSResult, deprecate
         # - workflow - the current OSW parsed as a Ruby Hash
         # - workflow_json - the current WorkflowJSON object
@@ -146,6 +147,7 @@ module OpenStudio
         }
         @options = defaults.merge(options)
  
+        @registry.register(:log_targets) { @options[:targets] }
         @registry.register(:time_logger) { TimeLogger.new } if @options[:profile]
 
         # Initialize the MultiDelegator logger
@@ -177,22 +179,30 @@ module OpenStudio
 
           Workflow.logger.info 'Finished workflow - communicating results and zipping files'
         ensure
+          
+          Workflow.logger.info 'Workflow complete'
+          
           if @current_state == :errored
             @registry[:workflow_json].setCompletedStatus('Fail')
-            @output_adapter.communicate_failure
           else
             @registry[:workflow_json].setCompletedStatus('Success')
-            @output_adapter.communicate_complete
           end
-
-          Workflow.logger.info 'Workflow complete'
-
-          # Write out the TimeLogger to the filesystem
-          @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
+          
+          # save all files before calling output adapter
+          @registry[:log_targets].each { |target| target.flush }
           
           # save workflow with results
           out_path = @registry[:workflow_json].absoluteOutPath
           @registry[:workflow_json].saveAs(out_path)
+          
+          # Write out the TimeLogger to the filesystem
+          @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
+          
+          if @current_state == :errored
+            @output_adapter.communicate_failure
+          else
+            @output_adapter.communicate_complete
+          end
 
         end
 

@@ -250,6 +250,10 @@ module OpenStudio
               load measure_path.to_s
               measure_object = Object.const_get(class_name).new
             rescue => e
+ 
+              # add the error to the osw.out
+              runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+              
               # @todo (rhorsey) Clean up the error class here.
               log_message = "Error requiring measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
               raise log_message
@@ -294,6 +298,10 @@ module OpenStudio
               end
 
             rescue => e
+
+              # add the error to the osw.out
+              runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                
               log_message = "Error assigning argument in measure #{__FILE__}. Failed with #{e.message}, #{e.backtrace.join("\n")}"
               raise log_message
             end
@@ -317,6 +325,10 @@ module OpenStudio
                 # Run garbage collector after every measure to help address race conditions
                 GC.start
               rescue => e
+
+                # add the error to the osw.out
+                runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                
                 # incrementStep must be called after run
                 runner.incrementStep
                 

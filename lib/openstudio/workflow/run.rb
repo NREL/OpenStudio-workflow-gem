@@ -33,6 +33,7 @@ module OpenStudio
       attr_reader :output_adapter
       attr_reader :final_message
       attr_reader :job_results
+      attr_reader :current_state
 
       # Define the default set of jobs. Note that the states of :queued of :finished need to exist for all job arrays.
       #

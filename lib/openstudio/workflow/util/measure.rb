@@ -227,7 +227,7 @@ module OpenStudio
             
             step_index = workflow_json.currentStepIndex
 
-            measure_run_dir = File.join(run_dir, "#{step_index}_#{measure_dir_name}")
+            measure_run_dir = File.join(run_dir, "#{step_index.to_s.rjust(3,'0')}_#{measure_dir_name}")
             logger.debug "Creating run directory for measure in #{measure_run_dir}"
             FileUtils.mkdir_p measure_run_dir
             Dir.chdir measure_run_dir

@@ -20,6 +20,8 @@ function run_docker {
 
 ## Script Start ##
 
+bundle install
+
 i=0
 
 # List any tags that you want to test of the Docker image. These must be able to be made into directories

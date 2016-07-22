@@ -40,10 +40,9 @@ do
   ((i++))
 done
 
-exit_status=0
 for image in ${images[@]}
 do
-  run_docker; (( $exit_status = $exit_status || $? )) 
+  run_docker; (( exit_status = exit_status || $? )) 
 done
 
 exit $exit_status

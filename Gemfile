@@ -21,7 +21,7 @@ end
 group :test do
   gem 'coveralls', require: false
   gem 'ruby-prof', '~> 0.15.1'
-  gem 'openstudio-analysis', github: 'NREL/OpenStudio-analysis-gem', branch: 'develop'
+  gem 'openstudio-analysis', '0.4.5'
   gem 'rspec', '~> 3.4'
   gem 'ci_reporter_rspec'
   gem 'rubocop'

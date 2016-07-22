@@ -11,24 +11,25 @@ function run_docker {
 
   echo "Executing the docker command"
   docker run -e "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" \
-      -v $(pwd):/var/simdata/openstudio nrel/docker-test-containers:$image \
+      -v $(pwd):/var/simdata/openstudio nrel/openstudio:$image \
       /var/simdata/openstudio/test/bin/docker-run.sh
-
-  echo "Syncing results"
 }
 
 
 ## Script Start ##
 
+bundle install
+
 i=0
 
 # List any tags that you want to test of the Docker image. These must be able to be made into directories
 docker_tags=(
-    'openstudio-1.8.1-mongo-2.4'
-    'openstudio-1.8.5-mongo-2.4'
+    '1.8.1'
+    '1.8.5'
 )
 
 # Iterate over the tags and put them into groups based on the Circle CI Node Index.
+# This effectively chunks up the number of images if greater than CIRCLE_NODE_TOTAL
 images=()
 for tag in ${docker_tags[@]}
 do
@@ -41,5 +42,8 @@ done
 
 for image in ${images[@]}
 do
-  run_docker
+  run_docker; (( exit_status = exit_status || $? )) 
 done
+
+exit $exit_status
+

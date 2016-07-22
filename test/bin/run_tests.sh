@@ -43,7 +43,7 @@ done
 exit_status=0
 for image in ${images[@]}
 do
-  exit_status = run_docker; (( exit_status = exit_status || $? ))
+  run_docker; (( $exit_status = $exit_status || $? )) 
 done
 
 exit $exit_status

@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
 
   s.add_development_dependency 'bundler', '~> 1.6'
-  s.add_development_dependency 'rake', '~> 0'
   s.add_development_dependency 'json-schema', '~> 0'
 
   s.add_runtime_dependency 'multi_json', '~> 1.10'

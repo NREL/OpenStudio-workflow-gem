@@ -4,7 +4,8 @@ OpenStudio::Workflow Change Log
 Version '1.0.0-alpha.0'
 -----------------------
 * Support new workflow for PAT 2.0. Many of these changes are breaking changes
-* 
+* Remove rake from gemspec
+* Update rubyzip to version 1.2
 
 Version 0.2.0
 ------------------

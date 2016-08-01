@@ -34,3 +34,8 @@ RuboCop::RakeTask.new(:rubocop) do |task|
 end
 
 task default: 'spec:unit'
+
+desc 'test extracting zip'
+task :test_zip do
+  puts 'hi there'
+end

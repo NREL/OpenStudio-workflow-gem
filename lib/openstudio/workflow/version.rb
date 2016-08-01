@@ -19,6 +19,6 @@
 
 module OpenStudio
   module Workflow
-    VERSION = '1.0.0-rc1'
+    VERSION = '1.0.0.rc1'  # Suffixes must have periods (not dashes)
   end
 end

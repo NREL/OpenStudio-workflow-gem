@@ -1,6 +1,11 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version '1.0.0-alpha.0'
+-----------------------
+* Support new workflow for PAT 2.0. Many of these changes are breaking changes
+* 
+
 Version 0.2.0
 ------------------
 * Use EnergyPlus that is packaged with OpenStudio. The branch of this repo is no longer tied to the version of EnergyPlus

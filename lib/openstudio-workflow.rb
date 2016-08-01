@@ -20,6 +20,7 @@
 require 'fileutils'
 require 'json'
 require 'pathname'
+require 'zip'
 
 require_relative 'openstudio/workflow/version'
 require_relative 'openstudio/workflow/multi_delegator'
@@ -62,7 +63,7 @@ module OpenStudio
     # @todo (rhorsey, macumber) Replace rubyzip with OS zip
     #
     def extract_archive(archive_filename, destination, overwrite = true)
-      Zip::File.open(archive_filename) do |zf|
+      ::Zip::File.open(archive_filename) do |zf|
         zf.each do |f|
           f_path = File.join(destination, f.name)
           FileUtils.mkdir_p(File.dirname(f_path))

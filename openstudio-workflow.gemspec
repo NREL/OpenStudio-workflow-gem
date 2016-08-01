@@ -1,5 +1,5 @@
 lib = File.expand_path('../lib/', __FILE__)
-$:.unshift lib unless $:.include?(lib)
+$LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 
 require 'openstudio/workflow/version'
 
@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/NREL/OpenStudio-workflow-gem'
   s.license = 'LGPL'
 
-  s.required_ruby_version = '>= 2.0.0'
+  s.required_ruby_version = '>= 2.0'
 
   s.files = Dir.glob('lib/**/*') + %w(README.md CHANGELOG.md Rakefile bin/openstudio_cli)
   s.executables << 'openstudio_cli'

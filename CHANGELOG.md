@@ -1,6 +1,10 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version '1.0.0-rc1' (Not released)
+-------------------
+* Use specific version of OpenStudio Analysis Gem
+
 Version '1.0.0-alpha.0'
 -----------------------
 * Support new workflow for PAT 2.0. Many of these changes are breaking changes

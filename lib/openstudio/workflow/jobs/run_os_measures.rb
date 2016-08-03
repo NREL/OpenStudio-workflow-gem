@@ -44,6 +44,9 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
     # Send the measure output attributes to the output adapter
     @logger.debug 'Communicating measure output attributes to the output adapter'
     @output_adapter.communicate_measure_attributes @registry[:output_attributes]
+    
+    # save the final OSM
+    save_osm(@registry[:model], @registry[:run_dir])
 
     # Save the OSM if the :debug option is true
     return nil unless @options[:debug]

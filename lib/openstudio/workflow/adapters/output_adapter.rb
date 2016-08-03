@@ -68,7 +68,11 @@ module OpenStudio
             # remove the base directory from the zip file
             rel_dir = local_directory.sub("#{root_directory}/", '')
             zip_file_to_add = file.gsub("#{local_directory}", "#{rel_dir}")
-            zip_file.addFile(file, zip_file_to_add)
+            if File.directory?(file)
+              zip_file.addDirectory(file, zip_file_to_add)
+            else
+              zip_file.addFile(file, zip_file_to_add)
+            end
           end
 
           zip_file

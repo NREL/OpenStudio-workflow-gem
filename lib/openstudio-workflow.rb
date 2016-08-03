@@ -63,19 +63,8 @@ module OpenStudio
     # @todo (rhorsey, macumber) Replace rubyzip with OS zip
     #
     def extract_archive(archive_filename, destination, overwrite = true)
-      ::Zip::File.open(archive_filename) do |zf|
-        zf.each do |f|
-          f_path = File.join(destination, f.name)
-          FileUtils.mkdir_p(File.dirname(f_path))
-
-          if File.exist?(f_path) && overwrite
-            FileUtils.rm_rf(f_path)
-            zf.extract(f, f_path)
-          elsif !File.exist? f_path
-            zf.extract(f, f_path)
-          end
-        end
-      end
+      zf = OpenStudio::UnzipFile.new(archive_filename)
+      zf.extractAllFiles(destination)
     end
 
   end

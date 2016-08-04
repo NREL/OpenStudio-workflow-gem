@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 gemspec
 
 gem 'rake'
-gem 'openstudio-analysis', '1.0.0.pre.rc1'
+gem 'openstudio-analysis', '1.0.0.pre.rc4'
 
 group :test do  
   gem 'json-schema', '~> 2.6'

@@ -13,7 +13,8 @@ module OpenStudio
         # @param [Hash] options ({}) User-specified options used to override defaults
         # @option options [Object] :time_logger A special logger used to debug performance issues
         # @option options [Object] :output_adapter An output adapter to register measure transitions to
-        # @return [Void]
+        # @option options [Object] :energyplus_output_requests If true then the energyPlusOutputRequests is called instead of the run method
+        # @return [Void] 
         #
         def apply_measures(measure_type, registry, options = {})
         
@@ -48,12 +49,20 @@ module OpenStudio
             class_name = measure.className
             measure_instance_type = measure.measureType
             if measure_instance_type == measure_type
-              logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
+            
+              if options[:energyplus_output_requests]
+                logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Collecting EnergyPlus Output Requests now."
+      
+                apply_measure(registry, step, options)              
+              else
+                logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
+                
+                # DLM: why is output_adapter in options instead of registry?
+                options[:output_adapter].communicate_transition("Applying #{class_name}", :measure) if options[:output_adapter]
+                apply_measure(registry, step, options)
+                options[:output_adapter].communicate_transition("Applied #{class_name}", :measure) if options[:output_adapter]
+              end
               
-              # DLM: why is output_adapter in options instead of registry?
-              options[:output_adapter].communicate_transition("Applying #{class_name}", :measure) if options[:output_adapter]
-              apply_measure(registry, step, options)
-              options[:output_adapter].communicate_transition("Applied #{class_name}", :measure) if options[:output_adapter]
               logger.info 'Moving to the next workflow step.'
             else
               logger.debug "Skipping measure #{class_name} of type #{measure_type.valueName}"
@@ -182,6 +191,7 @@ module OpenStudio
         # @option options [Array] :measure_search_array Ordered set of measure directories used to search for
         #   step[:measure_dir_name], e.g. ['measures', '../../measures']
         # @option options [Object] :time_logger Special logger used to debug performance issues
+        # @option options [Object] :energyplus_output_requests If true then the energyPlusOutputRequests is called instead of the run method
         # @return [Hash, String] Returns two objects. The first is the (potentially) updated output_attributes hash, and
         #   the second is the (potentially) updated current_weather_filepath
         #
@@ -232,7 +242,11 @@ module OpenStudio
             FileUtils.mkdir_p measure_run_dir
             Dir.chdir measure_run_dir
             
-            logger.debug "Apply measure running in #{Dir.pwd}"
+            if options[:energyplus_output_requests]
+              logger.debug "energyPlusOutputRequests running in #{Dir.pwd}"
+            else
+              logger.debug "Apply measure running in #{Dir.pwd}"
+            end
 
             class_name = measure.className
             measure_type = measure.measureType
@@ -307,20 +321,32 @@ module OpenStudio
             end
 
             if skip_measure
-              # just increment
-              runner.incrementStep
+              if !options[:energyplus_output_requests]
+                # just increment
+                runner.incrementStep
+              end
             else
             
               begin
-                logger.debug "Calling measure.run for '#{measure_dir_name}'"
-                if measure_type == 'ModelMeasure'.to_MeasureType
-                  measure_object.run(@model, runner, argument_map)
-                elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
-                  measure_object.run(@model_idf, runner, argument_map)
-                elsif measure_type == 'ReportingMeasure'.to_MeasureType
-                  measure_object.run(runner, argument_map)
+                if options[:energyplus_output_requests]
+                  logger.debug "Calling measure.energyPlusOutputRequests for '#{measure_dir_name}'"
+                  idf_objects = measure_object.energyPlusOutputRequests(runner, argument_map)
+                  num_added = 0
+                  idf_objects.each do |idf_object|
+                    num_added += OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(@model_idf, idf_object)
+                  end
+                  logger.debug "Finished measure.energyPlusOutputRequests for '#{measure_dir_name}', #{num_added} output requests added"
+                else
+                  logger.debug "Calling measure.run for '#{measure_dir_name}'"
+                  if measure_type == 'ModelMeasure'.to_MeasureType
+                    measure_object.run(@model, runner, argument_map)
+                  elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
+                    measure_object.run(@model_idf, runner, argument_map)
+                  elsif measure_type == 'ReportingMeasure'.to_MeasureType
+                    measure_object.run(runner, argument_map)
+                  end
+                  logger.debug "Finished measure.run for '#{measure_dir_name}'"
                 end
-                logger.debug "Finished measure.run for '#{measure_dir_name}'"
 
                 # Run garbage collector after every measure to help address race conditions
                 GC.start
@@ -329,11 +355,19 @@ module OpenStudio
                 # add the error to the osw.out
                 runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
                 
-                # incrementStep must be called after run
-                runner.incrementStep
+                if !options[:energyplus_output_requests]
+                  # incrementStep must be called after run
+                  runner.incrementStep
+                end
                 
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
                 raise log_message
+              end
+              
+              # if doing output requests we are done now
+              if options[:energyplus_output_requests]
+                registry.register(:model_idf) { @model_idf }
+                return 
               end
 
               begin

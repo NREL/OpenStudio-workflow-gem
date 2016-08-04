@@ -8,7 +8,7 @@
       "properties": {
         "file_format_version": {
           "description": "Currently 0.1, however will infered to be the default of the software package unless otherwise specified",
-          "type": "number"
+          "type": "string"
         },
         "id": {
           "description": "UUID of this file",

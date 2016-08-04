@@ -40,7 +40,9 @@ class RunTranslation < OpenStudio::Workflow::Job
 
     # Save the generated IDF file if the :debug option is true
     return nil unless @options[:debug]
+    @registry[:time_logger].start('Saving IDF') if @registry[:time_logger]
     idf_name = save_idf(@registry[:model_idf], @registry[:root_dir])
+    @registry[:time_logger].stop('Saving IDF') if @registry[:time_logger]
     @logger.debug "Saved IDF as #{idf_name}"
 
     nil

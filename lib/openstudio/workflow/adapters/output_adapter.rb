@@ -62,19 +62,17 @@ module OpenStudio
       # Zip up a folder and it's contents
       def zip_directory(directory, zip_filename, pattern = '*')
         
-        begin
-          require 'zip'
-        rescue LoadError 
-          return false
-        end
-        
         # Submethod for adding the directory to the zip folder.
         def add_directory_to_zip(zip_file, local_directory, root_directory)
           Dir[File.join("#{local_directory}", '**', '**')].each do |file|
             # remove the base directory from the zip file
             rel_dir = local_directory.sub("#{root_directory}/", '')
             zip_file_to_add = file.gsub("#{local_directory}", "#{rel_dir}")
-            zip_file.add(zip_file_to_add, file)
+            if File.directory?(file)
+              zip_file.addDirectory(file, zip_file_to_add)
+            else
+              zip_file.addFile(file, zip_file_to_add)
+            end
           end
 
           zip_file
@@ -82,32 +80,31 @@ module OpenStudio
 
         FileUtils.rm_f(zip_filename) if File.exist?(zip_filename)
 
-        Zip.default_compression = Zlib::BEST_COMPRESSION
-        Zip::File.open(zip_filename, Zip::File::CREATE) do |zf|
-          Dir[File.join(directory, pattern)].each do |file|
-            if File.directory?(file)
-              # skip a few directory that should not be zipped as they are inputs
-              if File.basename(file) =~ /seed|measures|weather/
-                next
-              end
-              # skip x-large directory
-              if File.size?(file)
-                next if File.size?(file) >= 15000000
-              end
-              add_directory_to_zip(zf, file, directory)
-            else
-              next if File.extname(file) =~ /\.rb.*/
-              next if File.extname(file) =~ /\.zip.*/
-              # skip large non-osm/idf files
-              if File.size(file)
-                if File.size(file) >= 15000000
-                  next unless File.extname(file) == '.osm' || File.extname(file) == '.idf'
-                end
-              end
-
-              zip_file_to_add = file.gsub("#{directory}/", '')
-              zf.add(zip_file_to_add, file)
+        zf = OpenStudio::ZipFile.new(zip_filename, false) 
+        
+        Dir[File.join(directory, pattern)].each do |file|
+          if File.directory?(file)
+            # skip a few directory that should not be zipped as they are inputs
+            if File.basename(file) =~ /seed|measures|weather/
+              next
             end
+            # skip x-large directory
+            if File.size?(file)
+              next if File.size?(file) >= 15000000
+            end
+            add_directory_to_zip(zf, file, directory)
+          else
+            next if File.extname(file) =~ /\.rb.*/
+            next if File.extname(file) =~ /\.zip.*/
+            # skip large non-osm/idf files
+            if File.size(file)
+              if File.size(file) >= 15000000
+                next unless File.extname(file) == '.osm' || File.extname(file) == '.idf'
+              end
+            end
+
+            zip_file_to_add = file.gsub("#{directory}/", '')
+            zf.addFile(file, zip_file_to_add)
           end
         end
 

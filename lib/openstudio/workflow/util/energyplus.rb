@@ -160,57 +160,32 @@ module OpenStudio
 
         # Run this code before running EnergyPlus to make sure the reporting variables are setup correctly
         #
-        # @param [String] idf_filename The name of the IDF file to be simulated
+        # @param [Object] idf The IDF Workspace to be simulated
         # @return [Void]
         #
-        def energyplus_preprocess(idf_filename)
+        def energyplus_preprocess(idf)
           Workflow.logger.info 'Running EnergyPlus Preprocess'
-          # @todo (rhorsey) need to add report requests for all reporting measures - DLM
-          # https://github.com/NREL/OpenStudio/blob/develop/openstudiocore/src/pat_app/Measures/ReportRequest/measure.rb
-
-          fail "Could not find IDF file in run directory (#{idf_filename})" unless File.exist? idf_filename
 
           new_objects = []
 
-          idf = OpenStudio::IdfFile.load(idf_filename).get
-          # save the pre-preprocess file
-          File.open("#{File.dirname(idf_filename)}/pre-preprocess.idf", 'w') { |f| f << idf.to_s }
-
           needs_sqlobj = idf.getObjectsByType('Output:SQLite'.to_IddObjectType).empty?
 
-          needs_monthlyoutput = idf.getObjectsByName('Building Energy Performance - Natural Gas').empty? ||
-              idf.getObjectsByName('Building Energy Performance - Electricity').empty? ||
-              idf.getObjectsByName('Building Energy Performance - District Heating').empty? ||
-              idf.getObjectsByName('Building Energy Performance - District Cooling').empty?
-
-          # this is a workaround for issue #1699 -- remove when 1699 is closed.
-          new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;'
-          new_objects << 'Output:Variable,*,Zone Air Relative Humidity,Daily;'
-          new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;'
-          new_objects << 'Output:Variable,*,Site Outdoor Air Wetbulb Temperature,Timestep;'
-
           if needs_sqlobj
+            # just add this, we don't allow this type in add_energyplus_output_request
             Workflow.logger.info 'Adding SQL Output to IDF'
-            new_objects << '
-        Output:SQLite,
-        SimpleAndTabular;         ! Option Type
-        '
+            object = OpenStudio::IdfObject.load('Output:SQLite,SimpleAndTabular;').get
+            idf.addObjects(object)
+          end
+          
+          # merge in monthly reports
+          EnergyPlus.monthly_report_idf_text.split(/^[\s]*$/).each do |object|
+            object = object.strip
+            next if object.empty?
+            
+            new_objects << object
           end
 
-          if needs_monthlyoutput
-            begin
-              # TODO: Make this better. Nobody wants the gem version in the path
-              monthly_report_idf_text = EmbeddedScripting::getFileAsString(':/openstudio-workflow-1.0.0.alpha.0/lib/openstudio/workflow/jobs/resources/monthly_report.idf')
-              idf_file = OpenStudio::IdfFile.load(monthly_report_idf_text, 'EnergyPlus'.to_IddFileType).get
-              idf.addObjects(idf_file.objects)
-            rescue
-              monthly_report_idf = File.join(File.dirname(__FILE__), '../jobs/resources/monthly_report.idf')
-              idf_file = OpenStudio::IdfFile.load(File.read(monthly_report_idf), 'EnergyPlus'.to_IddFileType).get
-              idf.addObjects(idf_file.objects)
-            end
-          end
-
-          # These are supposedly needed for the calibration report
+          # These are needed for the calibration report
           new_objects << 'Output:Meter:MeterFileOnly,Gas:Facility,Daily;'
           new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Timestep;'
           new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Daily;'
@@ -223,13 +198,358 @@ module OpenStudio
 
           new_objects.each do |obj|
             object = OpenStudio::IdfObject.load(obj).get
-            idf.addObject(object)
+            OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object)
           end
+          
+          # this is a workaround for issue #1699 -- remove when 1699 is closed.
+          needs_hourly = true
+          needs_timestep = true
+          needs_daily = true
+          needs_monthy = true
+          idf.getObjectsByType("Output:Variable".to_IddObjectType).each do |object|
+            timestep = object.getString(2,true).get
+            if /Hourly/i.match(timestep)
+              needs_hourly = false
+            elsif /Timestep/i.match(timestep)
+              needs_timestep = false
+            elsif /Daily/i.match(timestep)
+              needs_daily = false
+            elsif /Monthly/i.match(timestep)
+              needs_monthy = false
+            end
+          end
+          
+          new_objects = []
+          new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;' if needs_hourly
+          new_objects << 'Output:Variable,*,Site Outdoor Air Wetbulb Temperature,Timestep;' if needs_timestep
+          new_objects << 'Output:Variable,*,Zone Air Relative Humidity,Daily;' if needs_daily
+          new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;' if needs_monthy
 
-          # save the file
-          File.open(idf_filename, 'w') { |f| f << idf.to_s }
-
+          new_objects.each do |obj|
+            object = OpenStudio::IdfObject.load(obj).get
+            OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object)
+          end          
+          
           Workflow.logger.info 'Finished EnergyPlus Preprocess'
+        end
+        
+        # examines object and determines whether or not to add it to the workspace
+        def self.add_energyplus_output_request(workspace, idf_object)
+
+          num_added = 0
+          idd_object = idf_object.iddObject
+         
+          allowed_objects = []
+          allowed_objects << "Output:Surfaces:List"
+          allowed_objects << "Output:Surfaces:Drawing"
+          allowed_objects << "Output:Schedules"
+          allowed_objects << "Output:Constructions"
+          allowed_objects << "Output:Table:TimeBins"
+          allowed_objects << "Output:Table:Monthly"
+          allowed_objects << "Output:Variable"
+          allowed_objects << "Output:Meter"
+          allowed_objects << "Output:Meter:MeterFileOnly"
+          allowed_objects << "Output:Meter:Cumulative"
+          allowed_objects << "Output:Meter:Cumulative:MeterFileOnly"
+          allowed_objects << "Meter:Custom"
+          allowed_objects << "Meter:CustomDecrement"
+          
+          if allowed_objects.include?(idd_object.name)
+            if !check_for_object(workspace, idf_object, idd_object.type)
+              workspace.addObject(idf_object)
+              num_added += 1
+            end
+          end
+          
+          allowed_unique_objects = []
+          #allowed_unique_objects << "Output:EnergyManagementSystem" # TODO: have to merge
+          #allowed_unique_objects << "OutputControl:SurfaceColorScheme" # TODO: have to merge
+          allowed_unique_objects << "Output:Table:SummaryReports" # TODO: have to merge
+          # OutputControl:Table:Style # not allowed
+          # OutputControl:ReportingTolerances # not allowed
+          # Output:SQLite # not allowed
+         
+          if allowed_unique_objects.include?(idf_object.iddObject.name)
+            if idf_object.iddObject.name == "Output:Table:SummaryReports"
+              summary_reports = workspace.getObjectsByType(idf_object.iddObject.type)
+              if summary_reports.empty?
+                workspace.addObject(idf_object)
+                num_added += 1
+              else 
+                merge_output_table_summary_reports(summary_reports[0], idf_object)
+              end
+            end
+          end
+          
+          return num_added
+        end
+        
+        private
+        
+        # check to see if we have an exact match for this object already
+        def self.check_for_object(workspace, idf_object, idd_object_type)
+          workspace.getObjectsByType(idd_object_type).each do |object|
+            # all of these objects fields are data fields
+            if idf_object.dataFieldsEqual(object)
+              return true
+            end
+          end
+          return false
+        end
+        
+        # merge all summary reports that are not in the current workspace
+        def self.merge_output_table_summary_reports(current_object, new_object)
+        
+          current_fields = []
+          current_object.extensibleGroups.each do |current_extensible_group|
+            current_fields << current_extensible_group.getString(0).to_s
+          end
+              
+          fields_to_add = []
+          new_object.extensibleGroups.each do |new_extensible_group|
+            field = new_extensible_group.getString(0).to_s
+            if !current_fields.include?(field)
+              current_fields << field
+              fields_to_add << field
+            end
+          end
+          
+          if !fields_to_add.empty?
+            fields_to_add.each do |field|
+              values = OpenStudio::StringVector.new
+              values << field
+              current_object.pushExtensibleGroup(values)
+            end
+            return true
+          end
+          
+          return false
+        end
+        
+        def self.monthly_report_idf_text 
+<<-HEREDOC
+Output:Table:Monthly,
+  Building Energy Performance - Electricity,  !- Name
+    2,                       !- Digits After Decimal
+    InteriorLights:Electricity,  !- Variable or Meter 1 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:Electricity,  !- Variable or Meter 2 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:Electricity,  !- Variable or Meter 3 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:Electricity,  !- Variable or Meter 4 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 4
+    Fans:Electricity,        !- Variable or Meter 5 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 5
+    Pumps:Electricity,       !- Variable or Meter 6 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 6
+    Heating:Electricity,     !- Variable or Meter 7 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 7
+    Cooling:Electricity,     !- Variable or Meter 8 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 8
+    HeatRejection:Electricity,  !- Variable or Meter 9 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 9
+    Humidifier:Electricity,  !- Variable or Meter 10 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:Electricity,!- Variable or Meter 11 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 11
+    WaterSystems:Electricity,!- Variable or Meter 12 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 12
+    Cogeneration:Electricity,!- Variable or Meter 13 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 13
+    Refrigeration:Electricity,!- Variable or Meter 14 Name
+    SumOrAverage;            !- Aggregation Type for Variable or Meter 14
+
+Output:Table:Monthly,
+  Building Energy Performance - Natural Gas,  !- Name
+    2,                       !- Digits After Decimal
+    InteriorEquipment:Gas,   !- Variable or Meter 1 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 1
+    ExteriorEquipment:Gas,   !- Variable or Meter 2 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 2
+    Heating:Gas,             !- Variable or Meter 3 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 3
+    Cooling:Gas,             !- Variable or Meter 4 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 4
+    WaterSystems:Gas,        !- Variable or Meter 5 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 5
+    Cogeneration:Gas,        !- Variable or Meter 6 Name
+    SumOrAverage;            !- Aggregation Type for Variable or Meter 6
+
+Output:Table:Monthly,
+  Building Energy Performance - District Heating,  !- Name
+    2,                       !- Digits After Decimal
+    InteriorLights:DistrictHeating,  !- Variable or Meter 1 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:DistrictHeating,  !- Variable or Meter 2 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:DistrictHeating,  !- Variable or Meter 3 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:DistrictHeating,  !- Variable or Meter 4 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 4
+    Fans:DistrictHeating,        !- Variable or Meter 5 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 5
+    Pumps:DistrictHeating,       !- Variable or Meter 6 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 6
+    Heating:DistrictHeating,     !- Variable or Meter 7 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 7
+    Cooling:DistrictHeating,     !- Variable or Meter 8 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 8
+    HeatRejection:DistrictHeating,  !- Variable or Meter 9 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 9
+    Humidifier:DistrictHeating,  !- Variable or Meter 10 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:DistrictHeating,!- Variable or Meter 11 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 11
+    WaterSystems:DistrictHeating,!- Variable or Meter 12 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 12
+    Cogeneration:DistrictHeating,!- Variable or Meter 13 Name
+    SumOrAverage;            !- Aggregation Type for Variable or Meter 13
+
+Output:Table:Monthly,
+  Building Energy Performance - District Cooling,  !- Name
+    2,                       !- Digits After Decimal
+    InteriorLights:DistrictCooling,  !- Variable or Meter 1 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:DistrictCooling,  !- Variable or Meter 2 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:DistrictCooling,  !- Variable or Meter 3 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:DistrictCooling,  !- Variable or Meter 4 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 4
+    Fans:DistrictCooling,        !- Variable or Meter 5 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 5
+    Pumps:DistrictCooling,       !- Variable or Meter 6 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 6
+    Heating:DistrictCooling,     !- Variable or Meter 7 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 7
+    Cooling:DistrictCooling,     !- Variable or Meter 8 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 8
+    HeatRejection:DistrictCooling,  !- Variable or Meter 9 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 9
+    Humidifier:DistrictCooling,  !- Variable or Meter 10 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:DistrictCooling,!- Variable or Meter 11 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 11
+    WaterSystems:DistrictCooling,!- Variable or Meter 12 Name
+    SumOrAverage,            !- Aggregation Type for Variable or Meter 12
+    Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
+    SumOrAverage;            !- Aggregation Type for Variable or Meter 13
+
+Output:Table:Monthly,
+  Building Energy Performance - Electricity Peak Demand,  !- Name
+    2,                       !- Digits After Decimal
+    Electricity:Facility,  !- Variable or Meter 1 Name
+    Maximum,            !- Aggregation Type for Variable or Meter 1
+    InteriorLights:Electricity,  !- Variable or Meter 1 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:Electricity,  !- Variable or Meter 2 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:Electricity,  !- Variable or Meter 3 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:Electricity,  !- Variable or Meter 4 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
+    Fans:Electricity,        !- Variable or Meter 5 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
+    Pumps:Electricity,       !- Variable or Meter 6 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
+    Heating:Electricity,     !- Variable or Meter 7 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
+    Cooling:Electricity,     !- Variable or Meter 8 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
+    HeatRejection:Electricity,  !- Variable or Meter 9 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
+    Humidifier:Electricity,  !- Variable or Meter 10 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:Electricity,!- Variable or Meter 11 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
+    WaterSystems:Electricity,!- Variable or Meter 12 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
+    Cogeneration:Electricity,!- Variable or Meter 13 Name
+    ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+
+Output:Table:Monthly,
+  Building Energy Performance - Natural Gas Peak Demand,  !- Name
+    2,                       !- Digits After Decimal
+    Gas:Facility,  !- Variable or Meter 1 Name
+    Maximum,            !- Aggregation Type for Variable or Meter 1
+    InteriorEquipment:Gas,   !- Variable or Meter 1 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
+    ExteriorEquipment:Gas,   !- Variable or Meter 2 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
+    Heating:Gas,             !- Variable or Meter 3 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
+    Cooling:Gas,             !- Variable or Meter 4 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
+    WaterSystems:Gas,        !- Variable or Meter 5 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
+    Cogeneration:Gas,        !- Variable or Meter 6 Name
+    ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 6
+
+Output:Table:Monthly,
+  Building Energy Performance - District Heating Peak Demand,  !- Name
+    2,                       !- Digits After Decimal
+    DistrictHeating:Facility,  !- Variable or Meter 1 Name
+    Maximum,            !- Aggregation Type for Variable or Meter 1
+    InteriorLights:DistrictHeating,  !- Variable or Meter 1 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:DistrictHeating,  !- Variable or Meter 2 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:DistrictHeating,  !- Variable or Meter 3 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:DistrictHeating,  !- Variable or Meter 4 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
+    Fans:DistrictHeating,        !- Variable or Meter 5 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
+    Pumps:DistrictHeating,       !- Variable or Meter 6 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
+    Heating:DistrictHeating,     !- Variable or Meter 7 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
+    Cooling:DistrictHeating,     !- Variable or Meter 8 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
+    HeatRejection:DistrictHeating,  !- Variable or Meter 9 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
+    Humidifier:DistrictHeating,  !- Variable or Meter 10 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:DistrictHeating,!- Variable or Meter 11 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
+    WaterSystems:DistrictHeating,!- Variable or Meter 12 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
+    Cogeneration:DistrictHeating,!- Variable or Meter 13 Name
+    ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+
+Output:Table:Monthly,
+  Building Energy Performance - District Cooling Peak Demand,  !- Name
+    2,                       !- Digits After Decimal
+    DistrictCooling:Facility,  !- Variable or Meter 1 Name
+    Maximum,            !- Aggregation Type for Variable or Meter 1
+    InteriorLights:DistrictCooling,  !- Variable or Meter 1 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:DistrictCooling,  !- Variable or Meter 2 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:DistrictCooling,  !- Variable or Meter 3 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:DistrictCooling,  !- Variable or Meter 4 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
+    Fans:DistrictCooling,        !- Variable or Meter 5 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
+    Pumps:DistrictCooling,       !- Variable or Meter 6 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
+    Heating:DistrictCooling,     !- Variable or Meter 7 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
+    Cooling:DistrictCooling,     !- Variable or Meter 8 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
+    HeatRejection:DistrictCooling,  !- Variable or Meter 9 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
+    Humidifier:DistrictCooling,  !- Variable or Meter 10 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:DistrictCooling,!- Variable or Meter 11 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
+    WaterSystems:DistrictCooling,!- Variable or Meter 12 Name
+    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
+    Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
+    ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+ HEREDOC
         end
       end
     end

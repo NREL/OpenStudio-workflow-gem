@@ -20,7 +20,6 @@
 require 'fileutils'
 require 'json'
 require 'pathname'
-require 'zip'
 
 require_relative 'openstudio/workflow/version'
 require_relative 'openstudio/workflow/multi_delegator'

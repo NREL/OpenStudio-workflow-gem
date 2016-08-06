@@ -73,6 +73,16 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
   end
   
+  it 'should run OSW file with handle arguments' do
+    osw_path = File.join(__FILE__, './../../../files/handle_args_osw/handle_args.osw')
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+  end
+  
   it 'should run OSW with output requests file' do
     osw_path = File.join(__FILE__, './../../../files/output_request_osw/output_request.osw')
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')

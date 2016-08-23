@@ -39,6 +39,53 @@ class Optional_Shim
   end  
 end
 
+class String
+  def to_StepResult
+    self
+  end
+  def to_VariantType
+    self
+  end
+end
+
+# WorkflowStepResultValue_Shim provides a shim interface to the WorkflowStepResultValue class in OpenStudio 2.X when running in OpenStudio 1.X
+class WorkflowStepResultValue_Shim
+  
+  def initialize(name, value, type)
+    @name = name
+    @value = value
+    @type = type
+  end
+  
+  def name
+    @name
+  end
+  
+  def value
+    @value
+  end
+  
+  def variantType
+    @type
+  end
+  
+  def valueAsString
+    @value.to_s
+  end
+  
+  def valueAsDouble
+    @value.to_f
+  end
+  
+  def valueAsInteger
+    @value.to_i
+  end
+  
+  def valueAsBoolean
+    @value
+  end
+end
+
 # WorkflowStepResult_Shim provides a shim interface to the WorkflowStepResult class in OpenStudio 2.X when running in OpenStudio 1.X
 class WorkflowStepResult_Shim
   
@@ -46,10 +93,30 @@ class WorkflowStepResult_Shim
     @result = result
   end
   
-  def result
-    @result
+  def stepErrors
+    return @result[:step_errors]
   end
-
+  
+  def stepWarnings
+    return @result[:step_warnings]
+  end
+  
+  def stepInfo
+    return @result[:step_info]
+  end
+  
+  def stepValues
+    result = []
+    @result[:step_values].each do |step_value|
+      result << WorkflowStepResultValue_Shim.new(step_value[:name], step_value[:value], step_value[:type])
+    end
+    return result
+  end
+  
+  def stepResult
+    Optional_Shim.new(@result[:step_result])
+  end
+  
 end
 
 # WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X

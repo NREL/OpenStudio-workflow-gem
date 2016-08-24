@@ -6,16 +6,30 @@ SimpleCov.start do
   add_filter 'spec/files'
 end
 
-# for testing with OpenStudio 1.X
-#$LOAD_PATH.unshift('E:\openstudio\build\OSCore-prefix\src\OSCore-build\ruby\Debug')
+developer_os_version = 0
 
-# for testing with OpenStudio 2.X
-$LOAD_PATH.unshift('E:\openstudio-2-0\build\OSCore-prefix\src\OSCore-build\ruby\Debug')
+if developer_os_version == 0
+  # use system libs
+elsif developer_os_version == 1
+  # for testing with OpenStudio 1.X
+  os_dir = 'E:/openstudio/build/OSCore-prefix/src/OSCore-build/ruby/Debug'
+  $LOAD_PATH.reject! {|p| /site_ruby$/.match(p) }
+  $LOAD_PATH.unshift(os_dir)
+elsif developer_os_version == 2
+  # for testing with OpenStudio 2.X
+  os_dir = 'E:/openstudio-2-0d/core-build/Products/Debug'
+  $LOAD_PATH.reject! {|p| /site_ruby$/.match(p) }
+  old_dir = Dir.pwd
+  Dir.chdir(os_dir)
+  $LOAD_PATH.unshift(os_dir)
+  require('openstudio')
+  Dir.chdir(old_dir)
+end
 
 # for all testing
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-
+  
 require 'rspec'
 require 'openstudio-workflow'
 

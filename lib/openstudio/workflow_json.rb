@@ -39,12 +39,19 @@ class Optional_Shim
   end  
 end
 
-class String
-  def to_StepResult
-    self
+s = ""
+if !s.respond_to?(:to_StepResult)
+  class String
+    def to_StepResult
+      self
+    end
   end
-  def to_VariantType
-    self
+end
+if !s.respond_to?(:to_VariantType)
+  class String
+    def to_VariantType
+      self
+    end
   end
 end
 

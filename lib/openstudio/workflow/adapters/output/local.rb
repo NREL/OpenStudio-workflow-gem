@@ -49,8 +49,14 @@ module OpenStudio
 
         # Do nothing on a state transition
         #
-        def communicate_transition(_=nil, _=nil) end
-
+        def communicate_transition(_=nil, _=nil, _=nil) 
+        end
+        
+        # Do nothing on EnergyPlus stdout
+        #
+        def communicate_energyplus_stdout(_=nil, _=nil)
+        end
+      
         # Write the measure attributes to the filesystem
         #
         def communicate_measure_attributes(measure_attributes, _=nil)

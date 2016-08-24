@@ -145,4 +145,41 @@ describe 'OSW Integration' do
     end
     
   end
+  
+  it 'should run OSW file with web adapter' do
+  
+    require 'openstudio/workflow/adapters/output/web'
+    
+    osw_path = File.join(__FILE__, './../../../files/web_osw/web.osw')
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    run_dir = File.join(File.dirname(osw_path), 'run')
+    
+    FileUtils.rm_rf(osw_out_path) if File.exists?(osw_out_path)
+    expect(File.exists?(osw_out_path)).to eq false
+    
+    output_adapter = OpenStudio::Workflow::OutputAdapter::Web.new({output_directory: run_dir, url: "http://www.example.com"})
+    
+    run_options = {
+        debug: true,
+        output_adapter: output_adapter
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+    
+    expect(File.exists?(osw_out_path)).to eq true
+    
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, :symbolize_names => true)
+    end
+    
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq "Success"
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    osw_out[:steps].each do |step|
+      expect(step[:result]).to_not be_nil
+    end
+  end
 end

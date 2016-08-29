@@ -183,7 +183,7 @@ module OpenStudio
           Workflow.logger.info 'Workflow complete'
           
           if @current_state == :errored
-            @registry[:workflow_json].setCompletedStatus('Fail')
+            @registry[:workflow_json].setCompletedStatus('Fail') if @registry[:workflow_json]
           else
             @registry[:workflow_json].setCompletedStatus('Success')
           end
@@ -224,6 +224,8 @@ module OpenStudio
         end
         next_state
       rescue => e
+        step_error("#{e.message}:#{e.backtrace.join("\n")}")
+      rescue LoadError => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
       end
 

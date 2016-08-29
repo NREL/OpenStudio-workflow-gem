@@ -43,7 +43,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
       @logger.warn "Using weather file defined in options: #{@options[:simulation_weather_file]}"
       FileUtils.copy(@options[:simulation_weather_file], "#{@registry[:run_dir]}/in.epw")
     else
-      fail "EPW file not found or not sent to #{self.class}"
+      @logger.warn "EPW file not found or not sent to #{self.class}"
     end
     
     # save the pre-preprocess file

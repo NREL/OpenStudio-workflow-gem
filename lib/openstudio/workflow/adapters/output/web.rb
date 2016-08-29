@@ -17,40 +17,45 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-relative 'openstudio/workflow/adapters/output_adapter'
+require_relative 'local'
 
 # Local file based workflow
 module OpenStudio
   module Workflow
-    module Adapters
-      class Web < OutputAdapter
+    module OutputAdapter
+      class Web < Local
         def initialize(options = {})
           super
+          fail 'The required :url option was not passed to the web output adapter' unless options[:url]
         end
 
         def communicate_started
-
+          super
         end
 
         def communicate_results(directory, results)
-
+          super
         end
 
         def communicate_complete
-
+          super
         end
 
         def communicate_failure
-
+          super
         end
 
         def communicate_objective_function(objectives, options = {})
-
+          super
         end
 
         def communicate_transition(message, type, options = {})
-
+          super
         end
+        
+        def communicate_energyplus_stdout(line, options = {})
+          super
+        end        
       end
     end
   end

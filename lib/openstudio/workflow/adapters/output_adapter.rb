@@ -21,7 +21,6 @@ module OpenStudio
   module Workflow
 
     # Base class for all output adapters. These methods define the expected return behavior of the adapter instance
-    # @todo (rhorsey, macumber) remove the RubyZip dependency and replace with OS Zip
     class OutputAdapters
       attr_accessor :options
 
@@ -36,7 +35,11 @@ module OpenStudio
       def communicate_transition(message, type, options = {})
         instance.communicate_transition message, type, options
       end
-
+      
+      def communicate_energyplus_stdout(line, options = {})
+        instance.communicate_energyplus_stdout line, options
+      end
+      
       def communicate_measure_attributes(measure_attributes, options = {})
         instance.communicate_measure_attributes measure_attributes, options
       end

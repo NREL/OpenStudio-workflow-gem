@@ -370,18 +370,16 @@ module OpenStudio
                 return 
               end
 
+              result = nil
               begin
+                
                 result = runner.result
                 
                 # incrementStep must be called after run
                 runner.incrementStep
 
-                errors = []
-                if registry[:openstudio_2]
-                  errors = result.stepErrors
-                else
-                  errors = result.errors
-                end
+                errors = result.stepErrors
+
                 fail "Measure #{measure_dir_name} reported an error, check log" if errors.size != 0
                 logger.debug "Running of measure '#{measure_dir_name}' completed. Post-processing measure output"
                 
@@ -401,18 +399,49 @@ module OpenStudio
                 raise log_message
               end
 
-              # TODO: figure out what this is used for, should be able to get this from runner.previousResults
-              #begin
-              #  measure_attributes = JSON.parse(OpenStudio.toJSON(result.attributes), symbolize_names: true)
-              #  output_attributes[measure_name.to_sym] = measure_attributes[:attributes]
-              #
-              #  # Add an applicability flag to all the measure results
-              #  output_attributes[measure_name.to_sym][:applicable] = result.value.value != -1
-              #  registry.register(:output_attributes) { output_attributes }
-              #rescue => e
-              #  log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-              #  logger.error log_message
-              #end
+              # DLM: this section creates the measure_attributes.json file which should be deprecated
+              begin
+                # DLM: which name do we want?
+                measure_name = class_name
+                #measure_name = measure_dir_name
+                
+                # DLM: do measure results from sequential measures with the same name clobber each other?
+                output_attributes[measure_name.to_sym] = {} if output_attributes[measure_name.to_sym].nil?
+                
+                result.stepValues.each do |step_value|
+                  step_value_name = step_value.name
+                  step_value_type = step_value.variantType
+                
+                  value = nil
+                  if (step_value_type == "String".to_VariantType)
+                    value = step_value.valueAsString
+                  elsif (step_value_type == "Double".to_VariantType)
+                    value = step_value.valueAsDouble
+                  elsif (step_value_type == "Integer".to_VariantType)
+                    value = step_value.valueAsInteger
+                  elsif (step_value_type == "Boolean".to_VariantType)
+                    value = step_value.valueAsBoolean
+                  end
+    
+                  output_attributes[measure_name.to_sym][step_value_name] = value
+                end
+              
+                # Add an applicability flag to all the measure results
+                step_result = result.stepResult
+                fail "Step Result not set" if step_result.empty?
+                step_result = step_result.get
+                
+                if (step_result == "Skip".to_StepResult) || (step_result == "NA".to_StepResult)
+                  output_attributes[measure_name.to_sym][:applicable] = false
+                else
+                  output_attributes[measure_name.to_sym][:applicable] = true
+                end
+                registry.register(:output_attributes) { output_attributes }
+              rescue => e
+                log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+                logger.error log_message
+                raise log_message
+              end
               
             end
             

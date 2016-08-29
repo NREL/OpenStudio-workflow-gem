@@ -37,7 +37,7 @@ class RunEnergyPlus < OpenStudio::Workflow::Job
 
     @logger.info 'Starting the EnergyPlus simulation'
     @registry[:time_logger].start('Running EnergyPlus') if @registry[:time_logger]
-    call_energyplus(@registry[:run_dir], ep_path)
+    call_energyplus(@registry[:run_dir], ep_path, @output_adapter)
     @registry[:time_logger].stop('Running EnergyPlus') if @registry[:time_logger]
     @logger.info 'Completed the EnergyPlus simulation'
 

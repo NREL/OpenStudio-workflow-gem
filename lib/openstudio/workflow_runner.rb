@@ -89,12 +89,11 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     super
   end
   
-  # incrementing step copies result to previous results
-  # void incrementStep();
-  def incrementStep
+  def result 
     if @openstudio_2
       super
     else
+      os_result = super
       
       current_step = @workflow.currentStep
       
@@ -102,18 +101,16 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
         fail "Cannot find current_step"
       end
       current_step = current_step.get
-
-      os_result = self.result
-      
+        
       if current_step.step[:result].nil?
-        # skipped
+        # skipped, prepareForUserScriptRun was not called
         current_step.step[:result] = {}
         current_step.step[:result][:started_at] = Time.now.utc
         current_step.step[:result][:step_result] = "Skip"
       else
         current_step.step[:result][:step_result] = os_result.value.valueName
       end      
-    
+      
       current_step.step[:result][:completed_at] = Time.now.utc
       
       # todo: restore stdout and stderr
@@ -129,7 +126,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       os_result.warnings.each do |warning|
         current_step.step[:result][:step_warnings] << warning.logMessage
       end
-      
+        
       current_step.step[:result][:step_info] = []
       os_result.info.each do |info|
         current_step.step[:result][:step_info] << info.logMessage
@@ -148,20 +145,33 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
         
         result = nil
         if attribute.valueType == "Boolean".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsBoolean}
+          result = {:name => attribute.name, :value => attribute.valueAsBoolean, :type => "Boolean"}
         elsif attribute.valueType == "Double".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsDouble}
+          result = {:name => attribute.name, :value => attribute.valueAsDouble, :type => "Double"}
         elsif attribute.valueType == "Integer".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsInteger}
+          result = {:name => attribute.name, :value => attribute.valueAsInteger, :type => "Integer"}
         elsif attribute.valueType == "Unsigned".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsUnsigned}
+          result = {:name => attribute.name, :value => attribute.valueAsUnsigned, :type => "Integer"}
         elsif attribute.valueType == "String".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsString}
+          result = {:name => attribute.name, :value => attribute.valueAsString, :type => "String"}
         end
 
         current_step.step[:result][:step_values] << result if not result.nil?
       end
       
+      return WorkflowStepResult_Shim.new(current_step.step[:result])
+    end
+  end
+  
+  # incrementing step copies result to previous results
+  # void incrementStep();
+  def incrementStep
+    if @openstudio_2
+      super
+    else
+      # compute result
+      current_result = result
+
       @workflow.incrementStep()    
     end
   end

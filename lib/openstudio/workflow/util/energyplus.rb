@@ -84,7 +84,7 @@ module OpenStudio
         #   OpenStudio package being used
         # @return [Void]
         #
-        def call_energyplus(run_directory, energyplus_path = nil)
+        def call_energyplus(run_directory, energyplus_path = nil, output_adapter = nil)
           begin
             current_dir = Dir.pwd
             energyplus_path ||= find_energyplus
@@ -116,6 +116,7 @@ module OpenStudio
               ::IO.popen(command) do |io|
                 while (line = io.gets)
                   file << line
+                  output_adapter.communicate_energyplus_stdout(line) if output_adapter
                 end
               end
             end

@@ -17,40 +17,53 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-require 'openstudio/workflow/adapters/output_adapter'
+require_relative 'local'
+require 'socket'
 
 # Local file based workflow
 module OpenStudio
   module Workflow
-    module Adapters
-      class Socket < OutputAdapter
+    module OutputAdapter
+      class Socket < Local
         def initialize(options = {})
           super
+          fail 'The required :port option was not passed to the socket output adapter' unless options[:port]
+          
+          @socket = TCPSocket.open 'localhost', options[:port]
         end
 
         def communicate_started
-
+          super
+          @socket.write("Started\n")
         end
 
         def communicate_results(directory, results)
-
+          super
         end
 
         def communicate_complete
-
+          super
+          @socket.write("Complete\n")
         end
 
         def communicate_failure
-
+          super
+          @socket.write("Failure\n")
         end
 
         def communicate_objective_function(objectives, options = {})
-
+          super
         end
 
         def communicate_transition(message, type, options = {})
-
+          super
+          @socket.write(message + "\n")
         end
+        
+        def communicate_energyplus_stdout(line, options = {})
+          super
+          @socket.write(line)
+        end        
       end
     end
   end

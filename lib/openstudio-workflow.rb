@@ -59,7 +59,6 @@ module OpenStudio
     # @param archive_filename [String] Path and name of the file to extract
     # @param destination [String] Path to extract to
     # @param overwrite [Boolean] If true, will overwrite any extracted file that may already exist
-    # @todo (rhorsey, macumber) Replace rubyzip with OS zip
     #
     def extract_archive(archive_filename, destination, overwrite = true)
       zf = OpenStudio::UnzipFile.new(archive_filename)

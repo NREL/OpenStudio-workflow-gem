@@ -178,6 +178,8 @@ module OpenStudio
           end
 
           Workflow.logger.info 'Finished workflow - communicating results and zipping files'
+        rescue => e
+          Workflow.logger.info "Error occurred during running with #{e.message}"
         ensure
           
           Workflow.logger.info 'Workflow complete'
@@ -224,8 +226,6 @@ module OpenStudio
         end
         next_state
       rescue => e
-        step_error("#{e.message}:#{e.backtrace.join("\n")}")
-      rescue LoadError => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
       end
 

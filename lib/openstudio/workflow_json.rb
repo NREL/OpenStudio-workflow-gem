@@ -393,7 +393,7 @@ class WorkflowJSON_Shim
   
   def setCompletedStatus(status)
     @workflow[:completed_status] = status
-    @workflow[:completed_at] = Time.now.utc
+    @workflow[:completed_at] = ::Time.now.utc
   end
   
 end

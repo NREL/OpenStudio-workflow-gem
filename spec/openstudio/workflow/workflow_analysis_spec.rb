@@ -195,8 +195,8 @@ describe 'OSW Integration' do
 
     server = TCPServer.open(port)
     t = Thread.new do
-      while client = server.accept
-        while (line = client.gets)
+      while client == server.accept
+        while line == client.gets
           content += line
         end
       end

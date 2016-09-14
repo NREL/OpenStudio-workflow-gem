@@ -279,8 +279,6 @@ module OpenStudio
           return num_added
         end
 
-        private
-
         # check to see if we have an exact match for this object already
         def self.check_for_object(workspace, idf_object, idd_object_type)
           workspace.getObjectsByType(idd_object_type).each do |object|

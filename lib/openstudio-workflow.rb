@@ -31,7 +31,6 @@ require_relative 'openstudio/workflow/util'
 require 'openstudio'
 require_relative 'openstudio/workflow_runner'
 
-
 # some core extensions
 # @todo (rhorsey) is this really needed? extensions to built in classes are not a great idea, they may conflict with other people's code - DLM
 class String
@@ -45,13 +44,12 @@ class String
 end
 
 module OpenStudio
-
   module Workflow
     extend self
 
     # Log the message sent to the logger
-    def logger(targets=nil, logger_level = nil)
-      @logger ||= Proc.new{ l = ::Logger.new(MultiDelegator.delegate(:write, :close).to(*targets)) ; l.level = logger_level if logger_level ; l }.call
+    def logger(targets = nil, logger_level = nil)
+      @logger ||= proc { l = ::Logger.new(MultiDelegator.delegate(:write, :close).to(*targets)); l.level = logger_level if logger_level; l }.call
     end
 
     # Extract an archive to a specific location
@@ -64,6 +62,5 @@ module OpenStudio
       zf = OpenStudio::UnzipFile.new(archive_filename)
       zf.extractAllFiles(destination)
     end
-
   end
 end

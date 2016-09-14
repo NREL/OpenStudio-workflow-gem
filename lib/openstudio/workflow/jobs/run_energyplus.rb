@@ -19,7 +19,6 @@
 
 # This class runs the EnergyPlus simulation
 class RunEnergyPlus < OpenStudio::Workflow::Job
-
   require 'openstudio/workflow/util/energyplus'
   include OpenStudio::Workflow::Util::EnergyPlus
 
@@ -30,9 +29,9 @@ class RunEnergyPlus < OpenStudio::Workflow::Job
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
 
-    #Checks and configuration
-    fail 'No run_dir specified in the registry' unless @registry[:run_dir]
-    @options[:energyplus_path] ? ep_path = @options[:energyplus_path] : ep_path = nil
+    # Checks and configuration
+    raise 'No run_dir specified in the registry' unless @registry[:run_dir]
+    ep_path = @options[:energyplus_path] ? @options[:energyplus_path] : nil
     @logger.warn "Using EnergyPlus path specified in options #{ep_path}" if ep_path
 
     @logger.info 'Starting the EnergyPlus simulation'

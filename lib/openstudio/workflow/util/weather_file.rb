@@ -1,12 +1,10 @@
 module OpenStudio
   module Workflow
     module Util
-
       # The current precedence rules for weather files are defined in this module. Best practice is to only use the
       #  #get_weather_file method, as it will be forward compatible
       #
       module WeatherFile
-
         # Returns the weather file with precedence
         #
         # @param [String] directory The directory to append all relative directories to, see #get_weather_file_from_fs
@@ -18,15 +16,15 @@ module OpenStudio
         # @return [String, nil] The weather file with precedence if defined, nil if not, and a failure if the wf is
         #   defined but not in the filesystem
         #
-        def get_weather_file(directory, wf, wf_search_array, model, logger=nil)
+        def get_weather_file(directory, wf, wf_search_array, model, logger = nil)
           # TODO: this logic needs some updating, weather file should come from current model, found using search paths
           logger ||= ::Logger.new(STDOUT) unless logger
           if wf
             weather_file = get_weather_file_from_fs(directory, wf, wf_search_array, logger)
-            fail 'Could not locate the weather file in the filesystem. Please see the log' if weather_file == false
+            raise 'Could not locate the weather file in the filesystem. Please see the log' if weather_file == false
           end
-          weather_file = get_weather_file_from_osm(model, logger) if weather_file == nil
-          fail 'Could not locate the weather file in the filesystem. Please see the log' if weather_file == false
+          weather_file = get_weather_file_from_osm(model, logger) if weather_file.nil?
+          raise 'Could not locate the weather file in the filesystem. Please see the log' if weather_file == false
           Workflow.logger.warn 'The weather file could not be determined. Please see the log for details' unless weather_file
           weather_file
         end
@@ -50,12 +48,12 @@ module OpenStudio
             logger.warn 'No weather file defined in the model'
           else
             p = model.weatherFile.get.path.get.to_s.gsub('file://', '')
-            if File.exist? p
-              wf = File.absolute_path(p)
-            else
-              # this is the weather file from the OSM model
-              wf = File.absolute_path(@model.weatherFile.get.path.get.to_s)
-            end
+            wf = if File.exist? p
+                   File.absolute_path(p)
+                 else
+                   # this is the weather file from the OSM model
+                   File.absolute_path(@model.weatherFile.get.path.get.to_s)
+                 end
             logger.info "The weather file path found in the model object: #{wf}"
             unless File.exist? wf
               logger.warn 'The weather file could not be found on the filesystem.'
@@ -79,14 +77,14 @@ module OpenStudio
         #   appended to the directory, with each entry in the array searched until the wf is found
         #
         def get_weather_file_from_fs(directory, wf, wf_search_array, logger)
-          fail "wf was defined as #{wf}. Please correct" unless wf
+          raise "wf was defined as #{wf}. Please correct" unless wf
           weather_file = nil
           if Pathname.new(wf).absolute?
             weather_file = wf
           else
             wf_search_array.each do |wf_dir|
-              logger.warn "The path #{wf_dir} does not exist" unless File.exists? File.join(directory, wf_dir)
-              next unless File.exists? File.join(directory, wf_dir)
+              logger.warn "The path #{wf_dir} does not exist" unless File.exist? File.join(directory, wf_dir)
+              next unless File.exist? File.join(directory, wf_dir)
               if Dir.entries(File.join(directory, wf_dir)).include? File.basename(wf)
                 weather_file = File.absolute_path(File.join(directory, wf_dir, wf))
                 break

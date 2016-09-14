@@ -1,24 +1,23 @@
 #!/usr/bin/env ruby
 
 ######################################################################
-#  Copyright (c) 2008-2016, Alliance for Sustainable Energy.  
+#  Copyright (c) 2008-2016, Alliance for Sustainable Energy.
 #  All rights reserved.
-#  
+#
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
 #  License as published by the Free Software Foundation; either
 #  version 2.1 of the License, or (at your option) any later version.
-#  
+#
 #  This library is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  Lesser General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
-
 
 Signal.trap('INT') { abort }
 
@@ -31,7 +30,6 @@ include OpenStudio::Workflow::Util::Directory
 
 $logger = Logger.new(STDOUT)
 $logger.level = Logger::WARN
-
 
 # This is the code chunk to allow for an embedded IRB shell. From Jason Roelofs, found on StackOverflow
 module IRB # :nodoc:
@@ -62,11 +60,11 @@ end
 # @param [String] message Message to output
 # @param [Hash] opts Options hash
 #
-def safe_puts(message=nil, opts=nil)
+def safe_puts(message = nil, opts = nil)
   message ||= ''
   opts = {
-      io: $stdout,
-      printer: :puts
+    io: $stdout,
+    printer: :puts
   }.merge(opts || {})
 
   begin
@@ -85,7 +83,7 @@ end
 # @param [Array, nil] argv The argv input to be parsed, defaults to $argv
 # @return[Array, nil] If this method returns `nil`, then you should assume that help was printed and parsing failed
 #
-def parse_options(opts=nil, argv=nil)
+def parse_options(opts = nil, argv = nil)
   # Creating a shallow copy of the arguments so the OptionParser
   # doesn't destroy the originals.
   argv ||= $argv.dup
@@ -147,21 +145,20 @@ end
 
 # This CLI class processes the input args and invokes the proper command class
 class CLI
-
   # This constant maps subcommands to classes in this CLI and stores meta-data on them
   COMMAND_LIST = {
-      run: [ Proc.new { ::Run }, {primary: true, working: true}],
-      apply_measure: [ Proc.new { ::ApplyMeasure }, {primary: true, working: false}],
-      gem_list: [ Proc.new { ::GemList }, {primary: true, working: true}],
-      gem_install: [ Proc.new { ::InstallGem }, {primary: false, working: true}],
-      measure: [ Proc.new { ::Measure }, {primary: true, working: false}],
-      e: [ Proc.new { ::ExecuteRubyScript }, {primary: false, working: true}],
-      i: [ Proc.new { ::InteractiveRubyShell }, {primary: false, working: true}],
-      openstudio_version: [ Proc.new { ::OpenStudioVersion }, {primary: true, working: true}],
-      energyplus_version: [ Proc.new { ::EnergyPlusVersion }, {primary: true, working: true}],
-      ruby_version: [ Proc.new { ::RubyVersion }, {primary: false, working: true}],
-      list_commands: [ Proc.new { ::ListCommands }, {primary: true, working: true}]
-  }
+    run: [proc { ::Run }, { primary: true, working: true }],
+    apply_measure: [proc { ::ApplyMeasure }, { primary: true, working: false }],
+    gem_list: [proc { ::GemList }, { primary: true, working: true }],
+    gem_install: [proc { ::InstallGem }, { primary: false, working: true }],
+    measure: [proc { ::Measure }, { primary: true, working: false }],
+    e: [proc { ::ExecuteRubyScript }, { primary: false, working: true }],
+    i: [proc { ::InteractiveRubyShell }, { primary: false, working: true }],
+    openstudio_version: [proc { ::OpenStudioVersion }, { primary: true, working: true }],
+    energyplus_version: [proc { ::EnergyPlusVersion }, { primary: true, working: true }],
+    ruby_version: [proc { ::RubyVersion }, { primary: false, working: true }],
+    list_commands: [proc { ::ListCommands }, { primary: true, working: true }]
+  }.freeze
 
   # This method instantiates the global variables $main_args, $sub_command, and $sub_args
   #
@@ -221,7 +218,7 @@ class CLI
   # @return [void]
   # @see #COMMAND_LIST #::ListCommands
   #
-  def help(list_all=false)
+  def help(list_all = false)
     opts = OptionParser.new do |o|
       o.banner = 'Usage: openstudio_cli [options] <command> [<args>]'
       o.separator ''
@@ -238,7 +235,7 @@ class CLI
       COMMAND_LIST.each do |key, data|
         # Skip non-primary commands. These only show up in extended
         # help output.
-        next unless data[1][:primary] unless list_all
+        next unless list_all || data[1][:primary]
 
         key           = key.to_s
         klass         = data[0].call
@@ -247,7 +244,7 @@ class CLI
       end
 
       commands.keys.sort.each do |key|
-        o.separator "     #{key.ljust(longest+2)} #{commands[key]}"
+        o.separator "     #{key.ljust(longest + 2)} #{commands[key]}"
       end
 
       o.separator ''
@@ -266,7 +263,6 @@ end
 
 # Class to execute part or all of an OSW workflow
 class Run
-
   # Provides text for the main help functionality
   def self.synopsis
     'Executes an OpenStudio Workflow file'
@@ -306,7 +302,7 @@ class Run
 
     # Parse the options
     argv = parse_options(opts, sub_argv)
-    return 0 if argv == nil
+    return 0 if argv.nil?
     unless argv == []
       $logger.error 'Extra arguments passed to the run command. Please refer to the help documentation.'
       return 1
@@ -322,11 +318,11 @@ class Run
     osw_path = File.absolute_path(File.join(Dir.pwd, osw_path)) unless Pathname.new(osw_path).absolute?
     $logger.debug "Path for the OSW: #{osw_path}"
 
-    adapter_options = {workflow_filename: File.basename(osw_path)}
+    adapter_options = { workflow_filename: File.basename(osw_path) }
     input_adapter = OpenStudio::Workflow.load_input_adapter 'local', adapter_options
     adapter_options[:output_directory] = input_adapter.run_directory File.dirname(osw_path)
     output_adapter = OpenStudio::Workflow.load_output_adapter 'local', adapter_options
-    run_options = options[:debug] ? {debug: true, cleanup: false} : {}
+    run_options = options[:debug] ? { debug: true, cleanup: false } : {}
     if options[:no_simulation]
       run_options[:jobs] = [
         { state: :queued, next_state: :initialization, options: { initial: true } },
@@ -368,7 +364,6 @@ end
 # Class to apply an OpenStudio, EnergyPlus, or Reporting measure
 # @abstract
 class ApplyMeasure
-  
   # Provides text for the main help functionality
   def self.synopsis
     'Applies an OpenStudio, EnergyPlus, or Reporting measure'
@@ -404,7 +399,6 @@ end
 
 # Class to list the gems used by the CLI
 class GemList
-
   # Provides text for the main help functionality
   def self.synopsis
     'Lists the set gems available to openstudio_cli'
@@ -442,7 +436,6 @@ end
 
 # Class to install gems using the RubyGems functionality
 class InstallGem
-    
   # Provides text for the main help functionality
   def self.synopsis
     'Installs a Gem using the embedded ruby'
@@ -484,7 +477,6 @@ end
 
 # Class to update measures and compute arguments
 class Measure
-
   # Provides text for the main help functionality
   def self.synopsis
     'Updates measures and compute arguments'
@@ -536,7 +528,6 @@ end
 
 # Class to execute a ruby script
 class ExecuteRubyScript
-    
   # Provides text for the main help functionality
   def self.synopsis
     'Executes a ruby file'
@@ -556,7 +547,7 @@ class ExecuteRubyScript
 
     # Parse the options
     argv = parse_options(opts, sub_argv)
-    return 0 if argv == nil
+    return 0 if argv.nil?
     return 1 unless argv
     $logger.debug("ExecuteRubyScript command: #{argv.inspect} #{options.inspect}")
     file_path = argv.shift.to_s
@@ -568,7 +559,7 @@ class ExecuteRubyScript
       return 1
     end
 
-    unless File.exists? file_path
+    unless File.exist? file_path
       $logger.error "Unable to find the file #{file_path} on the filesystem"
       return 1
     end
@@ -581,7 +572,6 @@ end
 
 # Class to put the user into an irb shell
 class InteractiveRubyShell
-    
   # Provides text for the main help functionality
   def self.synopsis
     'Provides an interactive ruby shell'
@@ -602,7 +592,7 @@ class InteractiveRubyShell
     # Parse the options
     argv = parse_options(opts, sub_argv)
     $logger.debug("InteractiveRubyShell command: #{argv.inspect} #{options.inspect}")
-    return 0 if argv == nil
+    return 0 if argv.nil?
 
     unless argv == []
       $logger.error 'Extra arguments passed to the i command.'
@@ -617,7 +607,6 @@ end
 
 # Class to return the packaged OpenStudio version
 class OpenStudioVersion
-    
   # Provides text for the main help functionality
   def self.synopsis
     'Returns the OpenStudio version used by the CLI'
@@ -638,7 +627,7 @@ class OpenStudioVersion
     # Parse the options
     argv = parse_options(opts, sub_argv)
     $logger.debug("OpenStudioVersion command: #{argv.inspect} #{options.inspect}")
-    return 0 if argv == nil
+    return 0 if argv.nil?
 
     unless argv == []
       $logger.error 'Extra arguments passed to the openstudio_version command.'
@@ -653,7 +642,6 @@ end
 
 # Class to return the EnergyPlus version
 class EnergyPlusVersion
-    
   # Provides text for the main help functionality
   def self.synopsis
     'Returns the EnergyPlus version used by the CLI'
@@ -674,7 +662,7 @@ class EnergyPlusVersion
     # Parse the options
     argv = parse_options(opts, sub_argv)
     $logger.debug("EnergyPlusVersion command: #{argv.inspect} #{options.inspect}")
-    return 0 if argv == nil
+    return 0 if argv.nil?
 
     unless argv == []
       $logger.error 'Arguments passed to the energyplus_version command.'
@@ -689,7 +677,6 @@ end
 
 # Class to return the ruby version used by the packaged CLI
 class RubyVersion
-    
   # Provides text for the main help functionality
   def self.synopsis
     'Returns the Ruby version used by the CLI'
@@ -710,7 +697,7 @@ class RubyVersion
     # Parse the options
     argv = parse_options(opts, sub_argv)
     $logger.debug("RubyVersion command: #{argv.inspect} #{options.inspect}")
-    return 0 if argv == nil
+    return 0 if argv.nil?
 
     unless argv == []
       $logger.error 'Arguments passed to the ruby_version command.'
@@ -725,7 +712,6 @@ end
 
 # Class to return the full set of possible commands for the CLI
 class ListCommands
-    
   # Provides text for the main help functionality
   def self.synopsis
     'Lists the entire set of available commands for openstudio_cli'
@@ -747,7 +733,7 @@ class ListCommands
     # Parse the options
     argv = parse_options(opts, sub_argv)
     $logger.debug("ListCommands command: #{argv.inspect} #{options.inspect}")
-    return 0 if argv == nil
+    return 0 if argv.nil?
 
     unless argv == []
       $logger.error 'Arguments passed to the list_commands command.'
@@ -788,7 +774,7 @@ end
 # @see http://rubygems.rubyforge.org/rubygems-update/Gem.html
 local_dir = ENV['OPENSTUDIO_GEM_PATH'] ? ENV['OPENSTUDIO_GEM_PATH'] : "~/OpenStudio/v#{OpenStudio.openStudioVersion}"
 local_dir = File.absolute_path(local_dir)
-ENV['GEM_PATH'] = OpenStudio::Workflow::Util::IO.is_windows? ? local_dir.gsub('/', '\\') : local_dir
+ENV['GEM_PATH'] = OpenStudio::Workflow::Util::IO.is_windows? ? local_dir.tr('/', '\\') : local_dir
 $logger.debug "Set environment variable GEM_PATH to #{ENV['GEM_PATH']}"
 ENV['GEM_HOME'] = OpenStudio::Workflow::Util::IO.is_windows? ? '\\' : '/'
 $logger.debug "Set environment variable GEM_HOME to #{ENV['GEM_HOME']}"

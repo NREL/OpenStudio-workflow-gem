@@ -41,6 +41,6 @@ class MultiDelegator
   end
 
   class <<self
-    alias_method :to, :new
+    alias to new
   end
 end

@@ -19,7 +19,6 @@
 
 # Run reporting measures and execute scripts to post-process objective functions and results on the filesystem
 class RunReportingMeasures < OpenStudio::Workflow::Job
-
   require 'csv'
   require 'ostruct'
   require 'openstudio/workflow/util'
@@ -49,14 +48,14 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
       osm_path = File.absolute_path(File.join(@registry[:run_dir], 'in.osm'))
       @logger.debug "Attempting to load #{osm_path}"
       @registry.register(:model) { load_osm('.', osm_path) }
-      fail "Unable to load #{osm_path}" unless @registry[:model]
+      raise "Unable to load #{osm_path}" unless @registry[:model]
       @logger.debug "Successfully loaded #{osm_path}"
     end
     if @options[:load_simulation_idf]
       idf_path = File.absolute_path(File.join(@registry[:run_dir], 'in.idf'))
       @logger.debug "Attempting to load #{idf_path}"
       @registry.register(:model_idf) { load_idf('.', idf_path) }
-      fail "Unable to load #{idf_path}" unless @registry[:model_idf]
+      raise "Unable to load #{idf_path}" unless @registry[:model_idf]
       @logger.debug "Successfully loaded #{idf_path}"
     end
     if @options[:load_simulation_sql]

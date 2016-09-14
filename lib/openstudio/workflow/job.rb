@@ -1,7 +1,6 @@
 module OpenStudio
   module Workflow
     class Job
-
       def initialize(input_adapter, output_adapter, registry, options = {})
         @options = options
         @input_adapter = input_adapter

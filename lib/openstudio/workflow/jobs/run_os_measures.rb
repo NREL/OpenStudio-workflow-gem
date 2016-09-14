@@ -19,7 +19,6 @@
 
 # Run any OpenStudio measures contained in the OSW
 class RunOpenStudioMeasures < OpenStudio::Workflow::Job
-
   # Mixin the required util modules
   require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::Measure
@@ -44,7 +43,7 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
     # Send the measure output attributes to the output adapter
     @logger.debug 'Communicating measure output attributes to the output adapter'
     @output_adapter.communicate_measure_attributes @registry[:output_attributes]
-    
+
     # save the final OSM
     save_osm(@registry[:model], @registry[:run_dir])
 

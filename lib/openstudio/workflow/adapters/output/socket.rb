@@ -27,8 +27,8 @@ module OpenStudio
       class Socket < Local
         def initialize(options = {})
           super
-          fail 'The required :port option was not passed to the socket output adapter' unless options[:port]
-          
+          raise 'The required :port option was not passed to the socket output adapter' unless options[:port]
+
           @socket = TCPSocket.open 'localhost', options[:port]
         end
 
@@ -59,11 +59,11 @@ module OpenStudio
           super
           @socket.write(message + "\n")
         end
-        
+
         def communicate_energyplus_stdout(line, options = {})
           super
           @socket.write(line)
-        end        
+        end
       end
     end
   end

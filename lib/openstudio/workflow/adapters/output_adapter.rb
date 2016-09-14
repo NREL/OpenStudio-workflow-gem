@@ -19,7 +19,6 @@
 
 module OpenStudio
   module Workflow
-
     # Base class for all output adapters. These methods define the expected return behavior of the adapter instance
     class OutputAdapters
       attr_accessor :options
@@ -35,11 +34,11 @@ module OpenStudio
       def communicate_transition(message, type, options = {})
         instance.communicate_transition message, type, options
       end
-      
+
       def communicate_energyplus_stdout(line, options = {})
         instance.communicate_energyplus_stdout line, options
       end
-      
+
       def communicate_measure_attributes(measure_attributes, options = {})
         instance.communicate_measure_attributes measure_attributes, options
       end
@@ -64,13 +63,12 @@ module OpenStudio
 
       # Zip up a folder and it's contents
       def zip_directory(directory, zip_filename, pattern = '*')
-        
         # Submethod for adding the directory to the zip folder.
         def add_directory_to_zip(zip_file, local_directory, root_directory)
-          Dir[File.join("#{local_directory}", '**', '**')].each do |file|
+          Dir[File.join(local_directory.to_s, '**', '**')].each do |file|
             # remove the base directory from the zip file
             rel_dir = local_directory.sub("#{root_directory}/", '')
-            zip_file_to_add = file.gsub("#{local_directory}", "#{rel_dir}")
+            zip_file_to_add = file.gsub(local_directory.to_s, rel_dir.to_s)
             if File.directory?(file)
               zip_file.addDirectory(file, zip_file_to_add)
             else
@@ -83,8 +81,8 @@ module OpenStudio
 
         FileUtils.rm_f(zip_filename) if File.exist?(zip_filename)
 
-        zf = OpenStudio::ZipFile.new(zip_filename, false) 
-        
+        zf = OpenStudio::ZipFile.new(zip_filename, false)
+
         Dir[File.join(directory, pattern)].each do |file|
           if File.directory?(file)
             # skip a few directory that should not be zipped as they are inputs
@@ -111,7 +109,7 @@ module OpenStudio
           end
         end
 
-        File.chmod(0664, zip_filename)
+        File.chmod(0o664, zip_filename)
       end
 
       # Main method to zip up the results of the simulation results. This will append the UUID of the data point

@@ -19,7 +19,6 @@
 
 # Run the initialization job to validate the directory and initialize the adapters.
 class RunTranslation < OpenStudio::Workflow::Job
-
   require 'openstudio/workflow/util/model'
   include OpenStudio::Workflow::Util::Model
 

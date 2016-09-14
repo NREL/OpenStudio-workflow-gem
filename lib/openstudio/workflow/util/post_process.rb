@@ -1,17 +1,15 @@
 module OpenStudio
   module Workflow
     module Util
-
       require 'openstudio/workflow/util/measure'
       require 'csv'
-      
+
       # This module serves as a wrapper around various post-processing tasks used to manage outputs
       # @todo (rhorsey) ummmm. So some of this is pretty ugly. Since @dmacumber had ideas about this maybe he can figure
       #   out what to do about it all
       # @todo (nlong) the output adapter restructure will frack up the extraction method royally
       #
       module PostProcess
-
         # This method loads a sql file into OpenStudio and returns it
         #
         # @param [String] sql_file Absolute path to the sql file to be loaded

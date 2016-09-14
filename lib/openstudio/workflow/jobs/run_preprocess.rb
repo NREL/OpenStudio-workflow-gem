@@ -19,7 +19,6 @@
 
 # Prepares the directory for the EnergyPlus simulation
 class RunPreprocess < OpenStudio::Workflow::Job
-
   require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::EnergyPlus
   include OpenStudio::Workflow::Util::Model
@@ -45,7 +44,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
     else
       @logger.warn "EPW file not found or not sent to #{self.class}"
     end
-    
+
     # save the pre-preprocess file
     File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') { |f| f << @registry[:model_idf].to_s }
 
@@ -55,16 +54,16 @@ class RunPreprocess < OpenStudio::Workflow::Job
     apply_measures('ReportingMeasure'.to_MeasureType, @registry, @options)
     @options[:energyplus_output_requests] = nil
     @logger.info('Finished collect output requests from Reporting measures.')
-    
+
     # Perform pre-processing on in.idf to capture logic in RunManager
     @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
     energyplus_preprocess(@registry[:model_idf])
     @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
-    @logger.info "Finished preprocess job for EnergyPlus simulation"
+    @logger.info 'Finished preprocess job for EnergyPlus simulation'
 
     # Save the model objects in the registry to the run directory
     if File.exist?("#{@registry[:run_dir]}/in.idf")
-      # DLM: why is this here?  
+      # DLM: why is this here?
       @logger.warn 'IDF (in.idf) already exists in the run directory. Will simulate using this file'
     else
       save_idf(@registry[:model_idf], @registry[:run_dir])

@@ -1,6 +1,6 @@
 require_relative './../../spec_helper'
 
-#describe 'Load the correct gems' do
+# describe 'Load the correct gems' do
 #
 #  it 'should find the `color_text` gem in the local_gem_exec workflow measure' do
 #
@@ -12,4 +12,4 @@ require_relative './../../spec_helper'
 #
 #    expect(res).to eq true
 #  end
-#end
+# end

@@ -13,7 +13,7 @@ class TimeLogger
   def start(channel)
     # warning -- "will reset timer for #{moniker}" if @monikers.key? moniker
     s = ::Time.now
-    @channels[channel] = { start_time_str: "#{s}", start_time: s.to_f }
+    @channels[channel] = { start_time_str: s.to_s, start_time: s.to_f }
   end
 
   def stop(channel)

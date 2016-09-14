@@ -1,17 +1,15 @@
 module OpenStudio
   module Workflow
     module Util
-
       # Manages routine tasks involving OpenStudio::Model or OpenStudio::Workflow objects, such as loading, saving, and
-      # translating them. 
+      # translating them.
       #
       module Model
-        
         # Method to create / load an OSM file
         #
         # @param [String] osm_path The full path to an OSM file to load
         # @param [Object] logger An optional logger to use for finding the OSM model
-        # @return [Object] The return from this method is a loaded OSM or a failure. 
+        # @return [Object] The return from this method is a loaded OSM or a failure.
         #
         def load_osm(osm_path, logger)
           logger.info 'Loading OSM model'
@@ -27,9 +25,9 @@ module OpenStudio
             # TODO: get translator working in embedded.
             # Need to embed idd files
             logger.warn 'OpenStudio VersionTranslator could not be loaded'
-            loaded_model = OpenStudio::Model::Model::load(osm_path)
+            loaded_model = OpenStudio::Model::Model.load(osm_path)
           end
-          fail "Failed to load OSM file #{osm_path}" if loaded_model.empty?
+          raise "Failed to load OSM file #{osm_path}" if loaded_model.empty?
           loaded_model.get
         end
 
@@ -44,9 +42,9 @@ module OpenStudio
 
           # Load the IDF into a workspace object and return it
           logger.info "Reading in IDF model #{idf_path}"
-          
+
           idf = OpenStudio::Workspace.load(idf_path).get
-          fail "Failed to load IDF file #{idf_path}" if idf.empty?
+          raise "Failed to load IDF file #{idf_path}" if idf.empty?
           idf.get
         end
 
@@ -57,7 +55,7 @@ module OpenStudio
         # @return [Object] Returns and OpenStudio::Workspace object
         # @todo (rhorsey) rescue errors here
         #
-        def translate_to_energyplus(model, logger=nil)
+        def translate_to_energyplus(model, logger = nil)
           logger = ::Logger.new(STDOUT) unless logger
           logger.info 'Translate object to EnergyPlus IDF in preparation for EnergyPlus'
           a = ::Time.now

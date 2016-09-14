@@ -19,7 +19,6 @@
 
 # This class runs all EnergyPlus measures defined in the OSW
 class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
-
   require 'openstudio/workflow/util'
   include OpenStudio::Workflow::Util::Measure
   include OpenStudio::Workflow::Util::Model

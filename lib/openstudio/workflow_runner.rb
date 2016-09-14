@@ -22,7 +22,6 @@ require_relative 'workflow_json'
 # Extend OS Runner to persist measure information throughout the workflow
 # Provide shims to support OpenStudio 2.X functionality in OpenStudio 1.X
 class WorkflowRunner < OpenStudio::Ruleset::OSRunner
-
   def initialize(multi_logger, workflow_json, openstudio_2)
     @multi_logger = multi_logger
     @workflow_json = workflow_json
@@ -31,16 +30,16 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     begin
       # OpenStudio 2.X
       super(@workflow_json)
-    rescue Exception => e 
+    rescue Exception => e
       # OpenStudio 1.X
       @workflow = workflow_json
-      @units_preference = "SI"
-      @language_preference = "EN"
+      @units_preference = 'SI'
+      @language_preference = 'EN'
       super()
     end
   end
-  
-  # Returns the workflow currently being run. New in OS 2.0. 
+
+  # Returns the workflow currently being run. New in OS 2.0.
   # WorkflowJSON workflow() const;
   def workflow
     if @openstudio_2
@@ -59,7 +58,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       @units_preference
     end
   end
-  
+
   # Returns preferred language, e.g. 'en' or 'fr'. New in OS 2.0. */
   # std::string languagePreference() const;
   def languagePreference
@@ -69,100 +68,98 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       @language_preference
     end
   end
-  
+
   # called right when each measure is run
   # only called in OpenStudio 1.X
   # virtual void prepareForUserScriptRun(const UserScript& userScript);
   def prepareForUserScriptRun(userScript)
-  
     current_step = @workflow.currentStep
-      
-    if !current_step.empty?
+
+    unless current_step.empty?
       current_step.get.step[:result] = {}
       current_step.get.step[:result][:started_at] = Time.now.utc
     end
-      
-    # todo: capture std out and err
 
-    # todo: get initial list of files
-    
+    # TODO: capture std out and err
+
+    # TODO: get initial list of files
+
     super
   end
-  
-  def result 
+
+  def result
     if @openstudio_2
       super
     else
       os_result = super
-      
+
       current_step = @workflow.currentStep
-      
+
       if current_step.empty?
-        fail "Cannot find current_step"
+        raise 'Cannot find current_step'
       end
       current_step = current_step.get
-        
+
       if current_step.step[:result].nil?
         # skipped, prepareForUserScriptRun was not called
         current_step.step[:result] = {}
         current_step.step[:result][:started_at] = Time.now.utc
-        current_step.step[:result][:step_result] = "Skip"
+        current_step.step[:result][:step_result] = 'Skip'
       else
         current_step.step[:result][:step_result] = os_result.value.valueName
-      end      
-      
-      current_step.step[:result][:completed_at] = Time.now.utc
-      
-      # todo: restore stdout and stderr
+      end
 
-      # todo: check for created files
+      current_step.step[:result][:completed_at] = Time.now.utc
+
+      # TODO: restore stdout and stderr
+
+      # TODO: check for created files
 
       current_step.step[:result][:step_errors] = []
       os_result.errors.each do |error|
         current_step.step[:result][:step_errors] << error.logMessage
       end
-      
+
       current_step.step[:result][:step_warnings] = []
       os_result.warnings.each do |warning|
         current_step.step[:result][:step_warnings] << warning.logMessage
       end
-        
+
       current_step.step[:result][:step_info] = []
       os_result.info.each do |info|
         current_step.step[:result][:step_info] << info.logMessage
       end
 
-      if !os_result.initialCondition.empty?
+      unless os_result.initialCondition.empty?
         current_step.step[:result][:initial_condition] = os_result.initialCondition.get.logMessage
       end
 
-      if !os_result.finalCondition.empty?
+      unless os_result.finalCondition.empty?
         current_step.step[:result][:final_condition] = os_result.finalCondition.get.logMessage
       end
 
       current_step.step[:result][:step_values] = []
       os_result.attributes.each do |attribute|
-        
         result = nil
-        if attribute.valueType == "Boolean".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsBoolean, :type => "Boolean"}
-        elsif attribute.valueType == "Double".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsDouble, :type => "Double"}
-        elsif attribute.valueType == "Integer".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsInteger, :type => "Integer"}
-        elsif attribute.valueType == "Unsigned".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsUnsigned, :type => "Integer"}
-        elsif attribute.valueType == "String".to_AttributeValueType
-          result = {:name => attribute.name, :value => attribute.valueAsString, :type => "String"}
+        if attribute.valueType == 'Boolean'.to_AttributeValueType
+          result = { name: attribute.name, value: attribute.valueAsBoolean, type: 'Boolean' }
+        elsif attribute.valueType == 'Double'.to_AttributeValueType
+          result = { name: attribute.name, value: attribute.valueAsDouble, type: 'Double' }
+        elsif attribute.valueType == 'Integer'.to_AttributeValueType
+          result = { name: attribute.name, value: attribute.valueAsInteger, type: 'Integer' }
+        elsif attribute.valueType == 'Unsigned'.to_AttributeValueType
+          result = { name: attribute.name, value: attribute.valueAsUnsigned, type: 'Integer' }
+        elsif attribute.valueType == 'String'.to_AttributeValueType
+          result = { name: attribute.name, value: attribute.valueAsString, type: 'String' }
         end
 
-        current_step.step[:result][:step_values] << result if not result.nil?
+        current_step.step[:result][:step_values] << result unless result.nil?
       end
-      
+
       return WorkflowStepResult_Shim.new(current_step.step[:result])
     end
   end
-  
+
   # incrementing step copies result to previous results
   # void incrementStep();
   def incrementStep
@@ -172,7 +169,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       # compute result
       current_result = result
 
-      @workflow.incrementStep()    
+      @workflow.incrementStep
     end
   end
 

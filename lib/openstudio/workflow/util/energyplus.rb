@@ -1,11 +1,9 @@
 module OpenStudio
   module Workflow
     module Util
-
       # The methods needed to run simulations using EnergyPlus are stored here. See the run_simulation class for
       #   implementation details.
       module EnergyPlus
-
         require 'openstudio/workflow/util/io'
         include OpenStudio::Workflow::Util::IO
         ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i
@@ -17,7 +15,7 @@ module OpenStudio
         #
         def find_energyplus
           path = OpenStudio.getEnergyPlusDirectory.to_s
-          fail 'Unable to find the EnergyPlus executable' unless File.exists? path
+          raise 'Unable to find the EnergyPlus executable' unless File.exist? path
           path
         end
 
@@ -67,9 +65,9 @@ module OpenStudio
             FileUtils.copy file, dest_file
           end
 
-          fail "Could not find EnergyPlus executable in #{energyplus_path}" unless energyplus_exe
-          fail "Could not find ExpandObjects executable in #{energyplus_path}" unless expand_objects_exe
-          
+          raise "Could not find EnergyPlus executable in #{energyplus_path}" unless energyplus_exe
+          raise "Could not find ExpandObjects executable in #{energyplus_path}" unless expand_objects_exe
+
           Workflow.logger.info "EnergyPlus executable path is #{energyplus_exe}"
           Workflow.logger.info "ExpandObjects executable path is #{expand_objects_exe}"
 
@@ -85,78 +83,75 @@ module OpenStudio
         # @return [Void]
         #
         def call_energyplus(run_directory, energyplus_path = nil, output_adapter = nil)
-          begin
-            current_dir = Dir.pwd
-            energyplus_path ||= find_energyplus
-            Workflow.logger.info "EnergyPlus path is #{energyplus_path}"
-            energyplus_files, energyplus_exe, expand_objects_exe = prepare_energyplus_dir(run_directory, energyplus_path)
-            Dir.chdir(run_directory)
-            Workflow.logger.info "Starting simulation in run directory: #{Dir.pwd}"
+          current_dir = Dir.pwd
+          energyplus_path ||= find_energyplus
+          Workflow.logger.info "EnergyPlus path is #{energyplus_path}"
+          energyplus_files, energyplus_exe, expand_objects_exe = prepare_energyplus_dir(run_directory, energyplus_path)
+          Dir.chdir(run_directory)
+          Workflow.logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
-            command = popen_command("./#{expand_objects_exe}")
-            Workflow.logger.info "Running command '#{command}'"
-            File.open('stdout-expandobject', 'w') do |file|
-              ::IO.popen(command) do |io|
-                while (line = io.gets)
-                  file << line
-                end
+          command = popen_command("./#{expand_objects_exe}")
+          Workflow.logger.info "Running command '#{command}'"
+          File.open('stdout-expandobject', 'w') do |file|
+            ::IO.popen(command) do |io|
+              while (line = io.gets)
+                file << line
               end
             end
-
-            # Check if expand objects did anything
-            if File.exist? 'expanded.idf'
-              FileUtils.mv('in.idf', 'pre-expand.idf', force: true) if File.exist?('in.idf')
-              FileUtils.mv('expanded.idf', 'in.idf', force: true)
-            end
-
-            # create stdout
-            command = popen_command("./#{energyplus_exe} 2>&1")
-            Workflow.logger.info "Running command '#{command}'"
-            File.open('stdout-energyplus', 'w') do |file|
-              ::IO.popen(command) do |io|
-                while (line = io.gets)
-                  file << line
-                  output_adapter.communicate_energyplus_stdout(line) if output_adapter
-                end
-              end
-            end
-            r = $?
-
-            Workflow.logger.info "EnergyPlus returned '#{r}'"
-            unless r == 0
-              Workflow.logger.warn 'EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log.'
-            end
-
-            if File.exist? 'eplusout.end'
-              f = File.read('eplusout.end').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
-              warnings_count = f[/(\d*).Warning/, 1]
-              error_count = f[/(\d*).Severe.Errors/, 1]
-              Workflow.logger.info "EnergyPlus finished with #{warnings_count} warnings and #{error_count} severe errors"
-              if f =~ /EnergyPlus Terminated--Fatal Error Detected/
-                fail 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
-              end
-            else
-              fail 'EnergyPlus failed and did not create an eplusout.end file. Check the stdout-energyplus log.'
-            end
-
-            if File.exist? 'eplusout.err'
-              eplus_err = File.read('eplusout.err').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
-              if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
-                fail 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
-              end
-            end
-          rescue => e
-            log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-            Workflow.logger.error log_message
-            raise log_message
-          ensure
-            Workflow.logger.info "Ensuring 'clean' directory"
-            clean_directory(run_directory, energyplus_files)
-
-            Dir.chdir(current_dir)
-            Workflow.logger.info 'EnergyPlus Completed'
           end
 
+          # Check if expand objects did anything
+          if File.exist? 'expanded.idf'
+            FileUtils.mv('in.idf', 'pre-expand.idf', force: true) if File.exist?('in.idf')
+            FileUtils.mv('expanded.idf', 'in.idf', force: true)
+          end
+
+          # create stdout
+          command = popen_command("./#{energyplus_exe} 2>&1")
+          Workflow.logger.info "Running command '#{command}'"
+          File.open('stdout-energyplus', 'w') do |file|
+            ::IO.popen(command) do |io|
+              while (line = io.gets)
+                file << line
+                output_adapter.communicate_energyplus_stdout(line) if output_adapter
+              end
+            end
+          end
+          r = $?
+
+          Workflow.logger.info "EnergyPlus returned '#{r}'"
+          unless r.to_i.zero?
+            Workflow.logger.warn 'EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log.'
+          end
+
+          if File.exist? 'eplusout.end'
+            f = File.read('eplusout.end').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
+            warnings_count = f[/(\d*).Warning/, 1]
+            error_count = f[/(\d*).Severe.Errors/, 1]
+            Workflow.logger.info "EnergyPlus finished with #{warnings_count} warnings and #{error_count} severe errors"
+            if f =~ /EnergyPlus Terminated--Fatal Error Detected/
+              raise 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
+            end
+          else
+            raise 'EnergyPlus failed and did not create an eplusout.end file. Check the stdout-energyplus log.'
+          end
+
+          if File.exist? 'eplusout.err'
+            eplus_err = File.read('eplusout.err').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
+            if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
+              raise 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
+            end
+          end
+        rescue => e
+          log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+          Workflow.logger.error log_message
+          raise log_message
+        ensure
+          Workflow.logger.info "Ensuring 'clean' directory"
+          clean_directory(run_directory, energyplus_files)
+
+          Dir.chdir(current_dir)
+          Workflow.logger.info 'EnergyPlus Completed'
         end
 
         # Run this code before running EnergyPlus to make sure the reporting variables are setup correctly
@@ -177,12 +172,12 @@ module OpenStudio
             object = OpenStudio::IdfObject.load('Output:SQLite,SimpleAndTabular;').get
             idf.addObjects(object)
           end
-          
+
           # merge in monthly reports
           EnergyPlus.monthly_report_idf_text.split(/^[\s]*$/).each do |object|
             object = object.strip
             next if object.empty?
-            
+
             new_objects << object
           end
 
@@ -201,25 +196,25 @@ module OpenStudio
             object = OpenStudio::IdfObject.load(obj).get
             OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object)
           end
-          
+
           # this is a workaround for issue #1699 -- remove when 1699 is closed.
           needs_hourly = true
           needs_timestep = true
           needs_daily = true
           needs_monthy = true
-          idf.getObjectsByType("Output:Variable".to_IddObjectType).each do |object|
-            timestep = object.getString(2,true).get
-            if /Hourly/i.match(timestep)
+          idf.getObjectsByType('Output:Variable'.to_IddObjectType).each do |object|
+            timestep = object.getString(2, true).get
+            if /Hourly/i =~ timestep
               needs_hourly = false
-            elsif /Timestep/i.match(timestep)
+            elsif /Timestep/i =~ timestep
               needs_timestep = false
-            elsif /Daily/i.match(timestep)
+            elsif /Daily/i =~ timestep
               needs_daily = false
-            elsif /Monthly/i.match(timestep)
+            elsif /Monthly/i =~ timestep
               needs_monthy = false
             end
           end
-          
+
           new_objects = []
           new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;' if needs_hourly
           new_objects << 'Output:Variable,*,Site Outdoor Air Wetbulb Temperature,Timestep;' if needs_timestep
@@ -229,64 +224,63 @@ module OpenStudio
           new_objects.each do |obj|
             object = OpenStudio::IdfObject.load(obj).get
             OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object)
-          end          
-          
+          end
+
           Workflow.logger.info 'Finished EnergyPlus Preprocess'
         end
-        
+
         # examines object and determines whether or not to add it to the workspace
         def self.add_energyplus_output_request(workspace, idf_object)
-
           num_added = 0
           idd_object = idf_object.iddObject
-         
+
           allowed_objects = []
-          allowed_objects << "Output:Surfaces:List"
-          allowed_objects << "Output:Surfaces:Drawing"
-          allowed_objects << "Output:Schedules"
-          allowed_objects << "Output:Constructions"
-          allowed_objects << "Output:Table:TimeBins"
-          allowed_objects << "Output:Table:Monthly"
-          allowed_objects << "Output:Variable"
-          allowed_objects << "Output:Meter"
-          allowed_objects << "Output:Meter:MeterFileOnly"
-          allowed_objects << "Output:Meter:Cumulative"
-          allowed_objects << "Output:Meter:Cumulative:MeterFileOnly"
-          allowed_objects << "Meter:Custom"
-          allowed_objects << "Meter:CustomDecrement"
-          
+          allowed_objects << 'Output:Surfaces:List'
+          allowed_objects << 'Output:Surfaces:Drawing'
+          allowed_objects << 'Output:Schedules'
+          allowed_objects << 'Output:Constructions'
+          allowed_objects << 'Output:Table:TimeBins'
+          allowed_objects << 'Output:Table:Monthly'
+          allowed_objects << 'Output:Variable'
+          allowed_objects << 'Output:Meter'
+          allowed_objects << 'Output:Meter:MeterFileOnly'
+          allowed_objects << 'Output:Meter:Cumulative'
+          allowed_objects << 'Output:Meter:Cumulative:MeterFileOnly'
+          allowed_objects << 'Meter:Custom'
+          allowed_objects << 'Meter:CustomDecrement'
+
           if allowed_objects.include?(idd_object.name)
-            if !check_for_object(workspace, idf_object, idd_object.type)
+            unless check_for_object(workspace, idf_object, idd_object.type)
               workspace.addObject(idf_object)
               num_added += 1
             end
           end
-          
+
           allowed_unique_objects = []
-          #allowed_unique_objects << "Output:EnergyManagementSystem" # TODO: have to merge
-          #allowed_unique_objects << "OutputControl:SurfaceColorScheme" # TODO: have to merge
-          allowed_unique_objects << "Output:Table:SummaryReports" # TODO: have to merge
+          # allowed_unique_objects << "Output:EnergyManagementSystem" # TODO: have to merge
+          # allowed_unique_objects << "OutputControl:SurfaceColorScheme" # TODO: have to merge
+          allowed_unique_objects << 'Output:Table:SummaryReports' # TODO: have to merge
           # OutputControl:Table:Style # not allowed
           # OutputControl:ReportingTolerances # not allowed
           # Output:SQLite # not allowed
-         
+
           if allowed_unique_objects.include?(idf_object.iddObject.name)
-            if idf_object.iddObject.name == "Output:Table:SummaryReports"
+            if idf_object.iddObject.name == 'Output:Table:SummaryReports'
               summary_reports = workspace.getObjectsByType(idf_object.iddObject.type)
               if summary_reports.empty?
                 workspace.addObject(idf_object)
                 num_added += 1
-              else 
+              else
                 merge_output_table_summary_reports(summary_reports[0], idf_object)
               end
             end
           end
-          
+
           return num_added
         end
-        
+
         private
-        
+
         # check to see if we have an exact match for this object already
         def self.check_for_object(workspace, idf_object, idd_object_type)
           workspace.getObjectsByType(idd_object_type).each do |object|
@@ -297,25 +291,24 @@ module OpenStudio
           end
           return false
         end
-        
+
         # merge all summary reports that are not in the current workspace
         def self.merge_output_table_summary_reports(current_object, new_object)
-        
           current_fields = []
           current_object.extensibleGroups.each do |current_extensible_group|
             current_fields << current_extensible_group.getString(0).to_s
           end
-              
+
           fields_to_add = []
           new_object.extensibleGroups.each do |new_extensible_group|
             field = new_extensible_group.getString(0).to_s
-            if !current_fields.include?(field)
+            unless current_fields.include?(field)
               current_fields << field
               fields_to_add << field
             end
           end
-          
-          if !fields_to_add.empty?
+
+          unless fields_to_add.empty?
             fields_to_add.each do |field|
               values = OpenStudio::StringVector.new
               values << field
@@ -323,12 +316,12 @@ module OpenStudio
             end
             return true
           end
-          
+
           return false
         end
-        
-        def self.monthly_report_idf_text 
-<<-HEREDOC
+
+        def self.monthly_report_idf_text
+          <<-HEREDOC
 Output:Table:Monthly,
   Building Energy Performance - Electricity,  !- Name
     2,                       !- Digits After Decimal

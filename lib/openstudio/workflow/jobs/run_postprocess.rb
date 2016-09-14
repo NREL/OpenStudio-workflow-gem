@@ -20,13 +20,12 @@
 # Clean up the run directory. Currently this class does nothing else, although eventually cleanup should become driven
 # and responsive to options
 class RunPostprocess < OpenStudio::Workflow::Job
-
   require 'openstudio/workflow/util/post_process'
   include OpenStudio::Workflow::Util::PostProcess
 
   def initialize(input_adapter, output_adapter, registry, options = {})
     defaults = {
-        cleanup: true
+      cleanup: true
     }
     options = defaults.merge(options)
     super
@@ -48,6 +47,4 @@ class RunPostprocess < OpenStudio::Workflow::Job
 
     nil
   end
-
-
 end

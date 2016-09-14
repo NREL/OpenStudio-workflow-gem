@@ -8,17 +8,17 @@ end
 
 developer_os_version = 0
 
-if developer_os_version == 0
+if developer_os_version.zero?
   # use system libs
 elsif developer_os_version == 1
   # for testing with OpenStudio 1.X
   os_dir = 'E:/openstudio/build/OSCore-prefix/src/OSCore-build/ruby/Debug'
-  $LOAD_PATH.reject! {|p| /site_ruby$/.match(p) }
+  $LOAD_PATH.reject! { |p| /site_ruby$/.match(p) }
   $LOAD_PATH.unshift(os_dir)
 elsif developer_os_version == 2
   # for testing with OpenStudio 2.X
   os_dir = 'E:/openstudio-2-0d/core-build/Products/Debug'
-  $LOAD_PATH.reject! {|p| /site_ruby$/.match(p) }
+  $LOAD_PATH.reject! { |p| /site_ruby$/.match(p) }
   old_dir = Dir.pwd
   Dir.chdir(os_dir)
   $LOAD_PATH.unshift(os_dir)
@@ -29,7 +29,7 @@ end
 # for all testing
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-  
+
 require 'rspec'
 require 'openstudio-workflow'
 

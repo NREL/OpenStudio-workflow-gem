@@ -25,7 +25,7 @@ module OpenStudio
     module OutputAdapter
       class Local < OutputAdapters
         def initialize(options = {})
-          fail 'The required :output_directory option was not passed to the local output adapter' unless options[:output_directory]
+          raise 'The required :output_directory option was not passed to the local output adapter' unless options[:output_directory]
           super
         end
 
@@ -49,17 +49,17 @@ module OpenStudio
 
         # Do nothing on a state transition
         #
-        def communicate_transition(_=nil, _=nil, _=nil) 
+        def communicate_transition(_ = nil, _ = nil, _ = nil)
         end
-        
+
         # Do nothing on EnergyPlus stdout
         #
-        def communicate_energyplus_stdout(_=nil, _=nil)
+        def communicate_energyplus_stdout(_ = nil, _ = nil)
         end
-      
+
         # Write the measure attributes to the filesystem
         #
-        def communicate_measure_attributes(measure_attributes, _=nil)
+        def communicate_measure_attributes(measure_attributes, _ = nil)
           File.open("#{@options[:output_directory]}/measure_attributes.json", 'w') do |f|
             f << JSON.pretty_generate(measure_attributes)
           end
@@ -67,7 +67,7 @@ module OpenStudio
 
         # Write the objective function results to the filesystem
         #
-        def communicate_objective_function(objectives, _=nil)
+        def communicate_objective_function(objectives, _ = nil)
           obj_fun_file = "#{@options[:output_directory]}/objectives.json"
           FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
           File.open(obj_fun_file, 'w') { |f| f << JSON.pretty_generate(objectives) }

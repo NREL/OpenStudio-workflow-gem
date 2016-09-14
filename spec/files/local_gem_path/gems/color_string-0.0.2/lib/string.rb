@@ -1,4 +1,4 @@
-require "color_string/colorize"
+require 'color_string/colorize'
 
 class String
   def color

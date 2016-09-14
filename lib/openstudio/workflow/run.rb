@@ -27,13 +27,12 @@ require 'logger'
 module OpenStudio
   module Workflow
     class Run
-
       attr_accessor :registry
 
       attr_reader :options
       attr_reader :input_adapter
       attr_reader :output_adapter
-      attr_reader :final_message 
+      attr_reader :final_message
       attr_reader :job_results
       attr_reader :current_state
 
@@ -51,7 +50,7 @@ module OpenStudio
           { state: :ep_measures, next_state: :preprocess, job: :RunEnergyPlusMeasures,
             file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {} },
           { state: :preprocess, next_state: :simulation, job: :RunPreprocess,
-            file: 'openstudio/workflow/jobs/run_preprocess.rb' , options: {} },
+            file: 'openstudio/workflow/jobs/run_preprocess.rb', options: {} },
           { state: :simulation, next_state: :reporting_measures, job: :RunEnergyPlus,
             file: 'openstudio/workflow/jobs/run_energyplus.rb', options: {} },
           { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
@@ -75,11 +74,10 @@ module OpenStudio
       # @todo (rhorsey) establish definitive documentation on all option parameters
       #
       def initialize(osw_path, options = {})
-        
         # DLM - what is final_message?
         @final_message = ''
         @current_state = nil
-        
+
         # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time
         # - openstudio_2 - true if we are running in OpenStudio 2.X environment
         # - logger - general logger - this is already a module constant, deprecate
@@ -99,45 +97,45 @@ module OpenStudio
         # - output_attributes - ? - deprecate
         # - sql - the path to the current EnergyPlus SQL file as a string
         @registry = Registry.new
-        
+
         openstudio_2 = false
         begin
           # OpenStudio 2.X test
-          OpenStudio::WorkflowJSON.new()
+          OpenStudio::WorkflowJSON.new
           openstudio_2 = true
-        rescue NameError => e 
+        rescue NameError => e
         end
         @registry.register(:openstudio_2) { openstudio_2 }
-        
+
         # get the input osw
         @input_adapter = OpenStudio::Workflow::InputAdapter::Local.new(osw_path)
 
         # create the output adapter
-        if options[:output_adapter]
-          @output_adapter = options[:output_adapter]
-        else
-          @output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new({output_directory: @input_adapter.run_dir})
-        end
-        
+        @output_adapter = if options[:output_adapter]
+                            options[:output_adapter]
+                          else
+                            OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
+                          end
+
         @registry.register(:osw_path) { @input_adapter.osw_path }
         @registry.register(:osw_dir) { @input_adapter.osw_dir }
         @registry.register(:run_dir) { @input_adapter.run_dir }
-        
+
         # DLM: need to check that we have correct permissions to all these paths
-        
+
         # By default blow away the entire run directory every time and recreate it
-        if !options[:preserve_run_dir]
-          
+        unless options[:preserve_run_dir]
+
           if File.exist?(@registry[:run_dir])
             # logger is not initialized yet (it needs run dir to exist for log)
             puts "Removing existing run directory #{@registry[:run_dir]}" if options[:debug]
-          
+
             # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
             FileUtils.rm_rf(@registry[:run_dir])
           end
         end
         FileUtils.mkdir_p(@registry[:run_dir])
-        
+
         defaults = {
           jobs: OpenStudio::Workflow::Run.default_jobs,
           targets: [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')],
@@ -146,7 +144,7 @@ module OpenStudio
           profile: true
         }
         @options = defaults.merge(options)
- 
+
         @registry.register(:log_targets) { @options[:targets] }
         @registry.register(:time_logger) { TimeLogger.new } if @options[:profile]
 
@@ -154,11 +152,11 @@ module OpenStudio
         logger_level = @options[:debug] ? ::Logger::DEBUG : ::Logger::WARN
         Workflow.logger(@options[:targets], logger_level)
         @registry.register(:logger) { Workflow.logger }
-        
+
         Workflow.logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
-        
+
         Workflow.logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
-         
+
         # Define the state and transitions
         @current_state = :queued
         @jobs = @options[:jobs]
@@ -181,25 +179,25 @@ module OpenStudio
         rescue => e
           Workflow.logger.info "Error occurred during running with #{e.message}"
         ensure
-          
+
           Workflow.logger.info 'Workflow complete'
-          
+
           if @current_state == :errored
             @registry[:workflow_json].setCompletedStatus('Fail') if @registry[:workflow_json]
           else
             @registry[:workflow_json].setCompletedStatus('Success')
           end
-          
+
           # save all files before calling output adapter
-          @registry[:log_targets].each { |target| target.flush }
-          
+          @registry[:log_targets].each(&:flush)
+
           # save workflow with results
           out_path = @registry[:workflow_json].absoluteOutPath
           @registry[:workflow_json].saveAs(out_path)
-          
+
           # Write out the TimeLogger to the filesystem
           @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
-          
+
           if @current_state == :errored
             @output_adapter.communicate_failure
           else

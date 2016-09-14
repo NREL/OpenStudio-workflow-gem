@@ -1,11 +1,9 @@
 module OpenStudio
   module Workflow
     module Util
-
       # Contains the method {#os_typecasting} to translate arguments into pure-ruby objects
       #
       module TypeCasting
-
         # Take the OS Argument type and map it correctly to the argument value.
         #     OPENSTUDIO_ENUM( OSArgumentType,
         #     ((Boolean)(Bool)(0))

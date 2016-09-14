@@ -1,6 +1,5 @@
 module OpenStudio
   module Workflow
-
     # Registers objects in a single place. Based on Hashicorps's Vagrant Registry class
     #
     # This allows certain components (such as models, weather files, proxy settings, etc.) to be registered as blocks
@@ -9,7 +8,7 @@ module OpenStudio
     #   definitions. Note that hashes can be passed into the registry as follows: hash = {...};
     #   Registry.new.register(:hash) { hash } or Registry.new.register(:hash) { {...} }. This class will likely absorb
     #   un-abstracted elements of the adapter class, see Workflow#Adapter
-    
+
     # @todo (rhorsey) registry should be a member of WorkflowRunner - DLM
     # @todo (rhorsey) how is this different than a regular hash?  why is it important to be able to register keys with blocks that return values instead of values, looks like the block is called on insert anyway? let's not go crazy on performance optimizations until we have to - DLM
     class Registry
@@ -39,7 +38,7 @@ module OpenStudio
         return nil unless @items.key?(key)
         @results_cache[key]
       end
-      alias :[] :get
+      alias [] get
 
       # Re-evaluate the proc of a key and update the cache
       #
@@ -57,7 +56,6 @@ module OpenStudio
         @results_cache[key] = @items[key].call
       end
 
-
       # Checks if the given key is registered with the registry
       #
       # @return [Boolean]
@@ -65,7 +63,7 @@ module OpenStudio
       def key?(key)
         @items.key?(key)
       end
-      alias_method :has_key?, :key?
+      alias has_key? key?
 
       # Returns an array populated with the keys of this object
       #
@@ -82,7 +80,7 @@ module OpenStudio
       def length
         @items.keys.length
       end
-      alias_method :size, :length
+      alias size length
 
       # Checks if this registry has any items
       #
@@ -130,8 +128,8 @@ module OpenStudio
 
       def __internal_state
         {
-            items: @items,
-            results_cache: @results_cache
+          items: @items,
+          results_cache: @results_cache
         }
       end
     end

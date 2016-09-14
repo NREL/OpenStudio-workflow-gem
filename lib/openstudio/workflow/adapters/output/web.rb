@@ -26,7 +26,7 @@ module OpenStudio
       class Web < Local
         def initialize(options = {})
           super
-          fail 'The required :url option was not passed to the web output adapter' unless options[:url]
+          raise 'The required :url option was not passed to the web output adapter' unless options[:url]
         end
 
         def communicate_started
@@ -52,10 +52,10 @@ module OpenStudio
         def communicate_transition(message, type, options = {})
           super
         end
-        
+
         def communicate_energyplus_stdout(line, options = {})
           super
-        end        
+        end
       end
     end
   end

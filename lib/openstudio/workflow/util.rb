@@ -1,6 +1,5 @@
 module OpenStudio
   module Workflow
-
     # Hard load utils for the moment
     #
     module Util

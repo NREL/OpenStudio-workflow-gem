@@ -23,37 +23,34 @@ require 'openstudio/workflow_json'
 module OpenStudio
   module Workflow
     module InputAdapter
-      class Local 
-
+      class Local
         def initialize(osw_path = './workflow.osw')
           @osw_abs_path = File.absolute_path(osw_path, Dir.pwd)
-          
-          if File.exist? @osw_abs_path
-            @workflow = ::JSON.parse(File.read(@osw_abs_path), {symbolize_names: true})
-          else
-            @workflow = nil
-          end          
+
+          @workflow = if File.exist? @osw_abs_path
+                        ::JSON.parse(File.read(@osw_abs_path), symbolize_names: true)
+                      end
         end
 
         # Get the OSW file from the local filesystem
         #
         def workflow
-          fail "Could not read workflow from #{@osw_abs_path}" if @workflow.nil?
+          raise "Could not read workflow from #{@osw_abs_path}" if @workflow.nil?
           @workflow
         end
-        
+
         # Get the OSW path
         #
         def osw_path
           @osw_abs_path
         end
-        
+
         # Get the OSW dir
         #
         def osw_dir
           File.dirname(@osw_abs_path)
         end
-        
+
         # Get the run dir
         #
         def run_dir
@@ -65,7 +62,7 @@ module OpenStudio
                 # Create a temporary WorkflowJSON to compute run directory
                 workflow_json = OpenStudio::WorkflowJSON.new(JSON.fast_generate(workflow))
                 workflow_json.setOswDir(osw_dir)
-              rescue Exception => e 
+              rescue Exception => e
                 workflow_json = WorkflowJSON_Shim.new(workflow, osw_dir)
               end
               result = workflow_json.absoluteRunDir.to_s
@@ -74,16 +71,14 @@ module OpenStudio
           end
           result
         end
-        
+
         # Get the associated OSD (datapoint) file from the local filesystem
         #
         def datapoint
           # DLM: should this come from the OSW?  the osd id and checksum are specified there.
           osd_abs_path = File.join(osw_dir, 'datapoint.osd')
           if File.exist? osd_abs_path
-            ::JSON.parse(File.read(osd_abs_path), {symbolize_names: true})
-          else
-            nil
+            ::JSON.parse(File.read(osd_abs_path), symbolize_names: true)
           end
         end
 
@@ -93,12 +88,9 @@ module OpenStudio
           # DLM: should this come from the OSW?  the osd id and checksum are specified there.
           osa_abs_path = File.join(osw_dir, 'analysis.osa')
           if File.exist? osa_abs_path
-            ::JSON.parse(File.read(osa_abs_path), {symbolize_names: true})
-          else
-            nil
+            ::JSON.parse(File.read(osa_abs_path), symbolize_names: true)
           end
         end
-
       end
     end
   end

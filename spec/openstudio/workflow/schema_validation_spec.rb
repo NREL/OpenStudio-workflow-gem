@@ -4,9 +4,9 @@ require 'json-schema'
 def get_schema(allow_optionals = true)
   schema = nil
   schema_path = File.dirname(__FILE__) + '/../../schema/osw.json'
-  expect(File.exists?(schema_path)).to be true
+  expect(File.exist?(schema_path)).to be true
   File.open(schema_path) do |f|
-    schema = JSON.parse(f.read, {:symbolize_names => true})
+    schema = JSON.parse(f.read, symbolize_names: true)
   end
   expect(schema).to_not be_nil
 
@@ -20,9 +20,9 @@ end
 def get_osw(path)
   osw = nil
   osw_path = File.dirname(__FILE__) + '/../../files/' + path
-  expect(File.exists?(osw_path)).to be true
+  expect(File.exist?(osw_path)).to be true
   File.open(osw_path) do |f|
-    osw = JSON.parse(f.read, {:symbolize_names => true})
+    osw = JSON.parse(f.read, symbolize_names: true)
   end
   expect(osw).to_not be_nil
 

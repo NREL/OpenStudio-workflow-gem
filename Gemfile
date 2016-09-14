@@ -3,7 +3,7 @@ source 'http://rubygems.org'
 # Specify your gem's dependencies in OpenStudio-workflow.gemspec
 gemspec
 
-group :test do  
+group :test do
   gem 'rake'
   gem 'json-schema', '~> 2.6'
   gem 'nokogiri', '1.6.5'

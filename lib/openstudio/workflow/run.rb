@@ -192,8 +192,10 @@ module OpenStudio
           @registry[:log_targets].each(&:flush)
 
           # save workflow with results
-          out_path = @registry[:workflow_json].absoluteOutPath
-          @registry[:workflow_json].saveAs(out_path)
+          if @registry[:workflow_json]
+            out_path = @registry[:workflow_json].absoluteOutPath
+            @registry[:workflow_json].saveAs(out_path)
+          end
 
           # Write out the TimeLogger to the filesystem
           @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]

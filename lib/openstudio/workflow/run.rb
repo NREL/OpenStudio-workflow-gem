@@ -139,11 +139,14 @@ module OpenStudio
 
         defaults = {
           jobs: OpenStudio::Workflow::Run.default_jobs,
-          targets: [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')],
           preserve_run_dir: false,
           debug: false,
           profile: true
         }
+        if options[:targets].nil?
+          # DLM: need to make sure that run.log will be closed later
+          defaults[:targets] = [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
+        end
         @options = defaults.merge(options)
 
         @registry.register(:log_targets) { @options[:targets] }

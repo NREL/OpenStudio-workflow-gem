@@ -156,9 +156,6 @@ module OpenStudio
         @registry.register(:logger) { @logger }
 
         @logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
-        
-        @logger.info "@input_adapter = #{@input_adapter}"
-        @logger.info "@output_adapter = #{@output_adapter}"
 
         @logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
 

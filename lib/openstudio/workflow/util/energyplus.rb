@@ -114,7 +114,6 @@ module OpenStudio
           # create stdout
           command = popen_command("./#{energyplus_exe} 2>&1")
           logger.info "Running command '#{command}'"
-          logger.info "@output_adapter = #{@output_adapter}"
           File.open('stdout-energyplus', 'w') do |file|
             ::IO.popen(command) do |io|
               while (line = io.gets)

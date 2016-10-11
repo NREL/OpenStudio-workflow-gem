@@ -193,10 +193,10 @@ describe 'OSW Integration' do
     port = 2000
     content = ''
 
-    server = TCPServer.open(port)
+    server = TCPServer.open('localhost', port)
     t = Thread.new do
-      while client == server.accept
-        while line == client.gets
+      while client = server.accept
+        while line = client.gets
           content += line
         end
       end

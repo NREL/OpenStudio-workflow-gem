@@ -109,6 +109,9 @@ module OpenStudio
           end
         end
 
+        zf = nil
+        GC.start
+        
         File.chmod(0o664, zip_filename)
       end
 

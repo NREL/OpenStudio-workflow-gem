@@ -80,7 +80,7 @@ module OpenStudio
 
         # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time
         # - openstudio_2 - true if we are running in OpenStudio 2.X environment
-        # - logger - general logger - this is already a module constant, deprecate
+        # - logger - general logger
         # - log_targets - IO devices that are being logged to
         # - time_logger - logger for doing profiling - time to run each step will be captured in OSResult, deprecate
         # - workflow - the current OSW parsed as a Ruby Hash
@@ -111,11 +111,12 @@ module OpenStudio
         @input_adapter = OpenStudio::Workflow::InputAdapter::Local.new(osw_path)
 
         # create the output adapter
-        @output_adapter = if options[:output_adapter]
-                            options[:output_adapter]
-                          else
-                            OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
-                          end
+        @output_adapter = nil
+        if options[:output_adapter]
+          @output_adapter = options[:output_adapter]
+        else
+          @output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
+        end
 
         @registry.register(:osw_path) { @input_adapter.osw_path }
         @registry.register(:osw_dir) { @input_adapter.osw_dir }
@@ -150,12 +151,16 @@ module OpenStudio
 
         # Initialize the MultiDelegator logger
         logger_level = @options[:debug] ? ::Logger::DEBUG : ::Logger::WARN
-        Workflow.logger(@options[:targets], logger_level)
-        @registry.register(:logger) { Workflow.logger }
+        @logger = ::Logger.new(MultiDelegator.delegate(:write, :close).to(*@options[:targets])) # * is the splat operator
+        @logger.level = logger_level 
+        @registry.register(:logger) { @logger }
 
-        Workflow.logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
+        @logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
+        
+        @logger.info "@input_adapter = #{@input_adapter}"
+        @logger.info "@output_adapter = #{@output_adapter}"
 
-        Workflow.logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
+        @logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
 
         # Define the state and transitions
         @current_state = :queued
@@ -167,7 +172,7 @@ module OpenStudio
       # @todo add a catch if any job fails
       # @todo make a block method to provide feedback
       def run
-        Workflow.logger.info "Starting workflow in #{@registry[:run_dir]}"
+        @logger.info "Starting workflow in #{@registry[:run_dir]}"
         begin
           next_state
           while @current_state != :finished && @current_state != :errored
@@ -175,12 +180,12 @@ module OpenStudio
             step
           end
 
-          Workflow.logger.info 'Finished workflow - communicating results and zipping files'
+          @logger.info 'Finished workflow - communicating results and zipping files'
         rescue => e
-          Workflow.logger.info "Error occurred during running with #{e.message}"
+          @logger.info "Error occurred during running with #{e.message}"
         ensure
 
-          Workflow.logger.info 'Workflow complete'
+          @logger.info 'Workflow complete'
 
           if @current_state == :errored
             @registry[:workflow_json].setCompletedStatus('Fail') if @registry[:workflow_json]
@@ -235,7 +240,7 @@ module OpenStudio
         # Make sure to set the instance variable @error to true in order to stop the :step
         # event from being fired.
         @final_message = "Found error in state '#{@current_state}' with message #{args}}"
-        Workflow.logger.error @final_message
+        @logger.error @final_message
 
         # transition to an error state
         @current_state = :errored
@@ -254,9 +259,9 @@ module OpenStudio
       # Advance the @current_state to the next state
       #
       def next_state
-        Workflow.logger.info "Current state: '#{@current_state}'"
+        @logger.info "Current state: '#{@current_state}'"
         ns = @jobs.find { |h| h[:state] == @current_state }[:next_state]
-        Workflow.logger.info "Next state will be: '#{ns}'"
+        @logger.info "Next state will be: '#{ns}'"
         @current_state = ns
       end
     end

@@ -213,6 +213,8 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    
+    Thread.kill(t)
 
     expect(content).to match(/Starting state initialization/)
     expect(content).to match(/Processing Data Dictionary/)

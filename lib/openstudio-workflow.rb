@@ -47,11 +47,6 @@ module OpenStudio
   module Workflow
     extend self
 
-    # Log the message sent to the logger
-    def logger(targets = nil, logger_level = nil)
-      @logger ||= proc { l = ::Logger.new(MultiDelegator.delegate(:write, :close).to(*targets)); l.level = logger_level if logger_level; l }.call
-    end
-
     # Extract an archive to a specific location
     #
     # @param archive_filename [String] Path and name of the file to extract

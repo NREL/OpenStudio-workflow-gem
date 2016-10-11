@@ -57,7 +57,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
     # Perform pre-processing on in.idf to capture logic in RunManager
     @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
-    energyplus_preprocess(@registry[:model_idf])
+    energyplus_preprocess(@registry[:model_idf], @logger)
     @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
     @logger.info 'Finished preprocess job for EnergyPlus simulation'
 

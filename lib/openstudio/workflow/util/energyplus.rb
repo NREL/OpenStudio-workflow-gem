@@ -25,8 +25,8 @@ module OpenStudio
         # @param [Array] energyplus_files Array of files containing the EnergyPlus and ExpandObjects EXEs
         # @return [Void]
         #
-        def clean_directory(run_directory, energyplus_files)
-          Workflow.logger.info 'Removing any copied EnergyPlus files'
+        def clean_directory(run_directory, energyplus_files, logger)
+          logger.info 'Removing any copied EnergyPlus files'
           energyplus_files.each do |file|
             if File.exist? file
               FileUtils.rm_f file
@@ -42,14 +42,15 @@ module OpenStudio
         # Prepare the directory to run EnergyPlus
         #
         # @param [String] run_directory Directory to copy the required EnergyPlus files to
+        # @param [Object] logger Logger object
         # @param [String] energyplus_path Path to the EnergyPlus EXE
         # @return [Array, file, file] Returns an array of strings of EnergyPlus files copied to the run_directory, the
         # ExpandObjects EXE file, and EnergyPlus EXE file
         #
-        def prepare_energyplus_dir(run_directory, energyplus_path = nil)
-          Workflow.logger.info "Copying EnergyPlus files to run directory: #{run_directory}"
+        def prepare_energyplus_dir(run_directory, logger, energyplus_path = nil)
+          logger.info "Copying EnergyPlus files to run directory: #{run_directory}"
           energyplus_path ||= find_energyplus
-          Workflow.logger.info "EnergyPlus path is #{energyplus_path}"
+          logger.info "EnergyPlus path is #{energyplus_path}"
           energyplus_files = []
           energyplus_exe, expand_objects_exe = nil
           Dir["#{energyplus_path}/*"].each do |file|
@@ -68,8 +69,8 @@ module OpenStudio
           raise "Could not find EnergyPlus executable in #{energyplus_path}" unless energyplus_exe
           raise "Could not find ExpandObjects executable in #{energyplus_path}" unless expand_objects_exe
 
-          Workflow.logger.info "EnergyPlus executable path is #{energyplus_exe}"
-          Workflow.logger.info "ExpandObjects executable path is #{expand_objects_exe}"
+          logger.info "EnergyPlus executable path is #{energyplus_exe}"
+          logger.info "ExpandObjects executable path is #{expand_objects_exe}"
 
           return energyplus_files, energyplus_exe, expand_objects_exe
         end
@@ -80,18 +81,22 @@ module OpenStudio
         #   directory already has the IDF and weather file in it
         # @param [String] energyplus_path (nil) Optional path to override the default path associated with the
         #   OpenStudio package being used
+        # @param [Object] output_adapter (nil) Optional output adapter to update
+        # @param [Object] logger (nil) Optional logger, will log to STDOUT if none provided
         # @return [Void]
         #
-        def call_energyplus(run_directory, energyplus_path = nil, output_adapter = nil)
+        def call_energyplus(run_directory, energyplus_path = nil, output_adapter = nil, logger = nil)
+          logger ||= ::Logger.new(STDOUT) unless logger
+          
           current_dir = Dir.pwd
           energyplus_path ||= find_energyplus
-          Workflow.logger.info "EnergyPlus path is #{energyplus_path}"
-          energyplus_files, energyplus_exe, expand_objects_exe = prepare_energyplus_dir(run_directory, energyplus_path)
+          logger.info "EnergyPlus path is #{energyplus_path}"
+          energyplus_files, energyplus_exe, expand_objects_exe = prepare_energyplus_dir(run_directory, logger, energyplus_path)
           Dir.chdir(run_directory)
-          Workflow.logger.info "Starting simulation in run directory: #{Dir.pwd}"
+          logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
           command = popen_command("./#{expand_objects_exe}")
-          Workflow.logger.info "Running command '#{command}'"
+          logger.info "Running command '#{command}'"
           File.open('stdout-expandobject', 'w') do |file|
             ::IO.popen(command) do |io|
               while (line = io.gets)
@@ -108,7 +113,8 @@ module OpenStudio
 
           # create stdout
           command = popen_command("./#{energyplus_exe} 2>&1")
-          Workflow.logger.info "Running command '#{command}'"
+          logger.info "Running command '#{command}'"
+          logger.info "@output_adapter = #{@output_adapter}"
           File.open('stdout-energyplus', 'w') do |file|
             ::IO.popen(command) do |io|
               while (line = io.gets)
@@ -119,16 +125,16 @@ module OpenStudio
           end
           r = $?
 
-          Workflow.logger.info "EnergyPlus returned '#{r}'"
+          logger.info "EnergyPlus returned '#{r}'"
           unless r.to_i.zero?
-            Workflow.logger.warn 'EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log.'
+            logger.warn 'EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log.'
           end
 
           if File.exist? 'eplusout.end'
             f = File.read('eplusout.end').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
             warnings_count = f[/(\d*).Warning/, 1]
             error_count = f[/(\d*).Severe.Errors/, 1]
-            Workflow.logger.info "EnergyPlus finished with #{warnings_count} warnings and #{error_count} severe errors"
+            logger.info "EnergyPlus finished with #{warnings_count} warnings and #{error_count} severe errors"
             if f =~ /EnergyPlus Terminated--Fatal Error Detected/
               raise 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
             end
@@ -144,14 +150,14 @@ module OpenStudio
           end
         rescue => e
           log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-          Workflow.logger.error log_message
+          logger.error log_message
           raise log_message
         ensure
-          Workflow.logger.info "Ensuring 'clean' directory"
-          clean_directory(run_directory, energyplus_files)
+          logger.info "Ensuring 'clean' directory"
+          clean_directory(run_directory, energyplus_files, logger)
 
           Dir.chdir(current_dir)
-          Workflow.logger.info 'EnergyPlus Completed'
+          logger.info 'EnergyPlus Completed'
         end
 
         # Run this code before running EnergyPlus to make sure the reporting variables are setup correctly
@@ -159,8 +165,8 @@ module OpenStudio
         # @param [Object] idf The IDF Workspace to be simulated
         # @return [Void]
         #
-        def energyplus_preprocess(idf)
-          Workflow.logger.info 'Running EnergyPlus Preprocess'
+        def energyplus_preprocess(idf, logger)
+          logger.info 'Running EnergyPlus Preprocess'
 
           new_objects = []
 
@@ -168,7 +174,7 @@ module OpenStudio
 
           if needs_sqlobj
             # just add this, we don't allow this type in add_energyplus_output_request
-            Workflow.logger.info 'Adding SQL Output to IDF'
+            logger.info 'Adding SQL Output to IDF'
             object = OpenStudio::IdfObject.load('Output:SQLite,SimpleAndTabular;').get
             idf.addObjects(object)
           end
@@ -226,7 +232,7 @@ module OpenStudio
             OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object)
           end
 
-          Workflow.logger.info 'Finished EnergyPlus Preprocess'
+          logger.info 'Finished EnergyPlus Preprocess'
         end
 
         # examines object and determines whether or not to add it to the workspace

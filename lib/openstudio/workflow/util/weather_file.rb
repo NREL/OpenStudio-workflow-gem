@@ -25,7 +25,7 @@ module OpenStudio
           end
           weather_file = get_weather_file_from_osm(model, logger) if weather_file.nil?
           raise 'Could not locate the weather file in the filesystem. Please see the log' if weather_file == false
-          Workflow.logger.warn 'The weather file could not be determined. Please see the log for details' unless weather_file
+          logger.warn 'The weather file could not be determined. Please see the log for details' unless weather_file
           weather_file
         end
 

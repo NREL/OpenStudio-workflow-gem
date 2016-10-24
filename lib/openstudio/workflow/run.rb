@@ -159,6 +159,16 @@ module OpenStudio
         @registry.register(:logger) { @logger }
 
         @logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
+        
+        openstudio_dir = "unknown"
+        begin
+          openstudio_dir = $OpenStudio_Dir
+          if openstudio_dir.nil?
+            openstudio_dir = OpenStudio::getOpenStudioModuleDirectory.to_s
+          end
+        rescue
+        end
+        @logger.info "openstudio_dir = #{openstudio_dir}"
 
         @logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
 

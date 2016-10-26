@@ -310,4 +310,34 @@ describe 'OSW Integration' do
       expect(step[:result]).to_not be_nil
     end
   end
+  
+  it 'should run OSW with display name or value for choice arguments' do
+    osw_path = File.join(__FILE__, './../../../files/value_or_displayname_choice_osw/value_or_displayname_choice.osw')
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+      debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Success'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    osw_out[:steps].each do |step|
+      expect(step[:result]).to_not be_nil
+    end
+  end
 end

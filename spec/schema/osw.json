@@ -195,6 +195,17 @@
         },
         "version_id": {
           "type": "string"
+        },
+        "taxonomy": {
+          "type": "string"
+        },
+        "measure_type": {
+          "type": "string",
+          "enum": [
+            "ModelMeasure",
+            "EnergyPlusMeasure",
+            "ReportingMeasure"
+          ]
         }
       },
       "required": [

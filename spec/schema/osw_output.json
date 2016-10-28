@@ -225,6 +225,18 @@
         },
         "version_id": {
           "type": "string"
+        },
+        "taxonomy": {
+          "type": "string"
+        },
+        "measure_type": {
+          "type": "string",
+          "enum": [
+            "ModelMeasure",
+            "EnergyPlusMeasure",
+            "ReportingMeasure"
+          ]
+        },
         "result": {
           "$ref": "#/definitions/Workflow Step Result"
         }

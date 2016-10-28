@@ -189,6 +189,12 @@
         },
         "modeler_description": {
           "type": "string"
+        },
+        "measure_id": {
+          "type": "string"
+        },
+        "version_id": {
+          "type": "string"
         }
       },
       "required": [

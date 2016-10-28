@@ -220,6 +220,11 @@
         "modeler_description": {
           "type": "string"
         },
+        "measure_id": {
+          "type": "string"
+        },
+        "version_id": {
+          "type": "string"
         "result": {
           "$ref": "#/definitions/Workflow Step Result"
         }

@@ -30,12 +30,6 @@ module OpenStudio
           # For xml, the measure attributes are in the measure_attributes_xml.json file
           # TODO: somehow pass the metadata around on which JSONs to suck into the database
           results = {}
-          if File.exist? "#{run_dir}/measure_attributes_xml.json"
-            h = JSON.parse(File.read("#{run_dir}/measure_attributes_xml.json"), symbolize_names: true)
-            h = rename_hash_keys(h, logger)
-            results.merge! h
-          end
-
           # Inputs are in the measure_attributes.json file
           if File.exist? "#{run_dir}/measure_attributes.json"
             h = JSON.parse(File.read("#{run_dir}/measure_attributes.json"), symbolize_names: true)
@@ -43,24 +37,10 @@ module OpenStudio
             results.merge! h
           end
 
-          # Inputs are in the reporting_measure_attributes.jsonfile
-          if File.exist? "#{run_dir}/reporting_measure_attributes.json"
-            h = JSON.parse(File.read("#{run_dir}/reporting_measure_attributes.json"), symbolize_names: true)
-            h = rename_hash_keys(h, logger)
-            results.merge! h
-          end
-
-          # Initialize the objective function variable.
-          objective_functions = {}
-          if File.exist? "#{run_dir}/standard_report_legacy.json"
-            h = JSON.parse(File.read("#{run_dir}/standard_report_legacy.json"), symbolize_names: true)
-            h = rename_hash_keys(h, logger)
-            results[:standard_report_legacy] = h
-          end
-
           logger.info 'Saving the result hash to file'
           File.open("#{run_dir}/results.json", 'w') { |f| f << JSON.pretty_generate(results) }
 
+          objective_functions = {}
           if @registry[:analysis]
             logger.info 'Iterating over Analysis JSON Output Variables'
             # Save the objective functions to the object for sending back to the simulation executive
@@ -103,32 +83,6 @@ module OpenStudio
           return results, objective_functions
         end
 
-        # Turn the eplustbl into a json and save it as 'standard_report_legacy'
-        #
-        # @param [String] run_dir The directory that the simulation was run in
-        # @todo add deprication warning
-        #
-        def translate_csv_to_json(run_dir, logger)
-          if File.exist?("#{run_dir}/eplustbl.csv")
-            logger.info 'Translating EnergyPlus table CSV to JSON file'
-            results = {}
-            csv = CSV.read("#{run_dir}/eplustbl.csv")
-            csv.transpose.each do |k, v|
-              longname = k.gsub(/\(.*\)/, '').strip
-              short_name = longname.downcase.tr(' ', '_')
-              units = k.match(/\(.*\)/)[0].delete('(').delete(')')
-              results[short_name.to_sym] = v.nil? ? nil : v.to_f
-              results["#{short_name}_units".to_sym] = units
-              results["#{short_name}_display_name".to_sym] = longname
-            end
-
-            logger.info 'Saving results to json'
-
-            # save out results
-            File.open("#{run_dir}/standard_report_legacy.json", 'w') { |f| f << JSON.pretty_generate(results) }
-          end
-        end
-
         # Remove any invalid characters in the measure attribute keys. Periods and Pipes are the most problematic
         #   because mongo does not allow hash keys with periods, and the pipes are used in the map/reduce method that
         #   was written to speed up the data write in openstudio-server. Also remove any trailing underscores and spaces
@@ -156,37 +110,37 @@ module OpenStudio
           rename_keys[hash]
         end
 
-        # A general post-processing step which could be made significantly more modular
+
+        # Save reports to a common directory
         #
         # @param [String] run_dir
+        # @param [String] directory
+        # @param [String] logger
         #
-        def cleanup(run_dir, directory, logger)
-          # move any of the reporting file to the 'reports' directory for serverside access
+        def gather_reports(run_dir, directory, logger)
+          logger.info run_dir
+          logger.info directory
+
           FileUtils.mkdir_p "#{directory}/reports"
 
           # try to find the energyplus result file
           eplus_html = "#{run_dir}/eplustbl.htm"
-          unless File.exist? eplus_html
-            eplus_html = Dir["#{directory}/*EnergyPlus*/eplustbl.htm"].last || nil
-          end
-
-          if eplus_html
-            if File.exist? eplus_html
-              # do some encoding on the html if possible
-              html = File.read(eplus_html)
-              html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
-              File.open("#{directory}/reports/eplustbl.html", 'w') { |f| f << html }
-            end
+          if File.exist? eplus_html
+            # do some encoding on the html if possible
+            html = File.read(eplus_html)
+            html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
+            logger.info "Saving EnergyPlus HTML report to #{directory}/reports/eplustbl.html"
+            File.open("#{directory}/reports/eplustbl.html", 'w') { |f| f << html }
           end
 
           # Also, find any "report*.*" files
           Dir["#{run_dir}/*/report*.*"].each do |report|
             # get the parent directory of the file and snake case it
-            # do i need to force encoding on this as well?
-            measure_class_name = File.basename(File.dirname(report)).to_underscore
+            measure_class_name = File.basename(File.dirname(report))
             file_ext = File.extname(report)
             append_str = File.basename(report, '.*')
             new_file_name = "#{directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"
+            logger.info "Saving report #{report} to #{new_file_name}"
             FileUtils.copy report, new_file_name
           end
 
@@ -195,6 +149,15 @@ module OpenStudio
             logger.info "Removing empty directory #{d}"
             Dir.rmdir d
           end
+        end
+
+
+        # A general post-processing step which could be made significantly more modular
+        #
+        # @param [String] run_dir
+        #
+        def cleanup(run_dir, directory, logger)
+
 
           paths_to_rm = []
           # paths_to_rm << Pathname.glob("#{run_dir}/*.osm")

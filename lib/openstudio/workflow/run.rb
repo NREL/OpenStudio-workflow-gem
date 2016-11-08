@@ -126,12 +126,12 @@ module OpenStudio
 
         # By default blow away the entire run directory every time and recreate it
         unless options[:preserve_run_dir]
-
           if File.exist?(@registry[:run_dir])
             # logger is not initialized yet (it needs run dir to exist for log)
             puts "Removing existing run directory #{@registry[:run_dir]}" if options[:debug]
 
             # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
+            # TODO: Echoing Dan's comment
             FileUtils.rm_rf(@registry[:run_dir])
           end
         end
@@ -194,7 +194,6 @@ module OpenStudio
         rescue => e
           @logger.info "Error occurred during running with #{e.message}"
         ensure
-
           @logger.info 'Workflow complete'
 
           if @current_state == :errored

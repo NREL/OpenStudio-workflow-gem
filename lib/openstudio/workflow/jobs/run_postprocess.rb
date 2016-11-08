@@ -34,14 +34,17 @@ class RunPostprocess < OpenStudio::Workflow::Job
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
 
-    unless @options[:cleanup]
-      @logger.info 'Flag for cleanup in options set to false. Moving to next step.'
-      return {}
-    end
+    @logger.info 'Gathering reports'
+    gather_reports(@registry[:run_dir], @registry[:root_dir], @logger)
+    @logger.info 'Finished gathering reports'
 
-    @logger.info 'Beginning cleanup of the run directory'
-    cleanup(@registry[:run_dir], @registry[:root_dir], @logger)
-    @logger.info 'Finished cleanup of the run directory'
+    if @options[:cleanup]
+      @logger.info 'Beginning cleanup of the run directory'
+      cleanup(@registry[:run_dir], @registry[:root_dir], @logger)
+      @logger.info 'Finished cleanup of the run directory'
+    else
+      @logger.info 'Flag for cleanup in options set to false. Moving to next step.'
+    end
 
     @logger.info 'Finished postprocess'
 

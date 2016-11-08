@@ -63,9 +63,6 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
       @logger.debug "Registered the sql filepath as #{@registry[:sql]}"
     end
 
-    # Translate the eplustbl.csv into standard_report_legacy.json
-    translate_csv_to_json @registry[:run_dir], @logger
-
     # Apply reporting measures
     @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute Reporting measures.'

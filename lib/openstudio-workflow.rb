@@ -31,18 +31,6 @@ require_relative 'openstudio/workflow/util'
 require 'openstudio'
 require_relative 'openstudio/workflow_runner'
 
-# some core extensions
-# @todo (rhorsey) is this really needed? extensions to built in classes are not a great idea, they may conflict with other people's code - DLM
-class String
-  def to_underscore
-    gsub(/::/, '/')
-      .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-      .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-      .tr('-', '_')
-      .downcase
-  end
-end
-
 module OpenStudio
   module Workflow
     extend self

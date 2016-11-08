@@ -4,6 +4,8 @@ OpenStudio::Workflow Change Log
 Version '1.0.0-rc1' (Not released)
 -------------------
 * Use specific version of OpenStudio Analysis Gem
+* Fix tests
+* Remove to_underscore method (use OpenStudio.toUnderscoreCase(...) if needed)
 
 Version '1.0.0-alpha.0'
 -----------------------

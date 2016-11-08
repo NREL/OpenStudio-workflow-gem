@@ -13,7 +13,7 @@ describe 'OSW Integration' do
   end
 
   it 'should run compact OSW file' do
-    osw_path = File.join(__FILE__, './../../../files/compact_osw/compact.osw')
+    osw_path = File.expand_path('./../../../files/compact_osw/compact.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
@@ -43,7 +43,7 @@ describe 'OSW Integration' do
   end
 
   it 'should run an extended OSW file' do
-    osw_path = File.join(__FILE__, './../../../files/extended_osw/example/workflows/extended.osw')
+    osw_path = File.expand_path('./../../../files/extended_osw/example/workflows/extended.osw', __FILE__)
     run_options = {
       debug: true
     }
@@ -53,7 +53,7 @@ describe 'OSW Integration' do
   end
 
   it 'should run an alternate path OSW file' do
-    osw_path = File.join(__FILE__, './../../../files/alternate_paths/osw_and_stuff/in.osw')
+    osw_path = File.expand_path( './../../../files/alternate_paths/osw_and_stuff/in.osw', __FILE__)
     run_options = {
       debug: true
     }
@@ -63,7 +63,7 @@ describe 'OSW Integration' do
   end
 
   it 'should run OSW file with skips' do
-    osw_path = File.join(__FILE__, './../../../files/skip_osw/skip.osw')
+    osw_path = File.expand_path('./../../../files/skip_osw/skip.osw', __FILE__)
     run_options = {
       debug: true
     }
@@ -73,7 +73,7 @@ describe 'OSW Integration' do
   end
 
   it 'should run OSW file with handle arguments' do
-    osw_path = File.join(__FILE__, './../../../files/handle_args_osw/handle_args.osw')
+    osw_path = File.expand_path('./../../../files/handle_args_osw/handle_args.osw', __FILE__)
     run_options = {
       debug: true
     }
@@ -83,7 +83,7 @@ describe 'OSW Integration' do
   end
 
   it 'should run OSW with output requests file' do
-    osw_path = File.join(__FILE__, './../../../files/output_request_osw/output_request.osw')
+    osw_path = File.expand_path('./../../../files/output_request_osw/output_request.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
@@ -142,12 +142,20 @@ describe 'OSW Integration' do
     targets.each_key do |key|
       expect(targets[key]).to eq true
     end
+
+    # make sure that the reports exist
+    report_filename = File.join(File.dirname(osw_path), 'reports', '003_DencityReports_report_timeseries.csv')
+    expect(File.exist?(report_filename)).to eq true
+    report_filename = File.join(File.dirname(osw_path), 'reports', '004_openstudio_results_report.html')
+    expect(File.exist?(report_filename)).to eq true
+    report_filename = File.join(File.dirname(osw_path), 'reports', 'eplustbl.html')
+    expect(File.exist?(report_filename)).to eq true
   end
 
   it 'should run OSW file with web adapter' do
     require 'openstudio/workflow/adapters/output/web'
 
-    osw_path = File.join(__FILE__, './../../../files/web_osw/web.osw')
+    osw_path = File.expand_path('./../../../files/web_osw/web.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
     run_dir = File.join(File.dirname(osw_path), 'run')
 
@@ -183,7 +191,7 @@ describe 'OSW Integration' do
   it 'should run OSW file with socket adapter' do
     require 'openstudio/workflow/adapters/output/socket'
 
-    osw_path = File.join(__FILE__, './../../../files/socket_osw/socket.osw')
+    osw_path = File.expand_path('./../../../files/socket_osw/socket.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
     run_dir = File.join(File.dirname(osw_path), 'run')
 
@@ -235,7 +243,7 @@ describe 'OSW Integration' do
   end
 
   it 'should run OSW file with no epw file' do
-    osw_path = File.join(__FILE__, './../../../files/no_epw_file_osw/no_epw_file.osw')
+    osw_path = File.expand_path('./../../../files/no_epw_file_osw/no_epw_file.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
     run_dir = File.join(File.dirname(osw_path), 'run')
 
@@ -266,7 +274,7 @@ describe 'OSW Integration' do
   end
 
   it 'should run OSW file in measure only mode' do
-    osw_path = File.join(__FILE__, './../../../files/measures_only_osw/measures_only.osw')
+    osw_path = File.expand_path('./../../../files/measures_only_osw/measures_only.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
     run_dir = File.join(File.dirname(osw_path), 'run')
 
@@ -312,7 +320,7 @@ describe 'OSW Integration' do
   end
   
   it 'should run OSW with display name or value for choice arguments' do
-    osw_path = File.join(__FILE__, './../../../files/value_or_displayname_choice_osw/value_or_displayname_choice.osw')
+    osw_path = File.expand_path('./../../../files/value_or_displayname_choice_osw/value_or_displayname_choice.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)

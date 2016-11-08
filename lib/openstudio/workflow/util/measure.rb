@@ -392,7 +392,7 @@ module OpenStudio
                 # @todo add note about why reasignment and not eval
                 registry.register(:model) { @model }
                 registry.register(:model_idf) { @model_idf }
-                registry.register(:sql) { @sql }
+                registry.register(:sql) { @sql_filename }
 
               rescue => e
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

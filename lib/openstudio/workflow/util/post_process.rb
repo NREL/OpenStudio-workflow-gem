@@ -30,12 +30,6 @@ module OpenStudio
           # For xml, the measure attributes are in the measure_attributes_xml.json file
           # TODO: somehow pass the metadata around on which JSONs to suck into the database
           results = {}
-          if File.exist? "#{run_dir}/measure_attributes_xml.json"
-            h = JSON.parse(File.read("#{run_dir}/measure_attributes_xml.json"), symbolize_names: true)
-            h = rename_hash_keys(h, logger)
-            results.merge! h
-          end
-
           # Inputs are in the measure_attributes.json file
           if File.exist? "#{run_dir}/measure_attributes.json"
             h = JSON.parse(File.read("#{run_dir}/measure_attributes.json"), symbolize_names: true)
@@ -43,24 +37,10 @@ module OpenStudio
             results.merge! h
           end
 
-          # Inputs are in the reporting_measure_attributes.jsonfile
-          if File.exist? "#{run_dir}/reporting_measure_attributes.json"
-            h = JSON.parse(File.read("#{run_dir}/reporting_measure_attributes.json"), symbolize_names: true)
-            h = rename_hash_keys(h, logger)
-            results.merge! h
-          end
-
-          # Initialize the objective function variable.
-          objective_functions = {}
-          if File.exist? "#{run_dir}/standard_report_legacy.json"
-            h = JSON.parse(File.read("#{run_dir}/standard_report_legacy.json"), symbolize_names: true)
-            h = rename_hash_keys(h, logger)
-            results[:standard_report_legacy] = h
-          end
-
           logger.info 'Saving the result hash to file'
           File.open("#{run_dir}/results.json", 'w') { |f| f << JSON.pretty_generate(results) }
 
+          objective_functions = {}
           if @registry[:analysis]
             logger.info 'Iterating over Analysis JSON Output Variables'
             # Save the objective functions to the object for sending back to the simulation executive
@@ -101,32 +81,6 @@ module OpenStudio
           end
 
           return results, objective_functions
-        end
-
-        # Turn the eplustbl into a json and save it as 'standard_report_legacy'
-        #
-        # @param [String] run_dir The directory that the simulation was run in
-        # @todo add deprication warning
-        #
-        def translate_csv_to_json(run_dir, logger)
-          if File.exist?("#{run_dir}/eplustbl.csv")
-            logger.info 'Translating EnergyPlus table CSV to JSON file'
-            results = {}
-            csv = CSV.read("#{run_dir}/eplustbl.csv")
-            csv.transpose.each do |k, v|
-              longname = k.gsub(/\(.*\)/, '').strip
-              short_name = longname.downcase.tr(' ', '_')
-              units = k.match(/\(.*\)/)[0].delete('(').delete(')')
-              results[short_name.to_sym] = v.nil? ? nil : v.to_f
-              results["#{short_name}_units".to_sym] = units
-              results["#{short_name}_display_name".to_sym] = longname
-            end
-
-            logger.info 'Saving results to json'
-
-            # save out results
-            File.open("#{run_dir}/standard_report_legacy.json", 'w') { |f| f << JSON.pretty_generate(results) }
-          end
         end
 
         # Remove any invalid characters in the measure attribute keys. Periods and Pipes are the most problematic
@@ -182,8 +136,7 @@ module OpenStudio
           # Also, find any "report*.*" files
           Dir["#{run_dir}/*/report*.*"].each do |report|
             # get the parent directory of the file and snake case it
-            # do i need to force encoding on this as well?
-            measure_class_name = File.basename(File.dirname(report)).to_underscore
+            measure_class_name = OpenStudio.toUnderscoreCase(File.basename(File.dirname(report)))
             file_ext = File.extname(report)
             append_str = File.basename(report, '.*')
             new_file_name = "#{directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"

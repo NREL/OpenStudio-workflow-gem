@@ -120,23 +120,17 @@ module OpenStudio
 
           # try to find the energyplus result file
           eplus_html = "#{run_dir}/eplustbl.htm"
-          unless File.exist? eplus_html
-            eplus_html = Dir["#{directory}/*EnergyPlus*/eplustbl.htm"].last || nil
-          end
-
-          if eplus_html
-            if File.exist? eplus_html
-              # do some encoding on the html if possible
-              html = File.read(eplus_html)
-              html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
-              File.open("#{directory}/reports/eplustbl.html", 'w') { |f| f << html }
-            end
+          if File.exist? eplus_html
+            # do some encoding on the html if possible
+            html = File.read(eplus_html)
+            html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
+            File.open("#{directory}/reports/eplustbl.html", 'w') { |f| f << html }
           end
 
           # Also, find any "report*.*" files
           Dir["#{run_dir}/*/report*.*"].each do |report|
             # get the parent directory of the file and snake case it
-            measure_class_name = OpenStudio.toUnderscoreCase(File.basename(File.dirname(report)))
+            measure_class_name = File.basename(File.dirname(report))
             file_ext = File.extname(report)
             append_str = File.basename(report, '.*')
             new_file_name = "#{directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"

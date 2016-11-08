@@ -49,10 +49,8 @@ module OpenStudio
             class_name = measure.className
             measure_instance_type = measure.measureType
             if measure_instance_type == measure_type
-            
               if options[:energyplus_output_requests]
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Collecting EnergyPlus Output Requests now."
-      
                 apply_measure(registry, step, options)              
               else
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
@@ -212,7 +210,7 @@ module OpenStudio
           @model = registry[:model]
           @model_idf = registry[:model_idf]
           @sql_filename = registry[:sql]
-          
+
           runner.setLastOpenStudioModel(@model) if @model
           #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
           runner.setLastEnergyPlusWorkspace(@model_idf) if @model_idf
@@ -294,20 +292,22 @@ module OpenStudio
                 end
               end
 
-              # Set argument values
+              # Set argument values if they exist
               logger.debug "Iterating over arguments for workflow item '#{measure_dir_name}'"
-              step.arguments.each do |argument_name, argument_value|
-                if argument_name.to_s == '__SKIP__'
-                  if argument_value
-                    skip_measure = true
-                  end
-                else
-                  if registry[:openstudio_2]
-                    success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
+              if step.arguments 
+                step.arguments.each do |argument_name, argument_value|
+                  if argument_name.to_s == '__SKIP__'
+                    if argument_value
+                      skip_measure = true
+                    end
                   else
-                    success = apply_arguments(argument_map, argument_name, argument_value, logger)
+                    if registry[:openstudio_2]
+                      success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
+                    else
+                      success = apply_arguments(argument_map, argument_name, argument_value, logger)
+                    end
+                    fail 'Could not set arguments' unless success
                   end
-                  fail 'Could not set arguments' unless success
                 end
               end
 
@@ -372,7 +372,6 @@ module OpenStudio
 
               result = nil
               begin
-                
                 result = runner.result
                 
                 # incrementStep must be called after run
@@ -389,7 +388,7 @@ module OpenStudio
                 #  registry.register(:wf) { runner.weatherfile_path }
                 #end
 
-                # @todo add note about why reasignment and not eval
+                # @todo add note about why reassignment and not eval
                 registry.register(:model) { @model }
                 registry.register(:model_idf) { @model_idf }
                 registry.register(:sql) { @sql_filename }

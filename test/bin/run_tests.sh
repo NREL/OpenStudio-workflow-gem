@@ -2,6 +2,8 @@
 
 # Main function to run the container.
 # Copy all the files into a new test directory because they will clobber each other in parallel
+# Note: Do not add any commands to the end of this method as docker run will return the exit code
+# needed to determine the success of the build.
 function run_docker {
   echo "Running Docker container for $image"
   echo "Copying the files to a new test directory"
@@ -23,7 +25,6 @@ i=0
 # List any tags that you want to test of the Docker image. These must be able to be made into directories
 docker_tags=(
     '1.13.0'
-    '1.13.1'
     '1.13.2'
 )
 

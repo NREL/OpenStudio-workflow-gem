@@ -8,7 +8,6 @@ describe TimeLogger do
 
     it 'should create an instance' do
       expect(@t).not_to be nil
-      expect(false).to be true
     end
 
     it 'should log time' do

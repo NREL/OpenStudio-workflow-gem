@@ -1,7 +1,6 @@
 # OpenStudio::Workflow
-[![Circle CI](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0.svg?style=svg)](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/EnergyPlus-8.3.0)
-[![Coverage Status](https://coveralls.io/repos/NREL/OpenStudio-workflow-gem/badge.svg?branch=EnergyPlus-8.3.0&service=github)](https://coveralls.io/github/NREL/OpenStudio-workflow-gem?branch=EnergyPlus-8.3.0)
-[![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
+[![Circle CI](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/osw.svg?style=svg)](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/osw)
+[![Coverage Status](https://coveralls.io/repos/NREL/OpenStudio-workflow-gem/badge.svg?branch=osw&service=github)](https://coveralls.io/github/NREL/OpenStudio-workflow-gem?branch=osw)
 
 ## OpenStudio Workflow branch
 
@@ -33,7 +32,12 @@ rspec spec/
 
 ### Docker
 
-This has yet to be ported to docker.
+```
+export OPENSTUDIO_VERSION=1.13.0
+docker run -v $(pwd):/var/simdata/openstudio \
+      nrel/openstudio:$OPENSTUDIO_VERSION \
+      /var/simdata/openstudio/test/bin/docker-run.sh
+```
 
 ## Contributing
 

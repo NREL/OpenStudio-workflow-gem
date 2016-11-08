@@ -64,7 +64,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     @registry.register(:workflow_json) { workflow_json }
 
     @registry.register(:root_dir) { workflow_json.absoluteRootDir }
-    @logger.debug "The root_dir for the analysis is #{@registry[:root_dir]}"
+    @logger.debug "The root_dir for the datapoint is #{@registry[:root_dir]}"
 
     # create the runner with our WorkflowJSON
     @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow_json], @registry[:openstudio_2]) }

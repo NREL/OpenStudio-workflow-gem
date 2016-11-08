@@ -110,12 +110,17 @@ module OpenStudio
           rename_keys[hash]
         end
 
-        # A general post-processing step which could be made significantly more modular
+
+        # Save reports to a common directory
         #
         # @param [String] run_dir
+        # @param [String] directory
+        # @param [String] logger
         #
-        def cleanup(run_dir, directory, logger)
-          # move any of the reporting file to the 'reports' directory for serverside access
+        def gather_reports(run_dir, directory, logger)
+          logger.info run_dir
+          logger.info directory
+
           FileUtils.mkdir_p "#{directory}/reports"
 
           # try to find the energyplus result file
@@ -124,6 +129,7 @@ module OpenStudio
             # do some encoding on the html if possible
             html = File.read(eplus_html)
             html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
+            logger.info "Saving EnergyPlus HTML report to #{directory}/reports/eplustbl.html"
             File.open("#{directory}/reports/eplustbl.html", 'w') { |f| f << html }
           end
 
@@ -134,6 +140,7 @@ module OpenStudio
             file_ext = File.extname(report)
             append_str = File.basename(report, '.*')
             new_file_name = "#{directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"
+            logger.info "Saving report #{report} to #{new_file_name}"
             FileUtils.copy report, new_file_name
           end
 
@@ -142,6 +149,15 @@ module OpenStudio
             logger.info "Removing empty directory #{d}"
             Dir.rmdir d
           end
+        end
+
+
+        # A general post-processing step which could be made significantly more modular
+        #
+        # @param [String] run_dir
+        #
+        def cleanup(run_dir, directory, logger)
+
 
           paths_to_rm = []
           # paths_to_rm << Pathname.glob("#{run_dir}/*.osm")

@@ -85,7 +85,7 @@ module OpenStudio
         # @param [Object] logger (nil) Optional logger, will log to STDOUT if none provided
         # @return [Void]
         #
-        def call_energyplus(run_directory, energyplus_path = nil, output_adapter = nil, logger = nil)
+        def call_energyplus(run_directory, energyplus_path = nil, output_adapter = nil, logger = nil, workflow_json = nil)
           logger ||= ::Logger.new(STDOUT) unless logger
           
           current_dir = Dir.pwd
@@ -145,6 +145,13 @@ module OpenStudio
             eplus_err = File.read('eplusout.err').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
             if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
               raise 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
+            end
+            
+            if workflow_json
+              begin
+                workflow_json.setEplusoutErr(eplus_err)
+              rescue => e
+              end
             end
           end
         rescue => e

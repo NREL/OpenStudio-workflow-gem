@@ -384,4 +384,8 @@ class WorkflowJSON_Shim
     @workflow[:completed_status] = status
     @workflow[:completed_at] = ::Time.now.utc
   end
+  
+  def setEplusoutErr(eplusout_err)
+    @workflow[:eplusout_err] = eplusout_err
+  end
 end

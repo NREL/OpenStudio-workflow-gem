@@ -94,6 +94,10 @@
             "Success",
             "Fail"
           ]
+        },
+        "eplusout_err": {
+          "description": "Content of the eplusout.err file.  This may be removed at some point if explicit step for EnergyPlus simulation is added.",
+          "type": "string"
         }
       },
       "required": [

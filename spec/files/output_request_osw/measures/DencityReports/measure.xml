@@ -2,8 +2,8 @@
   <schema_version>3.0</schema_version>
   <name>dencity_reports</name>
   <uid>4f939be0-fe1c-11e3-a3ac-0800200c9a66</uid>
-  <version_id>f773cdb8-b5e9-47db-bfed-bbc10aff986a</version_id>
-  <version_modified>20160426T215418Z</version_modified>
+  <version_id>12163e01-86ac-488a-9c14-79113175ca31</version_id>
+  <version_modified>20161109T155342Z</version_modified>
   <xml_checksum>9F9D8C87</xml_checksum>
   <class_name>DencityReports</class_name>
   <display_name>Dencity Reports</display_name>
@@ -60,7 +60,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>5CEB2C25</checksum>
+      <checksum>61B49682</checksum>
     </file>
   </files>
 </measure>

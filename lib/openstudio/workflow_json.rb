@@ -159,6 +159,10 @@ class WorkflowJSON_Shim
   def string
     JSON.fast_generate(@workflow)
   end
+  
+  def timeString
+    ::Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+  end
 
   # Returns the absolute path to the directory this workflow was loaded from or saved to.  Returns current working dir for new WorkflowJSON.
   # openstudio::path oswDir() const;
@@ -174,7 +178,7 @@ class WorkflowJSON_Shim
 
   # Sets the started at time.
   def start
-    @workflow[:started_at] = Time.now.utc
+    @workflow[:started_at] = timeString
   end
 
   # Get the current step index.
@@ -382,7 +386,7 @@ class WorkflowJSON_Shim
 
   def setCompletedStatus(status)
     @workflow[:completed_status] = status
-    @workflow[:completed_at] = ::Time.now.utc
+    @workflow[:completed_at] = timeString
   end
   
   def setEplusoutErr(eplusout_err)

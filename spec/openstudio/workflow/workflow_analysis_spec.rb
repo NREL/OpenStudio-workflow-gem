@@ -383,5 +383,9 @@ describe 'OSW Integration' do
 
     idf_out_path = osw_path.gsub(File.basename(osw_path), 'in.idf')
     expect(File.exist?(idf_out_path)).to eq true
+
+    # even if it fails, make sure that we save off the datapoint.zip
+    zip_path = osw_path.gsub(File.basename(osw_path), 'data_point.zip')
+    expect(File.exist?(zip_path)).to eq false
   end
 end

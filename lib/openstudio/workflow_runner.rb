@@ -38,7 +38,11 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       super()
     end
   end
-
+  
+  def timeString
+    ::Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+  end
+  
   # Returns the workflow currently being run. New in OS 2.0.
   # WorkflowJSON workflow() const;
   def workflow
@@ -77,7 +81,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
 
     unless current_step.empty?
       current_step.get.step[:result] = {}
-      current_step.get.step[:result][:started_at] = Time.now.utc
+      current_step.get.step[:result][:started_at] = timeString
     end
 
     # TODO: capture std out and err
@@ -103,13 +107,13 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       if current_step.step[:result].nil?
         # skipped, prepareForUserScriptRun was not called
         current_step.step[:result] = {}
-        current_step.step[:result][:started_at] = Time.now.utc
+        current_step.step[:result][:started_at] = timeString
         current_step.step[:result][:step_result] = 'Skip'
       else
         current_step.step[:result][:step_result] = os_result.value.valueName
       end
 
-      current_step.step[:result][:completed_at] = Time.now.utc
+      current_step.step[:result][:completed_at] = timeString
 
       # TODO: restore stdout and stderr
 

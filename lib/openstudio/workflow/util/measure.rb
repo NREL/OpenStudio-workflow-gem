@@ -156,13 +156,17 @@ module OpenStudio
             value_set = false
             variant_type = argument_value.variantType
             if variant_type == "String".to_VariantType
-              value_set = v.setValue(argument_value.valueAsString)
+              argument_value = argument_value.valueAsString
+              value_set = v.setValue(argument_value)
             elsif variant_type == "Double".to_VariantType
-              value_set = v.setValue(argument_value.valueAsDouble)
+              argument_value = argument_value.valueAsDouble
+              value_set = v.setValue(argument_value)
             elsif variant_type == "Integer".to_VariantType
-              value_set = v.setValue(argument_value.valueAsInteger)
+              argument_value = argument_value.valueAsInteger
+              value_set = v.setValue(argument_value)
             elsif variant_type == "Boolean".to_VariantType
-              value_set = v.setValue(argument_value.valueAsBoolean)
+              argument_value = argument_value.valueAsBoolean
+              value_set = v.setValue(argument_value)
             end
             fail "Could not set argument '#{argument_name}' to value '#{argument_value}'" unless value_set
             argument_map[argument_name.to_s] = v.clone
@@ -340,6 +344,27 @@ module OpenStudio
                 end
               end
 
+              # map any choice display names to choice values, in either set values or defaults
+              argument_map.each_key do |argument_name|
+                v = argument_map[argument_name]
+                choice_values = v.choiceValues
+                if !choice_values.empty?
+                  value = nil
+                  value = v.defaultValueAsString if v.hasDefaultValue
+                  value = v.valueAsString if v.hasValue
+                  if value && choice_values.index(value).nil?
+                    display_names = v.choiceValueDisplayNames
+                    i = display_names.index(value)
+                    if i && choice_values[i]
+                      logger.debug "Mapping display name '#{value}' to value '#{choice_values[i]}' for argument '#{argument_name}'"
+                      value_set = v.setValue(choice_values[i])
+                      fail "Could not set argument '#{argument_name}' to mapped value '#{choice_values[i]}'" unless value_set
+                      argument_map[argument_name.to_s] = v.clone
+                    end
+                  end
+                end
+              end
+              
             rescue => e
 
               # add the error to the osw.out

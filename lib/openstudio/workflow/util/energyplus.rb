@@ -129,6 +129,22 @@ module OpenStudio
             logger.warn 'EnergyPlus returned a non-zero exit code. Check the stdout-energyplus log.'
           end
 
+          if File.exist? 'eplusout.err'
+            eplus_err = File.read('eplusout.err').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
+            
+            if workflow_json
+              begin
+                workflow_json.setEplusoutErr(eplus_err)
+              rescue => e
+                # older versions of OpenStudio did not have the setEplusoutErr method
+              end
+            end
+            
+            if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
+              raise 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
+            end
+          end
+          
           if File.exist? 'eplusout.end'
             f = File.read('eplusout.end').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
             warnings_count = f[/(\d*).Warning/, 1]
@@ -140,20 +156,7 @@ module OpenStudio
           else
             raise 'EnergyPlus failed and did not create an eplusout.end file. Check the stdout-energyplus log.'
           end
-
-          if File.exist? 'eplusout.err'
-            eplus_err = File.read('eplusout.err').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
-            if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
-              raise 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
-            end
-            
-            if workflow_json
-              begin
-                workflow_json.setEplusoutErr(eplus_err)
-              rescue => e
-              end
-            end
-          end
+          
         rescue => e
           log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
           logger.error log_message

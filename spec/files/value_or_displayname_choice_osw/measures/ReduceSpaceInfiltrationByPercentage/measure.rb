@@ -86,7 +86,7 @@ class ReduceSpaceInfiltrationByPercentage < OpenStudio::Ruleset::ModelUserScript
     if not runner.validateUserArguments(arguments(model), user_arguments)
       return false
     end
-
+puts "user_arguments = #{user_arguments['space_type'].defaultValueAsString}, #{user_arguments['space_type'].defaultValueDisplayName}"
     #assign the user inputs to variables
     object = runner.getOptionalWorkspaceObjectChoiceValue("space_type",user_arguments,model)
     space_infiltration_reduction_percent = runner.getDoubleArgumentValue("space_infiltration_reduction_percent",user_arguments)

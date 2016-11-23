@@ -117,6 +117,10 @@ class WorkflowStepResult_Shim
   def stepResult
     Optional_Shim.new(@result[:step_result])
   end
+  
+   def setStepResult(step_result)
+    @result[:step_result] = step_result
+  end 
 end
 
 # WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X

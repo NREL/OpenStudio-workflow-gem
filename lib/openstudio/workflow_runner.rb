@@ -77,18 +77,22 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   # only called in OpenStudio 1.X
   # virtual void prepareForUserScriptRun(const UserScript& userScript);
   def prepareForUserScriptRun(userScript)
-    current_step = @workflow.currentStep
+    if @openstudio_2
+      prepareForMeasureRun(userScript)
+    else
+      current_step = @workflow.currentStep
 
-    unless current_step.empty?
-      current_step.get.step[:result] = {}
-      current_step.get.step[:result][:started_at] = timeString
+      unless current_step.empty?
+        current_step.get.step[:result] = {}
+        current_step.get.step[:result][:started_at] = timeString
+      end
+
+      # TODO: capture std out and err
+
+      # TODO: get initial list of files
+
+      super
     end
-
-    # TODO: capture std out and err
-
-    # TODO: get initial list of files
-
-    super
   end
 
   def result

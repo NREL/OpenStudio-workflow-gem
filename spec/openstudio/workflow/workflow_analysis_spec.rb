@@ -388,4 +388,80 @@ describe 'OSW Integration' do
     zip_path = osw_path.gsub(File.basename(osw_path), 'data_point.zip')
     expect(File.exist?(zip_path)).to eq false
   end
+  
+  it 'should associate results with the correct step' do
+    (1..2).each do |i|
+      osw_path = File.expand_path("./../../../files/results_in_order/data_point_#{i}/data_point.osw", __FILE__)
+      osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+      FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+      expect(File.exist?(osw_out_path)).to eq false
+      
+      if !File.exist?(osw_out_path)
+        run_options = {
+            debug: true
+        }
+        k = OpenStudio::Workflow::Run.new osw_path, run_options
+        expect(k).to be_instance_of OpenStudio::Workflow::Run
+        expect(k.run).to eq :finished
+      end
+      
+      expect(File.exist?(osw_out_path)).to eq true
+      
+      osw_out = nil
+      File.open(osw_out_path, 'r') do |file|
+        osw_out = JSON.parse(file.read, symbolize_names: true)
+      end
+
+      expect(osw_out).to be_instance_of Hash
+      expect(osw_out[:completed_status]).to eq 'Success'
+      expect(osw_out[:steps]).to be_instance_of Array
+      expect(osw_out[:steps].size).to be == 3
+      osw_out[:steps].each do |step|
+        expect(step[:arguments]).to_not be_nil
+        
+        arguments = step[:arguments]
+        puts "arguments = #{arguments}"
+        
+        expect(step[:result]).to_not be_nil
+        expect(step[:result][:step_values]).to_not be_nil
+        
+        step_values = step[:result][:step_values]
+        puts "step_values = #{step_values}"
+        
+        # check that each argument is in a value
+        skipped = false
+        arguments.each_pair do |argument_name, argument_value|
+          argument_name = argument_name.to_s
+          if argument_name == '__SKIP__'
+            skipped = argument_value
+            next
+          end
+          
+          i = step_values.find_index {|x| x[:name] == argument_name}
+          expect(i).to_not be_nil
+          expect(step_values[i][:value]).to be == argument_value
+        end
+        
+        if skipped
+          expect(step[:result][:step_result]).to be == "Skip"
+        else
+          expect(step[:result][:step_result]).to be == "Success"
+        end
+        
+        expected_results = []
+        if step[:measure_dir_name] == "XcelEDAReportingandQAQC"
+          expected_results << "cash_flows_capital_type"
+          expected_results << "annual_consumption_electricity"
+          expected_results << "annual_consumption_gas"
+        end
+
+        expected_results.each do |expected_result|
+          i = step_values.find_index {|x| x[:name] == expected_result}
+          expect(i).to_not be_nil
+        end
+        
+      end
+    end
+  end
 end

@@ -63,7 +63,7 @@ module OpenStudio
               
               logger.info 'Moving to the next workflow step.'
             else
-              logger.debug "Skipping measure #{class_name} of type #{measure_type.valueName}"
+              logger.debug "Passing measure #{class_name} of type #{measure_type.valueName}"
             end
           end
           
@@ -297,10 +297,39 @@ module OpenStudio
               if step.arguments 
                 step.arguments.each do |argument_name, argument_value|
                   if argument_name.to_s == '__SKIP__'
-                    if argument_value
+                    if registry[:openstudio_2]
+                      variant_type = argument_value.variantType
+                      if variant_type == "String".to_VariantType
+                        argument_value = argument_value.valueAsString
+                      elsif variant_type == "Double".to_VariantType
+                        argument_value = argument_value.valueAsDouble
+                      elsif variant_type == "Integer".to_VariantType
+                        argument_value = argument_value.valueAsInteger
+                      elsif variant_type == "Boolean".to_VariantType
+                        argument_value = argument_value.valueAsBoolean
+                      end
+                    end
+                    
+                    if argument_value.class == String
+                      argument_value = argument_value.downcase
+                      if argument_value == "false"
+                        skip_measure = false
+                      else
+                        skip_measure = true
+                      end
+                    elsif argument_value.class == Fixnum
+                      skip_measure = (argument_value != 0)
+                    elsif argument_value.class == Float
+                      skip_measure = (argument_value != 0.0)
+                    elsif argument_value.class == FalseClass
+                      skip_measure = false
+                    elsif argument_value.class == TrueClass
                       skip_measure = true
+                    elsif argument_value.class == NilClass
+                      skip_measure = false
                     end
                   else
+                    # regular argument
                     if registry[:openstudio_2]
                       success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
                     else
@@ -323,7 +352,12 @@ module OpenStudio
             if skip_measure
               if !options[:energyplus_output_requests]
                 # just increment
+                logger.debug "Skipping measure '#{measure_dir_name}'"
+                runner.prepareForUserScriptRun(measure_object)
+                runner.validateUserArguments(arguments, argument_map)
+                current_result = runner.result
                 runner.incrementStep
+                current_result.setStepResult('Skip'.to_StepResult)
               end
             else
             

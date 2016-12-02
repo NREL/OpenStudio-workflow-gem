@@ -80,9 +80,6 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     @logger.debug "Objective Function JSON is #{objective_functions}"
     @output_adapter.communicate_objective_function objective_functions
 
-    # Send the general results to the output adapter
-    @output_adapter.communicate_results(@registry[:run_dir], results)
-
     nil
   end
 end

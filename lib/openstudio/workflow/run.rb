@@ -191,6 +191,7 @@ module OpenStudio
           end
 
           @logger.info 'Finished workflow - communicating results and zipping files'
+          @output_adapter.communicate_results(@registry[:run_dir], results)
         rescue => e
           @logger.info "Error occurred during running with #{e.message}"
         ensure

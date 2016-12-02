@@ -91,6 +91,7 @@ module OpenStudio
         # - datapoint - the current OSD parsed as a Ruby Hash
         # - analysis - the current OSA parsed as a Ruby Hash
         # - runner - the current OSRunner object
+        # - results - the output of the run_extract_inputs_and_outputs method
         # - model - the current OpenStudio Model object, updated after each step
         # - model_idf - the current EnergyPlus Workspace object, updated after each step
         # - wf - the path to the current weather file as a string, updated after each step
@@ -191,7 +192,7 @@ module OpenStudio
           end
 
           @logger.info 'Finished workflow - communicating results and zipping files'
-          @output_adapter.communicate_results(@registry[:run_dir], results)
+          @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
         rescue => e
           @logger.info "Error occurred during running with #{e.message}"
         ensure

@@ -66,37 +66,44 @@ module OpenStudio
       #
       # @param [String] osw_path the path to the OSW file to run. It is highly recommended that this be an absolute
       #   path, however if not it will be made absolute relative to the current working directory
-      # @param [Hash] options ({}) A set of user-specified options that are used to override default behaviors. Some
-      #   sort of definitive documentation is needed for this hash
-      # @option options [Hash] :transitions Non-default transitions set (see Run#default_transition)
-      # @option options [Hash] :states Non-default states set (see Run#default_states)
-      # @option options [Hash] :jobs ???
-      # @todo (rhorsey) establish definitive documentation on all option parameters
-      #
-      def initialize(osw_path, options = {})
+      # @param [Hash] user_options ({}) A set of user-specified options that are used to override default behaviors. 
+      # @option user_options [Hash] :cleanup Remove unneccessary files during post processing, defaults to true
+      # @option user_options [Hash] :debug Print debugging messages, overrides OSW options if set, defaults to false
+      # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
+      # @option user_options [Hash] :jobs Simulation workflow, defaults to default_jobs
+      # @option user_options [Hash] :output_adapter Output adapter to use, overrides port and OSW options if set, defaults to local adapter
+      # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW options if set, defaults to false
+      # @option user_options [Hash] :profile Produce additional output for profiling simulations, defaults to false
+      # @option user_options [Hash] :targets Log targets to write to, defaults to standard out and run.log
+      # @option user_options [Hash] :socket Selects socket output adapter and sets port to use, defaults to empty
+      # @option user_options [Hash] :verify_osw Check OSW for correctness, defaults to true
+      # @option user_options [Hash] :weather_file Initial weather file to load, overrides OSW options if set, defaults to empty
+      def initialize(osw_path, user_options = {})
         # DLM - what is final_message?
         @final_message = ''
         @current_state = nil
-
-        # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time
-        # - openstudio_2 - true if we are running in OpenStudio 2.X environment
-        # - logger - general logger
-        # - log_targets - IO devices that are being logged to
-        # - time_logger - logger for doing profiling - time to run each step will be captured in OSResult, deprecate
-        # - workflow - the current OSW parsed as a Ruby Hash
-        # - workflow_json - the current WorkflowJSON object
-        # - osw_dir - the directory the OSW was loaded from as a string
-        # - root_dir - the root directory in the OSW as a string
-        # - run_dir - the run directory for the simulation as a string
-        # - datapoint - the current OSD parsed as a Ruby Hash
+        @options = {}
+        
+        # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time, especially if the functionality can be added to the WorkflowJSON class
         # - analysis - the current OSA parsed as a Ruby Hash
-        # - runner - the current OSRunner object
-        # - results - the output of the run_extract_inputs_and_outputs method
+        # - datapoint - the current OSD parsed as a Ruby Hash
+        # - log_targets - IO devices that are being logged to
+        # - logger - general logger
         # - model - the current OpenStudio Model object, updated after each step
         # - model_idf - the current EnergyPlus Workspace object, updated after each step
-        # - wf - the path to the current weather file as a string, updated after each step
-        # - output_attributes - ? - deprecate
+        # - openstudio_2 - true if we are running in OpenStudio 2.X environment
+        # - osw_path - the path the OSW was loaded from as a string
+        # - osw_dir - the directory the OSW was loaded from as a string
+        # - output_attributes - added during simulation time
+        # - results - objective function values
+        # - root_dir - the root directory in the OSW as a string
+        # - run_dir - the run directory for the simulation as a string
+        # - runner - the current OSRunner object
         # - sql - the path to the current EnergyPlus SQL file as a string
+        # - time_logger - logger for doing profiling - time to run each step will be captured in OSResult, deprecate
+        # - wf - the path to the current weather file as a string, updated after each step
+        # - workflow - the current OSW parsed as a Ruby Hash
+        # - workflow_json - the current WorkflowJSON object        
         @registry = Registry.new
 
         openstudio_2 = false
@@ -110,26 +117,35 @@ module OpenStudio
 
         # get the input osw
         @input_adapter = OpenStudio::Workflow::InputAdapter::Local.new(osw_path)
-
-        # create the output adapter
-        @output_adapter = nil
-        if options[:output_adapter]
-          @output_adapter = options[:output_adapter]
-        else
-          @output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
-        end
-
+        
         @registry.register(:osw_path) { @input_adapter.osw_path }
         @registry.register(:osw_dir) { @input_adapter.osw_dir }
         @registry.register(:run_dir) { @input_adapter.run_dir }
+        
+        # get the output adapter
+        default_output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
+        @output_adapter = @input_adapter.output_adapter(user_options, default_output_adapter)
+
+        # get the jobs
+        default_jobs = OpenStudio::Workflow::Run.default_jobs
+        @jobs = @input_adapter.jobs(user_options, default_jobs)
+
+        # get some other run options out of user_options and into permanent options 
+        @options[:debug] = @input_adapter.debug(user_options, false)
+        @options[:preserve_run_dir] = @input_adapter.preserve_run_dir(user_options, false)
+        @options[:cleanup] = @input_adapter.cleanup(user_options, true)
+        @options[:energyplus_path] = @input_adapter.energyplus_path(user_options, nil) 
+        @options[:profile] = @input_adapter.profile(user_options, false)
+        @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
+        @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
 
         # DLM: need to check that we have correct permissions to all these paths
 
         # By default blow away the entire run directory every time and recreate it
-        unless options[:preserve_run_dir]
+        unless @options[:preserve_run_dir]
           if File.exist?(@registry[:run_dir])
             # logger is not initialized yet (it needs run dir to exist for log)
-            puts "Removing existing run directory #{@registry[:run_dir]}" if options[:debug]
+            puts "Removing existing run directory #{@registry[:run_dir]}" if @options[:debug]
 
             # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
             # TODO: Echoing Dan's comment
@@ -138,17 +154,14 @@ module OpenStudio
         end
         FileUtils.mkdir_p(@registry[:run_dir])
 
-        defaults = {
-          jobs: OpenStudio::Workflow::Run.default_jobs,
-          preserve_run_dir: false,
-          debug: false,
-          profile: true
-        }
-        if options[:targets].nil?
-          # DLM: need to make sure that run.log will be closed later
-          defaults[:targets] = [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
+        # set up logging after cleaning run dir
+        if user_options[:targets]
+          @options[:targets] = user_options[:targets]
+        else
+          # don't create these files unless we want to use them
+          # DLM: need to make sure that run.log will be closed later 
+          @options[:targets] = [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
         end
-        @options = defaults.merge(options)
 
         @registry.register(:log_targets) { @options[:targets] }
         @registry.register(:time_logger) { TimeLogger.new } if @options[:profile]
@@ -160,7 +173,7 @@ module OpenStudio
         @registry.register(:logger) { @logger }
 
         @logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
-        
+
         openstudio_dir = "unknown"
         begin
           openstudio_dir = $OpenStudio_Dir
@@ -175,7 +188,6 @@ module OpenStudio
 
         # Define the state and transitions
         @current_state = :queued
-        @jobs = @options[:jobs]
       end
 
       # execute the workflow defined in the state object
@@ -232,7 +244,7 @@ module OpenStudio
       def step
         step_instance = @jobs.find { |h| h[:state] == @current_state }
         require step_instance[:file]
-        klass = OpenStudio::Workflow.new_class(step_instance[:job], @input_adapter, @output_adapter, @registry, options)
+        klass = OpenStudio::Workflow.new_class(step_instance[:job], @input_adapter, @output_adapter, @registry, @options)
         @output_adapter.communicate_transition("Starting state #{@current_state}", :state)
         state_return = klass.perform
         if state_return

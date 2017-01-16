@@ -44,21 +44,21 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
 
     # Load simulation files as required
-    if @options[:load_simulation_osm]
+    if @registry[:model].nil?
       osm_path = File.absolute_path(File.join(@registry[:run_dir], 'in.osm'))
       @logger.debug "Attempting to load #{osm_path}"
       @registry.register(:model) { load_osm('.', osm_path) }
       raise "Unable to load #{osm_path}" unless @registry[:model]
       @logger.debug "Successfully loaded #{osm_path}"
     end
-    if @options[:load_simulation_idf]
+    if @registry[:model_idf].nil?
       idf_path = File.absolute_path(File.join(@registry[:run_dir], 'in.idf'))
       @logger.debug "Attempting to load #{idf_path}"
       @registry.register(:model_idf) { load_idf('.', idf_path) }
       raise "Unable to load #{idf_path}" unless @registry[:model_idf]
       @logger.debug "Successfully loaded #{idf_path}"
     end
-    if @options[:load_simulation_sql]
+    if @registry[:sql].nil?
       @registry.register(:sql) { File.absolute_path(File.join(@registry[:run_dir], 'eplusout.sql')) }
       @logger.debug "Registered the sql filepath as #{@registry[:sql]}"
     end

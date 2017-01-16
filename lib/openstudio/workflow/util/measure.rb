@@ -13,10 +13,10 @@ module OpenStudio
         # @param [Hash] options ({}) User-specified options used to override defaults
         # @option options [Object] :time_logger A special logger used to debug performance issues
         # @option options [Object] :output_adapter An output adapter to register measure transitions to
-        # @option options [Object] :energyplus_output_requests If true then the energyPlusOutputRequests is called instead of the run method
+        # @param  [Boolean] energyplus_output_requests If true then the energyPlusOutputRequests is called instead of the run method
         # @return [Void] 
         #
-        def apply_measures(measure_type, registry, options = {})
+        def apply_measures(measure_type, registry, options = {}, energyplus_output_requests = false)
         
           # DLM: time_logger is in the registry but docs say it is in options?
           registry[:time_logger].start "#{measure_type.valueName}:apply_measures" if registry[:time_logger]
@@ -49,9 +49,9 @@ module OpenStudio
             class_name = measure.className
             measure_instance_type = measure.measureType
             if measure_instance_type == measure_type
-              if options[:energyplus_output_requests]
+              if energyplus_output_requests
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Collecting EnergyPlus Output Requests now."
-                apply_measure(registry, step, options)              
+                apply_measure(registry, step, options, energyplus_output_requests)              
               else
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
                 
@@ -193,11 +193,11 @@ module OpenStudio
         # @option options [Array] :measure_search_array Ordered set of measure directories used to search for
         #   step[:measure_dir_name], e.g. ['measures', '../../measures']
         # @option options [Object] :time_logger Special logger used to debug performance issues
-        # @option options [Object] :energyplus_output_requests If true then the energyPlusOutputRequests is called instead of the run method
+        # @param  [Boolean] energyplus_output_requests If true then the energyPlusOutputRequests is called instead of the run method
         # @return [Hash, String] Returns two objects. The first is the (potentially) updated output_attributes hash, and
         #   the second is the (potentially) updated current_weather_filepath
         #
-        def apply_measure(registry, step, options = {})
+        def apply_measure(registry, step, options = {}, energyplus_output_requests = false)
 
           logger = registry[:logger]
           runner = registry[:runner]
@@ -244,7 +244,7 @@ module OpenStudio
             FileUtils.mkdir_p measure_run_dir
             Dir.chdir measure_run_dir
             
-            if options[:energyplus_output_requests]
+            if energyplus_output_requests
               logger.debug "energyPlusOutputRequests running in #{Dir.pwd}"
             else
               logger.debug "Apply measure running in #{Dir.pwd}"
@@ -375,7 +375,7 @@ module OpenStudio
             end
 
             if skip_measure
-              if !options[:energyplus_output_requests]
+              if !energyplus_output_requests
                 # just increment
                 logger.debug "Skipping measure '#{measure_dir_name}'"
                 runner.prepareForUserScriptRun(measure_object)
@@ -387,7 +387,7 @@ module OpenStudio
             else
             
               begin
-                if options[:energyplus_output_requests]
+                if energyplus_output_requests
                   logger.debug "Calling measure.energyPlusOutputRequests for '#{measure_dir_name}'"
                   idf_objects = measure_object.energyPlusOutputRequests(runner, argument_map)
                   num_added = 0
@@ -414,7 +414,7 @@ module OpenStudio
                 # add the error to the osw.out
                 runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
                 
-                if !options[:energyplus_output_requests]
+                if !energyplus_output_requests
                   # incrementStep must be called after run
                   runner.incrementStep
                 end
@@ -424,7 +424,7 @@ module OpenStudio
               end
               
               # if doing output requests we are done now
-              if options[:energyplus_output_requests]
+              if energyplus_output_requests
                 registry.register(:model_idf) { @model_idf }
                 return 
               end
@@ -511,7 +511,7 @@ module OpenStudio
             Dir.chdir current_dir
             registry[:time_logger].stop("Measure:#{measure_dir_name}") if registry[:time_logger]
 
-            logger.info "Finished #{__method__} for #{measure_dir_name} in #{@registry[:time_logger].delta("Measure:#{measure_dir_name}")} s"
+            logger.info "Finished #{__method__} for #{measure_dir_name} in #{@registry[:time_logger].delta("Measure:#{measure_dir_name}")} s" if registry[:time_logger]
           end
         end
       end

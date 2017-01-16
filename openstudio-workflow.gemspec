@@ -16,8 +16,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.0'
 
-  s.files = Dir.glob('lib/**/*') + %w(README.md CHANGELOG.md Rakefile bin/openstudio_cli)
-  s.executables << 'openstudio_cli'
+  s.files = Dir.glob('lib/**/*') + %w(README.md CHANGELOG.md Rakefile)
   s.require_path = 'lib'
 
   s.add_development_dependency 'bundler', '~> 1.6'

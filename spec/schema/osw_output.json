@@ -108,6 +108,9 @@
 						"preserve_run_dir": {
 							"type": "boolean"
 						},
+						"cleanup": {
+							"type": "boolean"
+						},
 						"output_adapter": {
 							"type": "object",
 							"oneOf": [

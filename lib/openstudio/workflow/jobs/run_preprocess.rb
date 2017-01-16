@@ -38,9 +38,6 @@ class RunPreprocess < OpenStudio::Workflow::Job
     if @registry[:wf]
       @logger.info "Weather file for EnergyPlus simulation is #{@registry[:wf]}"
       FileUtils.copy(@registry[:wf], "#{@registry[:run_dir]}/in.epw")
-    elsif @options[:simulation_weather_file]
-      @logger.warn "Using weather file defined in options: #{@options[:simulation_weather_file]}"
-      FileUtils.copy(@options[:simulation_weather_file], "#{@registry[:run_dir]}/in.epw")
     else
       @logger.warn "EPW file not found or not sent to #{self.class}"
     end
@@ -50,9 +47,8 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
     # Add any EnergyPlus Output Requests from Reporting Measures
     @logger.info 'Beginning to collect output requests from Reporting measures.'
-    @options[:energyplus_output_requests] = true
-    apply_measures('ReportingMeasure'.to_MeasureType, @registry, @options)
-    @options[:energyplus_output_requests] = nil
+    energyplus_output_requests = true
+    apply_measures('ReportingMeasure'.to_MeasureType, @registry, @options, energyplus_output_requests)
     @logger.info('Finished collect output requests from Reporting measures.')
 
     # Perform pre-processing on in.idf to capture logic in RunManager

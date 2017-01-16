@@ -100,6 +100,8 @@ class RunInitialization < OpenStudio::Workflow::Job
       @registry.register(:model) { OpenStudio::Model::Model.new }
     end
 
+    # DLM: TODO, load weather_file from options so it can be overriden by user_options
+    
     # Find the weather file, should it exist and be findable
     @logger.debug 'Getting the initial weather file'
     weather_path = workflow_json.weatherFile

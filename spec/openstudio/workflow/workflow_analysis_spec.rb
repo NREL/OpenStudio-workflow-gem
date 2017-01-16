@@ -464,4 +464,22 @@ describe 'OSW Integration' do
       end
     end
   end
+  
+  it 'should run OSW custom output adapter' do
+    osw_path = File.expand_path('./../../../files/run_options_osw/run_options.osw', __FILE__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+        debug: false
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    expect(File.exist?(osw_out_path)).to eq true
+  end
+  
 end

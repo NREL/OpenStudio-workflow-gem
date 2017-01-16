@@ -396,4 +396,9 @@ class WorkflowJSON_Shim
   def setEplusoutErr(eplusout_err)
     @workflow[:eplusout_err] = eplusout_err
   end
+  
+  # return empty optional
+  def runOptions
+    return Optional_Shim.new(nil)
+  end
 end

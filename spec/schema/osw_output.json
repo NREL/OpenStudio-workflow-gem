@@ -112,9 +112,6 @@
 							"type": "object",
 							"oneOf": [
 								{
-									"$ref": "#/definitions/Socket Output Adapter"
-								},
-								{
 									"$ref": "#/definitions/Custom Output Adapter"
 								}
 							]
@@ -439,15 +436,6 @@
 				"name",
 				"value"
 			],
-			"additionalProperties": false
-		},
-		"Socket Output Adapter": {
-			"type": "object",
-			"properties": {
-				"port": {
-					"type": "string"
-				}
-			},
 			"additionalProperties": false
 		},
 		"Custom Output Adapter": {

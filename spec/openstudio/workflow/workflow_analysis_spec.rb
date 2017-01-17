@@ -471,15 +471,25 @@ describe 'OSW Integration' do
 
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
-
+    
+    custom_start_path = File.expand_path('./../../../files/run_options_osw/run/custom_started.job', __FILE__)
+    FileUtils.rm_rf(custom_start_path) if File.exist?(custom_start_path)
+    expect(File.exist?(custom_start_path)).to eq false
+    
+    custom_finished_path = File.expand_path('./../../../files/run_options_osw/run/custom_finished.job', __FILE__)
+    FileUtils.rm_rf(custom_finished_path) if File.exist?(custom_finished_path)
+    expect(File.exist?(custom_finished_path)).to eq false
+    
     run_options = {
-        debug: false
+        debug: true
     }
     k = OpenStudio::Workflow::Run.new osw_path, run_options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    expect(File.exist?(custom_start_path)).to eq true
+    expect(File.exist?(custom_finished_path)).to eq true
   end
   
 end

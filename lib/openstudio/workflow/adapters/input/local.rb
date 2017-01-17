@@ -93,8 +93,12 @@ module OpenStudio
             if !custom_adapter.empty?
               custom_file_name = custom_adapter.get.customFileName
               class_name = custom_adapter.get.className
-              options = ::JSON.parse(custom_adapter.get.options)
+              options = ::JSON.parse(custom_adapter.get.options, :symbolize_names => true)
               
+              # merge with user options, user options will replace options loaded from OSW
+              options.merge!(user_options)
+                
+              # stick output_directory in options
               options[:output_directory] = run_dir
               
               p = @workflow_json.findFile(custom_file_name)

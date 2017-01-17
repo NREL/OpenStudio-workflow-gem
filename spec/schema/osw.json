@@ -80,10 +80,10 @@
 						"debug": {
 							"type": "boolean"
 						},
-						"cleanup": {
+						"preserve_run_dir": {
 							"type": "boolean"
 						},
-						"preserve_run_dir": {
+						"cleanup": {
 							"type": "boolean"
 						},
 						"output_adapter": {
@@ -403,6 +403,9 @@
 				},
 				"class_name": {
 					"type": "string"
+				},
+				"options": {
+					"type": "object"
 				}
 			},
 			"additionalProperties": false

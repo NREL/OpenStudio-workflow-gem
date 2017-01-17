@@ -30,7 +30,10 @@
     "preserve_run_dir": true,
     "output_adapter": {
       "custom_file_name": "CustomAdapter.rb",
-      "class_name": "CustomAdapter"
+      "class_name": "CustomAdapter",
+      "options": {
+        "custom_option": true
+      }
     },
     "jobs": {
       "no_simulation": false

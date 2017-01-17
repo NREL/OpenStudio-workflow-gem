@@ -449,6 +449,9 @@
 				},
 				"class_name": {
 					"type": "string"
+				},
+				"options": {
+					"type": "object"
 				}
 			},
 			"additionalProperties": false

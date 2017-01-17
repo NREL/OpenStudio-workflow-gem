@@ -39,7 +39,7 @@ module OpenStudio
               # Create a temporary WorkflowJSON, will not be same one used in registry during simulation
               @workflow_json = OpenStudio::WorkflowJSON.new(JSON.fast_generate(workflow))
               @workflow_json.setOswDir(osw_dir)
-            rescue Exception => e
+            rescue NameError => e
               @workflow_json = WorkflowJSON_Shim.new(workflow, osw_dir)
             end
             
@@ -88,9 +88,22 @@ module OpenStudio
           return user_options[:output_adapter] if user_options[:output_adapter]
           
           # try to read from OSW
-          begin
-            @run_options
-          rescue
+          if @run_options && !@run_options.empty?
+            custom_adapter = @run_options.get.customOutputAdapter
+            if !custom_adapter.empty?
+              custom_file_name = custom_adapter.get.customFileName
+              class_name = custom_adapter.get.className
+              options = ::JSON.parse(custom_adapter.get.options)
+              
+              options[:output_directory] = run_dir
+              
+              p = @workflow_json.findFile(custom_file_name)
+              if !p.empty?
+                load(p.get.to_s)
+                output_adapter = eval("#{class_name}.new(options)")
+                return output_adapter
+              end
+            end
           end
           
           # if socket port requested

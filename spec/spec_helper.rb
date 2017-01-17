@@ -12,12 +12,14 @@ if developer_os_version.zero?
   # use system libs
 elsif developer_os_version == 1
   # for testing with OpenStudio 1.X
-  os_dir = 'E:/openstudio-1-14/build/OSCore-prefix/src/OSCore-build/ruby/Debug'
+  #os_dir = 'E:/openstudio-1-14/build/OSCore-prefix/src/OSCore-build/ruby/Debug'
+  os_dir = 'C:/Program Files/OpenStudio 1.14.0/Ruby'
   $LOAD_PATH.reject! { |p| /site_ruby$/.match(p) }
   $LOAD_PATH.unshift(os_dir)
 elsif developer_os_version == 2
   # for testing with OpenStudio 2.X
   os_dir = 'E:/openstudio/build/Products/Debug'
+  #os_dir = 'C:/Program Files/OpenStudio 2.0.0/Ruby'
   $LOAD_PATH.reject! { |p| /site_ruby$/.match(p) }
   old_dir = Dir.pwd
   Dir.chdir(os_dir)

@@ -122,23 +122,11 @@ module OpenStudio
         @registry.register(:osw_dir) { @input_adapter.osw_dir }
         @registry.register(:run_dir) { @input_adapter.run_dir }
         
-        # get the output adapter
-        default_output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
-        @output_adapter = @input_adapter.output_adapter(user_options, default_output_adapter)
-
-        # get the jobs
-        default_jobs = OpenStudio::Workflow::Run.default_jobs
-        @jobs = @input_adapter.jobs(user_options, default_jobs)
-
-        # get some other run options out of user_options and into permanent options 
+        # get info to set up logging first in case of failures later
         @options[:debug] = @input_adapter.debug(user_options, false)
         @options[:preserve_run_dir] = @input_adapter.preserve_run_dir(user_options, false)
-        @options[:cleanup] = @input_adapter.cleanup(user_options, true)
-        @options[:energyplus_path] = @input_adapter.energyplus_path(user_options, nil) 
         @options[:profile] = @input_adapter.profile(user_options, false)
-        @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
-        @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
-
+        
         # DLM: need to check that we have correct permissions to all these paths
 
         # By default blow away the entire run directory every time and recreate it
@@ -171,8 +159,22 @@ module OpenStudio
         @logger = ::Logger.new(MultiDelegator.delegate(:write, :close).to(*@options[:targets])) # * is the splat operator
         @logger.level = logger_level 
         @registry.register(:logger) { @logger }
-
+        
         @logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
+        
+        # get the output adapter
+        default_output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
+        @output_adapter = @input_adapter.output_adapter(user_options, default_output_adapter)
+
+        # get the jobs
+        default_jobs = OpenStudio::Workflow::Run.default_jobs
+        @jobs = @input_adapter.jobs(user_options, default_jobs)
+
+        # get other run options out of user_options and into permanent options 
+        @options[:cleanup] = @input_adapter.cleanup(user_options, true)
+        @options[:energyplus_path] = @input_adapter.energyplus_path(user_options, nil) 
+        @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
+        @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
 
         openstudio_dir = "unknown"
         begin

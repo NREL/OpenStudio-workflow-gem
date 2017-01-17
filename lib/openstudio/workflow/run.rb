@@ -22,6 +22,7 @@ require_relative 'adapters/input/local'
 require_relative 'adapters/output/local'
 
 require 'logger'
+require 'pathname'
 
 # Run Class for OpenStudio workflow.  All comments here need some love, as well as the code itself
 module OpenStudio
@@ -67,17 +68,16 @@ module OpenStudio
       # @param [String] osw_path the path to the OSW file to run. It is highly recommended that this be an absolute
       #   path, however if not it will be made absolute relative to the current working directory
       # @param [Hash] user_options ({}) A set of user-specified options that are used to override default behaviors. 
-      # @option user_options [Hash] :cleanup Remove unneccessary files during post processing, defaults to true
-      # @option user_options [Hash] :debug Print debugging messages, overrides OSW options if set, defaults to false
+      # @option user_options [Hash] :cleanup Remove unneccessary files during post processing, overrides OSW option if set, defaults to true
+      # @option user_options [Hash] :debug Print debugging messages, overrides OSW option if set, defaults to false
       # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
-      # @option user_options [Hash] :jobs Simulation workflow, defaults to default_jobs
-      # @option user_options [Hash] :output_adapter Output adapter to use, overrides port and OSW options if set, defaults to local adapter
-      # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW options if set, defaults to false
+      # @option user_options [Hash] :jobs Simulation workflow, overrides jobs in OSW if set, defaults to default_jobs
+      # @option user_options [Hash] :output_adapter Output adapter to use, overrides output adapter in OSW if set, defaults to local adapter
+      # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW option if set, defaults to false - DLM, Deprecate
       # @option user_options [Hash] :profile Produce additional output for profiling simulations, defaults to false
       # @option user_options [Hash] :targets Log targets to write to, defaults to standard out and run.log
-      # @option user_options [Hash] :socket Selects socket output adapter and sets port to use, defaults to empty
       # @option user_options [Hash] :verify_osw Check OSW for correctness, defaults to true
-      # @option user_options [Hash] :weather_file Initial weather file to load, overrides OSW options if set, defaults to empty
+      # @option user_options [Hash] :weather_file Initial weather file to load, overrides OSW option if set, defaults to empty
       def initialize(osw_path, user_options = {})
         # DLM - what is final_message?
         @final_message = ''
@@ -118,16 +118,21 @@ module OpenStudio
         # get the input osw
         @input_adapter = OpenStudio::Workflow::InputAdapter::Local.new(osw_path)
         
-        @registry.register(:osw_path) { @input_adapter.osw_path }
-        @registry.register(:osw_dir) { @input_adapter.osw_dir }
-        @registry.register(:run_dir) { @input_adapter.run_dir }
+        # DLM: need to check that we have correct permissions to all these paths
+        @registry.register(:osw_path) { Pathname.new(@input_adapter.osw_path).realpath }
+        @registry.register(:osw_dir) { Pathname.new(@input_adapter.osw_dir).realpath }
+        @registry.register(:run_dir) { Pathname.new(@input_adapter.run_dir).realpath }
         
         # get info to set up logging first in case of failures later
         @options[:debug] = @input_adapter.debug(user_options, false)
         @options[:preserve_run_dir] = @input_adapter.preserve_run_dir(user_options, false)
         @options[:profile] = @input_adapter.profile(user_options, false)
         
-        # DLM: need to check that we have correct permissions to all these paths
+        # if running in osw dir, force preserve run dir
+        if @registry[:osw_dir] == @registry[:run_dir]
+          # force preserving the run directory
+          @options[:preserve_run_dir] = true
+        end
 
         # By default blow away the entire run directory every time and recreate it
         unless @options[:preserve_run_dir]
@@ -147,7 +152,7 @@ module OpenStudio
           @options[:targets] = user_options[:targets]
         else
           # don't create these files unless we want to use them
-          # DLM: need to make sure that run.log will be closed later 
+          # DLM: TODO, make sure that run.log will be closed later 
           @options[:targets] = [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
         end
 
@@ -164,11 +169,11 @@ module OpenStudio
         
         # get the output adapter
         default_output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
-        @output_adapter = @input_adapter.output_adapter(user_options, default_output_adapter)
+        @output_adapter = @input_adapter.output_adapter(user_options, default_output_adapter, @logger)
 
         # get the jobs
         default_jobs = OpenStudio::Workflow::Run.default_jobs
-        @jobs = @input_adapter.jobs(user_options, default_jobs)
+        @jobs = @input_adapter.jobs(user_options, default_jobs, @logger)
 
         # get other run options out of user_options and into permanent options 
         @options[:cleanup] = @input_adapter.cleanup(user_options, true)

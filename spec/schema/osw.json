@@ -98,24 +98,6 @@
 							"type": "object",
 							"oneOf": [
 								{
-									"type": "object",
-									"properties": {
-										"no_simulation": {
-											"type": "boolean"
-										}
-									},
-									"additionalProperties": false
-								},
-								{
-									"type": "object",
-									"properties": {
-										"post_process_only": {
-											"type": "boolean"
-										}
-									},
-									"additionalProperties": false
-								},
-								{
 									"$ref": "#/definitions/Custom Jobs"
 								}
 							]

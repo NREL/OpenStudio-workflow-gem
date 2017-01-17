@@ -82,7 +82,7 @@ module OpenStudio
           result
         end
         
-        def output_adapter(user_options, default)
+        def output_adapter(user_options, default, logger)
           
           # user option trumps all others
           return user_options[:output_adapter] if user_options[:output_adapter]
@@ -91,42 +91,47 @@ module OpenStudio
           if @run_options && !@run_options.empty?
             custom_adapter = @run_options.get.customOutputAdapter
             if !custom_adapter.empty?
-              custom_file_name = custom_adapter.get.customFileName
-              class_name = custom_adapter.get.className
-              options = ::JSON.parse(custom_adapter.get.options, :symbolize_names => true)
-              
-              # merge with user options, user options will replace options loaded from OSW
-              options.merge!(user_options)
+              begin
+                custom_file_name = custom_adapter.get.customFileName
+                class_name = custom_adapter.get.className
+                options = ::JSON.parse(custom_adapter.get.options, :symbolize_names => true)
                 
-              # stick output_directory in options
-              options[:output_directory] = run_dir
-              
-              p = @workflow_json.findFile(custom_file_name)
-              if !p.empty?
-                load(p.get.to_s)
-                output_adapter = eval("#{class_name}.new(options)")
-                return output_adapter
+                # merge with user options, user options will replace options loaded from OSW
+                options.merge!(user_options)
+                  
+                # stick output_directory in options
+                options[:output_directory] = run_dir
+                
+                p = @workflow_json.findFile(custom_file_name)
+                if !p.empty?
+                  load(p.get.to_s)
+                  output_adapter = eval("#{class_name}.new(options)")
+                  return output_adapter
+                else
+                  log_message = "Failed to load custom adapter file '#{custom_file_name}'"
+                  logger.error log_message
+                  raise log_message
+                end
+              rescue
+                log_message = "Failed to load custom adapter '#{class_name}' from file '#{custom_file_name}'"
+                logger.error log_message
+                raise log_message
               end
             end
-          end
-          
-          # if socket port requested
-          if user_options[:socket]
-            require 'openstudio/workflow/adapters/output/socket'
-            return OpenStudio::Workflow::OutputAdapter::Socket.new({output_directory: run_dir, port: user_options[:socket]})
           end
         
           return default
         end
         
-        def jobs(user_options, default)
+        def jobs(user_options, default, logger)
           
           # user option trumps all others
           return user_options[:jobs] if user_options[:jobs]
-          
+
           # try to read from OSW
           begin
-            @run_options
+            #log_message = "Reading custom job states from OSW is not currently supported'"
+            #logger.info log_message
           rescue
           end
         
@@ -139,9 +144,8 @@ module OpenStudio
           return user_options[:debug] if user_options[:debug]
           
           # try to read from OSW
-          begin
-            @run_options
-          rescue
+          if @run_options && !@run_options.empty?
+            return @run_options.get.debug
           end
         
           return default
@@ -153,9 +157,8 @@ module OpenStudio
           return user_options[:preserve_run_dir] if user_options[:preserve_run_dir]
           
           # try to read from OSW
-          begin
-            @run_options
-          rescue
+          if @run_options && !@run_options.empty?
+            return @run_options.get.preserveRunDir
           end
         
           return default
@@ -167,9 +170,8 @@ module OpenStudio
           return user_options[:cleanup] if user_options[:cleanup]
           
           # try to read from OSW
-          begin
-            @run_options
-          rescue
+          if @run_options && !@run_options.empty?
+            return @run_options.get.cleanup
           end
         
           return default
@@ -205,9 +207,8 @@ module OpenStudio
           return user_options[:weather_file] if user_options[:weather_file]
           
           # try to read from OSW
-          begin
-            workflow_json.weatherFile
-          rescue
+          if !@workflow_json.weatherFile.empty?
+            return @workflow_json.weatherFile.get.to_s
           end
         
           return default

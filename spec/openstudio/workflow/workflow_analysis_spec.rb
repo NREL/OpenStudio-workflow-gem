@@ -488,8 +488,14 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
-    expect(File.exist?(custom_start_path)).to eq true
-    expect(File.exist?(custom_finished_path)).to eq true
+    
+    begin
+      OpenStudio::RunOptions.new
+      expect(File.exist?(custom_start_path)).to eq true
+      expect(File.exist?(custom_finished_path)).to eq true
+    rescue NameError => e
+      # feature not available
+    end
   end
   
 end

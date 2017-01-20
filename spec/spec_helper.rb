@@ -6,7 +6,7 @@ SimpleCov.start do
   add_filter 'spec/files'
 end
 
-developer_os_version = 0
+developer_os_version = 2
 
 if developer_os_version.zero?
   # use system libs

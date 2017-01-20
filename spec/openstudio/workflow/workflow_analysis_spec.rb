@@ -498,4 +498,56 @@ describe 'OSW Integration' do
     end
   end
   
+  it 'should handle weather file throughout the run' do
+    osw_path = File.expand_path('./../../../files/weather_file/weather_file.osw', __FILE__)
+    expect(File.exist?(osw_path)).to eq true
+    
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    workflow_json = nil
+    begin
+      workflow_json = OpenStudio::WorkflowJSON.new(OpenStudio::Path.new(osw_path))
+    rescue NameError => e
+      workflow = ::JSON.parse(File.read(osw_path), symbolize_names: true)
+      workflow_json = WorkflowJSON_Shim.new(workflow, File.dirname(osw_path))
+    end
+
+    seed = workflow_json.seedFile
+    expect(seed.empty?).to be false
+    seed = workflow_json.findFile(seed.get)
+    expect(seed.empty?).to be false
+    
+    vt = OpenStudio::OSVersion::VersionTranslator.new
+    model = vt.loadModel(seed.get)
+    expect(model.empty?).to be false
+    
+    weather_file = model.get.getOptionalWeatherFile
+    expect(weather_file.empty?).to be false
+    weather_file_path = weather_file.get.path
+    expect(weather_file_path.empty?).to be false
+    weather_file_path = workflow_json.findFile(weather_file_path.get.to_s)
+    expect(weather_file_path.empty?).to be false
+    expect(File.exist?(weather_file_path.get.to_s)).to be true
+    expect(File.basename(weather_file_path.get.to_s)).to eq "USA_CO_Golden-NREL.724666_TMY3.epw"
+    
+    weather_file_path = workflow_json.weatherFile
+    expect(weather_file_path.empty?).to be false
+    weather_file_path = workflow_json.findFile(weather_file_path.get.to_s)
+    expect(weather_file_path.empty?).to be false    
+    expect(File.exist?(weather_file_path.get.to_s)).to be true
+    expect(File.basename(weather_file_path.get.to_s)).to eq "USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw"
+
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    expect(File.exist?(osw_out_path)).to eq true
+    
+  end
+  
 end

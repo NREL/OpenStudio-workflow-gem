@@ -548,6 +548,12 @@ describe 'OSW Integration' do
 
     expect(File.exist?(osw_out_path)).to eq true
     
+    # check epw in run dir
+    
+    # check sql
+    
+    # add reporting measure to check?
+    
   end
   
 end

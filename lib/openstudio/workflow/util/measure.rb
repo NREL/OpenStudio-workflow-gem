@@ -464,9 +464,11 @@ module OpenStudio
                       if weather_file_path2.empty?
                         logger.warn "Could not find weather file '#{weather_file_path}' referenced in model"
                       else
-                        logger.debug "Updating weather file path to '#{weather_file_path2.get.to_s}'"
-                        @wf = weather_file_path2.get.to_s
-                        registry.register(:wf) { @wf }
+                        if weather_file_path2.get.to_s != @wf
+                          logger.debug "Updating weather file path to '#{weather_file_path2.get.to_s}'"
+                          @wf = weather_file_path2.get.to_s
+                          registry.register(:wf) { @wf }
+                        end
                       end
                     end
                   end

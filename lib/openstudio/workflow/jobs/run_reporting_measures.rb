@@ -64,7 +64,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
         @registry.register(:sql) { sql_path }
         @logger.debug "Registered the sql filepath as #{@registry[:sql]}"
       end
-      raise "Unable to load #{sql_path}" unless @registry[:sql]
+      #raise "Unable to load #{sql_path}" unless @registry[:sql]
     end
     if @registry[:wf].nil?
       epw_path = File.absolute_path(File.join(@registry[:run_dir], 'in.epw'))
@@ -72,7 +72,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
         @registry.register(:wf) { epw_path }
         @logger.debug "Registered the wf filepath as #{@registry[:wf]}"
       end
-      raise "Unable to load #{epw_path}" unless @registry[:wf]
+      #raise "Unable to load #{epw_path}" unless @registry[:wf]
     end
     
     # Apply reporting measures

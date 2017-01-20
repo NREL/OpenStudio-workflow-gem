@@ -129,21 +129,11 @@ class RunInitialization < OpenStudio::Workflow::Job
       end
 
       if weather_full_path.empty?
-        raise "Weather file #{weather_path} specified but cannot be found"
+        raise "Weather file '#{weather_path}' specified but cannot be found"
       end
       weather_full_path = weather_full_path.get
 
       @registry.register(:wf) { weather_full_path.to_s }
-      
-      epwFile = OpenStudio::EpwFile.load(weather_full_path.to_s)
-      if !epwFile.empty?
-        if @registry[:model]
-          model = @registry[:model]
-          OpenStudio::Model::WeatherFile.setWeatherFile(model, epwFile.get)
-        end
-      else
-        @logger.warn "Could not load weather file from '#{weather_full_path.to_s}'"
-      end
 
     end
     @logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]

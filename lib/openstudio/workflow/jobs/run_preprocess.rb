@@ -34,14 +34,6 @@ class RunPreprocess < OpenStudio::Workflow::Job
     # Ensure that the directory is created (but it should already be at this point)
     FileUtils.mkdir_p(@registry[:run_dir])
 
-    # Copy in the weather file defined in the registry, or alternately in the options
-    if @registry[:wf]
-      @logger.info "Weather file for EnergyPlus simulation is #{@registry[:wf]}"
-      FileUtils.copy(@registry[:wf], "#{@registry[:run_dir]}/in.epw")
-    else
-      @logger.warn "EPW file not found or not sent to #{self.class}"
-    end
-
     # save the pre-preprocess file
     File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') { |f| f << @registry[:model_idf].to_s }
 

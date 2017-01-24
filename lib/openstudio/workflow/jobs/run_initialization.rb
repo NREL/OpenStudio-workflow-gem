@@ -70,8 +70,6 @@ class RunInitialization < OpenStudio::Workflow::Job
     @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow_json], @registry[:openstudio_2]) }
     @logger.debug 'Initialized runner'
 
-    workflow_json.start
-
     # Validate the OSW measures if the flag is set to true, (the default state)
     if @options[:verify_osw]
       @logger.info 'Attempting to validate the measure workflow'
@@ -100,6 +98,12 @@ class RunInitialization < OpenStudio::Workflow::Job
       @registry.register(:model) { OpenStudio::Model::Model.new }
     end
 
+    if @registry[:openstudio_2]
+      if @registry[:model]
+        @registry[:model].setWorkflowJSON(workflow_json.clone)
+      end
+    end
+    
     # DLM: TODO, load weather_file from options so it can be overriden by user_options
     
     # Find the weather file, should it exist and be findable
@@ -125,14 +129,17 @@ class RunInitialization < OpenStudio::Workflow::Job
       end
 
       if weather_full_path.empty?
-        raise "Weather file #{weather_path} specified but cannot be found"
+        raise "Weather file '#{weather_path}' specified but cannot be found"
       end
       weather_full_path = weather_full_path.get
 
       @registry.register(:wf) { weather_full_path.to_s }
+
     end
     @logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
 
+    workflow_json.start
+    
     nil
   end
 end

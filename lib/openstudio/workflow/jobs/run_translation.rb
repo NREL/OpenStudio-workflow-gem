@@ -28,7 +28,19 @@ class RunTranslation < OpenStudio::Workflow::Job
 
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
+    
+    # Ensure that the run directory is created
+    FileUtils.mkdir_p(@registry[:run_dir])
 
+    # Copy in the weather file defined in the registry, or alternately in the options
+    if @registry[:wf]
+      @logger.info "Weather file for EnergyPlus simulation is #{@registry[:wf]}"
+      FileUtils.copy(@registry[:wf], "#{@registry[:run_dir]}/in.epw")
+      @registry.register(:wf) { "#{@registry[:run_dir]}/in.epw" }
+    else
+      @logger.warn "EPW file not found or not sent to #{self.class}"
+    end
+    
     # Translate the OSM to an IDF
     @logger.info 'Beginning the translation to IDF'
     @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]

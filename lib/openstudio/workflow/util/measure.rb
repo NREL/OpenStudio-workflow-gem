@@ -214,7 +214,7 @@ module OpenStudio
           @model = registry[:model]
           @model_idf = registry[:model_idf]
           @sql_filename = registry[:sql]
-
+          
           runner.setLastOpenStudioModel(@model) if @model
           #runner.setLastOpenStudioModelPath(const openstudio::path& lastOpenStudioModelPath); #DLM - deprecate?
           runner.setLastEnergyPlusWorkspace(@model_idf) if @model_idf
@@ -451,6 +451,28 @@ module OpenStudio
                 registry.register(:model) { @model }
                 registry.register(:model_idf) { @model_idf }
                 registry.register(:sql) { @sql_filename }
+                
+                if measure_type == 'ModelMeasure'.to_MeasureType
+                  # check if weather file has changed
+                  weather_file = @model.getOptionalWeatherFile
+                  if !weather_file.empty?
+                    weather_file_path = weather_file.get.path
+                    if weather_file_path.empty?
+                      logger.debug "Weather file object found in model but no path is given"
+                    else
+                      weather_file_path2 = workflow_json.findFile(weather_file_path.get)
+                      if weather_file_path2.empty?
+                        logger.warn "Could not find weather file '#{weather_file_path}' referenced in model"
+                      else
+                        if weather_file_path2.get.to_s != @wf
+                          logger.debug "Updating weather file path to '#{weather_file_path2.get.to_s}'"
+                          @wf = weather_file_path2.get.to_s
+                          registry.register(:wf) { @wf }
+                        end
+                      end
+                    end
+                  end
+                end
 
               rescue => e
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"

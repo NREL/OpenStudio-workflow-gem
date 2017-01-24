@@ -59,10 +59,22 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
       @logger.debug "Successfully loaded #{idf_path}"
     end
     if @registry[:sql].nil?
-      @registry.register(:sql) { File.absolute_path(File.join(@registry[:run_dir], 'eplusout.sql')) }
-      @logger.debug "Registered the sql filepath as #{@registry[:sql]}"
+      sql_path = File.absolute_path(File.join(@registry[:run_dir], 'eplusout.sql'))
+      if File.exists?(sql_path)
+        @registry.register(:sql) { sql_path }
+        @logger.debug "Registered the sql filepath as #{@registry[:sql]}"
+      end
+      #raise "Unable to load #{sql_path}" unless @registry[:sql]
     end
-
+    if @registry[:wf].nil?
+      epw_path = File.absolute_path(File.join(@registry[:run_dir], 'in.epw'))
+      if File.exists?(epw_path)
+        @registry.register(:wf) { epw_path }
+        @logger.debug "Registered the wf filepath as #{@registry[:wf]}"
+      end
+      #raise "Unable to load #{epw_path}" unless @registry[:wf]
+    end
+    
     # Apply reporting measures
     @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute Reporting measures.'

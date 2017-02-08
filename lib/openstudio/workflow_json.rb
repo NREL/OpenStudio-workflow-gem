@@ -54,6 +54,13 @@ unless s.respond_to?(:to_VariantType)
     end
   end
 end
+unless s.respond_to?(:valueName)
+  class String
+    def valueName
+      self
+    end
+  end
+end
 
 # WorkflowStepResultValue_Shim provides a shim interface to the WorkflowStepResultValue class in OpenStudio 2.X when running in OpenStudio 1.X
 class WorkflowStepResultValue_Shim
@@ -94,6 +101,20 @@ class WorkflowStepResult_Shim
     @result = result
   end
 
+  def stepInitialCondition
+    if @result[:initial_condition]
+      return Optional_Shim.new(@result[:initial_condition])
+    end
+    return Optional_Shim.new(nil)
+  end
+  
+  def stepFinalCondition
+    if @result[:final_condition]
+      return Optional_Shim.new(@result[:final_condition])
+    end
+    return Optional_Shim.new(nil)
+  end
+  
   def stepErrors
     return @result[:step_errors]
   end
@@ -121,6 +142,7 @@ class WorkflowStepResult_Shim
    def setStepResult(step_result)
     @result[:step_result] = step_result
   end 
+   
 end
 
 # WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X

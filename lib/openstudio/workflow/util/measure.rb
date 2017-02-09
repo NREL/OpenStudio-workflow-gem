@@ -440,10 +440,8 @@ module OpenStudio
                 # incrementStep must be called after run
                 runner.incrementStep
                 
-                if options[:output_adapter] 
-                  options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
-                end
-                
+                options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
+
                 errors = result.stepErrors
                 
                 fail "Measure #{measure_dir_name} reported an error with #{errors}" if errors.size != 0

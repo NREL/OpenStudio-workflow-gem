@@ -56,6 +56,10 @@ module OpenStudio
         def communicate_energyplus_stdout(line, options = {})
           super
         end
+        
+        def communicate_measure_result(result, options = {})
+          super
+        end
       end
     end
   end

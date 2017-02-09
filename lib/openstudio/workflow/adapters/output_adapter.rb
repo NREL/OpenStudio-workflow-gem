@@ -39,6 +39,10 @@ module OpenStudio
         instance.communicate_energyplus_stdout line, options
       end
 
+      def communicate_measure_result(result, options = {})
+        instance.communicate_measure_result result, options
+      end
+      
       def communicate_measure_attributes(measure_attributes, options = {})
         instance.communicate_measure_attributes measure_attributes, options
       end

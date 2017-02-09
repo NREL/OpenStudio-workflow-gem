@@ -224,6 +224,7 @@ describe 'OSW Integration' do
 
     Thread.kill(t)
 
+    #puts "content = #{content}"
     expect(content).to match(/Starting state initialization/)
     expect(content).to match(/Processing Data Dictionary/)
     expect(content).to match(/Writing final SQL reports/)

@@ -414,10 +414,14 @@ module OpenStudio
                 # add the error to the osw.out
                 runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
                 
+                result = runner.result
+                
                 if !energyplus_output_requests
                   # incrementStep must be called after run
                   runner.incrementStep
                 end
+                
+                options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
                 
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
                 raise log_message
@@ -435,9 +439,11 @@ module OpenStudio
                 
                 # incrementStep must be called after run
                 runner.incrementStep
+                
+                options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
 
                 errors = result.stepErrors
-
+                
                 fail "Measure #{measure_dir_name} reported an error with #{errors}" if errors.size != 0
                 logger.debug "Running of measure '#{measure_dir_name}' completed. Post-processing measure output"
                 

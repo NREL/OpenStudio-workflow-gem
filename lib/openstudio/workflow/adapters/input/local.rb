@@ -228,7 +228,7 @@ module OpenStudio
         #
         def analysis
           # DLM: should this come from the OSW?  the osd id and checksum are specified there.
-          osa_abs_path = File.join(osw_dir, 'analysis.osa')
+          osa_abs_path = File.join(osw_dir, '../analysis.json')
           if File.exist? osa_abs_path
             ::JSON.parse(File.read(osa_abs_path), symbolize_names: true)
           end

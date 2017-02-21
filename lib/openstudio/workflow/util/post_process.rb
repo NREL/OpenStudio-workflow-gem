@@ -44,9 +44,9 @@ module OpenStudio
           if @registry[:analysis]
             logger.info 'Iterating over Analysis JSON Output Variables'
             # Save the objective functions to the object for sending back to the simulation executive
-
-            if @analysis_json[:analysis] && @analysis_json[:analysis][:output_variables]
-              @analysis_json[:analysis][:output_variables].each do |variable|
+            analysis_json = @registry[:analysis]
+            if analysis_json[:analysis] && analysis_json[:analysis][:output_variables]
+              analysis_json[:analysis][:output_variables].each do |variable|
                 # determine which ones are the objective functions (code smell: todo: use enumerator)
                 if variable[:objective_function]
                   logger.info "Looking for objective function #{variable[:name]}"

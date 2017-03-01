@@ -3,6 +3,7 @@ module OpenStudio
     module Util
       require 'openstudio/workflow/util/measure'
       require 'csv'
+      require 'rexml/document'
 
       # This module serves as a wrapper around various post-processing tasks used to manage outputs
       # @todo (rhorsey) ummmm. So some of this is pretty ugly. Since @dmacumber had ideas about this maybe he can figure
@@ -136,7 +137,12 @@ module OpenStudio
           # Also, find any "report*.*" files
           Dir["#{run_dir}/*/report*.*"].each do |report|
             # get the parent directory of the file and snake case it
-            measure_class_name = File.basename(File.dirname(report))
+            measure_dir_name = File.dirname(report).split('/').last.gsub(/[0-9][0-9][0-9]_/, '')
+            measure_xml_path = File.absolute_path(File.join(File.dirname(report), '../../..', 'measures',
+                                                            measure_dir_name, 'measure.xml'))
+            logger.info "measure_xml_path: #{measure_xml_path}"
+            measure_xml = REXML::Document.new File.read(measure_xml_path)
+            measure_class_name = OpenStudio.toUnderscoreCase(measure_xml.root.elements['class_name'].text)
             file_ext = File.extname(report)
             append_str = File.basename(report, '.*')
             new_file_name = "#{directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"

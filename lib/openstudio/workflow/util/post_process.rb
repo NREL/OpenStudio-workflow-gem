@@ -173,8 +173,8 @@ module OpenStudio
           # paths_to_rm << Pathname.glob("#{run_dir}/*.eso")
           paths_to_rm << Pathname.glob("#{run_dir}/*.mtr")
           paths_to_rm << Pathname.glob("#{run_dir}/*.epw")
-          paths_to_rm << Pathname.glob("#{run_dir}/*.mtd")
-          paths_to_rm << Pathname.glob("#{run_dir}/*.rdd")
+          #paths_to_rm << Pathname.glob("#{run_dir}/*.mtd")
+          #paths_to_rm << Pathname.glob("#{run_dir}/*.rdd")
           paths_to_rm.each { |p| FileUtils.rm_rf(p) }
         end
       end

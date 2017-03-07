@@ -557,8 +557,8 @@ describe 'OSW Integration' do
     
   end
 
-  it 'should run choice_args OSW file' do
-    osw_path = File.expand_path('./../../../files/choice_args/choice_args.osw', __FILE__)
+  it 'should run null_seed OSW file' do
+    osw_path = File.expand_path('./../../../files/null_seed/null_seed.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)

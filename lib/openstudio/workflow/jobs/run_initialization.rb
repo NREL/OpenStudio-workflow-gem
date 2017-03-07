@@ -96,6 +96,21 @@ class RunInitialization < OpenStudio::Workflow::Job
       end
     else
       @registry.register(:model) { OpenStudio::Model::Model.new }
+      
+      # add default objects to the model
+      begin
+        OpenStudio::Model::initializeModelObjects(@registry[:model])
+      rescue NameError
+        @registry[:model].getBuilding
+        @registry[:model].getFacility
+        @registry[:model].getSimulationControl
+        @registry[:model].getSizingParameters
+        @registry[:model].getTimestep
+        @registry[:model].getShadowCalculation
+        @registry[:model].getHeatBalanceAlgorithm
+        @registry[:model].getRunPeriod
+        @registry[:model].getLifeCycleCostParameters
+      end
     end
 
     if @registry[:openstudio_2]

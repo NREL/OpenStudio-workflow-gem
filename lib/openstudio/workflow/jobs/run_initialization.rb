@@ -41,6 +41,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     @output_adapter.communicate_started
 
     # Load various files and set basic directories for the registry
+    # DLM: this key is the raw JSON object, it is deprecated and should not be used, use :workflow_json instead
     @registry.register(:workflow) { @input_adapter.workflow }
     raise 'Specified workflow was nil' unless @registry[:workflow]
     @logger.debug 'Retrieved the workflow from the adapter'

@@ -43,7 +43,7 @@ module OpenStudio
           # Load the IDF into a workspace object and return it
           logger.info "Reading in IDF model #{idf_path}"
 
-          idf = OpenStudio::Workspace.load(idf_path).get
+          idf = OpenStudio::Workspace.load(idf_path)
           raise "Failed to load IDF file #{idf_path}" if idf.empty?
           idf.get
         end

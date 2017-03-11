@@ -42,6 +42,114 @@ describe 'OSW Integration' do
     end
   end
 
+  it 'should run compact OSW file in m and w and p mode' do
+    osw_path = File.expand_path('./../../../files/compact_mwp_osw/compact_mwp.osw', __FILE__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    # run measures only
+    run_options = {
+        debug: true,
+        jobs: [
+          { state: :queued, next_state: :initialization, options: { initial: true } },
+          { state: :initialization, next_state: :os_measures, job: :RunInitialization,
+            file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
+          { state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
+            file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {} },
+          { state: :translator, next_state: :ep_measures, job: :RunTranslation,
+            file: 'openstudio/workflow/jobs/run_translation.rb', options: {} },
+          { state: :ep_measures, next_state: :finished, job: :RunEnergyPlusMeasures,
+            file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {} },
+          { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+            file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+          { state: :finished },
+          { state: :errored }
+        ]
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Success'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+    
+    # run 
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Success'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    osw_out[:steps].each do |step|
+      expect(step[:result]).to_not be_nil
+    end
+    
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+    
+    # run post process
+    run_options = {
+        debug: true,
+        preserve_run_dir: true,
+        jobs: [
+          { state: :queued, next_state: :initialization, options: { initial: true } },
+          { state: :initialization, next_state: :reporting_measures, job: :RunInitialization,
+            file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
+          { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
+            file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
+          { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+            file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+          { state: :finished },
+          { state: :errored }
+        ]
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Success'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    last_step = osw_out[:steps].last
+    expect(last_step[:result]).to_not be_nil
+    expect(last_step[:result][:step_final_condition]).to eq "DEnCity Report generated successfully."
+    
+  end
+  
   it 'should run an extended OSW file' do
     osw_path = File.expand_path('./../../../files/extended_osw/example/workflows/extended.osw', __FILE__)
     run_options = {

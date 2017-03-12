@@ -27,6 +27,8 @@ class IncreaseInsulationRValueForExteriorWallsByPercentage < OpenStudio::Ruleset
     if not runner.validateUserArguments(arguments(model), user_arguments)
       return false
     end
+    
+    runner.registerInitialCondition("IncreaseInsulationRValueForExteriorWallsByPercentage")
 
     #assign the user inputs to variables
     r_value = runner.getDoubleArgumentValue("r_value",user_arguments)
@@ -89,7 +91,6 @@ class IncreaseInsulationRValueForExteriorWallsByPercentage < OpenStudio::Ruleset
       initial_conductance_ip = unit_helper(1/exterior_surface_construction.thermalConductance.to_f,"m^2*K/W", "ft^2*h*R/Btu")
       initial_string << "#{exterior_surface_construction.name.to_s} (R-#{(sprintf "%.1f",initial_conductance_ip)})"
     end
-    runner.registerInitialCondition("The building had #{initial_string.size} exterior wall constructions: #{initial_string.sort.join(", ")}.")
 
     #hashes to track constructions and materials made by the measure, to avoid duplicates
     constructions_hash_old_new = {}

@@ -4,7 +4,9 @@
 	"steps": [
 		{
 			"measure_dir_name": "IncreaseWallRValue",
-			"arguments": {}
+			"arguments": {
+        "__SKIP__": true
+      }
 		},
 		{
 			"measure_dir_name": "IncreaseRoofRValue",

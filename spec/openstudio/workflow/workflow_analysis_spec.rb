@@ -82,8 +82,18 @@ describe 'OSW Integration' do
     expect(osw_out).to be_instance_of Hash
     expect(osw_out[:completed_status]).to eq 'Success'
     expect(osw_out[:steps]).to be_instance_of Array
-    expect(osw_out[:steps].size).to be > 0
-    
+    expect(osw_out[:steps].size).to eq 4
+    expect(osw_out[:steps][0][:result]).to_not be_nil
+    expect(osw_out[:steps][0][:result][:step_initial_condition]).to be_nil
+    expect(osw_out[:steps][0][:result][:step_result]).to eq "Skip"
+    expect(osw_out[:steps][1][:result]).to_not be_nil
+    expect(osw_out[:steps][1][:result][:step_initial_condition]).to eq "IncreaseInsulationRValueForRoofsByPercentage"
+    expect(osw_out[:steps][1][:result][:step_result]).to eq "Success"
+    expect(osw_out[:steps][2][:result]).to_not be_nil
+    expect(osw_out[:steps][2][:result][:step_initial_condition]).to eq "SetEnergyPlusInfiltrationFlowRatePerFloorArea"
+    expect(osw_out[:steps][2][:result][:step_result]).to eq "Success"
+    expect(osw_out[:steps][3][:result]).to be_nil
+
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
     
@@ -105,11 +115,20 @@ describe 'OSW Integration' do
     expect(osw_out).to be_instance_of Hash
     expect(osw_out[:completed_status]).to eq 'Success'
     expect(osw_out[:steps]).to be_instance_of Array
-    expect(osw_out[:steps].size).to be > 0
-    osw_out[:steps].each do |step|
-      expect(step[:result]).to_not be_nil
-    end
-    
+    expect(osw_out[:steps].size).to eq 4
+    expect(osw_out[:steps][0][:result]).to_not be_nil
+    expect(osw_out[:steps][0][:result][:step_initial_condition]).to be_nil
+    expect(osw_out[:steps][0][:result][:step_result]).to eq "Skip"
+    expect(osw_out[:steps][1][:result]).to_not be_nil
+    expect(osw_out[:steps][1][:result][:step_initial_condition]).to eq "IncreaseInsulationRValueForRoofsByPercentage"
+    expect(osw_out[:steps][1][:result][:step_result]).to eq "Success"
+    expect(osw_out[:steps][2][:result]).to_not be_nil
+    expect(osw_out[:steps][2][:result][:step_initial_condition]).to eq "SetEnergyPlusInfiltrationFlowRatePerFloorArea"
+    expect(osw_out[:steps][2][:result][:step_result]).to eq "Success"
+    expect(osw_out[:steps][3][:result]).to_not be_nil
+    expect(osw_out[:steps][3][:result][:step_initial_condition]).to eq "DencityReports"
+    expect(osw_out[:steps][3][:result][:step_result]).to eq "Success"
+
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
     
@@ -143,10 +162,13 @@ describe 'OSW Integration' do
     expect(osw_out).to be_instance_of Hash
     expect(osw_out[:completed_status]).to eq 'Success'
     expect(osw_out[:steps]).to be_instance_of Array
-    expect(osw_out[:steps].size).to be > 0
-    last_step = osw_out[:steps].last
-    expect(last_step[:result]).to_not be_nil
-    expect(last_step[:result][:step_final_condition]).to eq "DEnCity Report generated successfully."
+    expect(osw_out[:steps][0][:result]).to be_nil
+    expect(osw_out[:steps][1][:result]).to be_nil
+    expect(osw_out[:steps][2][:result]).to be_nil
+    expect(osw_out[:steps][3][:result]).to_not be_nil
+    expect(osw_out[:steps][3][:result][:step_initial_condition]).to eq "DencityReports"
+    expect(osw_out[:steps][3][:result][:step_result]).to eq "Success"
+    expect(osw_out[:steps][3][:result][:step_final_condition]).to eq "DEnCity Report generated successfully."
     
   end
   

@@ -40,6 +40,8 @@ class SetEnergyPlusInfiltrationFlowRatePerFloorArea < OpenStudio::Ruleset::Works
     if not runner.validateUserArguments(arguments(workspace), user_arguments)
       return false
     end
+    
+    runner.registerInitialCondition("SetEnergyPlusInfiltrationFlowRatePerFloorArea")
 
     #assign the user inputs to variables
     flowPerZoneFloorArea = runner.getDoubleArgumentValue("flowPerZoneFloorArea",user_arguments)
@@ -85,15 +87,6 @@ class SetEnergyPlusInfiltrationFlowRatePerFloorArea < OpenStudio::Ruleset::Works
     # todo - add warning if a thermal zone has more than one infiltrationObjects object, as that may not result in the desired impact.
 
     # todo - may also want to warn or have info message for zones that dont have any infiltrationObjects
-
-    #unique initial conditions based on
-    if starting_flowPerZoneFloorArea_values.size > 0 and  non_flowPerZoneFloorArea_starting.size == 0
-      runner.registerInitialCondition("The building has #{infiltrationObjects.size} infiltrationObject objects, and started with flow per zone floor area values ranging from #{starting_flowPerZoneFloorArea_values.min} to #{starting_flowPerZoneFloorArea_values.max}.")
-    elsif starting_flowPerZoneFloorArea_values.size > 0 and  non_flowPerZoneFloorArea_starting.size > 0
-      runner.registerInitialCondition("The building has #{infiltrationObjects.size} infiltrationObject objects, and started with flow per zone floor area values ranging from #{starting_flowPerZoneFloorArea_values.min} to #{starting_flowPerZoneFloorArea_values.max}. #{non_flowPerZoneFloorArea_starting.size} infiltrationObject objects did not start as Flow/Area, and are not included in the flow per zone floor area range.")
-    else
-      runner.registerInitialCondition("The building has #{infiltrationObjects.size} infiltrationObject objects. None of the infiltrationObjects started as Flow/Area.")
-    end
 
     #reporting final condition of model
     runner.registerFinalCondition("The building finished with flow per zone floor area values ranging from #{final_flowPerZoneFloorArea_values.min} to #{final_flowPerZoneFloorArea_values.max}.")

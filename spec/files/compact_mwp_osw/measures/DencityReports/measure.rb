@@ -112,6 +112,8 @@ class DencityReports < OpenStudio::Ruleset::ReportingUserScript
     unless runner.validateUserArguments(arguments, user_arguments)
       return false
     end
+    
+    runner.registerInitialCondition("DencityReports")
 
     # require 'ruby-prof'
 

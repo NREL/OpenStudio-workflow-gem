@@ -385,8 +385,13 @@ module OpenStudio
               if !energyplus_output_requests
                 # just increment
                 logger.debug "Skipping measure '#{measure_dir_name}'"
+                
+                # required to update current step
                 runner.prepareForUserScriptRun(measure_object)
-                runner.validateUserArguments(arguments, argument_map)
+                
+                # don't want to log errors about arguments passed to skipped measures
+                #runner.validateUserArguments(arguments, argument_map)
+                
                 current_result = runner.result
                 runner.incrementStep
                 current_result.setStepResult('Skip'.to_StepResult)

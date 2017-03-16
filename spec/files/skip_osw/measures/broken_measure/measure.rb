@@ -22,7 +22,12 @@ class BrokenMeasure < OpenStudio::Ruleset::ModelUserScript
   # define the arguments that the user will input
   def arguments(model)
     args = OpenStudio::Ruleset::OSArgumentVector.new
-
+    
+    # make a required argument with no default, osw should run without validating that
+    r_value = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("r_value",true)
+    r_value.setDisplayName("Percentage Increase of R-value for Roof Insulation.")
+    args << r_value
+    
     return args
   end
 

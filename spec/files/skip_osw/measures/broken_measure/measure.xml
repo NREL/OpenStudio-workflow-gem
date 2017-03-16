@@ -2,13 +2,23 @@
   <schema_version>3.0</schema_version>
   <name>broken_measure</name>
   <uid>49d1132f-b6ee-413f-bea7-26cd5e910a5a</uid>
-  <version_id>c507518f-8674-4195-8692-7accac3e2c80</version_id>
-  <xml_checksum>2AF3A68E</xml_checksum>
+  <version_id>c19ff125-35d0-4a98-9f39-18d623ef2137</version_id>
+  <version_modified>20170315T212153Z</version_modified>
+  <xml_checksum>0D0748A3</xml_checksum>
   <class_name>BrokenMeasure</class_name>
   <display_name>BrokenMeasure</display_name>
   <description></description>
   <modeler_description></modeler_description>
-  <arguments/>
+  <arguments>
+    <argument>
+      <name>r_value</name>
+      <display_name>Percentage Increase of R-value for Roof Insulation.</display_name>
+      <type>Double</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+  </arguments>
+  <outputs/>
   <provenances/>
   <tags>
     <tag>Envelope.Form</tag>
@@ -57,7 +67,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>0929FBA9</checksum>
+      <checksum>88C3F301</checksum>
     </file>
   </files>
 </measure>

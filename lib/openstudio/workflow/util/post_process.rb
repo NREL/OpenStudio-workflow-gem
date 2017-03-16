@@ -118,7 +118,7 @@ module OpenStudio
         # @param [String] directory
         # @param [String] logger
         #
-        def gather_reports(run_dir, directory, logger)
+        def gather_reports(run_dir, directory, workflow_json, logger)
           logger.info run_dir
           logger.info directory
 
@@ -136,13 +136,17 @@ module OpenStudio
 
           # Also, find any "report*.*" files
           Dir["#{run_dir}/*/report*.*"].each do |report|
-            # get the parent directory of the file and snake case it
-            measure_dir_name = File.dirname(report).split('/').last.gsub(/[0-9][0-9][0-9]_/, '')
+            # HRH: This is a temporary work-around to support PAT 2.1 pretty names AND the CLI while we roll a WorkflowJSON solution
+            measure_dir_name = File.dirname(report).split(File::SEPARATOR).last.gsub(/[0-9][0-9][0-9]_/, '')
             measure_xml_path = File.absolute_path(File.join(File.dirname(report), '../../..', 'measures',
                                                             measure_dir_name, 'measure.xml'))
             logger.info "measure_xml_path: #{measure_xml_path}"
-            measure_xml = REXML::Document.new File.read(measure_xml_path)
-            measure_class_name = OpenStudio.toUnderscoreCase(measure_xml.root.elements['class_name'].text)
+            if File.exists? measure_xml_path
+              measure_xml = REXML::Document.new File.read(measure_xml_path)
+              measure_class_name = OpenStudio.toUnderscoreCase(measure_xml.root.elements['class_name'].text)
+            else
+              measure_class_name = OpenStudio.toUnderscoreCase(measure_dir_name)
+            end
             file_ext = File.extname(report)
             append_str = File.basename(report, '.*')
             new_file_name = "#{directory}/reports/#{measure_class_name}_#{append_str}#{file_ext}"

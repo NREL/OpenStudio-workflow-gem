@@ -35,7 +35,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
     @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     @logger.info 'Gathering reports'
-    gather_reports(@registry[:run_dir], @registry[:root_dir], @logger)
+    gather_reports(@registry[:run_dir], @registry[:root_dir], @registry[:workflow_json], @logger)
     @logger.info 'Finished gathering reports'
 
     if @options[:cleanup]

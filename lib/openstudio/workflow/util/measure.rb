@@ -28,7 +28,9 @@ module OpenStudio
           fail "The 'steps' array of the OSW is required." unless workflow_steps
           
           logger.debug "Finding measures of type #{measure_type.valueName}"
-          workflow_steps.each do |step|
+          workflow_steps.each_index do |step_index|
+            
+            step = workflow_steps[step_index]
 
             if @registry[:openstudio_2]
               if !step.to_MeasureStep.empty?
@@ -54,6 +56,11 @@ module OpenStudio
                 apply_measure(registry, step, options, energyplus_output_requests)              
               else
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
+                
+                # fast forward current step index to this index, skips any previous steps
+                while workflow_json.currentStepIndex < step_index
+                  workflow_json.incrementStep
+                end
                 
                 # DLM: why is output_adapter in options instead of registry?
                 options[:output_adapter].communicate_transition("Applying #{class_name}", :measure) if options[:output_adapter]
@@ -399,8 +406,13 @@ module OpenStudio
               if !energyplus_output_requests
                 # just increment
                 logger.debug "Skipping measure '#{measure_dir_name}'"
+                
+                # required to update current step
                 runner.prepareForUserScriptRun(measure_object)
-                runner.validateUserArguments(arguments, argument_map)
+                
+                # don't want to log errors about arguments passed to skipped measures
+                #runner.validateUserArguments(arguments, argument_map)
+                
                 current_result = runner.result
                 runner.incrementStep
                 add_result_measure_info(current_result, measure)

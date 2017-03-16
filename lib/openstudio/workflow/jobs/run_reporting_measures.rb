@@ -54,7 +54,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     if @registry[:model_idf].nil?
       idf_path = File.absolute_path(File.join(@registry[:run_dir], 'in.idf'))
       @logger.debug "Attempting to load #{idf_path}"
-      @registry.register(:model_idf) { load_idf('.', idf_path) }
+      @registry.register(:model_idf) { load_idf(idf_path, @logger) }
       raise "Unable to load #{idf_path}" unless @registry[:model_idf]
       @logger.debug "Successfully loaded #{idf_path}"
     end

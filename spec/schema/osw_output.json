@@ -186,6 +186,9 @@
 					"description": "Display name of the measure that was run",
 					"type": "string"
 				},
+				"measure_taxonomy": {
+					"type": "string"
+				},
 				"step_result": {
 					"description": "Overall result value of the measure.",
 					"type": "string",

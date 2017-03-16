@@ -174,7 +174,28 @@ module OpenStudio
             logger.warn "Value for argument '#{argument_name}' not set in argument list therefore will use default"
           end
         end
-
+        
+        # Method to add measure info to WorkflowStepResult
+        #
+        # @param [Object] result Current WorkflowStepResult
+        # @param [Object] measure Current BCLMeasure
+        def add_result_measure_info(result, measure)
+          begin
+            result.setMeasureType(measure.measureType)
+            result.setMeasureName(measure.name)
+            result.setMeasureId(measure.uid)
+            result.setMeasureVersionId(measure.versionId)
+            version_modified = measure.versionModified
+            if !version_modified.empty?
+              result.setMeasureVersionModified(version_modified.get)
+            end
+            result.setMeasureXmlChecksum(measure.xmlChecksum)
+            result.setMeasureClassName(measure.className)
+            result.setMeasureDisplayName(measure.displayName)
+          rescue NameError
+          end
+        end
+        
         # Method to allow for a single measure of any type to be run
         #
         # @param [String] directory Location of the datapoint directory to run. This is needed
@@ -382,6 +403,7 @@ module OpenStudio
                 runner.validateUserArguments(arguments, argument_map)
                 current_result = runner.result
                 runner.incrementStep
+                add_result_measure_info(current_result, measure)
                 current_result.setStepResult('Skip'.to_StepResult)
               end
             else
@@ -419,6 +441,8 @@ module OpenStudio
                 if !energyplus_output_requests
                   # incrementStep must be called after run
                   runner.incrementStep
+                  
+                  add_result_measure_info(result, measure)
                 end
                 
                 options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
@@ -439,6 +463,8 @@ module OpenStudio
                 
                 # incrementStep must be called after run
                 runner.incrementStep
+                
+                add_result_measure_info(result, measure)
                 
                 options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
 

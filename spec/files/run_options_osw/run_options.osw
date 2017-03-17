@@ -27,7 +27,7 @@
 	],
   "run_options": {
     "debug": true,
-    "preserve_run_dir": true,
+    "preserve_run_dir": false,
     "output_adapter": {
       "custom_file_name": "CustomAdapter.rb",
       "class_name": "CustomAdapter",

@@ -154,6 +154,41 @@
 				"completed_at": {
 					"$ref": "#/definitions/Timestamp"
 				},
+				"measure_type": {
+					"description": "Type of the measure that was run",
+					"type": "string"
+				},
+				"measure_name": {
+					"description": "Name of the measure that was run",
+					"type": "string"
+				},
+				"measure_uid": {
+					"description": "UID of the measure that was run",
+					"type": "string"
+				},
+				"measure_version_id": {
+					"description": "Version id of the measure that was run",
+					"type": "string"
+				},
+				"measure_version_modified": {
+					"description": "Version modified timestamp of the measure that was run",
+					"type": "string"
+				},
+				"measure_xml_checksum": {
+					"description": "XML checksum of the measure that was run",
+					"type": "string"
+				},
+				"measure_class_name": {
+					"description": "Class name of the measure that was run",
+					"type": "string"
+				},
+				"measure_display_name": {
+					"description": "Display name of the measure that was run",
+					"type": "string"
+				},
+				"measure_taxonomy": {
+					"type": "string"
+				},
 				"step_result": {
 					"description": "Overall result value of the measure.",
 					"type": "string",
@@ -236,6 +271,7 @@
 					"type": "string"
 				},
 				"arguments": {
+					"description": "Arguments to pass to the measure ",
 					"type": "object",
 					"properties": {
 						"__SKIP__": {
@@ -246,30 +282,16 @@
 					}
 				},
 				"name": {
+					"description": "Name of this measure step, can be different than measure name",
 					"type": "string"
 				},
 				"description": {
+					"description": "Description of this measure step, can be different than measure description",
 					"type": "string"
 				},
 				"modeler_description": {
+					"description": "Modeler description of this measure step, can be different than measure modeler description",
 					"type": "string"
-				},
-				"measure_id": {
-					"type": "string"
-				},
-				"version_id": {
-					"type": "string"
-				},
-				"taxonomy": {
-					"type": "string"
-				},
-				"measure_type": {
-					"type": "string",
-					"enum": [
-						"ModelMeasure",
-						"EnergyPlusMeasure",
-						"ReportingMeasure"
-					]
 				},
 				"result": {
 					"$ref": "#/definitions/Workflow Step Result"

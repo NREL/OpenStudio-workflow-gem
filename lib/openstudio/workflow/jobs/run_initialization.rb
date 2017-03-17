@@ -41,6 +41,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     @output_adapter.communicate_started
 
     # Load various files and set basic directories for the registry
+    # DLM: this key is the raw JSON object, it is deprecated and should not be used, use :workflow_json instead
     @registry.register(:workflow) { @input_adapter.workflow }
     raise 'Specified workflow was nil' unless @registry[:workflow]
     @logger.debug 'Retrieved the workflow from the adapter'
@@ -65,6 +66,12 @@ class RunInitialization < OpenStudio::Workflow::Job
 
     @registry.register(:root_dir) { workflow_json.absoluteRootDir }
     @logger.debug "The root_dir for the datapoint is #{@registry[:root_dir]}"
+    
+    reports_dir = "#{@registry[:root_dir]}/reports"
+    if File.exist?(reports_dir)
+      @logger.debug "Removing existing reports directory: #{reports_dir}"
+      FileUtils.rm_rf(reports_dir)
+    end
 
     # create the runner with our WorkflowJSON
     @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow_json], @registry[:openstudio_2]) }

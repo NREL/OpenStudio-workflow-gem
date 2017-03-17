@@ -202,6 +202,7 @@
 					"type": "string"
 				},
 				"arguments": {
+					"description": "Arguments to pass to the measure ",
 					"type": "object",
 					"properties": {
 						"__SKIP__": {
@@ -212,30 +213,16 @@
 					}
 				},
 				"name": {
+					"description": "Name of this measure step, can be different than measure name",
 					"type": "string"
 				},
 				"description": {
+					"description": "Description of this measure step, can be different than measure description",
 					"type": "string"
 				},
 				"modeler_description": {
+					"description": "Modeler description of this measure step, can be different than measure modeler description",
 					"type": "string"
-				},
-				"measure_id": {
-					"type": "string"
-				},
-				"version_id": {
-					"type": "string"
-				},
-				"taxonomy": {
-					"type": "string"
-				},
-				"measure_type": {
-					"type": "string",
-					"enum": [
-						"ModelMeasure",
-						"EnergyPlusMeasure",
-						"ReportingMeasure"
-					]
 				}
 			},
 			"required": [

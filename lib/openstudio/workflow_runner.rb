@@ -140,10 +140,12 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
 
       unless os_result.initialCondition.empty?
         current_step.step[:result][:initial_condition] = os_result.initialCondition.get.logMessage
+        current_step.step[:result][:step_initial_condition] = os_result.initialCondition.get.logMessage
       end
 
       unless os_result.finalCondition.empty?
         current_step.step[:result][:final_condition] = os_result.finalCondition.get.logMessage
+        current_step.step[:result][:step_final_condition] = os_result.finalCondition.get.logMessage
       end
 
       current_step.step[:result][:step_values] = []

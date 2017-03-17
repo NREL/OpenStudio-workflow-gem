@@ -274,9 +274,9 @@ describe 'OSW Integration' do
     end
 
     # make sure that the reports exist
-    report_filename = File.join(File.dirname(osw_path), 'reports', '003_DencityReports_report_timeseries.csv')
+    report_filename = File.join(File.dirname(osw_path), 'reports', 'dencity_reports_report_timeseries.csv')
     expect(File.exist?(report_filename)).to eq true
-    report_filename = File.join(File.dirname(osw_path), 'reports', '004_openstudio_results_report.html')
+    report_filename = File.join(File.dirname(osw_path), 'reports', 'openstudio_results_report.html')
     expect(File.exist?(report_filename)).to eq true
     report_filename = File.join(File.dirname(osw_path), 'reports', 'eplustbl.html')
     expect(File.exist?(report_filename)).to eq true
@@ -566,17 +566,27 @@ describe 'OSW Integration' do
           argument_name = argument_name.to_s
           if argument_name == '__SKIP__'
             skipped = argument_value
-            next
           end
-          
-          i = step_values.find_index {|x| x[:name] == argument_name}
-          expect(i).to_not be_nil
-          expect(step_values[i][:value]).to be == argument_value
         end
         
         if skipped
+        
+          # step_values are not populated if the measure is skipped
+          expect(step_values.size).to be == 0
           expect(step[:result][:step_result]).to be == "Skip"
+          
         else
+        
+          arguments.each_pair do |argument_name, argument_value|
+            argument_name = argument_name.to_s
+            next if argument_name == '__SKIP__'
+            puts "argument_name = #{argument_name}"
+            puts "argument_value = #{argument_value}"
+            i = step_values.find_index {|x| x[:name] == argument_name}
+            expect(i).to_not be_nil
+            expect(step_values[i][:value]).to be == argument_value
+          end
+          
           expect(step[:result][:step_result]).to be == "Success"
         end
         

@@ -274,9 +274,9 @@ describe 'OSW Integration' do
     end
 
     # make sure that the reports exist
-    report_filename = File.join(File.dirname(osw_path), 'reports', '003_DencityReports_report_timeseries.csv')
+    report_filename = File.join(File.dirname(osw_path), 'reports', 'dencity_reports_report_timeseries.csv')
     expect(File.exist?(report_filename)).to eq true
-    report_filename = File.join(File.dirname(osw_path), 'reports', '004_openstudio_results_report.html')
+    report_filename = File.join(File.dirname(osw_path), 'reports', 'openstudio_results_report.html')
     expect(File.exist?(report_filename)).to eq true
     report_filename = File.join(File.dirname(osw_path), 'reports', 'eplustbl.html')
     expect(File.exist?(report_filename)).to eq true

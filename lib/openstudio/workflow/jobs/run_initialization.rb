@@ -66,6 +66,12 @@ class RunInitialization < OpenStudio::Workflow::Job
 
     @registry.register(:root_dir) { workflow_json.absoluteRootDir }
     @logger.debug "The root_dir for the datapoint is #{@registry[:root_dir]}"
+    
+    reports_dir = "#{@registry[:root_dir]}/reports"
+    if File.exist?(reports_dir)
+      @logger.debug "Removing existing reports directory: #{reports_dir}"
+      FileUtils.rm_rf(reports_dir)
+    end
 
     # create the runner with our WorkflowJSON
     @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow_json], @registry[:openstudio_2]) }

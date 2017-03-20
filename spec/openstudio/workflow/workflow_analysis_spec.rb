@@ -45,10 +45,13 @@ describe 'OSW Integration' do
   it 'should run compact OSW file in m and w and p mode' do
     osw_path = File.expand_path('./../../../files/compact_mwp_osw/compact_mwp.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
-
+    data_point_out_path = osw_path.gsub(File.basename(osw_path), 'run/data_point_out.json')
+    
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
-
+    FileUtils.rm_rf(data_point_out_path) if File.exist?(data_point_out_path)
+    expect(File.exist?(data_point_out_path)).to eq false
+    
     # run measures only
     run_options = {
         debug: true,
@@ -73,6 +76,10 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    
+    # DLM: TODO, the following line fails currently because the results hash is only populated in run_reporting_measures 
+    # with a call to run_extract_inputs_and_outputs, seems like this should be called after running model and e+ measures
+    #expect(File.exist?(data_point_out_path)).to eq true
 
     osw_out = nil
     File.open(osw_out_path, 'r') do |file|
@@ -93,9 +100,11 @@ describe 'OSW Integration' do
     expect(osw_out[:steps][2][:result][:step_initial_condition]).to eq "SetEnergyPlusInfiltrationFlowRatePerFloorArea"
     expect(osw_out[:steps][2][:result][:step_result]).to eq "Success"
     expect(osw_out[:steps][3][:result]).to be_nil
-
+    
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
+    FileUtils.rm_rf(data_point_out_path) if File.exist?(data_point_out_path)
+    expect(File.exist?(data_point_out_path)).to eq false
     
     # run 
     run_options = {
@@ -106,6 +115,7 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    expect(File.exist?(data_point_out_path)).to eq true
 
     osw_out = nil
     File.open(osw_out_path, 'r') do |file|
@@ -131,6 +141,8 @@ describe 'OSW Integration' do
 
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
+    FileUtils.rm_rf(data_point_out_path) if File.exist?(data_point_out_path)
+    expect(File.exist?(data_point_out_path)).to eq false
     
     # run post process
     run_options = {
@@ -153,6 +165,7 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    expect(File.exist?(data_point_out_path)).to eq true
 
     osw_out = nil
     File.open(osw_out_path, 'r') do |file|

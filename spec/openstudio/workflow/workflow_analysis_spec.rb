@@ -45,10 +45,19 @@ describe 'OSW Integration' do
   it 'should run compact OSW file in m and w and p mode' do
     osw_path = File.expand_path('./../../../files/compact_mwp_osw/compact_mwp.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    osw_out_m_path = osw_path.gsub(File.basename(osw_path), 'out_m.osw')
+    osw_out_w_path = osw_path.gsub(File.basename(osw_path), 'out_w.osw')
+    osw_out_p_path = osw_path.gsub(File.basename(osw_path), 'out_p.osw')
     data_point_out_path = osw_path.gsub(File.basename(osw_path), 'run/data_point_out.json')
     
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
+    FileUtils.rm_rf(osw_out_m_path) if File.exist?(osw_out_m_path)
+    expect(File.exist?(osw_out_m_path)).to eq false
+    FileUtils.rm_rf(osw_out_w_path) if File.exist?(osw_out_w_path)
+    expect(File.exist?(osw_out_w_path)).to eq false
+    FileUtils.rm_rf(osw_out_p_path) if File.exist?(osw_out_p_path)
+    expect(File.exist?(osw_out_p_path)).to eq false    
     FileUtils.rm_rf(data_point_out_path) if File.exist?(data_point_out_path)
     expect(File.exist?(data_point_out_path)).to eq false
     
@@ -76,6 +85,7 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    FileUtils.cp(osw_out_path, osw_out_m_path)
     
     # DLM: TODO, the following line fails currently because the results hash is only populated in run_reporting_measures 
     # with a call to run_extract_inputs_and_outputs, seems like this should be called after running model and e+ measures
@@ -115,6 +125,8 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    FileUtils.cp(osw_out_path, osw_out_w_path)
+    
     expect(File.exist?(data_point_out_path)).to eq true
 
     osw_out = nil
@@ -165,6 +177,8 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    FileUtils.cp(osw_out_path, osw_out_p_path)
+    
     expect(File.exist?(data_point_out_path)).to eq true
 
     osw_out = nil

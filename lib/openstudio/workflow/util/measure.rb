@@ -199,6 +199,7 @@ module OpenStudio
             result.setMeasureXmlChecksum(measure.xmlChecksum)
             result.setMeasureClassName(measure.className)
             result.setMeasureDisplayName(measure.displayName)
+            result.setMeasureTaxonomy(measure.taxonomyTag)
           rescue NameError
           end
         end

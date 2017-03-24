@@ -382,10 +382,25 @@ describe 'OSW Integration' do
     Thread.kill(t)
 
     #puts "content = #{content}"
+    
+    expect(content).to match(/Applying IncreaseInsulationRValueForExteriorWallsByPercentage/)
+    expect(content).to match(/For construction'EXTERIOR-WALL adj exterior wall insulation', material'Wood-Framed - 4 in. Studs - 16 in. OC - R-11 Cavity Insulation_R-value 30.0% increase' was altered./)
+    expect(content).to match(/Applied IncreaseInsulationRValueForExteriorWallsByPercentage/)
+    expect(content).to match(/Applying IncreaseInsulationRValueForRoofsByPercentage/)
+    expect(content).to match(/The building had 1 roof constructions: EXTERIOR-ROOF \(R-31\.2\)/)
+    expect(content).to match(/Applied IncreaseInsulationRValueForRoofsByPercentage/)
+    expect(content).to match(/Applying SetEnergyPlusInfiltrationFlowRatePerFloorArea/)
+    expect(content).to match(/The building finished with flow per zone floor area values ranging from 10\.76 to 10\.76/)
+    expect(content).to match(/Applied SetEnergyPlusInfiltrationFlowRatePerFloorArea/)
     expect(content).to match(/Starting state initialization/)
     expect(content).to match(/Processing Data Dictionary/)
     expect(content).to match(/Writing final SQL reports/)
-
+    expect(content).to match(/Applying DencityReports/)
+    expect(content).to match(/DEnCity Report generated successfully/)
+    expect(content).to match(/Saving Dencity metadata csv file/)
+    expect(content).to match(/Applied DencityReports/)
+    expect(content).to match(/Complete/)
+    
     osw_out = nil
     File.open(osw_out_path, 'r') do |file|
       osw_out = JSON.parse(file.read, symbolize_names: true)

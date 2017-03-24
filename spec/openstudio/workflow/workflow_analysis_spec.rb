@@ -781,7 +781,7 @@ describe 'OSW Integration' do
     }
     k = OpenStudio::Workflow::Run.new osw_path, run_options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
-    expect(k.run).to eq :finished
+    expect(k.run).to eq :errored
 
     expect(File.exist?(osw_out_path)).to eq true
 
@@ -791,11 +791,11 @@ describe 'OSW Integration' do
     end
 
     expect(osw_out).to be_instance_of Hash
-    expect(osw_out[:completed_status]).to eq 'Success'
+    expect(osw_out[:completed_status]).to eq 'Fail'
     expect(osw_out[:steps]).to be_instance_of Array
     expect(osw_out[:steps].size).to be > 0
     osw_out[:steps].each do |step|
-      expect(step[:result]).to_not be_nil
+      expect(step[:result]).to be_nil # cause they did not run
     end
   end
   

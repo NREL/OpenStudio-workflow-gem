@@ -117,12 +117,13 @@ module OpenStudio
 
               # Ensure that measures are in order, i.e. no OS after E+, E+ or OS after Reporting
               if measure_instance_type == 'ModelMeasure'.to_MeasureType
-                fail "OpenStudio measure #{measure_dir} called after transition to EnergyPlus." if state != 'ModelMeasure'.to_MeasureType
+                fail "OpenStudio measure #{measure_dir} called after transition to EnergyPlus." if state == 'EnergyPlusMeasure'.to_MeasureType
+                fail "OpenStudio measure #{measure_dir} called after after Energyplus simulation." if state == 'ReportingMeasure'.to_MeasureType
               elsif measure_instance_type == "EnergyPlusMeasure".to_MeasureType
                 state = 'EnergyPlusMeasure'.to_MeasureType if state == 'ModelMeasure'.to_MeasureType
                 fail "EnergyPlus measure #{measure_dir} called after Energyplus simulation." if state == 'ReportingMeasure'.to_MeasureType
               elsif measure_instance_type == 'ReportingMeasure'.to_MeasureType
-                state = 'ReportingMeasure'.to_MeasureType if state == 'EnergyPlusMeasure'.to_MeasureType
+                state = 'ReportingMeasure'.to_MeasureType if state != 'ReportingMeasure'.to_MeasureType
               else
                 fail "Error: MeasureType #{measure_instance_type.valueName} of measure #{measure_dir} is not supported"
               end

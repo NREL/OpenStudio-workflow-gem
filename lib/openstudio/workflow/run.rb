@@ -17,181 +17,255 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ######################################################################
 
-# Run Class for OpenStudio workflow.  The data are passed in via the adapter
+require_relative 'registry'
+require_relative 'adapters/input/local'
+require_relative 'adapters/output/local'
+
+require 'logger'
+require 'pathname'
+
+# Run Class for OpenStudio workflow.  All comments here need some love, as well as the code itself
 module OpenStudio
   module Workflow
     class Run
-      attr_accessor :logger
-      attr_accessor :workflow_arguments
+      attr_accessor :registry
 
       attr_reader :options
-      attr_reader :adapter
-      attr_reader :directory
-      attr_reader :run_directory
-      attr_reader :final_state
+      attr_reader :input_adapter
+      attr_reader :output_adapter
       attr_reader :final_message
       attr_reader :job_results
+      attr_reader :current_state
 
-      # load the transitions
-      def self.default_transition
-        [
-          { from: :queued, to: :preflight },
-          { from: :preflight, to: :openstudio },
-          { from: :openstudio, to: :energyplus },
-          { from: :energyplus, to: :reporting_measures },
-          { from: :reporting_measures, to: :postprocess },
-          { from: :postprocess, to: :finished }
-        ]
-      end
-
-      # The default states for the workflow.  Note that the states of :queued of :finished need
-      # to exist for all cases.
-      def self.default_states
-        [
-          { state: :queued, options: { initial: true } },
-          { state: :preflight, options: { after_enter: :run_preflight } },
-          { state: :openstudio, options: { after_enter: :run_openstudio } }, # TODO: this should be run_openstudio_measures and run_energyplus_measures
-          { state: :energyplus, options: { after_enter: :run_energyplus } },
-          { state: :reporting_measures, options: { after_enter: :run_reporting_measures } },
-          { state: :postprocess, options: { after_enter: :run_postprocess } },
-          { state: :finished },
-          { state: :errored }
-        ]
-      end
-
-      # transitions for pat job
-      def self.pat_transition
-        [
-          { from: :queued, to: :preflight },
-          { from: :preflight, to: :runmanager },
-          { from: :runmanager, to: :postprocess },
-          { from: :postprocess, to: :finished }
-        ]
-      end
-
-      # states for pat job
-      def self.pat_states
-        [
-          { state: :queued, options: { initial: true } },
-          { state: :preflight, options: { after_enter: :run_preflight } },
-          { state: :runmanager, options: { after_enter: :run_runmanager } },
-          { state: :postprocess, options: { after_enter: :run_postprocess } },
-          { state: :finished },
-          { state: :errored }
-        ]
-      end
-
-      # initialize a new run class
+      # Define the default set of jobs. Note that the states of :queued of :finished need to exist for all job arrays.
       #
-      # @param adapter an instance of the adapter class
-      # @param directory location of the datapoint directory to run. This is needed
-      #        independent of the adapter that is being used. Note that the simulation will actually run in 'run'
-      # @param options that are sent to the adapters
-      def initialize(adapter, directory, options = {})
-        @adapter = adapter
+      def self.default_jobs
+        [
+          { state: :queued, next_state: :initialization, options: { initial: true } },
+          { state: :initialization, next_state: :os_measures, job: :RunInitialization,
+            file: 'openstudio/workflow/jobs/run_initialization', options: {} },
+          { state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
+            file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {} },
+          { state: :translator, next_state: :ep_measures, job: :RunTranslation,
+            file: 'openstudio/workflow/jobs/run_translation.rb', options: {} },
+          { state: :ep_measures, next_state: :preprocess, job: :RunEnergyPlusMeasures,
+            file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {} },
+          { state: :preprocess, next_state: :simulation, job: :RunPreprocess,
+            file: 'openstudio/workflow/jobs/run_preprocess.rb', options: {} },
+          { state: :simulation, next_state: :reporting_measures, job: :RunEnergyPlus,
+            file: 'openstudio/workflow/jobs/run_energyplus.rb', options: {} },
+          { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
+            file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
+          { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+            file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+          { state: :finished },
+          { state: :errored }
+        ]
+      end
+
+      # Initialize a new run class
+      #
+      # @param [String] osw_path the path to the OSW file to run. It is highly recommended that this be an absolute
+      #   path, however if not it will be made absolute relative to the current working directory
+      # @param [Hash] user_options ({}) A set of user-specified options that are used to override default behaviors. 
+      # @option user_options [Hash] :cleanup Remove unneccessary files during post processing, overrides OSW option if set, defaults to true
+      # @option user_options [Hash] :debug Print debugging messages, overrides OSW option if set, defaults to false
+      # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
+      # @option user_options [Hash] :jobs Simulation workflow, overrides jobs in OSW if set, defaults to default_jobs
+      # @option user_options [Hash] :output_adapter Output adapter to use, overrides output adapter in OSW if set, defaults to local adapter
+      # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW option if set, defaults to false - DLM, Deprecate
+      # @option user_options [Hash] :profile Produce additional output for profiling simulations, defaults to false
+      # @option user_options [Hash] :targets Log targets to write to, defaults to standard out and run.log
+      # @option user_options [Hash] :verify_osw Check OSW for correctness, defaults to true
+      # @option user_options [Hash] :weather_file Initial weather file to load, overrides OSW option if set, defaults to empty
+      def initialize(osw_path, user_options = {})
+        # DLM - what is final_message?
         @final_message = ''
         @current_state = nil
-        @transitions = {}
-        @directory = directory
-        @time_logger = TimeLogger.new
-        @workflow_arguments = {}
-        @past_results = {}
-        # TODO: run directory is a convention right now. Move to a configuration item
-        @run_directory = "#{@directory}/run"
+        @options = {}
+        
+        # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time, especially if the functionality can be added to the WorkflowJSON class
+        # - analysis - the current OSA parsed as a Ruby Hash
+        # - datapoint - the current OSD parsed as a Ruby Hash
+        # - log_targets - IO devices that are being logged to
+        # - logger - general logger
+        # - model - the current OpenStudio Model object, updated after each step
+        # - model_idf - the current EnergyPlus Workspace object, updated after each step
+        # - openstudio_2 - true if we are running in OpenStudio 2.X environment
+        # - osw_path - the path the OSW was loaded from as a string
+        # - osw_dir - the directory the OSW was loaded from as a string
+        # - output_attributes - added during simulation time
+        # - results - objective function values
+        # - root_dir - the root directory in the OSW as a string
+        # - run_dir - the run directory for the simulation as a string
+        # - runner - the current OSRunner object
+        # - sql - the path to the current EnergyPlus SQL file as a string
+        # - time_logger - logger for doing profiling - time to run each step will be captured in OSResult, deprecate
+        # - wf - the path to the current weather file as a string, updated after each step
+        # - workflow - the current OSW parsed as a Ruby Hash
+        # - workflow_json - the current WorkflowJSON object        
+        @registry = Registry.new
 
-        defaults = nil
-        if options[:is_pat]
-          defaults = {
-            transitions: OpenStudio::Workflow::Run.pat_transition,
-            states: OpenStudio::Workflow::Run.pat_states,
-            jobs: {}
-          }
-        else
-          defaults = {
-            transitions: OpenStudio::Workflow::Run.default_transition,
-            states: OpenStudio::Workflow::Run.default_states,
-            jobs: {}
-          }
+        openstudio_2 = false
+        begin
+          # OpenStudio 2.X test
+          OpenStudio::WorkflowJSON.new
+          openstudio_2 = true
+        rescue NameError => e
         end
-        @options = defaults.merge(options)
+        @registry.register(:openstudio_2) { openstudio_2 }
 
-        @job_results = {}
+        # get the input osw
+        @input_adapter = OpenStudio::Workflow::InputAdapter::Local.new(osw_path)
+        
+        # DLM: need to check that we have correct permissions to all these paths
+        @registry.register(:osw_path) { Pathname.new(@input_adapter.osw_path).realpath }
+        @registry.register(:osw_dir) { Pathname.new(@input_adapter.osw_dir).realpath }
+        @registry.register(:run_dir) { Pathname.new(@input_adapter.run_dir).cleanpath } # run dir might not yet exist, calling realpath will throw
+        
+        # get info to set up logging first in case of failures later
+        @options[:debug] = @input_adapter.debug(user_options, false)
+        @options[:preserve_run_dir] = @input_adapter.preserve_run_dir(user_options, false)
+        @options[:profile] = @input_adapter.profile(user_options, false)
+        
+        # if running in osw dir, force preserve run dir
+        if @registry[:osw_dir] == @registry[:run_dir]
+          # force preserving the run directory
+          @options[:preserve_run_dir] = true
+        end
 
         # By default blow away the entire run directory every time and recreate it
-        FileUtils.rm_rf(@run_directory) if File.exist?(@run_directory)
-        FileUtils.mkdir_p(@run_directory)
+        unless @options[:preserve_run_dir]
+          if File.exist?(@registry[:run_dir])
+            # logger is not initialized yet (it needs run dir to exist for log)
+            puts "Removing existing run directory #{@registry[:run_dir]}" if @options[:debug]
 
-        # There is a namespace conflict when OpenStudio is loaded: be careful!
-        log_file = File.open("#{@run_directory}/run.log", 'a')
+            # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
+            # TODO: Echoing Dan's comment
+            FileUtils.rm_rf(@registry[:run_dir])
+          end
+        end
+        FileUtils.mkdir_p(@registry[:run_dir])
 
-        l = @adapter.get_logger @directory, @options
-        if l
-          @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file, l)
+        # set up logging after cleaning run dir
+        if user_options[:targets]
+          @options[:targets] = user_options[:targets]
         else
-          @logger = ::Logger.new MultiDelegator.delegate(:write, :close).to(STDOUT, log_file)
+          # don't create these files unless we want to use them
+          # DLM: TODO, make sure that run.log will be closed later 
+          @options[:targets] = [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
         end
 
-        @logger.info "Initializing directory #{@directory} for simulation with options #{@options}"
+        @registry.register(:log_targets) { @options[:targets] }
+        @registry.register(:time_logger) { TimeLogger.new } if @options[:profile]
 
-        # load the state machine
-        machine
+        # Initialize the MultiDelegator logger
+        logger_level = @options[:debug] ? ::Logger::DEBUG : ::Logger::WARN
+        @logger = ::Logger.new(MultiDelegator.delegate(:write, :close).to(*@options[:targets])) # * is the splat operator
+        @logger.level = logger_level 
+        @registry.register(:logger) { @logger }
+        
+        @logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
+        
+        # get the output adapter
+        default_output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
+        @output_adapter = @input_adapter.output_adapter(user_options, default_output_adapter, @logger)
+
+        # get the jobs
+        default_jobs = OpenStudio::Workflow::Run.default_jobs
+        @jobs = @input_adapter.jobs(user_options, default_jobs, @logger)
+
+        # get other run options out of user_options and into permanent options 
+        @options[:cleanup] = @input_adapter.cleanup(user_options, true)
+        @options[:energyplus_path] = @input_adapter.energyplus_path(user_options, nil) 
+        @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
+        @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
+
+        openstudio_dir = "unknown"
+        begin
+          openstudio_dir = $OpenStudio_Dir
+          if openstudio_dir.nil?
+            openstudio_dir = OpenStudio::getOpenStudioModuleDirectory.to_s
+          end
+        rescue
+        end
+        @logger.info "openstudio_dir = #{openstudio_dir}"
+
+        @logger.info "Initializing directory #{@registry[:run_dir]} for simulation with options #{@options}"
+
+        # Define the state and transitions
+        @current_state = :queued
       end
 
-      # run the simulations.
-      # TODO: add a catch if any job fails; TODO: make a block method to provide feedback
+      # execute the workflow defined in the state object
+      #
+      # @todo add a catch if any job fails
+      # @todo make a block method to provide feedback
       def run
-        @logger.info "Starting workflow in #{@directory}"
+        @logger.info "Starting workflow in #{@registry[:run_dir]}"
         begin
+          next_state
           while @current_state != :finished && @current_state != :errored
             sleep 2
             step
           end
 
           @logger.info 'Finished workflow - communicating results and zipping files'
-
-          # TODO: this should be a job that handles the use case with a :guard on if @job_results[:run_postprocess]
-          # or @job_results[:run_reporting_measures]
-          # these are the results that need to be sent back to adapter
-          if @job_results[:run_runmanager]
-            @logger.info 'Sending the run_runmananger results back to the adapter'
-            @adapter.communicate_results @directory, @job_results[:run_runmanager]
-          elsif @job_results[:run_reporting_measures]
-            @logger.info 'Sending the reporting measures results back to the adapter'
-            @time_logger.save(File.join(@directory, 'profile.json'))
-            @adapter.communicate_results @directory, @job_results[:run_reporting_measures]
-          end
+          @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
+        rescue => e
+          @logger.info "Error occurred during running with #{e.message}"
         ensure
+          @logger.info 'Workflow complete'
+
           if @current_state == :errored
-            @adapter.communicate_failure @directory
+            @registry[:workflow_json].setCompletedStatus('Fail') if @registry[:workflow_json]
           else
-            @adapter.communicate_complete @directory
+            @registry[:workflow_json].setCompletedStatus('Success')
           end
 
-          @logger.info 'Workflow complete'
-          # Write out the TimeLogger once again in case the run_reporting_measures didn't exist
-          @time_logger.save(File.join(@directory, 'profile.json'))
+          # save all files before calling output adapter
+          @registry[:log_targets].each(&:flush)
 
-          # TODO: define the outputs and figure out how to show it correctly
-          obj_function_array ||= ['NA']
+          # save workflow with results
+          if @registry[:workflow_json]
+            out_path = @registry[:workflow_json].absoluteOutPath
+            @registry[:workflow_json].saveAs(out_path)
+          end
 
-          # Print the objective functions to the screen even though the file is being used right now
-          # Note as well that we can't guarantee that the csv format will be in the right order
-          puts obj_function_array.join(',')
+          # Write out the TimeLogger to the filesystem
+          @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
+
+          if @current_state == :errored
+            @output_adapter.communicate_failure
+          else
+            @output_adapter.communicate_complete
+          end
+
         end
 
         @current_state
       end
 
       # Step through the states, if there is an error (e.g. exception) then go to error
-      def step(*args)
+      #
+      def step
+        step_instance = @jobs.find { |h| h[:state] == @current_state }
+        require step_instance[:file]
+        klass = OpenStudio::Workflow.new_class(step_instance[:job], @input_adapter, @output_adapter, @registry, @options)
+        @output_adapter.communicate_transition("Starting state #{@current_state}", :state)
+        state_return = klass.perform
+        if state_return
+          @output_adapter.communicate_transition("Returned from state #{@current_state} with message #{state_return}", :state)
+        else
+          @output_adapter.communicate_transition("Returned from state #{@current_state}", :state)
+        end
         next_state
-
-        send("run_#{@current_state}")
       rescue => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
       end
 
-      # call back for when there is an exception running any of the state transitions
+      # Error handling for when there is an exception running any of the state transitions
+      #
       def step_error(*args)
         # Make sure to set the instance variable @error to true in order to stop the :step
         # event from being fired.
@@ -202,117 +276,23 @@ module OpenStudio
         @current_state = :errored
       end
 
-      # TODO: these methods needs to be dynamic or inherited
-      # run energplus
-      def run_energyplus
-        @logger.info "Running #{__method__}"
-        klass = get_run_class(__method__)
-
-        @job_results[__method__.to_sym] = klass.perform
-      end
-
-      # run openstudio to create the model and apply the measures
-      def run_openstudio
-        @logger.info "Running #{__method__}"
-        klass = get_run_class(__method__)
-
-        # TODO: save the resulting filenames to an array
-        @job_results[__method__.to_sym] = klass.perform
-      end
-
-      # run a pat file using runmanager
-      def run_runmanager
-        @logger.info "Running #{__method__}"
-        klass = get_run_class(__method__)
-
-        # TODO: save the resulting filenames to an array
-        @job_results[__method__.to_sym] = klass.perform
-      end
-
-      # run reporting measures
-      def run_reporting_measures
-        @logger.info "Running #{__method__}"
-        klass = get_run_class(__method__)
-
-        # TODO: save the resulting filenames to an array
-        @job_results[__method__.to_sym] = klass.perform
-      end
-
-      def run_postprocess
-        @logger.info "Running #{__method__}"
-        klass = get_run_class(__method__)
-
-        @job_results[__method__.to_sym] = klass.perform
-      end
-
-      # preconfigured run method for preflight. This configures the input directories and sets everything
-      # up for running the simulations.
-      def run_preflight
-        @logger.info "Running #{__method__}"
-        klass = get_run_class(__method__)
-
-        @job_results[__method__.to_sym] = klass.perform
-      end
-
-      def run_xml
-        @logger.info "Running #{__method__}"
-        klass = get_run_class(__method__)
-
-        @job_results[__method__.to_sym] = klass.perform
-        @logger.info @job_results
-      end
-
-      # last method that is called.
-      def run_finished
-        @logger.info "Running #{__method__}"
+      # Return the finished state and exit
+      #
+      def run_finished(_, _, _)
+        logger.info "Running #{__method__}"
 
         @current_state
       end
-      alias_method :final_state, :run_finished
 
       private
 
-      # Create a state machine from the predefined transitions methods.  This will initialize in the :queued state
-      # and then load in the transitions from the @options hash
-      def machine
-        @logger.info 'Initializing state machine'
-        @current_state = :queued
-
-        @transitions = @options[:transitions]
-      end
-
+      # Advance the @current_state to the next state
+      #
       def next_state
         @logger.info "Current state: '#{@current_state}'"
-        ns = @transitions.find { |h| h[:from] == @current_state }[:to]
+        ns = @jobs.find { |h| h[:state] == @current_state }[:next_state]
         @logger.info "Next state will be: '#{ns}'"
-
-        # Set the next state before calling the method
         @current_state = ns
-
-        # do not return anything, the step method uses the @current_state variable to call run_#{next_state}
-      end
-
-      # Get any options that may have been sent into the class defining the workflow step
-      def get_job_options
-        result = {}
-        # if @options[:jobs].has_key?(@current_state)
-        # logger.info "Retrieving job options from the @options array for #{state.current_state}"
-        #  result = @options[:jobs][@current_state]
-        # end
-
-        # result
-
-        # TODO: fix this so that it gets the base config options plus its job options. Need to
-        # also merge in all the former job results.
-        @options.merge(@job_results)
-      end
-
-      def get_run_class(from_method)
-        require_relative "jobs/#{from_method}/#{from_method}"
-        klass_name = from_method.to_s.split('_').map(&:capitalize) * ''
-        @logger.info "Getting method for state transition '#{from_method}'"
-        klass = Object.const_get(klass_name).new(@directory, @logger, @time_logger, @adapter, @workflow_arguments, @past_results, get_job_options)
-        klass
       end
     end
   end

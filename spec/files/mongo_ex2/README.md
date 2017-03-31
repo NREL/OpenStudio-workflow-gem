@@ -1,1 +1,0 @@
-This is a datapoint from OpenStudio (using measure groups)

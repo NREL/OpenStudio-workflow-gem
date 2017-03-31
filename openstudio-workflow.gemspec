@@ -1,5 +1,5 @@
 lib = File.expand_path('../lib/', __FILE__)
-$:.unshift lib unless $:.include?(lib)
+$LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 
 require 'openstudio/workflow/version'
 
@@ -7,25 +7,18 @@ Gem::Specification.new do |s|
   s.name = 'openstudio-workflow'
   s.version = OpenStudio::Workflow::VERSION
   s.platform = Gem::Platform::RUBY
-  s.authors = ['Nicholas Long']
-  s.email = ['nicholas.long@nrel.gov']
-  s.summary = 'Workflow Manager'
-  s.description = 'Run OpenStudio based simulations using EnergyPlus'
+  s.authors = ['Nicholas Long', 'Henry Horsey']
+  s.email = ['nicholas.long@nrel.gov', 'henry.horsey@nrel.gov']
+  s.summary = 'OpenStudio Workflow Manager'
+  s.description = 'Run OpenStudio based measures and simulations using EnergyPlus'
   s.homepage = 'https://github.com/NREL/OpenStudio-workflow-gem'
   s.license = 'LGPL'
 
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.0'
 
   s.files = Dir.glob('lib/**/*') + %w(README.md CHANGELOG.md Rakefile)
-  # s.test_files = Dir.glob("spec/**/*")
   s.require_path = 'lib'
 
   s.add_development_dependency 'bundler', '~> 1.6'
-  s.add_development_dependency 'rake'
-
-  s.add_runtime_dependency 'multi_json', '~> 1.10.0'
-  s.add_runtime_dependency 'colored', '~> 1.2'
-  s.add_runtime_dependency 'facter', '>= 2.0'
-  s.add_runtime_dependency 'rubyXL', '~> 3.3.0' # install rubyXL gem to read/write excel files
-  s.add_runtime_dependency 'rubyzip', '~> 1.1.7'
+  s.add_development_dependency 'json-schema', '~> 0'
 end

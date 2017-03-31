@@ -25,3 +25,9 @@ mkmf.log
 rubocop-results.xml
 /*.osm
 spec/files/simulations
+run
+in.osm
+in.idf
+run.log
+reports
+*/**/out.osw

@@ -1,1 +1,0 @@
-Minimum required fields for simulation

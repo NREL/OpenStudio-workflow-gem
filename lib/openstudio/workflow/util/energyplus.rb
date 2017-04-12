@@ -55,15 +55,17 @@ module OpenStudio
           energyplus_exe, expand_objects_exe = nil
           Dir["#{energyplus_path}/*"].each do |file|
             next if File.directory? file
-            next if File.extname(file).downcase =~ /.pdf|.app|.html|.gif|.txt|.xlsx/
+            
+            # copy idd and ini files
+            if File.extname(file).downcase =~ /.idd|.ini/
+              dest_file = "#{run_directory}/#{File.basename(file)}"
+              energyplus_files << dest_file
+              FileUtils.copy file, dest_file
+            end
 
-            dest_file = "#{run_directory}/#{File.basename(file)}"
-            energyplus_files << dest_file
-
-            # @todo (rhorsey) don't need to do this copy - DLM
-            energyplus_exe = File.basename(dest_file) if File.basename(dest_file) =~ ENERGYPLUS_REGEX
-            expand_objects_exe = File.basename(dest_file) if File.basename(dest_file) =~ EXPAND_OBJECTS_REGEX
-            FileUtils.copy file, dest_file
+            energyplus_exe = file if File.basename(file) =~ ENERGYPLUS_REGEX
+            expand_objects_exe = file if File.basename(file) =~ EXPAND_OBJECTS_REGEX
+            
           end
 
           raise "Could not find EnergyPlus executable in #{energyplus_path}" unless energyplus_exe
@@ -95,7 +97,7 @@ module OpenStudio
           Dir.chdir(run_directory)
           logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
-          command = popen_command("./#{expand_objects_exe}")
+          command = popen_command("#{expand_objects_exe}")
           logger.info "Running command '#{command}'"
           File.open('stdout-expandobject', 'w') do |file|
             ::IO.popen(command) do |io|
@@ -112,7 +114,7 @@ module OpenStudio
           end
 
           # create stdout
-          command = popen_command("./#{energyplus_exe} 2>&1")
+          command = popen_command("#{energyplus_exe} 2>&1")
           logger.info "Running command '#{command}'"
           File.open('stdout-energyplus', 'w') do |file|
             ::IO.popen(command) do |io|

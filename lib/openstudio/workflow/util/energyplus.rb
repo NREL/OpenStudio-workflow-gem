@@ -97,7 +97,7 @@ module OpenStudio
           Dir.chdir(run_directory)
           logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
-          command = popen_command("#{expand_objects_exe}")
+          command = popen_command("\"#{expand_objects_exe}\"")
           logger.info "Running command '#{command}'"
           File.open('stdout-expandobject', 'w') do |file|
             ::IO.popen(command) do |io|
@@ -114,7 +114,7 @@ module OpenStudio
           end
 
           # create stdout
-          command = popen_command("#{energyplus_exe} 2>&1")
+          command = popen_command("\"#{energyplus_exe}\" 2>&1")
           logger.info "Running command '#{command}'"
           File.open('stdout-energyplus', 'w') do |file|
             ::IO.popen(command) do |io|

@@ -75,8 +75,10 @@ class RunInitialization < OpenStudio::Workflow::Job
 
     # create the runner with our WorkflowJSON
     @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow_json], @registry[:openstudio_2]) }
+    @registry[:runner].setDatapoint(@registry[:datapoint])
+    @registry[:runner].setAnalysis(@registry[:analysis])
     @logger.debug 'Initialized runner'
-
+    
     # Validate the OSW measures if the flag is set to true, (the default state)
     if @options[:verify_osw]
       @logger.info 'Attempting to validate the measure workflow'

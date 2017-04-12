@@ -26,6 +26,8 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     @multi_logger = multi_logger
     @workflow_json = workflow_json
     @openstudio_2 = openstudio_2
+    @datapoint = nil
+    @analysis = nil
 
     begin
       # OpenStudio 2.X
@@ -41,6 +43,22 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   
   def timeString
     ::Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+  end
+  
+  def datapoint
+    @datapoint
+  end
+  
+  def setDatapoint(datapoint)
+    @datapoint = datapoint
+  end
+  
+  def analysis
+    @analysis
+  end
+  
+  def setAnalysis(analysis)
+    @analysis = analysis
   end
   
   # Returns the workflow currently being run. New in OS 2.0.

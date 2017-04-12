@@ -219,9 +219,11 @@ module OpenStudio
         def datapoint
           # DLM: should this come from the OSW?  the osd id and checksum are specified there.
           osd_abs_path = File.join(osw_dir, 'datapoint.osd')
+          result = nil
           if File.exist? osd_abs_path
-            ::JSON.parse(File.read(osd_abs_path), symbolize_names: true)
+            result = ::JSON.parse(File.read(osd_abs_path), symbolize_names: true)
           end
+          return result
         end
 
         # Get the associated OSA (analysis) definition from the local filesystem
@@ -229,9 +231,11 @@ module OpenStudio
         def analysis
           # DLM: should this come from the OSW?  the osd id and checksum are specified there.
           osa_abs_path = File.join(osw_dir, '../analysis.json')
+          result = nil
           if File.exist? osa_abs_path
-            ::JSON.parse(File.read(osa_abs_path), symbolize_names: true)
+            result = ::JSON.parse(File.read(osa_abs_path), symbolize_names: true)
           end
+          return result
         end
         
       end

@@ -103,7 +103,7 @@ module OpenStudio
             next if File.extname(file) =~ /\.zip.*/
             # skip large non-osm/idf files
             if File.size(file)
-              if File.size(file) >= 15000000
+              if File.size(file) >= 100000000
                 next unless File.extname(file) == '.osm' || File.extname(file) == '.idf'
               end
             end

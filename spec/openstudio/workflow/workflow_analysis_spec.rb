@@ -449,34 +449,47 @@ describe 'OSW Integration' do
   it 'should run OSW file in measure only mode' do
     osw_path = File.expand_path('./../../../files/measures_only_osw/measures_only.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    idf_out_path = osw_path.gsub(File.basename(osw_path), 'run/in.idf')
+    osm_out_path = osw_path.gsub(File.basename(osw_path), 'run/in.osm')
     run_dir = File.join(File.dirname(osw_path), 'run')
 
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
 
-    run_options = {
-        debug: true
-    }
+    FileUtils.rm_rf(idf_out_path) if File.exist?(idf_out_path)
+    expect(File.exist?(idf_out_path)).to eq false
+
+    FileUtils.rm_rf(osm_out_path) if File.exist?(osm_out_path)
+    expect(File.exist?(osm_out_path)).to eq false
+
+    run_options = {}
+    #run_options = {
+    #    debug: true
+    #}
     run_options[:jobs] = [
-        {state: :queued, next_state: :initialization, options: {initial: true}},
-        {state: :initialization, next_state: :os_measures, job: :RunInitialization,
-         file: 'openstudio/workflow/jobs/run_initialization.rb', options: {}},
-        {state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
-         file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {}},
-        {state: :translator, next_state: :ep_measures, job: :RunTranslation,
-         file: 'openstudio/workflow/jobs/run_translation.rb', options: {}},
-        {state: :ep_measures, next_state: :finished, job: :RunEnergyPlusMeasures,
-         file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {}},
-        {state: :postprocess, next_state: :finished, job: :RunPostprocess,
-         file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {}},
-        {state: :finished},
-        {state: :errored}
+      { state: :queued, next_state: :initialization, options: { initial: true } },
+      { state: :initialization, next_state: :os_measures, job: :RunInitialization,
+        file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
+      { state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
+        file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {} },
+      { state: :translator, next_state: :ep_measures, job: :RunTranslation,
+        file: 'openstudio/workflow/jobs/run_translation.rb', options: {} },
+      { state: :ep_measures, next_state: :preprocess, job: :RunEnergyPlusMeasures,
+        file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {} },
+      { state: :preprocess, next_state: :postprocess, job: :RunPreprocess,
+        file: 'openstudio/workflow/jobs/run_preprocess.rb', options: {} },
+      { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+        file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+      { state: :finished },
+      { state: :errored }
     ]
     k = OpenStudio::Workflow::Run.new osw_path, run_options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
+    expect(File.exist?(idf_out_path)).to eq true
+    expect(File.exist?(osm_out_path)).to eq true
 
     osw_out = nil
     File.open(osw_out_path, 'r') do |file|

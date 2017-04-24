@@ -84,9 +84,11 @@ module OpenStudio
           zip_results(directory)
 
           if results.is_a? Hash
+            # DLM: don't we want this in the results zip?
+            # DLM: deprecate in favor of out.osw
             File.open("#{@options[:output_directory]}/data_point_out.json", 'w') { |f| f << JSON.pretty_generate(results) }
           else
-            puts "Unknown datapoint result type. Please handle #{results.class}"
+            #puts "Unknown datapoint result type. Please handle #{results.class}"
           end
         end
       end

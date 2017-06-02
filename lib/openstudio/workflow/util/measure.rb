@@ -22,6 +22,7 @@ module OpenStudio
           registry[:time_logger].start "#{measure_type.valueName}:apply_measures" if registry[:time_logger]
 
           logger = registry[:logger]
+          runner = registry[:runner]
           workflow_json = registry[:workflow_json]
           
           workflow_steps = workflow_json.workflowSteps
@@ -62,9 +63,17 @@ module OpenStudio
                   workflow_json.incrementStep
                 end
                 
+                # check if simulation has been halted
+                halted = false
+                begin
+                  # method added in 2.1.2
+                  halted = runner.halted
+                rescue NameError
+                end
+       
                 # DLM: why is output_adapter in options instead of registry?
                 options[:output_adapter].communicate_transition("Applying #{class_name}", :measure) if options[:output_adapter]
-                apply_measure(registry, step, options)
+                apply_measure(registry, step, options, energyplus_output_requests, halted)
                 options[:output_adapter].communicate_transition("Applied #{class_name}", :measure) if options[:output_adapter]
               end
               
@@ -224,10 +233,11 @@ module OpenStudio
         #   step[:measure_dir_name], e.g. ['measures', '../../measures']
         # @option options [Object] :time_logger Special logger used to debug performance issues
         # @param  [Boolean] energyplus_output_requests If true then the energyPlusOutputRequests is called instead of the run method
+        # @param  [Boolean] halted True if the workflow has been halted and all measures should be skipped
         # @return [Hash, String] Returns two objects. The first is the (potentially) updated output_attributes hash, and
         #   the second is the (potentially) updated current_weather_filepath
         #
-        def apply_measure(registry, step, options = {}, energyplus_output_requests = false)
+        def apply_measure(registry, step, options = {}, energyplus_output_requests = false, halted = false)
 
           logger = registry[:logger]
           runner = registry[:runner]
@@ -404,7 +414,7 @@ module OpenStudio
               raise log_message
             end
 
-            if skip_measure
+            if skip_measure || halted
               if !energyplus_output_requests
                 # just increment
                 logger.debug "Skipping measure '#{measure_dir_name}'"

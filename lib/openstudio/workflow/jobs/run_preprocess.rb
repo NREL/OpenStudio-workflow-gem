@@ -30,6 +30,8 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
+    
+    # halted workflow is handled in apply_measures
 
     # Ensure that the directory is created (but it should already be at this point)
     FileUtils.mkdir_p(@registry[:run_dir])

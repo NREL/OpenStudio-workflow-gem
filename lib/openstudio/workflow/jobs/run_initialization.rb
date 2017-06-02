@@ -36,6 +36,8 @@ class RunInitialization < OpenStudio::Workflow::Job
     # DLM: why are there multiple loggers running around?  there is one in the registry can we just use that?
     @logger.info "Calling #{__method__} in the #{self.class} class"
 
+    # do not skip initialization if halted
+    
     # Communicate that the workflow has been started
     @logger.debug 'Registering that the workflow has started with the adapter'
     @output_adapter.communicate_started

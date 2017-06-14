@@ -35,6 +35,7 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'rspec'
 require 'openstudio-workflow'
+require 'json'
 
 RSpec.configure do |config|
   # Use color in STDOUT

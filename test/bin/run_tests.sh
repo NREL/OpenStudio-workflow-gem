@@ -26,8 +26,9 @@ i=0
 
 # List any tags that you want to test of the Docker image. These must be able to be made into directories
 docker_tags=(
-    '1.13.0'
-    '1.13.2'
+    '1.14.0'
+    '2.1.0'
+    'latest'
 )
 
 # Iterate over the tags and put them into groups based on the Circle CI Node Index.

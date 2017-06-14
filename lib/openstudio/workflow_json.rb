@@ -157,7 +157,7 @@ class WorkflowStep_Shim
     if @step[:name]
       @step[:name]
     else
-      nil
+      Optional_Shim.new(nil)
     end
   end
 

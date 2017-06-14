@@ -811,5 +811,49 @@ describe 'OSW Integration' do
       expect(step[:result]).to be_nil # cause they did not run
     end
   end
+
+  it 'should register repeated measure results by name if the name key exists' do
+    osw_path = File.expand_path('./../../../files/repeated_measure_osw/repeated_measure.osw', __FILE__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    out_json_path = File.expand_path('./../../../files/repeated_measure_osw/run/measure_attributes.json', __FILE__)
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Success'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    osw_out[:steps].each do |step|
+      expect(step[:result]).to_not be_nil
+    end
+
+    expect(File.exist?(out_json_path)).to eq true
+
+    attr_json = JSON.parse(File.read(out_json_path), {symbolize_names: true})
+
+    expect(attr_json).to be_instance_of Hash
+    expect(attr_json.keys).to include(:measure_1, :measure_2)
+    expect(attr_json[:measure_1].keys).to include(:r_value, :applicable)
+    expect(attr_json[:measure_1][:r_value]).to eq 45
+    expect(attr_json[:measure_1][:applicable]).to eq true
+    expect(attr_json[:measure_2].keys).to include(:r_value, :applicable)
+    expect(attr_json[:measure_2][:r_value]).to eq 45
+    expect(attr_json[:measure_2][:applicable]).to eq true
+  end
   
 end

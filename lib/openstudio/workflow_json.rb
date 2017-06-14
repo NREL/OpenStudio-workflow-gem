@@ -153,11 +153,19 @@ class WorkflowStep_Shim
 
   attr_reader :step
 
+  def name
+    if @step[:name]
+      @step[:name]
+    else
+      nil
+    end
+  end
+
   def result
     if @step[:result]
       Optional_Shim.new(WorkflowStepResult_Shim.new(@step[:result]))
     else
-      Optional_Shim.new
+      Optional_Shim.new(nil)
     end
   end
 

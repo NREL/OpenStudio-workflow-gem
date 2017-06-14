@@ -527,11 +527,8 @@ module OpenStudio
 
               # DLM: this section creates the measure_attributes.json file which should be deprecated
               begin
-                # DLM: which name do we want?
-                measure_name = class_name
-                #measure_name = measure_dir_name
-                
-                # DLM: do measure results from sequential measures with the same name clobber each other?
+                measure_name = step.name.is_initialized ? step.name.get : class_name
+
                 output_attributes[measure_name.to_sym] = {} if output_attributes[measure_name.to_sym].nil?
                 
                 result.stepValues.each do |step_value|

@@ -8,6 +8,7 @@ function run_docker {
   echo "Running Docker container for $image"
   echo "Copying the files to a new test directory"
   mkdir -p docker_tests/$image
+  mkdir -p ~/reports/rspec/$image
   rsync -a . docker_tests/$image/ --exclude docker_tests --exclude .idea
   cd docker_tests/$image
 
@@ -16,7 +17,7 @@ function run_docker {
   docker run -e "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" \
       -v $(pwd):/var/simdata/openstudio nrel/openstudio:$image \
       /var/simdata/openstudio/test/bin/docker-run.sh \
-      > reports/rspec/$image/rpec_results.html
+      > ~/reports/rspec/$image/rpec_results.html
 }
 
 

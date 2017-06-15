@@ -8,4 +8,4 @@ eval "$(rbenv init -)"
 # install dependencies and run default rake task
 cd /var/simdata/openstudio
 bundle update 
-bundle exec rake
+bundle exec rspec --format html

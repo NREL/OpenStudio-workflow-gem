@@ -50,6 +50,7 @@ for image in ${images[@]}
 do
   echo "Running tests using docker image nrel/openstudio:$image"
   run_docker; (( exit_status = exit_status || $? ))
+  mkdir -p $CIRCLE_ARTIFACTS/reports/rspec/$image
   rsync -av ~/reports/rspec/$image $CIRCLE_ARTIFACTS/reports/rspec/$image
 done
 

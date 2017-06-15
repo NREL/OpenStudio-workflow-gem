@@ -8,13 +8,16 @@ function run_docker {
   echo "Running Docker container for $image"
   echo "Copying the files to a new test directory"
   mkdir -p docker_tests/$image
+  mkdir -p ~/reports/rspec/$image
   rsync -a . docker_tests/$image/ --exclude docker_tests --exclude .idea
   cd docker_tests/$image
 
   echo "Executing the docker command"
+  docker pull nrel/openstudio:$image
   docker run -e "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" \
       -v $(pwd):/var/simdata/openstudio nrel/openstudio:$image \
-      /var/simdata/openstudio/test/bin/docker-run.sh
+      /var/simdata/openstudio/test/bin/docker-run.sh \
+      > ~/reports/rspec/$image/rpec_results.html
 }
 
 
@@ -45,8 +48,10 @@ done
 
 for image in ${images[@]}
 do
-  run_docker; (( exit_status = exit_status || $? )) 
+  echo "Running tests using docker image nrel/openstudio:$image"
+  run_docker; (( exit_status = exit_status || $? ))
+  mkdir -p $CIRCLE_ARTIFACTS/reports/rspec/$image
+  rsync -av ~/reports/rspec/$image $CIRCLE_ARTIFACTS/reports/rspec/$image
 done
 
 exit $exit_status
-

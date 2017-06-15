@@ -9,3 +9,4 @@ test:
   override:
     - ./test/bin/run_tests.sh:
         parallel: true
+        timeout: 1200

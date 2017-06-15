@@ -48,7 +48,9 @@ done
 
 for image in ${images[@]}
 do
+  echo "Running tests using docker image nrel/openstudio:$image"
   run_docker; (( exit_status = exit_status || $? ))
+  rsync -av ~/reports/rspec/$image $CIRCLE_ARTIFACTS/reports/rspec/$image
 done
 
 exit $exit_status

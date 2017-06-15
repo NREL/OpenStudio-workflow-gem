@@ -855,5 +855,54 @@ describe 'OSW Integration' do
     expect(attr_json[:measure_2][:r_value]).to eq 45
     expect(attr_json[:measure_2][:applicable]).to eq true
   end
+
+  it 'should test halt_workflow' do
+    osw_path = File.expand_path('./../../../files/halt_workflow_osw/halt_workflow.osw', __FILE__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    is_enabled = Gem::Version.new(OpenStudio.openStudioLongVersion) >= Gem::Version.new('2.1.2')
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+
+    if is_enabled
+      expect(k.run).to eq :finished
+
+      expect(File.exist?(osw_out_path)).to eq true
+
+      osw_out = nil
+      File.open(osw_out_path, 'r') do |file|
+        osw_out = JSON.parse(file.read, symbolize_names: true)
+      end
+
+      expect(osw_out).to be_instance_of Hash
+      expect(osw_out[:completed_status]).to eq 'Cancel'
+      expect(osw_out[:steps]).to be_instance_of Array
+      expect(osw_out[:steps].size).to be > 0
+      expect(osw_out[:steps].first[:result]).to_not be_nil
+      expect(osw_out[:steps].last[:result]).to be_nil
+    else
+      expect(k.run).to eq :errored
+
+      expect(File.exist?(osw_out_path)).to eq true
+
+      osw_out = nil
+      File.open(osw_out_path, 'r') do |file|
+        osw_out = JSON.parse(file.read, symbolize_names: true)
+      end
+
+      expect(osw_out).to be_instance_of Hash
+      expect(osw_out[:completed_status]).to eq 'Fail'
+      expect(osw_out[:steps]).to be_instance_of Array
+      expect(osw_out[:steps].size).to be > 0
+      expected_r = "undefined method `haltWorkflow' for"
+      expect(osw_out[:steps].first[:result][:step_errors][0]).to match expected_r
+    end
+  end
   
 end

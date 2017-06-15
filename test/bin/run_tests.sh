@@ -12,9 +12,11 @@ function run_docker {
   cd docker_tests/$image
 
   echo "Executing the docker command"
+  docker pull nrel/openstudio:$image
   docker run -e "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" \
       -v $(pwd):/var/simdata/openstudio nrel/openstudio:$image \
-      /var/simdata/openstudio/test/bin/docker-run.sh
+      /var/simdata/openstudio/test/bin/docker-run.sh \
+      > reports/rspec/$image/rpec_results.html
 }
 
 
@@ -45,7 +47,7 @@ done
 
 for image in ${images[@]}
 do
-  run_docker; (( exit_status = exit_status || $? )) 
+  run_docker; (( exit_status = exit_status || $? ))
 done
 
 exit $exit_status

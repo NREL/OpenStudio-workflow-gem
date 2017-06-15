@@ -34,6 +34,8 @@ class RunPostprocess < OpenStudio::Workflow::Job
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
 
+    # do not skip post_process if halted
+    
     @logger.info 'Gathering reports'
     gather_reports(@registry[:run_dir], @registry[:root_dir], @registry[:workflow_json], @logger)
     @logger.info 'Finished gathering reports'

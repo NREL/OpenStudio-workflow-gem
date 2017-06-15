@@ -28,6 +28,15 @@ class RunEnergyPlus < OpenStudio::Workflow::Job
 
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
+    
+    # skip if halted
+    begin
+      # method added in 2.1.2
+      halted = @registry[:runner].halted
+      @logger.info 'Workflow halted, skipping the EnergyPlus simulation'
+      return nil if halted
+    rescue NameError
+    end
 
     # Checks and configuration
     raise 'No run_dir specified in the registry' unless @registry[:run_dir]

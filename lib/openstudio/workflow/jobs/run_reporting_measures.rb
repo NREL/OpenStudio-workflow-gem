@@ -40,6 +40,8 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     @logger.debug "Calling #{__method__} in the #{self.class} class"
     @logger.debug 'RunPostProcess Retrieving datapoint and problem'
 
+    # halted workflow is handled in apply_measures
+    
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
 

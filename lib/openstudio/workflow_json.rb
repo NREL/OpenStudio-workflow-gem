@@ -418,6 +418,14 @@ class WorkflowJSON_Shim
     result
   end
 
+  def completedStatus
+    if @workflow[:completed_status]
+      Optional_Shim.new(@workflow[:completed_status])
+    else
+      Optional_Shim.new(nil)
+    end
+  end
+
   def setCompletedStatus(status)
     @workflow[:completed_status] = status
     @workflow[:completed_at] = timeString

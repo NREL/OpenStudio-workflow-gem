@@ -9,5 +9,6 @@ test:
   override:
     - ./test/bin/run_tests.sh:
         parallel: true
+        timeout: 1200
   post:
     - rsync -av ~/reports/ $CIRCLE_ARTIFACTS/reports/

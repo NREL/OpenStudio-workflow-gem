@@ -220,7 +220,10 @@ module OpenStudio
           if @current_state == :errored
             @registry[:workflow_json].setCompletedStatus('Fail') if @registry[:workflow_json]
           else
-            @registry[:workflow_json].setCompletedStatus('Success')
+            # completed status will already be set if workflow was halted
+            if @registry[:workflow_json].completedStatus.empty?
+              @registry[:workflow_json].setCompletedStatus('Success')
+            end
           end
 
           # save all files before calling output adapter

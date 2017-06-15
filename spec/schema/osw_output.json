@@ -92,7 +92,9 @@
 					"type": "string",
 					"enum": [
 						"Success",
-						"Fail"
+						"Fail",
+						"Invalid",
+						"Cancel"
 					]
 				},
 				"eplusout_err": {

@@ -31,6 +31,8 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
     
+    # halted workflow is handled in apply_measures
+    
     # set weather file
     if @registry[:wf] && @registry[:model]
       epwFile = OpenStudio::EpwFile.load(@registry[:wf])

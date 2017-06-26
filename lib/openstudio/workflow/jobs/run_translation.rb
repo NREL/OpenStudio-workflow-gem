@@ -30,14 +30,10 @@ class RunTranslation < OpenStudio::Workflow::Job
     @logger.debug "Calling #{__method__} in the #{self.class} class"
     
     # skip if halted
-    begin
-      # method added in 2.1.2
-      halted = @registry[:runner].halted
-      @logger.info 'Workflow halted, skipping EnergyPlus translation'
-      return nil if halted
-    rescue NameError
-    end
-    
+    halted = @registry[:runner].halted
+    @logger.info 'Workflow halted, skipping OSM to IDF translation' if halted
+    return nil if halted
+
     # Ensure that the run directory is created
     FileUtils.mkdir_p(@registry[:run_dir])
 

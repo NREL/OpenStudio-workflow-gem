@@ -45,6 +45,11 @@ class RunPreprocess < OpenStudio::Workflow::Job
     apply_measures('ReportingMeasure'.to_MeasureType, @registry, @options, energyplus_output_requests)
     @logger.info('Finished collect output requests from Reporting measures.')
 
+    # Skip the pre-processor if halted
+    halted = @registry[:runner].halted
+    @logger.info 'Workflow halted, skipping the EnergyPlus pre-processor' if halted
+    return nil if halted
+
     # Perform pre-processing on in.idf to capture logic in RunManager
     @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
     energyplus_preprocess(@registry[:model_idf], @logger)

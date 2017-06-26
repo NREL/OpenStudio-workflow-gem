@@ -223,6 +223,8 @@ module OpenStudio
             # completed status will already be set if workflow was halted
             if @registry[:workflow_json].completedStatus.empty?
               @registry[:workflow_json].setCompletedStatus('Success')
+            else
+              @current_state = :errored if @registry[:workflow_json].completedStatus.get == 'Fail'
             end
           end
 

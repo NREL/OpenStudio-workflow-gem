@@ -28,6 +28,8 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     @openstudio_2 = openstudio_2
     @datapoint = nil
     @analysis = nil
+    @halted = false
+    @use_os_halted = Gem::Version.new(OpenStudio.openStudioLongVersion) >= Gem::Version.new('2.1.2')
 
     begin
       # OpenStudio 2.X
@@ -229,5 +231,21 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   def registerFinalCondition(message)
     super
     @multi_logger.info message
+  end
+
+  # Overload haltSimulation
+  def haltWorkflow(completed_status)
+    if @use_os_halted
+      super
+    else
+      @halted = true
+      @workflow_json.setCompletedStatus(completed_status)
+    end
+  end
+
+  # Overload halted
+  def halted
+    return @halted unless @use_os_halted
+    super
   end
 end

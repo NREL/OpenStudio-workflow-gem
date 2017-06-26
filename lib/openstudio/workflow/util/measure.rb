@@ -64,13 +64,8 @@ module OpenStudio
                 end
                 
                 # check if simulation has been halted
-                halted = false
-                begin
-                  # method added in 2.1.2
-                  halted = runner.halted
-                rescue NameError
-                end
-       
+                halted = runner.halted
+
                 # DLM: why is output_adapter in options instead of registry?
                 options[:output_adapter].communicate_transition("Applying #{class_name}", :measure) if options[:output_adapter]
                 apply_measure(registry, step, options, energyplus_output_requests, halted)

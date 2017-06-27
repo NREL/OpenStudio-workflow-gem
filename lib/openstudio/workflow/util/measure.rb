@@ -59,9 +59,10 @@ module OpenStudio
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
                 
                 # fast forward current step index to this index, skips any previous steps
-                #while workflow_json.currentStepIndex < step_index
-                #  workflow_json.incrementStep
-                #end
+                # DLM: this is needed when running reporting measures only
+                while workflow_json.currentStepIndex < step_index
+                  workflow_json.incrementStep
+                end
                 
                 # check if simulation has been halted
                 halted = runner.halted

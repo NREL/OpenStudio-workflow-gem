@@ -29,8 +29,8 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     @datapoint = nil
     @analysis = nil
     @halted = false
-    @use_os_halted = Gem::Version.new(OpenStudio.openStudioLongVersion) >= Gem::Version.new('2.1.2')
-
+    @use_os_halted = OpenStudio::Ruleset::OSRunner.method_defined?(:halted)
+    
     begin
       # OpenStudio 2.X
       super(@workflow_json)

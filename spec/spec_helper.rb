@@ -18,9 +18,10 @@ elsif developer_os_version == 1
   $LOAD_PATH.unshift(os_dir)
 elsif developer_os_version == 2
   # for testing with OpenStudio 2.X
-  #os_dir = 'E:/openstudio/build/Products/ruby/Debug'
-  os_dir = 'E:/openstudio2/build/Products/ruby/Debug'
-  #os_dir = 'C:/Program Files/OpenStudio 2.0.0/Ruby'
+  os_dir = 'E:/openstudio/build/Products/ruby/Debug'
+  #os_dir = 'E:/openstudio2/build/Products/ruby/Debug'
+  #os_dir = 'C:/openstudio-2.1.1/Ruby'
+  #os_dir = 'C:/openstudio-2.1.2/Ruby'
   $LOAD_PATH.reject! { |p| /site_ruby$/.match(p) }
   old_dir = Dir.pwd
   Dir.chdir(os_dir)

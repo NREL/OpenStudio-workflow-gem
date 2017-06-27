@@ -58,14 +58,16 @@ module OpenStudio
               else
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
                 
-                # fast forward current step index to this index, skips any previous steps
-                # DLM: this is needed when running reporting measures only
-                while workflow_json.currentStepIndex < step_index
-                  workflow_json.incrementStep
-                end
-                
                 # check if simulation has been halted
                 halted = runner.halted
+                
+                # fast forward current step index to this index, skips any previous steps
+                # DLM: this is needed when running reporting measures only
+                if !halted
+                  while workflow_json.currentStepIndex < step_index
+                    workflow_json.incrementStep 
+                  end
+                end
 
                 # DLM: why is output_adapter in options instead of registry?
                 options[:output_adapter].communicate_transition("Applying #{class_name}", :measure) if options[:output_adapter]

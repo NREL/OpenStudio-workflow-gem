@@ -236,6 +236,7 @@ class WorkflowJSON_Shim
   # bool incrementStep();
   def incrementStep
     @current_step_index += 1
+    @workflow[:current_step] = @current_step_index
 
     if @current_step_index < @workflow[:steps].size
       return true

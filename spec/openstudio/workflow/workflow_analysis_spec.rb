@@ -881,12 +881,15 @@ describe 'OSW Integration' do
 
     expect(osw_out).to be_instance_of Hash
     expect(osw_out[:completed_status]).to eq 'Invalid'
+    expect(osw_out[:current_step]).to eq 2
     expect(osw_out[:steps]).to be_instance_of Array
-    expect(osw_out[:steps].size).to be > 0
-    expect(osw_out[:steps].first[:result]).to be_instance_of Hash
-    expect(osw_out[:steps].first[:result][:step_result]).to eq 'Success'
-    expect(osw_out[:steps].last[:result]).to be_nil
-
+    expect(osw_out[:steps].size).to eq 4
+    expect(osw_out[:steps][0][:result]).to be_instance_of Hash
+    expect(osw_out[:steps][0][:result][:step_result]).to eq 'Success'
+    expect(osw_out[:steps][1][:result]).to be_instance_of Hash
+    expect(osw_out[:steps][1][:result][:step_result]).to eq 'Success'    
+    expect(osw_out[:steps][2][:result]).to be_nil
+    expect(osw_out[:steps][3][:result]).to be_nil 
   end
 
   it 'should test script errors' do

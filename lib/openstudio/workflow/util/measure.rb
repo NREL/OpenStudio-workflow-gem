@@ -59,9 +59,9 @@ module OpenStudio
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Applying now."
                 
                 # fast forward current step index to this index, skips any previous steps
-                while workflow_json.currentStepIndex < step_index
-                  workflow_json.incrementStep
-                end
+                #while workflow_json.currentStepIndex < step_index
+                #  workflow_json.incrementStep
+                #end
                 
                 # check if simulation has been halted
                 halted = runner.halted
@@ -411,19 +411,24 @@ module OpenStudio
 
             if skip_measure || halted
               if !energyplus_output_requests
-                # just increment
-                logger.debug "Skipping measure '#{measure_dir_name}'"
+                if halted
+                  # if halted then this measure will not get run, there are no results, not even "Skip"
+                  logger.info "Skipping measure '#{measure_dir_name}' because simulation halted"
+                  
+                else
+                  logger.info "Skipping measure '#{measure_dir_name}'"
+                  
+                  # required to update current step, will do nothing if halted
+                  runner.prepareForUserScriptRun(measure_object)
+                  
+                  # don't want to log errors about arguments passed to skipped measures
+                  #runner.validateUserArguments(arguments, argument_map
                 
-                # required to update current step
-                runner.prepareForUserScriptRun(measure_object)
-                
-                # don't want to log errors about arguments passed to skipped measures
-                #runner.validateUserArguments(arguments, argument_map)
-                
-                current_result = runner.result
-                runner.incrementStep
-                add_result_measure_info(current_result, measure) if skip_measure
-                current_result.setStepResult('Skip'.to_StepResult) if skip_measure
+                  current_result = runner.result
+                  runner.incrementStep
+                  add_result_measure_info(current_result, measure)
+                  current_result.setStepResult('Skip'.to_StepResult)
+                end
               end
             else
             

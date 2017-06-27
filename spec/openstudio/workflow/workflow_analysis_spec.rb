@@ -883,8 +883,9 @@ describe 'OSW Integration' do
     expect(osw_out[:completed_status]).to eq 'Invalid'
     expect(osw_out[:steps]).to be_instance_of Array
     expect(osw_out[:steps].size).to be > 0
-    expect(osw_out[:steps].first[:result]).to_not be_nil
-    expect(osw_out[:steps].last[:result][:step_result]).to eq 'Skip'
+    expect(osw_out[:steps].first[:result]).to be_instance_of Hash
+    expect(osw_out[:steps].first[:result][:step_result]).to eq 'Success'
+    expect(osw_out[:steps].last[:result]).to be_nil
 
   end
 

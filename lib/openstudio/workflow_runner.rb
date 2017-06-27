@@ -29,6 +29,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     @datapoint = nil
     @analysis = nil
     @halted = false
+    @set_result = true
     @use_os_halted = OpenStudio::Ruleset::OSRunner.method_defined?(:halted)
     
     begin
@@ -97,6 +98,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   # only called in OpenStudio 1.X
   # virtual void prepareForUserScriptRun(const UserScript& userScript);
   def prepareForUserScriptRun(userScript)
+    return nil if @halted
     if @openstudio_2
       prepareForMeasureRun(userScript)
     else
@@ -116,7 +118,11 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   end
 
   def result
-    if @openstudio_2
+    if @use_os_halted
+      super
+    elsif @openstudio_2
+      return WorkflowStepResult_Shim.new(nil) if @halted & !@set_result
+      @set_result = false
       super
     else
       os_result = super
@@ -127,6 +133,9 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
         raise 'Cannot find current_step'
       end
       current_step = current_step.get
+
+      return WorkflowStepResult_Shim.new(nil) if @halted & ! @set_result
+      @set_result = false
 
       if current_step.step[:result].nil?
         # skipped, prepareForUserScriptRun was not called

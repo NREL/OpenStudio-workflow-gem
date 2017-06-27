@@ -422,8 +422,8 @@ module OpenStudio
                 
                 current_result = runner.result
                 runner.incrementStep
-                add_result_measure_info(current_result, measure)
-                current_result.setStepResult('Skip'.to_StepResult)
+                add_result_measure_info(current_result, measure) if skip_measure
+                current_result.setStepResult('Skip'.to_StepResult) if skip_measure
               end
             else
             

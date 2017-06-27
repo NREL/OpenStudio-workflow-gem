@@ -573,7 +573,7 @@ module OpenStudio
               
             end
             
-          rescue => e
+          rescue ScriptError, StandardError, NoMemoryError => e
             log_message = "#{__FILE__} failed with message #{e.message} in #{e.backtrace.join("\n")}"
             logger.error log_message
             raise log_message

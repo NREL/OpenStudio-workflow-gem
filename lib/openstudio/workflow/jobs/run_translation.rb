@@ -30,9 +30,11 @@ class RunTranslation < OpenStudio::Workflow::Job
     @logger.debug "Calling #{__method__} in the #{self.class} class"
     
     # skip if halted
-    halted = @registry[:runner].halted
-    @logger.info 'Workflow halted, skipping OSM to IDF translation' if halted
-    return nil if halted
+    if @registry[:runner].halted
+      @logger.info 'Workflow halted, skipping OSM to IDF translation'
+      @registry.register(:model_idf) { OpenStudio::Workspace.new } # This allows model arguments to still be calculated
+      return nil
+    end
 
     # Ensure that the run directory is created
     FileUtils.mkdir_p(@registry[:run_dir])

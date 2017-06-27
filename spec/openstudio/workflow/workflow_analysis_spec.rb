@@ -887,4 +887,31 @@ describe 'OSW Integration' do
     expect(osw_out[:steps].last[:result][:step_result]).to eq 'Skip'
 
   end
+
+  it 'should test script errors' do
+    osw_path = File.expand_path('./../../../files/script_error_osw/script_error.osw', __FILE__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+
+    res = k.run
+    expect(res).to eq :errored
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Fail'
+  end
 end

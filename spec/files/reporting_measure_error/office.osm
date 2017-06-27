@@ -1,7 +1,7 @@
 
 OS:Version,
-  {827d47f3-6681-4d74-bb17-49d2795f1c3a}, !- Handle
-  1.4.0;                                  !- Version Identifier
+  {431019fa-6600-400a-85ac-82dfd99481d9}, !- Handle
+  1.14.0;                                 !- Version Identifier
 
 OS:Construction,
   {aa4ea0fa-2a9c-48d3-811c-6f0ca1813522}, !- Handle
@@ -6888,8 +6888,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {1de0d077-fe1b-41e9-83f3-667e5f142ddb}, !- Handle
   ActivityLevel,                          !- Name
-  0,                                      !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  0,                                      !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   ActivityLevel;                          !- Unit Type
 
@@ -7209,8 +7209,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {2b8ac4e2-3c86-4460-a3b4-4c91c88b7583}, !- Handle
   Temperature 36,                         !- Name
-  ,                                       !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  ,                                       !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   Temperature;                            !- Unit Type
 
@@ -7322,8 +7322,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {a88a7dec-e6d1-4689-bc83-b5b0b7c3457b}, !- Handle
   Temperature 37,                         !- Name
-  ,                                       !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  ,                                       !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   Temperature;                            !- Unit Type
 
@@ -8821,8 +8821,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {b06aad2c-e676-4cd5-9a49-2108ab472153}, !- Handle
   Fractional,                             !- Name
-  0,                                      !- Lower Limit Value {BasedOnField A4}
-  1,                                      !- Upper Limit Value {BasedOnField A4}
+  0,                                      !- Lower Limit Value
+  1,                                      !- Upper Limit Value
   Continuous;                             !- Numeric Type
 
 OS:Schedule:Day,
@@ -9120,8 +9120,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {d708f626-f1a7-4cd9-8206-4515bbf550da}, !- Handle
   ActivityLevel 5,                        !- Name
-  0,                                      !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  0,                                      !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   ActivityLevel;                          !- Unit Type
 
@@ -9441,8 +9441,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {16ca86ce-4838-4106-b9a5-f8e7da054e87}, !- Handle
   Temperature 3,                          !- Name
-  ,                                       !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  ,                                       !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   Temperature;                            !- Unit Type
 
@@ -9554,8 +9554,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {04876e7f-b686-4415-a463-62bc3bb8defa}, !- Handle
   Temperature 5,                          !- Name
-  ,                                       !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  ,                                       !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   Temperature;                            !- Unit Type
 
@@ -9881,8 +9881,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {3f252620-9405-48b1-a272-c6c25cea2545}, !- Handle
   ActivityLevel 13,                       !- Name
-  0,                                      !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  0,                                      !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   ActivityLevel;                          !- Unit Type
 
@@ -10536,8 +10536,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {fe9f77d3-fa9f-4838-a134-b191a8f5971e}, !- Handle
   ActivityLevel 12,                       !- Name
-  0,                                      !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  0,                                      !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   ActivityLevel;                          !- Unit Type
 
@@ -10851,8 +10851,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {6af4ab7a-30a9-4e42-8b76-a3570e223d01}, !- Handle
   Temperature 11,                         !- Name
-  ,                                       !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  ,                                       !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   Temperature;                            !- Unit Type
 
@@ -10964,8 +10964,8 @@ OS:Schedule:Ruleset,
 OS:ScheduleTypeLimits,
   {f94b9a36-7bc8-41aa-a378-ba79c0659d4a}, !- Handle
   Temperature 4,                          !- Name
-  ,                                       !- Lower Limit Value {BasedOnField A4}
-  ,                                       !- Upper Limit Value {BasedOnField A4}
+  ,                                       !- Lower Limit Value
+  ,                                       !- Upper Limit Value
   Continuous,                             !- Numeric Type
   Temperature;                            !- Unit Type
 
@@ -22471,7 +22471,7 @@ OS:SurfaceConvectionAlgorithm:Outside,
 OS:HeatBalanceAlgorithm,
   {2229139b-3bb4-475d-9d1d-2f5f3fde5f87}, !- Handle
   ConductionTransferFunction,             !- Algorithm
-  200;                                    !- Surface Temperature Upper Limit {F}
+  200;                                    !- Surface Temperature Upper Limit {C}
 
 OS:ZoneAirHeatBalanceAlgorithm,
   {d94055e1-e548-4b03-bda4-c6ee2f5df533}, !- Handle
@@ -22548,7 +22548,7 @@ OS:SizingPeriod:DesignDay,
   Denver Intl Ap Ann Hum_n 99.6% Condns DP=>MCDB, !- Name
   -11.7,                                  !- Maximum Dry-Bulb Temperature {C}
   0,                                      !- Daily Dry-Bulb Temperature Range {deltaC}
-  -21.5,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb {BasedOnField A3}
+  -21.5,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb
   83011,                                  !- Barometric Pressure {Pa}
   3.3,                                    !- Wind Speed {m/s}
   160,                                    !- Wind Direction {deg}
@@ -22570,7 +22570,7 @@ OS:SizingPeriod:DesignDay,
   Denver Intl Ap Ann Clg .4% Condns WB=>MDB, !- Name
   27.3,                                   !- Maximum Dry-Bulb Temperature {C}
   15.2,                                   !- Daily Dry-Bulb Temperature Range {deltaC}
-  18.3,                                   !- Humidity Indicating Conditions at Maximum Dry-Bulb {BasedOnField A3}
+  18.3,                                   !- Humidity Indicating Conditions at Maximum Dry-Bulb
   83011,                                  !- Barometric Pressure {Pa}
   4.2,                                    !- Wind Speed {m/s}
   80,                                     !- Wind Direction {deg}
@@ -22596,7 +22596,7 @@ OS:SizingPeriod:DesignDay,
   Denver Intl Ap Ann Clg .4% Condns DP=>MDB, !- Name
   19.9,                                   !- Maximum Dry-Bulb Temperature {C}
   15.2,                                   !- Daily Dry-Bulb Temperature Range {deltaC}
-  16,                                     !- Humidity Indicating Conditions at Maximum Dry-Bulb {BasedOnField A3}
+  16,                                     !- Humidity Indicating Conditions at Maximum Dry-Bulb
   83011,                                  !- Barometric Pressure {Pa}
   4.2,                                    !- Wind Speed {m/s}
   80,                                     !- Wind Direction {deg}
@@ -22622,7 +22622,7 @@ OS:SizingPeriod:DesignDay,
   Denver Intl Ap Ann Clg .4% Condns DB=>MWB, !- Name
   34.6,                                   !- Maximum Dry-Bulb Temperature {C}
   15.2,                                   !- Daily Dry-Bulb Temperature Range {deltaC}
-  15.7,                                   !- Humidity Indicating Conditions at Maximum Dry-Bulb {BasedOnField A3}
+  15.7,                                   !- Humidity Indicating Conditions at Maximum Dry-Bulb
   83011,                                  !- Barometric Pressure {Pa}
   4.2,                                    !- Wind Speed {m/s}
   80,                                     !- Wind Direction {deg}
@@ -22648,7 +22648,7 @@ OS:SizingPeriod:DesignDay,
   Denver Intl Ap Ann Htg Wind 99.6% Condns WS=>MCDB, !- Name
   1.8,                                    !- Maximum Dry-Bulb Temperature {C}
   0,                                      !- Daily Dry-Bulb Temperature Range {deltaC}
-  1.8,                                    !- Humidity Indicating Conditions at Maximum Dry-Bulb {BasedOnField A3}
+  1.8,                                    !- Humidity Indicating Conditions at Maximum Dry-Bulb
   83011,                                  !- Barometric Pressure {Pa}
   14.1,                                   !- Wind Speed {m/s}
   160,                                    !- Wind Direction {deg}
@@ -22670,7 +22670,7 @@ OS:SizingPeriod:DesignDay,
   Denver Intl Ap Ann Clg .4% Condns Enth=>MDB, !- Name
   27,                                     !- Maximum Dry-Bulb Temperature {C}
   15.2,                                   !- Daily Dry-Bulb Temperature Range {deltaC}
-  58300,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb {BasedOnField A3}
+  58300,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb
   83011,                                  !- Barometric Pressure {Pa}
   4.2,                                    !- Wind Speed {m/s}
   80,                                     !- Wind Direction {deg}
@@ -22696,7 +22696,7 @@ OS:SizingPeriod:DesignDay,
   Denver Intl Ap Ann Htg 99.6% Condns DB, !- Name
   -17.4,                                  !- Maximum Dry-Bulb Temperature {C}
   0,                                      !- Daily Dry-Bulb Temperature Range {deltaC}
-  -17.4,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb {BasedOnField A3}
+  -17.4,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb
   83011,                                  !- Barometric Pressure {Pa}
   3.3,                                    !- Wind Speed {m/s}
   160,                                    !- Wind Direction {deg}

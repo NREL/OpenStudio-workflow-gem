@@ -97,6 +97,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   # only called in OpenStudio 1.X
   # virtual void prepareForUserScriptRun(const UserScript& userScript);
   def prepareForUserScriptRun(userScript)
+    
     if @openstudio_2
       prepareForMeasureRun(userScript)
     else

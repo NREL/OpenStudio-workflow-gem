@@ -12,17 +12,17 @@
 				"r_value": 45
 			}
 		},
-        {
-            "measure_dir_name": "SetEplusInfiltration",
-            "arguments": {
-                "flowPerZoneFloorArea": 10.76
-            }
-        },
-        {
-            "measure_dir_name": "DencityReports",
-            "arguments": {
-                "output_format": "CSV"
-            }
-        }
+    {
+      "measure_dir_name": "SetEplusInfiltration",
+      "arguments": {
+          "flowPerZoneFloorArea": 10.76
+      }
+    },
+    {
+      "measure_dir_name": "DencityReports",
+      "arguments": {
+          "output_format": "CSV"
+      }
+    }
 	]
 }

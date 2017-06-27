@@ -39,7 +39,9 @@ class IncreaseInsulationRValueForRoofsByPercentage < OpenStudio::Ruleset::ModelU
       runner.registerError("Percentage increase less than -100% is not valid.")
       return false
     end
-
+    
+    runner.haltWorkflow("Invalid")
+    return true
 
     #short def to make numbers pretty (converts 4125001.25641 to 4,125,001.26 or 4,125,001). The definition be called through this measure
     def neat_numbers(number, roundto = 2) #round to 0 or 2)

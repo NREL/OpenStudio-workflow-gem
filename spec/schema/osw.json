@@ -193,6 +193,121 @@
 			},
 			"additionalProperties": false
 		},
+		"Measure Definition": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"directory": {
+					"type": "string"
+				},
+				"visible": {
+					"type": "boolean"
+				},
+				"uid": {
+					"type": "string"
+				},
+				"uuid": {
+					"type": "string"
+				},
+				"version_id": {
+					"type": "string"
+				},
+				"version_uuid": {
+					"type": "string"
+				},
+				"version_modified": {
+					"type": "string"
+				},
+				"xml_checksum": {
+					"type": "string"
+				},
+				"display_name": {
+					"type": "string"
+				},
+				"class_name": {
+					"type": "string"
+				},
+				"description": {
+					"type": "string"
+				},
+				"modeler_description": {
+					"type": "string"
+				},
+				"tags": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"outputs": {
+					"type": "array"
+				},
+				"attributes": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"display_name": {
+								"type": "string"
+							},
+							"value": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"arguments": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"visible": {
+								"type": "boolean"
+							},
+							"display_name": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"type": {
+								"type": "string"
+							},
+							"required": {
+								"type": "boolean"
+							},
+							"model_dependent": {
+								"type": "boolean"
+							},
+							"units": {
+								"type": "string"
+							},
+							"default_value": {},
+							"choice_values": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"choice_display_names": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"Measure Step": {
 			"description": "This step runs a measure with given arguments.  The measure can either be a Model, EnergyPlus, or Reporting Model.",
 			"type": "object",
@@ -200,6 +315,12 @@
 				"measure_dir_name": {
 					"description": "Measure directory name containing the measure.rb file",
 					"type": "string"
+				},
+				"measure_definition": {
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/definitions/Measure Definition"
+					}
 				},
 				"arguments": {
 					"description": "Arguments to pass to the measure ",

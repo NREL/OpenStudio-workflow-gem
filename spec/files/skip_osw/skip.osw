@@ -9,7 +9,10 @@
 	}, {
 		"measure_dir_name": "broken_measure",
 		"arguments": {
-			"__SKIP__": true
+			"__SKIP__": true,
+			"r_value": "potato",
+			"output_format": "Neither",
+			"not_an_argument": -1.0
 		}
 	}, {
 		"measure_dir_name": "IncreaseRoofRValue",

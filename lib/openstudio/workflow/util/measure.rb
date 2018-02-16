@@ -337,53 +337,70 @@ module OpenStudio
               # Set argument values if they exist
               logger.debug "Iterating over arguments for workflow item '#{measure_dir_name}'"
               if step.arguments 
-                step.arguments.each do |argument_name, argument_value|
-                  if argument_name.to_s == '__SKIP__'
-                    if registry[:openstudio_2]
-                      variant_type = argument_value.variantType
-                      if variant_type == "String".to_VariantType
-                        argument_value = argument_value.valueAsString
-                      elsif variant_type == "Double".to_VariantType
-                        argument_value = argument_value.valueAsDouble
-                      elsif variant_type == "Integer".to_VariantType
-                        argument_value = argument_value.valueAsInteger
-                      elsif variant_type == "Boolean".to_VariantType
-                        argument_value = argument_value.valueAsBoolean
-                      end
+                
+                # handle skip first
+                argument_value = step.arguments['__SKIP__']
+                if !argument_value.nil?
+                  
+                  if registry[:openstudio_2]
+                    variant_type = argument_value.variantType
+                    if variant_type == "String".to_VariantType
+                      argument_value = argument_value.valueAsString
+                    elsif variant_type == "Double".to_VariantType
+                      argument_value = argument_value.valueAsDouble
+                    elsif variant_type == "Integer".to_VariantType
+                      argument_value = argument_value.valueAsInteger
+                    elsif variant_type == "Boolean".to_VariantType
+                      argument_value = argument_value.valueAsBoolean
                     end
-                    
-                    if argument_value.class == String
-                      argument_value = argument_value.downcase
-                      if argument_value == "false"
-                        skip_measure = false
-                      else
-                        skip_measure = true
-                      end
-                    elsif argument_value.class == Fixnum
-                      skip_measure = (argument_value != 0)
-                    elsif argument_value.class == Float
-                      skip_measure = (argument_value != 0.0)
-                    elsif argument_value.class == FalseClass
+                  end
+                  
+                  if argument_value.class == String
+                    argument_value = argument_value.downcase
+                    if argument_value == "false"
                       skip_measure = false
-                    elsif argument_value.class == TrueClass
-                      skip_measure = true
-                    elsif argument_value.class == NilClass
-                      skip_measure = false
-                    end
-                  else
-                    # regular argument
-                    if registry[:openstudio_2]
-                      success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
                     else
-                      success = apply_arguments(argument_map, argument_name, argument_value, logger)
+                      skip_measure = true
                     end
-                    fail 'Could not set arguments' unless success
+                  elsif argument_value.class == Fixnum
+                    skip_measure = (argument_value != 0)
+                  elsif argument_value.class == Float
+                    skip_measure = (argument_value != 0.0)
+                  elsif argument_value.class == FalseClass
+                    skip_measure = false
+                  elsif argument_value.class == TrueClass
+                    skip_measure = true
+                  elsif argument_value.class == NilClass
+                    skip_measure = false
                   end
                 end
+                                
+                # process other arguments
+                step.arguments.each do |argument_name, argument_value|
+                
+                  # don't validate choices if measure is being skipped
+                  next if skip_measure
+                  
+                  # already handled skip
+                  next if argument_name.to_s == '__SKIP__'
+                  
+                  # regular argument
+                  if registry[:openstudio_2]
+                    success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
+                  else
+                    success = apply_arguments(argument_map, argument_name, argument_value, logger)
+                  end
+                  fail 'Could not set arguments' unless success
+                end
+              
               end
 
               # map any choice display names to choice values, in either set values or defaults
               argument_map.each_key do |argument_name|
+                
+                # don't validate choices if measure is being skipped
+                next if skip_measure
+                
                 v = argument_map[argument_name]
                 choice_values = v.choiceValues
                 if !choice_values.empty?

@@ -27,6 +27,14 @@ class BrokenMeasure < OpenStudio::Ruleset::ModelUserScript
     r_value = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("r_value",true)
     r_value.setDisplayName("Percentage Increase of R-value for Roof Insulation.")
     args << r_value
+
+    choices = OpenStudio::StringVector.new
+    choices << "MessagePack"
+    choices << "CSV"
+    choices << "Both"
+    output_format = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("output_format", choices, true)
+    output_format.setDisplayName("Output Format")
+    args << output_format   
     
     return args
   end

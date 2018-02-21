@@ -2,9 +2,9 @@
   <schema_version>3.0</schema_version>
   <name>broken_measure</name>
   <uid>49d1132f-b6ee-413f-bea7-26cd5e910a5a</uid>
-  <version_id>c19ff125-35d0-4a98-9f39-18d623ef2137</version_id>
-  <version_modified>20170315T212153Z</version_modified>
-  <xml_checksum>0D0748A3</xml_checksum>
+  <version_id>3b6a6d19-25b8-47b5-b409-36cd94b00bbe</version_id>
+  <version_modified>20180216T052743Z</version_modified>
+  <xml_checksum>2AF3A68E</xml_checksum>
   <class_name>BrokenMeasure</class_name>
   <display_name>BrokenMeasure</display_name>
   <description></description>
@@ -16,6 +16,27 @@
       <type>Double</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>output_format</name>
+      <display_name>Output Format</display_name>
+      <type>Choice</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+      <choices>
+        <choice>
+          <value>MessagePack</value>
+          <display_name>MessagePack</display_name>
+        </choice>
+        <choice>
+          <value>CSV</value>
+          <display_name>CSV</display_name>
+        </choice>
+        <choice>
+          <value>Both</value>
+          <display_name>Both</display_name>
+        </choice>
+      </choices>
     </argument>
   </arguments>
   <outputs/>
@@ -56,7 +77,7 @@
       <filename>example_model.osm</filename>
       <filetype>osm</filetype>
       <usage_type>test</usage_type>
-      <checksum>C4F35230</checksum>
+      <checksum>923B06C2</checksum>
     </file>
     <file>
       <version>
@@ -67,7 +88,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>88C3F301</checksum>
+      <checksum>11E22B3E</checksum>
     </file>
   </files>
 </measure>

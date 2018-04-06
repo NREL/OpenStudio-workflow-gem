@@ -151,6 +151,14 @@ module OpenStudio
           return default
         end
         
+        def fast(user_options, default)
+        
+          # user option trumps all others
+          return user_options[:fast] if user_options[:fast]
+        
+          return default
+        end
+        
         def preserve_run_dir(user_options, default)
           
           # user option trumps all others

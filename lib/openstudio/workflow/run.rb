@@ -71,6 +71,7 @@ module OpenStudio
       # @option user_options [Hash] :cleanup Remove unneccessary files during post processing, overrides OSW option if set, defaults to true
       # @option user_options [Hash] :debug Print debugging messages, overrides OSW option if set, defaults to false
       # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
+      # @option user_options [Hash] :fast Speeds up workflow by skipping steps not needed for running simulations, defaults to false
       # @option user_options [Hash] :jobs Simulation workflow, overrides jobs in OSW if set, defaults to default_jobs
       # @option user_options [Hash] :output_adapter Output adapter to use, overrides output adapter in OSW if set, defaults to local adapter
       # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW option if set, defaults to false - DLM, Deprecate
@@ -180,6 +181,7 @@ module OpenStudio
         @options[:energyplus_path] = @input_adapter.energyplus_path(user_options, nil) 
         @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
         @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
+        @options[:fast] = @input_adapter.fast(user_options, false)
 
         openstudio_dir = "unknown"
         begin
@@ -206,12 +208,14 @@ module OpenStudio
         begin
           next_state
           while @current_state != :finished && @current_state != :errored
-            sleep 2
+            #sleep 2
             step
           end
 
-          @logger.info 'Finished workflow - communicating results and zipping files'
-          @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
+          if !@options[:fast]
+            @logger.info 'Finished workflow - communicating results and zipping files'
+            @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
+          end
         rescue => e
           @logger.info "Error occurred during running with #{e.message}"
         ensure
@@ -232,7 +236,7 @@ module OpenStudio
           @registry[:log_targets].each(&:flush)
 
           # save workflow with results
-          if @registry[:workflow_json]
+          if @registry[:workflow_json] and !@options[:fast]
             out_path = @registry[:workflow_json].absoluteOutPath
             @registry[:workflow_json].saveAs(out_path)
           end

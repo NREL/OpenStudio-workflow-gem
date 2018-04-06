@@ -57,7 +57,9 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
     @output_adapter.communicate_measure_attributes @registry[:output_attributes]
 
     # save the final OSM
-    save_osm(@registry[:model], @registry[:run_dir])
+    if !@options[:fast]
+      save_osm(@registry[:model], @registry[:run_dir])
+    end
 
     # Save the OSM if the :debug option is true
     return nil unless @options[:debug]

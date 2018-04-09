@@ -36,9 +36,11 @@ class RunPostprocess < OpenStudio::Workflow::Job
 
     # do not skip post_process if halted
     
-    @logger.info 'Gathering reports'
-    gather_reports(@registry[:run_dir], @registry[:root_dir], @registry[:workflow_json], @logger)
-    @logger.info 'Finished gathering reports'
+    if !@options[:fast]
+      @logger.info 'Gathering reports'
+      gather_reports(@registry[:run_dir], @registry[:root_dir], @registry[:workflow_json], @logger)
+      @logger.info 'Finished gathering reports'
+    end
 
     if @options[:cleanup]
       @logger.info 'Beginning cleanup of the run directory'

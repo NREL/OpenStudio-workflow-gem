@@ -172,6 +172,19 @@ module OpenStudio
           return default
         end
         
+        def skip_expand_objects(user_options, default)
+          
+          # user option trumps all others
+          return user_options[:skip_expand_objects] if user_options[:skip_expand_objects]
+          
+          # try to read from OSW
+          if @run_options && !@run_options.empty?
+            return @run_options.get.skipExpandObjects
+          end
+        
+          return default
+        end
+        
         def cleanup(user_options, default)
           
           # user option trumps all others

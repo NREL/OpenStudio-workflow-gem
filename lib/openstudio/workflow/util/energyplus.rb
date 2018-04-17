@@ -97,7 +97,7 @@ module OpenStudio
           Dir.chdir(run_directory)
           logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
-          if !@options[:fast]
+          if !@options[:skip_expand_objects]
             command = popen_command("\"#{expand_objects_exe}\"")
             logger.info "Running command '#{command}'"
             File.open('stdout-expandobject', 'w') do |file|

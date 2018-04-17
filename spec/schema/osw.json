@@ -83,6 +83,9 @@
 						"preserve_run_dir": {
 							"type": "boolean"
 						},
+						"skip_expand_objects": {
+							"type": "boolean"
+						},
 						"cleanup": {
 							"type": "boolean"
 						},

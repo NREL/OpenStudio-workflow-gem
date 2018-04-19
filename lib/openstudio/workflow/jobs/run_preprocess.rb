@@ -37,7 +37,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
     FileUtils.mkdir_p(@registry[:run_dir])
 
     # save the pre-preprocess file
-    if !@options[:fast]
+    if !@options[:skip_energyplus_preprocess]
       File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') { |f| f << @registry[:model_idf].to_s }
     end
 
@@ -53,7 +53,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
     return nil if halted
 
     # Perform pre-processing on in.idf to capture logic in RunManager
-    if !@options[:fast]
+    if !@options[:skip_energyplus_preprocess]
       @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
       energyplus_preprocess(@registry[:model_idf], @logger)
       @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]

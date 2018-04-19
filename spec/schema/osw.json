@@ -86,6 +86,9 @@
 						"skip_expand_objects": {
 							"type": "boolean"
 						},
+						"skip_energyplus_preprocess": {
+							"type": "boolean"
+						},
 						"cleanup": {
 							"type": "boolean"
 						},

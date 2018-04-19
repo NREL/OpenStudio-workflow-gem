@@ -185,6 +185,19 @@ module OpenStudio
           return default
         end
         
+        def skip_energyplus_preprocess(user_options, default)
+          
+          # user option trumps all others
+          return user_options[:skip_energyplus_preprocess] if user_options[:skip_energyplus_preprocess]
+          
+          # try to read from OSW
+          if @run_options && !@run_options.empty?
+            return @run_options.get.skipEnergyPlusPreprocess
+          end
+        
+          return default
+        end
+        
         def cleanup(user_options, default)
           
           # user option trumps all others

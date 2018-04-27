@@ -30,5 +30,5 @@ in.osm
 in.idf
 run.log
 reports
-*/**/out.osw
+*/**/out*.osw
 .ruby-version

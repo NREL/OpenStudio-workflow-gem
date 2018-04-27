@@ -80,6 +80,9 @@
 						"debug": {
 							"type": "boolean"
 						},
+						"fast": {
+							"type": "boolean"
+						},
 						"preserve_run_dir": {
 							"type": "boolean"
 						},

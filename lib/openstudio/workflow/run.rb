@@ -212,7 +212,7 @@ module OpenStudio
         begin
           next_state
           while @current_state != :finished && @current_state != :errored
-            sleep 2
+            #sleep 2
             step
           end
 

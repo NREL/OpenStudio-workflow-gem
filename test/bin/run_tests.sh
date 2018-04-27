@@ -16,8 +16,7 @@ function run_docker {
   docker pull nrel/openstudio:$image
   docker run -e "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" \
       -v $(pwd):/var/simdata/openstudio nrel/openstudio:$image \
-      /var/simdata/openstudio/test/bin/docker-run.sh \
-      > ~/reports/rspec/$image/rpec_results.html
+      /var/simdata/openstudio/test/bin/docker-run.sh 2>&1 | tee ~/reports/rspec/$image/rpec_results.html
 }
 
 

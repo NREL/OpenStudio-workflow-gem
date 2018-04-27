@@ -97,20 +97,22 @@ module OpenStudio
           Dir.chdir(run_directory)
           logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
-          command = popen_command("\"#{expand_objects_exe}\"")
-          logger.info "Running command '#{command}'"
-          File.open('stdout-expandobject', 'w') do |file|
-            ::IO.popen(command) do |io|
-              while (line = io.gets)
-                file << line
+          if !@options[:skip_expand_objects]
+            command = popen_command("\"#{expand_objects_exe}\"")
+            logger.info "Running command '#{command}'"
+            File.open('stdout-expandobject', 'w') do |file|
+              ::IO.popen(command) do |io|
+                while (line = io.gets)
+                  file << line
+                end
               end
             end
-          end
-
-          # Check if expand objects did anything
-          if File.exist? 'expanded.idf'
-            FileUtils.mv('in.idf', 'pre-expand.idf', force: true) if File.exist?('in.idf')
-            FileUtils.mv('expanded.idf', 'in.idf', force: true)
+          
+            # Check if expand objects did anything
+            if File.exist? 'expanded.idf'
+              FileUtils.mv('in.idf', 'pre-expand.idf', force: true) if File.exist?('in.idf')
+              FileUtils.mv('expanded.idf', 'in.idf', force: true)
+            end
           end
 
           # create stdout
@@ -136,7 +138,9 @@ module OpenStudio
             
             if workflow_json
               begin
-                workflow_json.setEplusoutErr(eplus_err)
+                if !@options[:fast]
+                  workflow_json.setEplusoutErr(eplus_err)
+                end
               rescue => e
                 # older versions of OpenStudio did not have the setEplusoutErr method
               end

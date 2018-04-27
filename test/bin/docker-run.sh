@@ -2,8 +2,14 @@
 
 export CI=true
 export CIRCLECI=true
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
+
+# Source rbenv if exists
+if which rbenv > /dev/null
+then
+    echo "rbenv installed... initializing"
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+fi
 
 # install dependencies and run default rake task
 cd /var/simdata/openstudio

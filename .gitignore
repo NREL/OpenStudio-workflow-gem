@@ -31,3 +31,4 @@ in.idf
 run.log
 reports
 */**/out.osw
+.ruby-version

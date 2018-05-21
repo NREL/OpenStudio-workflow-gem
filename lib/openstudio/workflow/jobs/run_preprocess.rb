@@ -37,7 +37,9 @@ class RunPreprocess < OpenStudio::Workflow::Job
     FileUtils.mkdir_p(@registry[:run_dir])
 
     # save the pre-preprocess file
-    File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') { |f| f << @registry[:model_idf].to_s }
+    if !@options[:skip_energyplus_preprocess]
+      File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') { |f| f << @registry[:model_idf].to_s }
+    end
 
     # Add any EnergyPlus Output Requests from Reporting Measures
     @logger.info 'Beginning to collect output requests from Reporting measures.'
@@ -51,10 +53,12 @@ class RunPreprocess < OpenStudio::Workflow::Job
     return nil if halted
 
     # Perform pre-processing on in.idf to capture logic in RunManager
-    @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
-    energyplus_preprocess(@registry[:model_idf], @logger)
-    @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
-    @logger.info 'Finished preprocess job for EnergyPlus simulation'
+    if !@options[:skip_energyplus_preprocess]
+      @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
+      energyplus_preprocess(@registry[:model_idf], @logger)
+      @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
+      @logger.info 'Finished preprocess job for EnergyPlus simulation'
+    end
 
     # Save the model objects in the registry to the run directory
     if File.exist?("#{@registry[:run_dir]}/in.idf")

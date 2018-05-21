@@ -151,6 +151,25 @@ module OpenStudio
           return default
         end
         
+        def fast(user_options, default)
+        
+          # user option trumps all others
+          return user_options[:fast] if user_options[:fast]
+          
+          # try to read from OSW
+          if @run_options && !@run_options.empty?
+            if @run_options.get.respond_to?(:fast)
+              return @run_options.get.fast
+            else
+              if @workflow[:run_options]
+                return @workflow[:run_options][:fast]
+              end
+            end
+          end
+          
+          return default
+        end
+        
         def preserve_run_dir(user_options, default)
           
           # user option trumps all others
@@ -159,6 +178,44 @@ module OpenStudio
           # try to read from OSW
           if @run_options && !@run_options.empty?
             return @run_options.get.preserveRunDir
+          end
+        
+          return default
+        end
+        
+        def skip_expand_objects(user_options, default)
+          
+          # user option trumps all others
+          return user_options[:skip_expand_objects] if user_options[:skip_expand_objects]
+           
+          # try to read from OSW
+          if @run_options && !@run_options.empty?
+            if @run_options.get.respond_to?(:skipExpandObjects)
+              return @run_options.get.skipExpandObjects
+            else
+              if @workflow[:run_options]
+                return @workflow[:run_options][:skip_expand_objects]
+              end
+            end
+          end
+        
+          return default
+        end
+        
+        def skip_energyplus_preprocess(user_options, default)
+          
+          # user option trumps all others
+          return user_options[:skip_energyplus_preprocess] if user_options[:skip_energyplus_preprocess]
+          
+          # try to read from OSW
+          if @run_options && !@run_options.empty?
+            if @run_options.get.respond_to?(:skipEnergyPlusPreprocess)
+              return @run_options.get.skipEnergyPlusPreprocess
+            else
+              if @workflow[:run_options]
+                return @workflow[:run_options][:skip_energyplus_preprocess]
+              end
+            end
           end
         
           return default

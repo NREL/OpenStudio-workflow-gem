@@ -71,10 +71,13 @@ module OpenStudio
       # @option user_options [Hash] :cleanup Remove unneccessary files during post processing, overrides OSW option if set, defaults to true
       # @option user_options [Hash] :debug Print debugging messages, overrides OSW option if set, defaults to false
       # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
+      # @option user_options [Hash] :fast Speeds up workflow by skipping steps not needed for running simulations, defaults to false
       # @option user_options [Hash] :jobs Simulation workflow, overrides jobs in OSW if set, defaults to default_jobs
       # @option user_options [Hash] :output_adapter Output adapter to use, overrides output adapter in OSW if set, defaults to local adapter
       # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW option if set, defaults to false - DLM, Deprecate
       # @option user_options [Hash] :profile Produce additional output for profiling simulations, defaults to false
+      # @option user_options [Hash] :skip_energyplus_preprocess Does not add add default output requests to EnergyPlus input if true, requests from reporting measures are added in either case, defaults to false
+      # @option user_options [Hash] :skip_expand_objects Skips the call to the EnergyPlus ExpandObjects program, defaults to false
       # @option user_options [Hash] :targets Log targets to write to, defaults to standard out and run.log
       # @option user_options [Hash] :verify_osw Check OSW for correctness, defaults to true
       # @option user_options [Hash] :weather_file Initial weather file to load, overrides OSW option if set, defaults to empty
@@ -126,6 +129,8 @@ module OpenStudio
         # get info to set up logging first in case of failures later
         @options[:debug] = @input_adapter.debug(user_options, false)
         @options[:preserve_run_dir] = @input_adapter.preserve_run_dir(user_options, false)
+        @options[:skip_expand_objects] = @input_adapter.skip_expand_objects(user_options, false)
+        @options[:skip_energyplus_preprocess] = @input_adapter.skip_energyplus_preprocess(user_options, false)
         @options[:profile] = @input_adapter.profile(user_options, false)
         
         # if running in osw dir, force preserve run dir
@@ -180,6 +185,7 @@ module OpenStudio
         @options[:energyplus_path] = @input_adapter.energyplus_path(user_options, nil) 
         @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
         @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
+        @options[:fast] = @input_adapter.fast(user_options, false)
 
         openstudio_dir = "unknown"
         begin
@@ -206,12 +212,14 @@ module OpenStudio
         begin
           next_state
           while @current_state != :finished && @current_state != :errored
-            sleep 2
+            #sleep 2
             step
           end
 
-          @logger.info 'Finished workflow - communicating results and zipping files'
-          @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
+          if !@options[:fast]
+            @logger.info 'Finished workflow - communicating results and zipping files'
+            @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
+          end
         rescue => e
           @logger.info "Error occurred during running with #{e.message}"
         ensure
@@ -232,7 +240,7 @@ module OpenStudio
           @registry[:log_targets].each(&:flush)
 
           # save workflow with results
-          if @registry[:workflow_json]
+          if @registry[:workflow_json] and !@options[:fast]
             out_path = @registry[:workflow_json].absoluteOutPath
             @registry[:workflow_json].saveAs(out_path)
           end

@@ -76,8 +76,8 @@ module OpenStudio
       # @option user_options [Hash] :output_adapter Output adapter to use, overrides output adapter in OSW if set, defaults to local adapter
       # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW option if set, defaults to false - DLM, Deprecate
       # @option user_options [Hash] :profile Produce additional output for profiling simulations, defaults to false
-      # @option user_options [Hash] :skip_energyplus_preprocess Skips handling of reporting variables
-      # @option user_options [Hash] :skip_expand_objects Skips the call to the EnergyPlus ExpandObjects program
+      # @option user_options [Hash] :skip_energyplus_preprocess Does not add add default output requests to EnergyPlus input if true, requests from reporting measures are added in either case, defaults to false
+      # @option user_options [Hash] :skip_expand_objects Skips the call to the EnergyPlus ExpandObjects program, defaults to false
       # @option user_options [Hash] :targets Log targets to write to, defaults to standard out and run.log
       # @option user_options [Hash] :verify_osw Check OSW for correctness, defaults to true
       # @option user_options [Hash] :weather_file Initial weather file to load, overrides OSW option if set, defaults to empty
@@ -212,7 +212,7 @@ module OpenStudio
         begin
           next_state
           while @current_state != :finished && @current_state != :errored
-            sleep 2
+            #sleep 2
             step
           end
 

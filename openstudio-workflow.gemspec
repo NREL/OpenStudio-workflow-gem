@@ -27,11 +27,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'ci_reporter', '2.0.0'
   s.add_development_dependency 'ci_reporter_rspec', '1.0.0'
   s.add_development_dependency 'builder', '2.1.2'
-  
   s.add_development_dependency 'coveralls', '0.8.21'
   s.add_development_dependency 'parallel', '1.12.1'
 
-  # Use an older versions of the items below as they requireRuby 2.1+
   s.add_development_dependency 'rubocop', '0.54.0'
   s.add_development_dependency 'rubocop-checkstyle_formatter', '0.4.0'
   s.add_development_dependency 'public_suffix', '2.0.5'

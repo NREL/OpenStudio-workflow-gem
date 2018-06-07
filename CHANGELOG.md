@@ -4,6 +4,7 @@ OpenStudio::Workflow Change Log
 Version 1.3.4 (Unreleased)
 --------------------------
 * Remove support for Ruby 2.0
+* Update license
 
 Version '1.0.0-rc1'
 -------------------

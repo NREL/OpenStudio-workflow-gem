@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary = 'OpenStudio Workflow Manager'
   s.description = 'Run OpenStudio based measures and simulations using EnergyPlus'
   s.homepage = 'https://github.com/NREL/OpenStudio-workflow-gem'
-  s.license = 'LGPL'
+  s.license = 'BSD'
 
   s.required_ruby_version = '>= 2.2.4'
   

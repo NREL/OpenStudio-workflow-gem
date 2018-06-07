@@ -35,6 +35,6 @@
 
 module OpenStudio
   module Workflow
-    VERSION = '1.3.2'.freeze # Suffixes must have periods (not dashes)
+    VERSION = '1.3.4'.freeze # Suffixes must have periods (not dashes)
   end
 end

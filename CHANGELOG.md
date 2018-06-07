@@ -1,7 +1,11 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Version '1.0.0-rc1' (Not released)
+Version 1.3.4 (Unreleased)
+--------------------------
+* Remove support for Ruby 2.0
+
+Version '1.0.0-rc1'
 -------------------
 * Use specific version of OpenStudio Analysis Gem
 * Fix tests

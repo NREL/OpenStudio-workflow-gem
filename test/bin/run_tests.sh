@@ -27,9 +27,10 @@ bundle install
 i=0
 
 # List any tags that you want to test of the Docker image. These must be able to be made into directories
+# Removing 1.14.0
 docker_tags=(
-    '1.14.0'
     '2.1.0'
+    '2.3.0'
     'latest'
 )
 

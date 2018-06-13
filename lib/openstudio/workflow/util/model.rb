@@ -113,7 +113,15 @@ module OpenStudio
         #
         def save_osm(model, save_directory, name = 'in.osm')
           osm_filename = File.join(save_directory.to_s, name.to_s)
-          File.open(osm_filename, 'w') { |f| f << model.to_s }
+          File.open(osm_filename, 'w') do |f| 
+            f << model.to_s 
+            # make sure data is written to the disk one way or the other
+            begin
+              f.fsync
+            rescue
+              f.flush
+            end
+          end
           osm_filename
         end
 
@@ -126,7 +134,15 @@ module OpenStudio
         #
         def save_idf(model_idf, save_directory, name = 'in.idf')
           idf_filename = File.join(save_directory.to_s, name.to_s)
-          File.open(idf_filename, 'w') { |f| f << model_idf.to_s }
+          File.open(idf_filename, 'w') do |f| 
+            f << model_idf.to_s 
+            # make sure data is written to the disk one way or the other
+            begin
+              f.fsync
+            rescue
+              f.flush
+            end
+          end
           idf_filename
         end
       end

@@ -221,8 +221,14 @@ class WorkflowJSON_Shim
   end
 
   def saveAs(path)
-    File.open(path.to_s, 'w') do |file|
-      file << JSON.pretty_generate(@workflow)
+    File.open(path.to_s, 'w') do |f|
+      f << JSON.pretty_generate(@workflow)
+      # make sure data is written to the disk one way or the other
+      begin
+        f.fsync
+      rescue
+        f.flush
+      end
     end
   end
 

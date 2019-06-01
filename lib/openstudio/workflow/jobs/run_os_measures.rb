@@ -46,19 +46,19 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
-    
+
     # halted workflow is handled in apply_measures
-    
+
     # set weather file
     if @registry[:wf] && @registry[:model]
       epwFile = OpenStudio::EpwFile.load(@registry[:wf])
       if !epwFile.empty?
         OpenStudio::Model::WeatherFile.setWeatherFile(@registry[:model], epwFile.get)
       else
-        @logger.warn "Could not load weather file from '#{weather_full_path.to_s}'"
+        @logger.warn "Could not load weather file from '#{@registry[:wf].to_s}'"
       end
     end
-      
+
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
 

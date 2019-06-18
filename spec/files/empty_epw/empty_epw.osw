@@ -1,0 +1,18 @@
+{
+	"weather_file": "empty.epw",
+	"seed_file": null,
+	"steps": [
+        {
+            "measure_dir_name": "ReduceSpaceInfiltrationByPercentage",
+            "arguments": {
+            }
+        },
+        {
+            "measure_dir_name": "ChangeBuildingLocation",
+            "arguments": {
+                "climate_zone": "ASHRAE 169-2006-5B",
+                "weather_file_name": "srrl_2013_amy.epw"
+            }
+        }
+    ]
+}

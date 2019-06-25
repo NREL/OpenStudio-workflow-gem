@@ -50,7 +50,8 @@ module OpenStudio
           
           begin
             # configure the OSW with paths for loaded extension gems
-            @workflow = OpenStudio::Workflow::Extension.configure_osw(@workflow)
+            # Bundler.require is called in the CLI to load extension gems
+            @workflow = OpenStudio::Extension::configure_osw(@workflow)          
           rescue NameError => e
           end
           

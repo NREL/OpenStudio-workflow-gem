@@ -72,8 +72,10 @@ module OpenStudio
             file: 'openstudio/workflow/jobs/run_energyplus.rb', options: {} },
           { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
             file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
-          { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+          { state: :postprocess, next_state: :fmu, job: :RunPostprocess,
             file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+          { state: :fmu, next_state: :finished, job: :RunFmu,
+            file: 'openstudio/workflow/jobs/run_fmu.rb', options: {} },  
           { state: :finished },
           { state: :errored }
         ]

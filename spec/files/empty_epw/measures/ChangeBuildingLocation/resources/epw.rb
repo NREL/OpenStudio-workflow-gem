@@ -88,7 +88,11 @@ module OpenStudio
 
         @header_data = []
         @weather_data = []
-        process_header
+        if !filename.nil? 
+          process_header
+        else
+          raise "EPW filename is nil"
+        end        
       end
 
       def self.load(filename)

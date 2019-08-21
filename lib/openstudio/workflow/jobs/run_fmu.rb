@@ -58,15 +58,22 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.info 'Starting the FMU simulation'
     @registry[:time_logger].start('Running FMU') if @registry[:time_logger]
     #call_energyplus(@registry[:run_dir], ep_path, @output_adapter, @logger, @registry[:workflow_json])
+
     `python --version`
     `/usr/local/JModelica/bin/jm_python.sh --version`
+
     path = File.dirname(__FILE__)
     files = Dir.entries(path)
     @logger.debug "run_fmu.rm file path: #{files}"
     @logger.debug "run_fmu.rm file path: #{File.dirname(__FILE__)}"
-    result = `python #{path}/run_fmu.py`
-
+    @logger.debug "test output"
+    result = `python -c 'import os; print os.getcwd()'`
     @logger.debug "result: #{result}"
+
+    `python -c "import matplotlib; matplotlib.use('Agg')"`
+    result = `python #{path}/run_fmu.py`
+    @logger.debug "result: #{result}"
+    
     @registry[:time_logger].stop('Running FMU') if @registry[:time_logger]
     @logger.info 'Completed the FMU simulation'
 

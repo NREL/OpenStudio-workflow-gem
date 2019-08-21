@@ -64,8 +64,9 @@ class RunFmu < OpenStudio::Workflow::Job
     files = Dir.entries(path)
     @logger.debug "run_fmu.rm file path: #{files}"
     @logger.debug "run_fmu.rm file path: #{File.dirname(__FILE__)}"
-    `python #{path}/run_fmu.py`
-    
+    result = `python #{path}/run_fmu.py`
+
+    @logger.debug "result: #{result}"
     @registry[:time_logger].stop('Running FMU') if @registry[:time_logger]
     @logger.info 'Completed the FMU simulation'
 

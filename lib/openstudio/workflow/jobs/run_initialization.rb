@@ -85,6 +85,22 @@ class RunInitialization < OpenStudio::Workflow::Job
     @registry.register(:root_dir) { workflow_json.absoluteRootDir }
     @logger.debug "The root_dir for the datapoint is #{@registry[:root_dir]}"
     
+    generated_files_dir = "#{@registry[:root_dir]}/generated_files"
+    if File.exist?(generated_files_dir)
+      @logger.debug "Removing existing generated files directory: #{generated_files_dir}"
+      FileUtils.rm_rf(generated_files_dir)
+    end
+    @logger.debug "Creating generated files directory: #{generated_files_dir}"
+    FileUtils.mkdir_p(generated_files_dir)
+    
+    # insert the generated files directory in the first spot so all generated ExternalFiles go here
+    file_paths = @registry[:workflow_json].filePaths
+    @registry[:workflow_json].resetFilePaths
+    @registry[:workflow_json].addFilePath(generated_files_dir)
+    file_paths.each do |file_path|
+      @registry[:workflow_json].addFilePath(file_path)
+    end
+    
     reports_dir = "#{@registry[:root_dir]}/reports"
     if File.exist?(reports_dir)
       @logger.debug "Removing existing reports directory: #{reports_dir}"

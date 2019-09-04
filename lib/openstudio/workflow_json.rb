@@ -335,6 +335,17 @@ class WorkflowJSON_Shim
     end
     result
   end
+  
+  def addFilePath(path)
+    if !@workflow[:file_paths]
+      @workflow[:file_paths] = []
+    end
+    @workflow[:file_paths] << path
+  end
+
+  def resetFilePaths()
+    @workflow[:file_paths] = []
+  end
 
   # Attempts to find a file by name, searches through filePaths in order and returns first match.
   # boost::optional<openstudio::path> findFile(const openstudio::path& file);

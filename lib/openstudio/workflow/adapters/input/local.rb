@@ -47,7 +47,14 @@ module OpenStudio
           if File.exist? @osw_abs_path
             @workflow = ::JSON.parse(File.read(@osw_abs_path), symbolize_names: true)
           end
-                   
+          
+          begin
+            # configure the OSW with paths for loaded extension gems
+            # Bundler.require is called in the CLI to load extension gems
+            @workflow = OpenStudio::Extension::configure_osw(@workflow)          
+          rescue NameError => e
+          end
+          
           @workflow_json = nil
           @run_options = nil
           if @workflow

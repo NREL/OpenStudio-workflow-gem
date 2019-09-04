@@ -74,13 +74,25 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.debug "result: #{result}"
 
     matplotlib = PyCall.import_module('matplotlib')
-    matplotlib.use('Agg')
+    #matplotlib.use('Agg')
 
     pyimport 'pyfmi', as: :pyfmi
-    pyfrom 'pyfmi.examples', import: :fmi_bouncing_ball
-    result = fmi_bouncing_ball.run_demo()
-    #result = `python #{path}/run_fmu.py`
-    @logger.debug "result: #{result}"
+    pyimport 'pylab', as: :pylab
+    #pyfrom 'pyfmi.examples', import: :fmi_bouncing_ball
+    #result = fmi_bouncing_ball.run_demo()
+    #@logger.debug "result: #{result}"
+
+    pyfrom 'pymodelica', import: :compile_fmu
+    pyfrom 'pyfmi', import: :load_fmu
+    model_name = "HelloWorld"
+    mo_file = "/home/ubuntu/Projects/OpenStudio-workflow-gem-fmu/lib/openstudio/workflow/jobs/HelloWorld.mo"
+    my_fmu = compile_fmu(model_name, mo_file)
+    hello_world = load_fmu(my_fmu)
+    res = hello_world.simulate(start_time=0,final_time=5)
+    fig = pylab.figure()
+    pylab.clf()
+    pylab.plot(res["time"],res["x"])
+    pylab.show()
     
     @registry[:time_logger].stop('Running FMU') if @registry[:time_logger]
     @logger.info 'Completed the FMU simulation'

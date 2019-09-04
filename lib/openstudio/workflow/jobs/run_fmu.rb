@@ -37,6 +37,8 @@
 class RunFmu < OpenStudio::Workflow::Job
   #require 'openstudio/workflow/util/energyplus'
   #include OpenStudio::Workflow::Util::EnergyPlus
+  require 'pycall/import'
+  include PyCall::Import
 
   def initialize(input_adapter, output_adapter, registry, options = {})
     super
@@ -67,11 +69,17 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.debug "run_fmu.rm file path: #{files}"
     @logger.debug "run_fmu.rm file path: #{File.dirname(__FILE__)}"
     @logger.debug "test output"
-    result = `python -c 'import os; print os.getcwd()'`
+    os = PyCall.import_module('os')
+    result = os.getcwd()
     @logger.debug "result: #{result}"
 
-    `python -c "import matplotlib; matplotlib.use('Agg')"`
-    result = `python #{path}/run_fmu.py`
+    matplotlib = PyCall.import_module('matplotlib')
+    matplotlib.use('Agg')
+
+    pyimport 'pyfmi', as: :pyfmi
+    pyfrom 'pyfmi.examples', import: :fmi_bouncing_ball
+    result = fmi_bouncing_ball.run_demo()
+    #result = `python #{path}/run_fmu.py`
     @logger.debug "result: #{result}"
     
     @registry[:time_logger].stop('Running FMU') if @registry[:time_logger]

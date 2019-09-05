@@ -61,8 +61,10 @@ class RunFmu < OpenStudio::Workflow::Job
     @registry[:time_logger].start('Running FMU') if @registry[:time_logger]
     #call_energyplus(@registry[:run_dir], ep_path, @output_adapter, @logger, @registry[:workflow_json])
 
-    `python --version`
-    `/usr/local/JModelica/bin/jm_python.sh --version`
+    result = `python --version`
+    @logger.debug "python --version: #{result}"
+    result = `/usr/local/JModelica/bin/jm_python.sh --version`
+    @logger.debug "/usr/local/JModelica/bin/jm_python.sh --version : #{result}"
 
     path = File.dirname(__FILE__)
     files = Dir.entries(path)

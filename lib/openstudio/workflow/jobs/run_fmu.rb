@@ -65,44 +65,25 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.debug "python --version: #{result}"
     result = `/usr/local/JModelica/bin/jm_python.sh --version`
     @logger.debug "/usr/local/JModelica/bin/jm_python.sh --version : #{result}"
-    result = `printenv`
-    @logger.debug "printenv: #{result}"
-    result = ENV.sort
-    @logger.debug "ruby env: #{result}"
-    result = `python -c 'import os; print os.environ'`
-    @logger.debug "python ENV: #{result}"
+    #result = `printenv`
+    #@logger.debug "printenv: #{result}"
+    #result = ENV.sort
+    #@logger.debug "ruby env: #{result}"
+    #result = `python -c 'import os; print os.environ'`
+    #@logger.debug "python ENV: #{result}"
 
     path = File.dirname(__FILE__)
     files = Dir.entries(path)
     @logger.debug "run_fmu.rm file path: #{files}"
     @logger.debug "run_fmu.rm file path: #{File.dirname(__FILE__)}"
-    @logger.debug "test output"
-    #os = PyCall.import_module('os')
-    #result = os.getcwd()
-    #@logger.debug "result: #{result}"
 
-    #matplotlib = PyCall.import_module('matplotlib')
-    #matplotlib.use('Agg')
-
-    #pyimport 'pyfmi', as: :pyfmi
-    #pyimport 'pylab', as: :pylab
-    #pyfrom 'pyfmi.examples', import: :fmi_bouncing_ball
-    #result = fmi_bouncing_ball.run_demo()
-    #@logger.debug "result: #{result}"
-
-    #pyfrom 'pymodelica', import: :compile_fmu
-    #pyfrom 'pyfmi', import: :load_fmu
-    #model_name = "HelloWorld"
-    #mo_file = "/home/ubuntu/Projects/OpenStudio-workflow-gem-fmu/lib/openstudio/workflow/jobs/HelloWorld.mo"
-    #my_fmu = compile_fmu(model_name, mo_file)
-    #hello_world = load_fmu(my_fmu)
-    #res = hello_world.simulate(start_time=0,final_time=5)
-    result = `python #{path}/run_fmu.py`
+    @registry.register(:model_name) {"HelloWorld"}
+    @registry.register(:mo_file) {"#{@registry[:osw_dir]}/HelloWorld.mo"}
+    
+    model_name = @registry[:model_name]
+    mo_file = @registry[:mo_file]
+    result = `python #{path}/run_fmu.py #{model_name} #{mo_file}`
     @logger.debug "python run_fmu.py: #{result}"
-    #fig = pylab.figure()
-    #pylab.clf()
-    #pylab.plot(res["time"],res["x"])
-    #pylab.show()
     
     @registry[:time_logger].stop('Running FMU') if @registry[:time_logger]
     @logger.info 'Completed the FMU simulation'

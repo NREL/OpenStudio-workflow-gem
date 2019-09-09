@@ -37,8 +37,8 @@
 class RunFmu < OpenStudio::Workflow::Job
   #require 'openstudio/workflow/util/energyplus'
   #include OpenStudio::Workflow::Util::EnergyPlus
-  require 'pycall/import'
-  include PyCall::Import
+  #require 'pycall/import'
+  #include PyCall::Import
 
   def initialize(input_adapter, output_adapter, registry, options = {})
     super
@@ -71,30 +71,40 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.debug "run_fmu.rm file path: #{files}"
     @logger.debug "run_fmu.rm file path: #{File.dirname(__FILE__)}"
     @logger.debug "test output"
-    os = PyCall.import_module('os')
-    result = os.getcwd()
+    #os = PyCall.import_module('os')
+    `import os`
+    #result = os.getcwd()
+    result = `os.getcwd()`
     @logger.debug "result: #{result}"
 
-    matplotlib = PyCall.import_module('matplotlib')
+    #matplotlib = PyCall.import_module('matplotlib')
     #matplotlib.use('Agg')
+    `import matplotlib; matplotlib.use('Agg')`
 
-    pyimport 'pyfmi', as: :pyfmi
-    pyimport 'pylab', as: :pylab
+    #pyimport 'pyfmi', as: :pyfmi
+    `import pyfmi`
+    #pyimport 'pylab', as: :pylab
+    `import pylab`
     #pyfrom 'pyfmi.examples', import: :fmi_bouncing_ball
     #result = fmi_bouncing_ball.run_demo()
     #@logger.debug "result: #{result}"
 
-    pyfrom 'pymodelica', import: :compile_fmu
-    pyfrom 'pyfmi', import: :load_fmu
+    #pyfrom 'pymodelica', import: :compile_fmu
+    `from pymodelica import compile_fmu`
+    #pyfrom 'pyfmi', import: :load_fmu
+    `from pyfmi import load_fmu`
     model_name = "HelloWorld"
     mo_file = "/home/ubuntu/Projects/OpenStudio-workflow-gem-fmu/lib/openstudio/workflow/jobs/HelloWorld.mo"
-    my_fmu = compile_fmu(model_name, mo_file)
-    hello_world = load_fmu(my_fmu)
-    res = hello_world.simulate(start_time=0,final_time=5)
-    fig = pylab.figure()
-    pylab.clf()
-    pylab.plot(res["time"],res["x"])
-    pylab.show()
+    #my_fmu = compile_fmu(model_name, mo_file)
+    #hello_world = load_fmu(my_fmu)
+    #res = hello_world.simulate(start_time=0,final_time=5)
+    `my_fmu = compile_fmu(${model_name}, ${mo_file})`
+    `hello_world = load_fmu(my_fmu)`
+    `res = hello_world.simulate(start_time=0,final_time=5)`
+    #fig = pylab.figure()
+    #pylab.clf()
+    #pylab.plot(res["time"],res["x"])
+    #pylab.show()
     
     @registry[:time_logger].stop('Running FMU') if @registry[:time_logger]
     @logger.info 'Completed the FMU simulation'

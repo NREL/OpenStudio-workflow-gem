@@ -1,5 +1,6 @@
 import os
-print os.getcwd()
+print("os.getcwd():", os.getcwd())
+print("os.environ:", os.environ)
 import matplotlib
 matplotlib.use('Agg')
 

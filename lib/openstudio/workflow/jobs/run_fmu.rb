@@ -65,6 +65,9 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.debug "python --version: #{result}"
     result = `/usr/local/JModelica/bin/jm_python.sh --version`
     @logger.debug "/usr/local/JModelica/bin/jm_python.sh --version : #{result}"
+    @logger.debug "printenv: #{printenv}"
+    @logger.debug "ruby env: #{ENV}"
+    @logger.debug "python env:#{python -c 'import os; print os.environ'}"
 
     path = File.dirname(__FILE__)
     files = Dir.entries(path)

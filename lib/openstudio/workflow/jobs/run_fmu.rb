@@ -78,7 +78,10 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.debug "run_fmu.rm file path: #{File.dirname(__FILE__)}"
 
     @registry.register(:model_name) {"HelloWorld"}
-    @registry.register(:mo_file) {"#{@registry[:osw_dir]}/HelloWorld.mo"}
+    @registry.register(:mo_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.mo"}
+    
+    lib_dir = @registry[:lib_dir]
+    @logger.debug "lib_dir: #{lib_dir}"
     
     model_name = @registry[:model_name]
     mo_file = @registry[:mo_file]

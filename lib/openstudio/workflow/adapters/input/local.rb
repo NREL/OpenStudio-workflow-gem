@@ -311,6 +311,19 @@ module OpenStudio
           return result
         end
         
+        # Get the lib dir
+        #
+        def lib_dir
+          result = File.join(osw_dir, '../lib')
+          if @workflow_json
+            begin
+              result = File.join(@workflow_json.absoluteRunDir.to_s, '../lib')
+            rescue
+            end
+          end
+          result
+        end
+        
       end
     end
   end

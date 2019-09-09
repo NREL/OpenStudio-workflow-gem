@@ -10,7 +10,7 @@ from pymodelica import compile_fmu
 from pyfmi import load_fmu
 
 model_name = "HelloWorld"
-mo_file = "/home/ubuntu/Projects/OpenStudio-workflow-gem-fmu/lib/openstudio/workflow/jobs/HelloWorld.mo"
+mo_file = "/var/oscli/clones/openstudio-workflow/lib/openstudio/workflow/jobs/HelloWorld.mo"
 print "compile_fmu"
 my_fmu = compile_fmu(model_name, mo_file)
 print "load_fmu"

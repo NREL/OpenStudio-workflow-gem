@@ -316,15 +316,10 @@ module OpenStudio
         def lib_dir
           result = nil
           if @workflow_json
-            begin
-              #works with local test
-              #result = File.join(@workflow_json.absoluteRunDir.to_s, '../lib')
-              if File.directory? File.join(osw_dir, '../lib')  #server
-                result = File.join(osw_dir, '../lib')
-              elsif File.directory? File.join(osw_dir, './lib')  #local
-                result = File.join(osw_dir, './lib')
-              end
-            rescue
+            if File.directory? File.join(osw_dir, '../lib')  #server
+              result = File.join(osw_dir, '../lib')
+            elsif File.directory? File.join(osw_dir, './lib')  #local
+              result = File.join(osw_dir, './lib')
             end
           end
           result

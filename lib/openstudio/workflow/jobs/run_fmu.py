@@ -14,12 +14,20 @@ from pyfmi import load_fmu
 
 #model_name = "HelloWorld"
 #mo_file = "/var/oscli/clones/openstudio-workflow/lib/openstudio/workflow/jobs/HelloWorld.mo"
-model_name = sys.argv[1]
-mo_file = sys.argv[2]
-print "compile_fmu"
-my_fmu = compile_fmu(model_name, mo_file)
+file = sys.argv[1]
+
+if file.endswith('.mo'):
+  print "compile fmu"
+  model_name = sys.argv[2]
+  fmu = compile_fmu(model_name, file)
+elif file.endswith('.fmu'):
+  print "use fmu"
+  fmu = file  
+else:
+  print "no .mo or .fmu file"
+
 print "load_fmu"
-hello_world = load_fmu(my_fmu)
+hello_world = load_fmu(fmu)
 print "fmu.simulate"
 res = hello_world.simulate(start_time=0,final_time=5)
 

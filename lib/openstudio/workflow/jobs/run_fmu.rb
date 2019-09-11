@@ -79,13 +79,17 @@ class RunFmu < OpenStudio::Workflow::Job
 
     @registry.register(:model_name) {"HelloWorld"}
     @registry.register(:mo_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.mo"}
+    @registry.register(:fmu_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.fmu"}
     
     lib_dir = @registry[:lib_dir]
     @logger.debug "lib_dir: #{lib_dir}"
     
     model_name = @registry[:model_name]
     mo_file = @registry[:mo_file]
-    result = `python #{path}/run_fmu.py #{model_name} #{mo_file}`
+    fmu_file = @registry[:fmu_file]
+    
+    #result = `python #{path}/run_fmu.py #{mo_file} #{model_name}`
+    result = `python #{path}/run_fmu.py #{fmu_file}`
     @logger.debug "python run_fmu.py: #{result}"
     
     @registry[:time_logger].stop('Running FMU') if @registry[:time_logger]

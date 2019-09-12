@@ -74,8 +74,8 @@ class RunFmu < OpenStudio::Workflow::Job
 
     path = File.dirname(__FILE__)
     files = Dir.entries(path)
-    @logger.debug "run_fmu.rm file path: #{files}"
-    @logger.debug "run_fmu.rm file path: #{File.dirname(__FILE__)}"
+    @logger.debug "run_fmu.rb file path: #{files}"
+    @logger.debug "run_fmu.rb file path: #{File.dirname(__FILE__)}"
 
     @registry.register(:model_name) {"HelloWorld"}
     @registry.register(:mo_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.mo"}
@@ -88,9 +88,20 @@ class RunFmu < OpenStudio::Workflow::Job
     mo_file = @registry[:mo_file]
     fmu_file = @registry[:fmu_file]
     
-    #result = `python #{path}/run_fmu.py #{mo_file} #{model_name}`
-    result = `python #{path}/run_fmu.py #{fmu_file}`
-    @logger.debug "python run_fmu.py: #{result}"
+    python_log = File.join(@registry[:osw_dir],'oscli_python.log')
+    
+    #cmd = "python #{path}/run_fmu.py #{mo_file} #{model_name}"
+    cmd = "python #{path}/run_fmu.py #{fmu_file}"
+    @logger.info "Running workflow using cmd: #{cmd} and writing log to: #{python_log}"
+
+    pid = Process.spawn(cmd, [:err, :out] => [python_log, 'w'])
+    # timeout the process if it doesn't return in 4 hours
+    Timeout.timeout(14400) do
+      Process.wait(pid)
+    end
+    if python_log
+      @logger.info "Oscli PYTHON output: #{File.read(python_log)}"
+    end
     
     @registry[:time_logger].stop('Running FMU') if @registry[:time_logger]
     @logger.info 'Completed the FMU simulation'

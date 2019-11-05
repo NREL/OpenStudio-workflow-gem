@@ -63,6 +63,7 @@ class RunFmu < OpenStudio::Workflow::Job
 
     result = `python --version`
     @logger.debug "python --version: #{result}"
+    @logger.debug "python3 --version: #{result}"
     result = `/usr/local/JModelica/bin/jm_python.sh --version`
     @logger.debug "/usr/local/JModelica/bin/jm_python.sh --version : #{result}"
     #result = `printenv`
@@ -80,6 +81,7 @@ class RunFmu < OpenStudio::Workflow::Job
     @registry.register(:model_name) {"HelloWorld"}
     @registry.register(:mo_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.mo"}
     @registry.register(:fmu_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.fmu"}
+    @registry.register(:ssp_file) {"#{@registry[:lib_dir]}/mo/dc_tool.ssp"}
     
     lib_dir = @registry[:lib_dir]
     @logger.debug "lib_dir: #{lib_dir}"
@@ -87,11 +89,13 @@ class RunFmu < OpenStudio::Workflow::Job
     model_name = @registry[:model_name]
     mo_file = @registry[:mo_file]
     fmu_file = @registry[:fmu_file]
+    ssp_file = @registry[:ssp_file]
     
     python_log = File.join(@registry[:osw_dir],'oscli_python.log')
     
     #cmd = "python #{path}/run_fmu.py #{mo_file} #{model_name}"
-    cmd = "python #{path}/run_fmu.py #{fmu_file}"
+    #cmd = "python #{path}/run_fmu.py #{fmu_file}"
+    cmd = "python3 #{path}/run_ssp.py #{ssp_file}"
     @logger.info "Running workflow using cmd: #{cmd} and writing log to: #{python_log}"
 
     pid = Process.spawn(cmd, [:err, :out] => [python_log, 'w'])

@@ -23,8 +23,3 @@ if show_plot:
     plot_result(result, names=['constant.y', 'space.T', 'load.Qgenerated'], window_title=ssp_filename)
 
 print('Done.')
-
-return result
-
-
-

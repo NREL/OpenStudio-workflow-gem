@@ -4,7 +4,7 @@ print("sys.argv:", sys.argv)
 print("os.getcwd():", os.getcwd())
 print("os.environ:", os.environ)
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 
 from fmpy.ssp.simulation import simulate_ssp
 from fmpy.util import plot_result

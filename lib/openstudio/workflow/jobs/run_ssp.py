@@ -4,7 +4,7 @@ print("sys.argv:", sys.argv)
 print("os.getcwd():", os.getcwd())
 print("os.environ:", os.environ)
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 
 from fmpy.ssp.simulation import simulate_ssp
 from fmpy.util import plot_result
@@ -20,6 +20,7 @@ show_plot=True
 
 if show_plot:
     print("Plotting results...")
-    plot_result(result, names=['constant.y', 'space.T', 'load.Qgenerated'], window_title=ssp_filename)
+    plot_result(result, names=['constant.y', 'space.T', 'load.Qgenerated'], window_title=ssp_filename, filename='run_ssp.png')
 
+print('result: ', result)
 print('Done.')

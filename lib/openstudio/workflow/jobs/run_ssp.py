@@ -14,7 +14,7 @@ from fmpy.util import plot_result
 ssp_filename = sys.argv[1]
 
 print("Simulating %s..." % ssp_filename)
-result = simulate_ssp(ssp_filename, stop_time=10, step_size=1e-3)
+result = simulate_ssp(ssp_filename, stop_time=12960000, step_size=600)
 
 show_plot=True
 
@@ -22,7 +22,7 @@ if show_plot:
     print("Plotting results...")
     dir, _ = os.path.split(ssp_filename)
     save_name = dir + 'ssp.png'
-    plot_result(result, names=['constant.y', 'space.T', 'load.Qgenerated'], window_title=ssp_filename, filename=save_name)
+    plot_result(result, names=['time', 'space.TRooMea'], window_title=ssp_filename, filename=save_name)
 
 print('result: ', result)
 print('Done.')

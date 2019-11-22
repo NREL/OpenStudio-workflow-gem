@@ -85,6 +85,8 @@ class RunFmu < OpenStudio::Workflow::Job
     
     lib_dir = @registry[:lib_dir]
     @logger.debug "lib_dir: #{lib_dir}"
+    run_dir = @registry[:run_dir]
+    @logger.debug "run_dir: #{run_dir}"
     
     model_name = @registry[:model_name]
     mo_file = @registry[:mo_file]

@@ -12,6 +12,7 @@ from fmpy.util import plot_result
 #model_name = "HelloWorld"
 #mo_file = "/var/oscli/clones/openstudio-workflow/lib/openstudio/workflow/jobs/HelloWorld.mo"
 ssp_filename = sys.argv[1]
+run_dir = sys.argv[2]
 
 print("Simulating %s..." % ssp_filename)
 result = simulate_ssp(ssp_filename, stop_time=12960000, step_size=600)

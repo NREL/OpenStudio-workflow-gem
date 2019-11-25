@@ -70,8 +70,8 @@ class RunFmu < OpenStudio::Workflow::Job
     #@logger.debug "printenv: #{result}"
     #result = ENV.sort
     #@logger.debug "ruby env: #{result}"
-    #result = `python -c 'import os; print os.environ'`
-    #@logger.debug "python ENV: #{result}"
+    result = `python3 -c 'import os; print os.environ; print os.getcwd()'`
+    @logger.debug "python3 ENV: #{result}"
 
     path = File.dirname(__FILE__)
     files = Dir.entries(path)
@@ -87,6 +87,9 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.debug "lib_dir: #{lib_dir}"
     run_dir = @registry[:run_dir]
     @logger.debug "run_dir: #{run_dir}"
+   
+    result = `python3 -c 'os.setwd(#{run_dir})'`
+    @logger.debug "python3 os.setwd(): #{result}"
     
     model_name = @registry[:model_name]
     mo_file = @registry[:mo_file]
@@ -97,7 +100,7 @@ class RunFmu < OpenStudio::Workflow::Job
     
     #cmd = "python #{path}/run_fmu.py #{mo_file} #{model_name}"
     #cmd = "python #{path}/run_fmu.py #{fmu_file}"
-    cmd = "python3 #{path}/run_ssp.py #{ssp_file}"
+    cmd = "python3 #{path}/run_ssp.py #{ssp_file} #{run_dir}"
     @logger.info "Running workflow using cmd: #{cmd} and writing log to: #{python_log}"
 
     pid = Process.spawn(cmd, [:err, :out] => [python_log, 'w'])

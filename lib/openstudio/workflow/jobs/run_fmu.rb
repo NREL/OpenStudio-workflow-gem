@@ -70,7 +70,7 @@ class RunFmu < OpenStudio::Workflow::Job
     #@logger.debug "printenv: #{result}"
     #result = ENV.sort
     #@logger.debug "ruby env: #{result}"
-    result = `python3 -c 'import os; print(os.environ()); print(os.getcwd())'`
+    result = `python3 -c 'import os; print(os.environ); print(os.getcwd())'`
     @logger.debug "python3 ENV: #{result}"
 
     path = File.dirname(__FILE__)

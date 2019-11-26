@@ -13,6 +13,7 @@ from fmpy.util import plot_result
 #mo_file = "/var/oscli/clones/openstudio-workflow/lib/openstudio/workflow/jobs/HelloWorld.mo"
 ssp_filename = sys.argv[1]
 run_dir = sys.argv[2] + '/FMU'
+os.mkdir(run_dir)
 os.chdir(run_dir)
 print("os.getcwd():", os.getcwd())
 print("Simulating %s..." % ssp_filename)

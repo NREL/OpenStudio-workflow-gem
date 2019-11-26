@@ -88,8 +88,8 @@ class RunFmu < OpenStudio::Workflow::Job
     run_dir = @registry[:run_dir]
     @logger.debug "run_dir: #{run_dir}"
    
-    result = `python3 -c 'os.setwd(#{run_dir})'`
-    @logger.debug "python3 os.setwd(): #{result}"
+    result = `python3 -c "os.chdir('#{run_dir}')"`
+    @logger.debug "python3 os.chdir(): #{result}"
     
     model_name = @registry[:model_name]
     mo_file = @registry[:mo_file]

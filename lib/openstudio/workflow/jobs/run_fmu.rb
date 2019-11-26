@@ -100,7 +100,8 @@ class RunFmu < OpenStudio::Workflow::Job
     
     #cmd = "python #{path}/run_fmu.py #{mo_file} #{model_name}"
     #cmd = "python #{path}/run_fmu.py #{fmu_file}"
-    cmd = "python3 #{path}/run_ssp.py #{ssp_file} #{run_dir}"
+    #cmd = "python3 #{path}/run_ssp.py #{ssp_file} #{run_dir}"
+	cmd = "python3 #{lib_dir}/mo/run_ssp2.py #{ssp_file} #{run_dir}"
     @logger.info "Running workflow using cmd: #{cmd} and writing log to: #{python_log}"
 
     pid = Process.spawn(cmd, [:err, :out] => [python_log, 'w'])

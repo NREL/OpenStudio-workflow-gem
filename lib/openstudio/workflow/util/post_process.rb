@@ -74,8 +74,8 @@ module OpenStudio
           end
 
           logger.info 'Saving the result hash to file'
-          File.open("#{run_dir}/results.json", 'w') do |f| 
-            f << JSON.pretty_generate(results) 
+          File.open("#{run_dir}/results.json", 'w') do |f|
+            f << JSON.pretty_generate(results)
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
@@ -174,8 +174,8 @@ module OpenStudio
             html = File.read(eplus_html)
             html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
             logger.info "Saving EnergyPlus HTML report to #{directory}/reports/eplustbl.html"
-            File.open("#{directory}/reports/eplustbl.html", 'w') do |f| 
-              f << html 
+            File.open("#{directory}/reports/eplustbl.html", 'w') do |f|
+              f << html
               # make sure data is written to the disk one way or the other
               begin
                 f.fsync

@@ -358,7 +358,7 @@ module OpenStudio
               elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                 arguments = measure_object.arguments(@model_idf.clone(true))
               else measure_type == 'ReportingMeasure'.to_MeasureType
-                arguments = measure_object.arguments
+                arguments = measure_object.arguments(@model.clone(true).to_Model)
               end
 
               # Create argument map and initialize all the arguments

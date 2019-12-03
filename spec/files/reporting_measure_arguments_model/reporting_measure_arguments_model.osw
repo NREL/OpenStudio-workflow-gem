@@ -1,6 +1,6 @@
 {
     "weather_file": "USA_CO_Denver.Intl.AP.725650_TMY3.epw",
-    "seed_file": "office.osm",
+    "seed_file": "example_model.osm",
     "steps": [
         {
             "measure_dir_name": "reporting_measure_that_takes_model_in_arguments",

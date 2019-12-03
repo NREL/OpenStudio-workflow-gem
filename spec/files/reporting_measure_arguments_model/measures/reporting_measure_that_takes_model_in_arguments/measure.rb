@@ -28,8 +28,9 @@ class ReportingMeasureName < OpenStudio::Measure::ReportingMeasure
     args = OpenStudio::Measure::OSArgumentVector.new
 
     # model is available to create model-dependent arguments
-    if model.getThermalZones.size > 1
-      add_for_thermal_zones = OpenStudio::Measure::OSArgument.makeBoolArgument('add_for_thermal_zones', true)
+    if model.getThermalZones.size > 0
+      # makeBoolArgument(name, required, modelDependent)
+      add_for_thermal_zones = OpenStudio::Measure::OSArgument.makeBoolArgument('add_for_thermal_zones', true, true)
       add_for_thermal_zones.setDisplayName('Add output variables for ThermalZones')
       add_for_thermal_zones.setDescription('Tests for passing model to arguments() method of ReportingMeasure')
       args << add_for_thermal_zones
@@ -82,7 +83,7 @@ class ReportingMeasureName < OpenStudio::Measure::ReportingMeasure
     end
     model = model.get
 
-    if model.getThermalZones.size > 1
+    if model.getThermalZones.size > 0
       add_for_thermal_zones = runner.getBoolArgumentValue("add_for_thermal_zones", user_arguments)
       runner.registerInfo("Getting argument add_for_thermal_zones")
       if add_for_thermal_zones

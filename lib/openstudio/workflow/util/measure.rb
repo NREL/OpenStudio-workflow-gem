@@ -358,7 +358,12 @@ module OpenStudio
               elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                 arguments = measure_object.arguments(@model_idf.clone(true))
               else measure_type == 'ReportingMeasure'.to_MeasureType
-                arguments = measure_object.arguments(@model.clone(true).to_Model)
+                begin
+                  arguments = measure_object.arguments(@model.clone(true).to_Model)
+                rescue
+                  logger.error "Reporting Measure at #{measure_path} is using the old format where the 'arguments' method does not take model. Please consider updating this to `def arguments(model)`."
+                  arguments = measure_object.arguments
+                end
               end
 
               # Create argument map and initialize all the arguments

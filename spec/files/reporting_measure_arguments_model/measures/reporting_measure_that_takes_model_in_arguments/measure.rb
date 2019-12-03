@@ -55,9 +55,18 @@ class ReportingMeasureName < OpenStudio::Measure::ReportingMeasure
 
     result = OpenStudio::IdfObjectVector.new
 
+    # To use the built-in error checking we need the model...
+    # get the last model and sql file
+    model = runner.lastOpenStudioModel
+    if model.empty?
+      runner.registerError('Cannot find last model.')
+      return false
+    end
+    model = model.get
+
     # use the built-in error checking
-    if !runner.validateUserArguments(arguments, user_arguments)
-      return result
+    if !runner.validateUserArguments(arguments(model), user_arguments)
+      return false
     end
 
     request = OpenStudio::IdfObject.load('Output:Variable,,Site Outdoor Air Drybulb Temperature,Hourly;').get
@@ -70,11 +79,6 @@ class ReportingMeasureName < OpenStudio::Measure::ReportingMeasure
   def run(runner, user_arguments)
     super(runner, user_arguments)
 
-    # use the built-in error checking
-    if !runner.validateUserArguments(arguments, user_arguments)
-      return false
-    end
-
     # get the last model and sql file
     model = runner.lastOpenStudioModel
     if model.empty?
@@ -82,6 +86,11 @@ class ReportingMeasureName < OpenStudio::Measure::ReportingMeasure
       return false
     end
     model = model.get
+
+     # use the built-in error checking
+    if !runner.validateUserArguments(arguments(model), user_arguments)
+      return false
+    end
 
     if model.getThermalZones.size > 0
       add_for_thermal_zones = runner.getBoolArgumentValue("add_for_thermal_zones", user_arguments)

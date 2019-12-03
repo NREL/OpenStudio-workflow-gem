@@ -90,6 +90,8 @@ class ReportingMeasureName < OpenStudio::Measure::ReportingMeasure
       else
         runner.registerInfo("Argument add_for_thermal_zones is false")
       end
+    else
+      runner.registerInfo("Model doesn't not have any thermal zones")
     end
 
     sql_file = runner.lastEnergyPlusSqlFile

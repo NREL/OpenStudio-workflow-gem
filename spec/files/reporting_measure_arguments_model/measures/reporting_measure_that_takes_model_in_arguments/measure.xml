@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>reporting_measure_name</name>
   <uid> d50aa900-3a10-4d21-a4d7-9eb92c254235 </uid>
-  <version_id>38d829ea-e3e0-4dea-bc2f-9300bf262cb1</version_id>
-  <version_modified>20191203T101821Z</version_modified>
+  <version_id>9e612e26-1de6-41b7-a810-30dce36bb63c</version_id>
+  <version_modified>20191203T102458Z</version_modified>
   <xml_checksum>9BF1E6AC</xml_checksum>
   <class_name>ReportingMeasureName</class_name>
   <display_name>Reporting Measure that takes model in arguments method</display_name>
@@ -49,7 +49,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>5E7DE62E</checksum>
+      <checksum>7BCDF15A</checksum>
     </file>
   </files>
 </measure>

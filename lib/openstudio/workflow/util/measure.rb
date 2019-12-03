@@ -360,8 +360,9 @@ module OpenStudio
               else measure_type == 'ReportingMeasure'.to_MeasureType
                 begin
                   arguments = measure_object.arguments(@model.clone(true).to_Model)
-                rescue
+                rescue => e
                   logger.error "Reporting Measure at #{measure_path} is using the old format where the 'arguments' method does not take model. Please consider updating this to `def arguments(model)`."
+                  logger.error "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
                   arguments = measure_object.arguments
                 end
               end

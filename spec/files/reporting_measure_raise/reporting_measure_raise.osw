@@ -3,7 +3,7 @@
     "seed_file": "ExampleModel.osm",
     "steps": [
         {
-            "measure_dir_name": "Rotate Building Relative to Current Orientation",
+            "measure_dir_name": "rotate_building",
             "arguments": {
                 "relative_building_rotation": 45
             }

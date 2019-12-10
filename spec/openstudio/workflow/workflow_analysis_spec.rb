@@ -615,11 +615,10 @@ describe 'OSW Integration' do
     expect(File.exist?(idf_out_path)).to eq true
 
     # even if it fails, make sure that we save off the datapoint.zip
+    # It shouldn't be in the wrong location at root next to OSW
     zip_path = osw_path.gsub(File.basename(osw_path), 'data_point.zip')
-    # TODO: Isn't that the exact opposite of the comment above?
     expect(File.exist?(zip_path)).to eq false
-
-    # TODO: unless I'm mistaken, it should be this instead
+    # It should be under run/
     zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
     expect(File.exist?(zip_path)).to eq true
 

@@ -103,17 +103,17 @@ class RunFmu < OpenStudio::Workflow::Job
     #cmd = "python3 #{path}/run_ssp.py #{ssp_file} #{run_dir}"
     if !File.exist?("#{lib_dir}/mo/run_ssp2.py")
       log_message = "run_ssp2.py not found at: #{lib_dir}/mo/run_ssp2.py"
-      logger.error log_message
+      @logger.error log_message
       raise log_message
     end
     if !File.exist?("#{ssp_file}")
       log_message = "SSP file not found at: #{ssp_file}"
-      logger.error log_message
+      @logger.error log_message
       raise log_message
     end
     if !File.exist?("#{run_dir}")
       log_message = "RUN directory not found at: #{run_dir}"
-      logger.error log_message
+      @logger.error log_message
       raise log_message
     end
     

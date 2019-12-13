@@ -101,7 +101,23 @@ class RunFmu < OpenStudio::Workflow::Job
     #cmd = "python #{path}/run_fmu.py #{mo_file} #{model_name}"
     #cmd = "python #{path}/run_fmu.py #{fmu_file}"
     #cmd = "python3 #{path}/run_ssp.py #{ssp_file} #{run_dir}"
-	cmd = "python3 #{lib_dir}/mo/run_ssp2.py #{ssp_file} #{run_dir}"
+    if !File.exist?("#{lib_dir}/mo/run_ssp2.py")
+      log_message = "run_ssp2.py not found at: #{lib_dir}/mo/run_ssp2.py"
+      logger.error log_message
+      raise log_message
+    end
+    if !File.exist?("#{ssp_file}")
+      log_message = "SSP file not found at: #{ssp_file}"
+      logger.error log_message
+      raise log_message
+    end
+    if !File.exist?("#{run_dir}")
+      log_message = "RUN directory not found at: #{run_dir}"
+      logger.error log_message
+      raise log_message
+    end
+    
+    cmd = "python3 #{lib_dir}/mo/run_ssp2.py #{ssp_file} #{run_dir}"
     @logger.info "Running workflow using cmd: #{cmd} and writing log to: #{python_log}"
 
     pid = Process.spawn(cmd, [:err, :out] => [python_log, 'w'])

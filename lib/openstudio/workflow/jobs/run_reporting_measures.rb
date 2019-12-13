@@ -109,6 +109,9 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     results, objective_functions = run_extract_inputs_and_outputs @registry[:run_dir], @logger
     @registry.register(:results) { results }
 
+    #TODO  run FMU reporting measures and add FMU outputs to the json objective_functions
+    #either do this here or after communicate_objective_function below, but add to the existing objectives.json file 
+    
     # Send the objective function results to the output adapter
     @logger.debug "Objective Function JSON is #{objective_functions}"
     @output_adapter.communicate_objective_function objective_functions

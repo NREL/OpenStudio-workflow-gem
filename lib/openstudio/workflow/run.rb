@@ -144,8 +144,9 @@ module OpenStudio
         @registry.register(:osw_path) { Pathname.new(@input_adapter.osw_path).realpath }
         @registry.register(:osw_dir) { Pathname.new(@input_adapter.osw_dir).realpath }
         @registry.register(:run_dir) { Pathname.new(@input_adapter.run_dir).cleanpath } # run dir might not yet exist, calling realpath will throw
-        if !(@input_adapter.lib_dir.nil?) @registry.register(:lib_dir) { Pathname.new(@input_adapter.lib_dir).cleanpath } # run dir might not yet exist, calling realpath will throw
-        
+        if !(@input_adapter.lib_dir.nil?) 
+          @registry.register(:lib_dir) { Pathname.new(@input_adapter.lib_dir).cleanpath } # run dir might not yet exist, calling realpath will throw
+        end
         # get info to set up logging first in case of failures later
         @options[:debug] = @input_adapter.debug(user_options, false)
         @options[:preserve_run_dir] = @input_adapter.preserve_run_dir(user_options, false)

@@ -34,6 +34,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rubocop-checkstyle_formatter', '0.4.0'
   s.add_development_dependency 'public_suffix', '2.0.5'
   s.add_development_dependency 'rainbow', '2.2.2'
-  
-  s.add_development_dependency 'pycall', '1.2.1'
+
 end

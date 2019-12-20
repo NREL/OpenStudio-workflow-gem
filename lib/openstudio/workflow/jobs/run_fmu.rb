@@ -37,8 +37,8 @@
 class RunFmu < OpenStudio::Workflow::Job
   #require 'openstudio/workflow/util/energyplus'
   #include OpenStudio::Workflow::Util::EnergyPlus
-  #require 'pycall/import'
-  #include PyCall::Import
+  require 'pycall/import'
+  include PyCall::Import
 
   def initialize(input_adapter, output_adapter, registry, options = {})
     super

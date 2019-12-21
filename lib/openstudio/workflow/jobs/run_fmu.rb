@@ -61,6 +61,10 @@ class RunFmu < OpenStudio::Workflow::Job
     @registry[:time_logger].start('Running FMU') if @registry[:time_logger]
     #call_energyplus(@registry[:run_dir], ep_path, @output_adapter, @logger, @registry[:workflow_json])
 
+    pyimport :math
+    result = math.sin(math.pi / 4) - Math.sin(Math::PI / 4)   # => 0.0
+    @logger.debug "PYCALL test result = #{result}"
+
     result = `python --version`
     @logger.debug "python --version: #{result}"
     @logger.debug "python3 --version: #{result}"

@@ -64,12 +64,12 @@ class RunFmu < OpenStudio::Workflow::Job
     result = `python --version`
     @logger.debug "python --version: #{result}"
     @logger.debug "python3 --version: #{result}"
-    result = `/usr/local/JModelica/bin/jm_python.sh --version`
-    @logger.debug "/usr/local/JModelica/bin/jm_python.sh --version : #{result}"
+    #result = `/usr/local/JModelica/bin/jm_python.sh --version`
+    #@logger.debug "/usr/local/JModelica/bin/jm_python.sh --version : #{result}"
     #result = `printenv`
     #@logger.debug "printenv: #{result}"
-    #result = ENV.sort
-    #@logger.debug "ruby env: #{result}"
+    result = ENV.sort
+    @logger.debug "ruby env: #{result}"
     result = `python3 -c 'import os; print(os.environ); print(os.getcwd())'`
     @logger.debug "python3 ENV: #{result}"
 

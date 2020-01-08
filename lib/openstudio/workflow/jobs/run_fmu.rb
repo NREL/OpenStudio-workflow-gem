@@ -89,8 +89,9 @@ class RunFmu < OpenStudio::Workflow::Job
     if @registry[:analysis]
       analysis_json = @registry[:analysis]
       if analysis_json[:analysis] && analysis_json[:analysis][:ssp][:path]
-      ssp_path = analysis_json[:analysis][:ssp][:path]
-      @registry.register(:ssp_file) {"/mnt/openstudio/analysis_#{@registry[:analysis]}/#{ssp_path}"}
+        ssp_path = analysis_json[:analysis][:ssp][:path]
+        @registry.register(:ssp_file) {"/mnt/openstudio/analysis_#{@registry[:analysis]}/#{ssp_path}"}
+      end
     end
 
     

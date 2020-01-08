@@ -85,8 +85,14 @@ class RunFmu < OpenStudio::Workflow::Job
     #@registry.register(:model_name) {"HelloWorld"}
     #@registry.register(:mo_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.mo"}
     #@registry.register(:fmu_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.fmu"}
-    @registry.register(:ssp_file) {"#{@registry[:lib_dir]}/ssps/dc-tool.ssp"}
-    @registry.register(:ssp_file) {"/mnt/openstudio/analysis_#{@registry[:analysis]}/#{@registry[:analysis][:ssp][:path]}"}
+    #@registry.register(:ssp_file) {"#{@registry[:lib_dir]}/ssps/dc-tool.ssp"}
+    if @registry[:analysis]
+      analysis_json = @registry[:analysis]
+      if analysis_json[:analysis] && analysis_json[:analysis][:ssp][:path]
+      ssp_path = analysis_json[:analysis][:ssp][:path]
+      @registry.register(:ssp_file) {"/mnt/openstudio/analysis_#{@registry[:analysis]}/#{ssp_path}"}
+    end
+
     
     lib_dir = @registry[:lib_dir]
     @logger.debug "lib_dir: #{lib_dir}"

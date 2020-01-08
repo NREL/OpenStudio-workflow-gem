@@ -82,10 +82,10 @@ class RunFmu < OpenStudio::Workflow::Job
     @logger.debug "run_fmu.rb file path: #{files}"
     @logger.debug "run_fmu.rb file path: #{File.dirname(__FILE__)}"
 
-    @registry.register(:model_name) {"HelloWorld"}
-    @registry.register(:mo_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.mo"}
-    @registry.register(:fmu_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.fmu"}
-    @registry.register(:ssp_file) {"#{@registry[:lib_dir]}/mo/dc_tool.ssp"}
+    #@registry.register(:model_name) {"HelloWorld"}
+    #@registry.register(:mo_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.mo"}
+    #@registry.register(:fmu_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.fmu"}
+    @registry.register(:ssp_file) {"#{@registry[:lib_dir]}/mo/dc-test.ssp"}
     
     lib_dir = @registry[:lib_dir]
     @logger.debug "lib_dir: #{lib_dir}"
@@ -95,9 +95,9 @@ class RunFmu < OpenStudio::Workflow::Job
     #result = `python3 -c "import os; os.chdir('#{run_dir}')"`
     #@logger.debug "python3 os.chdir(): #{result}"
     
-    model_name = @registry[:model_name]
-    mo_file = @registry[:mo_file]
-    fmu_file = @registry[:fmu_file]
+    #model_name = @registry[:model_name]
+    #mo_file = @registry[:mo_file]
+    #fmu_file = @registry[:fmu_file]
     ssp_file = @registry[:ssp_file]
     
     python_log = File.join(@registry[:osw_dir],'oscli_python.log')

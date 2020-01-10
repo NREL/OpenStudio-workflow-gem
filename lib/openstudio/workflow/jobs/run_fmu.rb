@@ -86,11 +86,23 @@ class RunFmu < OpenStudio::Workflow::Job
     #@registry.register(:mo_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.mo"}
     #@registry.register(:fmu_file) {"#{@registry[:lib_dir]}/mo/HelloWorld.fmu"}
     #@registry.register(:ssp_file) {"#{@registry[:lib_dir]}/ssps/dc-tool.ssp"}
+    #SHOULD THIS LIVE HIGHER UP?  PROBABLY
     if @registry[:analysis]
       analysis_json = @registry[:analysis]
-      if analysis_json[:analysis] && analysis_json[:analysis][:ssp][:path]
-        ssp_path = analysis_json[:analysis][:ssp][:path]
-        @registry.register(:ssp_file) {"/mnt/openstudio/analysis_#{analysis_json[:analysis][:_id]}/#{ssp_path}"}
+      if analysis_json[:analysis]
+        if analysis_json[:analysis][:ssp][:path]
+          ssp_path = analysis_json[:analysis][:ssp][:path]
+          @registry.register(:ssp_file) {"/mnt/openstudio/analysis_#{analysis_json[:analysis][:_id]}/#{ssp_path}"}
+        end
+        if analysis_json[:analysis][:fmu_start_time]
+          fmu_start_time = analysis_json[:analysis][:fmu_start_time]
+        end
+        if analysis_json[:analysis][:fmu_stop_time]
+          fmu_stop_time = analysis_json[:analysis][:fmu_stop_time]
+        end
+        if analysis_json[:analysis][:fmu_time_step]
+          fmu_time_step = analysis_json[:analysis][:fmu_time_step]
+        end
       end
     end
 
@@ -129,7 +141,7 @@ class RunFmu < OpenStudio::Workflow::Job
       raise log_message
     end
     
-    cmd = "python3 #{lib_dir}/mo/run_ssp2.py #{ssp_file} #{run_dir}"
+    cmd = "python3 #{lib_dir}/mo/run_ssp2.py #{ssp_file} #{run_dir} #{fmu_start_time} #{fmu_stop_time} #{fmu_time_step}"
     @logger.info "Running workflow using cmd: #{cmd} and writing log to: #{python_log}"
 
     pid = Process.spawn(cmd, [:err, :out] => [python_log, 'w'])

@@ -1,8 +1,17 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Version 1.3.4
+Version 1.3.5 (Unreleased)
 --------------------------
+
+* Allow reporting to fail gracefully so HTML reports are returned Fixed [this](https://github.com/NREL/OpenStudio/issues/864).
+* Allow EMS:OutputVariable in reporting measure
+* Update README
+* Remove CircleCI in favor of Jenkins
+* Update license and copyright
+
+Version 1.3.4
+-------------
 * Remove support for Ruby 2.0
 * Update license
 

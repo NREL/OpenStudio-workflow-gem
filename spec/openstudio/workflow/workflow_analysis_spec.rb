@@ -84,7 +84,7 @@ describe 'OSW Integration' do
     osw_out_w_path = osw_path.gsub(File.basename(osw_path), 'out_w.osw')
     osw_out_p_path = osw_path.gsub(File.basename(osw_path), 'out_p.osw')
     data_point_out_path = osw_path.gsub(File.basename(osw_path), 'run/data_point_out.json')
-    
+
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
     FileUtils.rm_rf(osw_out_m_path) if File.exist?(osw_out_m_path)
@@ -92,10 +92,10 @@ describe 'OSW Integration' do
     FileUtils.rm_rf(osw_out_w_path) if File.exist?(osw_out_w_path)
     expect(File.exist?(osw_out_w_path)).to eq false
     FileUtils.rm_rf(osw_out_p_path) if File.exist?(osw_out_p_path)
-    expect(File.exist?(osw_out_p_path)).to eq false    
+    expect(File.exist?(osw_out_p_path)).to eq false
     FileUtils.rm_rf(data_point_out_path) if File.exist?(data_point_out_path)
     expect(File.exist?(data_point_out_path)).to eq false
-    
+
     # run measures only
     run_options = {
         debug: true,
@@ -121,8 +121,8 @@ describe 'OSW Integration' do
 
     expect(File.exist?(osw_out_path)).to eq true
     FileUtils.cp(osw_out_path, osw_out_m_path)
-    
-    # DLM: TODO, the following line fails currently because the results hash is only populated in run_reporting_measures 
+
+    # DLM: TODO, the following line fails currently because the results hash is only populated in run_reporting_measures
     # with a call to run_extract_inputs_and_outputs, seems like this should be called after running model and e+ measures
     #expect(File.exist?(data_point_out_path)).to eq true
 
@@ -145,13 +145,13 @@ describe 'OSW Integration' do
     expect(osw_out[:steps][2][:result][:step_initial_condition]).to eq "SetEnergyPlusInfiltrationFlowRatePerFloorArea"
     expect(osw_out[:steps][2][:result][:step_result]).to eq "Success"
     expect(osw_out[:steps][3][:result]).to be_nil
-    
+
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
     FileUtils.rm_rf(data_point_out_path) if File.exist?(data_point_out_path)
     expect(File.exist?(data_point_out_path)).to eq false
-    
-    # run 
+
+    # run
     run_options = {
         debug: true
     }
@@ -161,7 +161,7 @@ describe 'OSW Integration' do
 
     expect(File.exist?(osw_out_path)).to eq true
     FileUtils.cp(osw_out_path, osw_out_w_path)
-    
+
     expect(File.exist?(data_point_out_path)).to eq true
 
     osw_out = nil
@@ -190,7 +190,7 @@ describe 'OSW Integration' do
     expect(File.exist?(osw_out_path)).to eq false
     FileUtils.rm_rf(data_point_out_path) if File.exist?(data_point_out_path)
     expect(File.exist?(data_point_out_path)).to eq false
-    
+
     # run post process
     run_options = {
         debug: true,
@@ -213,7 +213,7 @@ describe 'OSW Integration' do
 
     expect(File.exist?(osw_out_path)).to eq true
     FileUtils.cp(osw_out_path, osw_out_p_path)
-    
+
     expect(File.exist?(data_point_out_path)).to eq true
 
     osw_out = nil
@@ -231,9 +231,9 @@ describe 'OSW Integration' do
     expect(osw_out[:steps][3][:result][:step_initial_condition]).to eq "DencityReports"
     expect(osw_out[:steps][3][:result][:step_result]).to eq "Success"
     expect(osw_out[:steps][3][:result][:step_final_condition]).to eq "DEnCity Report generated successfully."
-    
+
   end
-  
+
   it 'should run an extended OSW file' do
     osw_path = File.expand_path('./../../../files/extended_osw/example/workflows/extended.osw', __FILE__)
     run_options = {
@@ -417,7 +417,7 @@ describe 'OSW Integration' do
     Thread.kill(t)
 
     #puts "content = #{content}"
-    
+
     expect(content).to match(/Applying IncreaseInsulationRValueForExteriorWallsByPercentage/)
     expect(content).to match(/For construction'EXTERIOR-WALL adj exterior wall insulation', material'Wood-Framed - 4 in. Studs - 16 in. OC - R-11 Cavity Insulation_R-value 30.0% increase' was altered./)
     expect(content).to match(/Applied IncreaseInsulationRValueForExteriorWallsByPercentage/)
@@ -435,7 +435,7 @@ describe 'OSW Integration' do
     expect(content).to match(/Saving Dencity metadata csv file/)
     expect(content).to match(/Applied DencityReports/)
     expect(content).to match(/Complete/)
-    
+
     osw_out = nil
     File.open(osw_out_path, 'r') do |file|
       osw_out = JSON.parse(file.read, symbolize_names: true)
@@ -597,19 +597,88 @@ describe 'OSW Integration' do
     expect(osw_out[:steps].size).to be > 0
     osw_out[:steps].each do |step|
       expect(step[:result]).to_not be_nil
+      # Only the EDA reporting measure step is supposed to have failed
+      if (step[:measure_dir_name] == "Xcel EDA Reporting and QAQC")
+        expect(step[:result][:step_result]).to eq 'Fail'
+      else
+        expect(step[:result][:step_result]).to eq 'Success'
+      end
     end
 
     expected_r = /Peak Demand timeseries \(Electricity:Facility at zone timestep\) could not be found, cannot determine the informati(no|on) needed to calculate savings or incentives./
     expect(osw_out[:steps].last[:result][:step_errors].last).to match expected_r
 
+    # TODO: Temporary comment
+    # Not sure why the in.idf ends up there at the root? Shouldn't it just be
+    # in run/in.idf?
     idf_out_path = osw_path.gsub(File.basename(osw_path), 'in.idf')
     expect(File.exist?(idf_out_path)).to eq true
 
     # even if it fails, make sure that we save off the datapoint.zip
+    # It shouldn't be in the wrong location at root next to OSW
     zip_path = osw_path.gsub(File.basename(osw_path), 'data_point.zip')
     expect(File.exist?(zip_path)).to eq false
+    # It should be under run/
+    zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
+    expect(File.exist?(zip_path)).to eq true
+
   end
-  
+
+  it 'should error out while copying html reports' do
+    osw_path = File.expand_path('./../../../files/reporting_measure_raise/reporting_measure_raise.osw', __FILE__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :errored
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Fail'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    osw_out[:steps].each do |step|
+      expect(step[:result]).to_not be_nil
+      # Only the broken reporting measure step is supposed to have failed
+      if (step[:measure_dir_name] == "purposefully_broken_reporting_measure")
+        expect(step[:result][:step_result]).to eq 'Fail'
+      else
+        expect(step[:result][:step_result]).to eq 'Success'
+      end
+    end
+
+    expected_r = /I'm purposefully breaking the reporting! Before the report was already created!/
+    expect(osw_out[:steps].last[:result][:step_errors].last).to match expected_r
+
+    idf_out_path = File.join(File.dirname(osw_path), 'run', 'in.idf')
+    expect(File.exist?(idf_out_path)).to eq true
+
+    zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
+    expect(File.exist?(zip_path)).to eq true
+
+    # Tests that we find the two reports that actually worked fine:
+    # eplus + openstudio_results.
+    # The broken one shouldn't be there since I raise before it
+    reports_dir_path = File.join(File.dirname(osw_path), 'reports')
+    html_reports = Dir.glob(File.join(reports_dir_path, "*.html"))
+    html_reports_names = html_reports.map{|f| File.basename(f)}
+    expect(html_reports_names.size).to eq 2
+    expect(html_reports_names.include?('eplustbl.html')).to eq true
+    expect(html_reports_names.include?('openstudio_results_report.html')).to eq true
+  end
+
   it 'should associate results with the correct step' do
     (1..2).each do |i|
       osw_path = File.expand_path("./../../../files/results_in_order/data_point_#{i}/data_point.osw", __FILE__)
@@ -617,7 +686,7 @@ describe 'OSW Integration' do
 
       FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
       expect(File.exist?(osw_out_path)).to eq false
-      
+
       if !File.exist?(osw_out_path)
         run_options = {
             debug: true
@@ -626,9 +695,9 @@ describe 'OSW Integration' do
         expect(k).to be_instance_of OpenStudio::Workflow::Run
         expect(k.run).to eq :finished
       end
-      
+
       expect(File.exist?(osw_out_path)).to eq true
-      
+
       osw_out = nil
       File.open(osw_out_path, 'r') do |file|
         osw_out = JSON.parse(file.read, symbolize_names: true)
@@ -640,16 +709,16 @@ describe 'OSW Integration' do
       expect(osw_out[:steps].size).to be == 3
       osw_out[:steps].each do |step|
         expect(step[:arguments]).to_not be_nil
-        
+
         arguments = step[:arguments]
         puts "arguments = #{arguments}"
-        
+
         expect(step[:result]).to_not be_nil
         expect(step[:result][:step_values]).to_not be_nil
-        
+
         step_values = step[:result][:step_values]
         puts "step_values = #{step_values}"
-        
+
         # check that each argument is in a value
         skipped = false
         arguments.each_pair do |argument_name, argument_value|
@@ -658,15 +727,15 @@ describe 'OSW Integration' do
             skipped = argument_value
           end
         end
-        
+
         if skipped
-        
+
           # step_values are not populated if the measure is skipped
           expect(step_values.size).to be == 0
           expect(step[:result][:step_result]).to be == "Skip"
-          
+
         else
-        
+
           arguments.each_pair do |argument_name, argument_value|
             argument_name = argument_name.to_s
             next if argument_name == '__SKIP__'
@@ -676,10 +745,10 @@ describe 'OSW Integration' do
             expect(i).to_not be_nil
             expect(step_values[i][:value]).to be == argument_value
           end
-          
+
           expect(step[:result][:step_result]).to be == "Success"
         end
-        
+
         expected_results = []
         if step[:measure_dir_name] == "XcelEDAReportingandQAQC"
           expected_results << "cash_flows_capital_type"
@@ -691,26 +760,26 @@ describe 'OSW Integration' do
           i = step_values.find_index {|x| x[:name] == expected_result}
           expect(i).to_not be_nil
         end
-        
+
       end
     end
   end
-  
+
   it 'should run OSW custom output adapter' do
     osw_path = File.expand_path('./../../../files/run_options_osw/run_options.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
-    
+
     custom_start_path = File.expand_path('./../../../files/run_options_osw/run/custom_started.job', __FILE__)
     FileUtils.rm_rf(custom_start_path) if File.exist?(custom_start_path)
     expect(File.exist?(custom_start_path)).to eq false
-    
+
     custom_finished_path = File.expand_path('./../../../files/run_options_osw/run/custom_finished.job', __FILE__)
     FileUtils.rm_rf(custom_finished_path) if File.exist?(custom_finished_path)
     expect(File.exist?(custom_finished_path)).to eq false
-    
+
     run_options = {
         debug: true
     }
@@ -719,7 +788,7 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
-    
+
     begin
       OpenStudio::RunOptions.new
       expect(File.exist?(custom_start_path)).to eq true
@@ -728,11 +797,11 @@ describe 'OSW Integration' do
       # feature not available
     end
   end
-  
+
   it 'should handle weather file throughout the run' do
     osw_path = File.expand_path('./../../../files/weather_file/weather_file.osw', __FILE__)
     expect(File.exist?(osw_path)).to eq true
-    
+
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
     FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
     expect(File.exist?(osw_out_path)).to eq false
@@ -749,11 +818,11 @@ describe 'OSW Integration' do
     expect(seed.empty?).to be false
     seed = workflow_json.findFile(seed.get)
     expect(seed.empty?).to be false
-    
+
     vt = OpenStudio::OSVersion::VersionTranslator.new
     model = vt.loadModel(seed.get)
     expect(model.empty?).to be false
-    
+
     weather_file = model.get.getOptionalWeatherFile
     expect(weather_file.empty?).to be false
     weather_file_path = weather_file.get.path
@@ -762,11 +831,11 @@ describe 'OSW Integration' do
     expect(weather_file_path.empty?).to be false
     expect(File.exist?(weather_file_path.get.to_s)).to be true
     expect(File.basename(weather_file_path.get.to_s)).to eq "USA_CO_Golden-NREL.724666_TMY3.epw"
-    
+
     weather_file_path = workflow_json.weatherFile
     expect(weather_file_path.empty?).to be false
     weather_file_path = workflow_json.findFile(weather_file_path.get.to_s)
-    expect(weather_file_path.empty?).to be false    
+    expect(weather_file_path.empty?).to be false
     expect(File.exist?(weather_file_path.get.to_s)).to be true
     expect(File.basename(weather_file_path.get.to_s)).to eq "USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw"
 
@@ -778,13 +847,13 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
 
     expect(File.exist?(osw_out_path)).to eq true
-    
+
     # check epw in run dir
-    
+
     # check sql
-    
+
     # add reporting measure to check?
-    
+
   end
 
   it 'should run null_seed OSW file' do
@@ -846,7 +915,7 @@ describe 'OSW Integration' do
       expect(step[:result]).to_not be_nil
     end
   end
-  
+
   it 'should fail to run an OSW with out of order steps' do
     osw_path = File.expand_path('./../../../files/bad_order_osw/bad_order.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
@@ -952,9 +1021,9 @@ describe 'OSW Integration' do
     expect(osw_out[:steps][0][:result]).to be_instance_of Hash
     expect(osw_out[:steps][0][:result][:step_result]).to eq 'Success'
     expect(osw_out[:steps][1][:result]).to be_instance_of Hash
-    expect(osw_out[:steps][1][:result][:step_result]).to eq 'Success'    
+    expect(osw_out[:steps][1][:result][:step_result]).to eq 'Success'
     expect(osw_out[:steps][2][:result]).to be_nil
-    expect(osw_out[:steps][3][:result]).to be_nil 
+    expect(osw_out[:steps][3][:result]).to be_nil
   end
 
   it 'should test script errors' do
@@ -983,7 +1052,7 @@ describe 'OSW Integration' do
     expect(osw_out).to be_instance_of Hash
     expect(osw_out[:completed_status]).to eq 'Fail'
   end
-  
+
   it 'should run fast OSW file' do
     osw_path = File.expand_path('./../../../files/fast_osw/fast.osw', __FILE__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')

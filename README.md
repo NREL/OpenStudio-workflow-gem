@@ -1,7 +1,5 @@
 # OpenStudio::Workflow
 
-[![Circle CI](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/develop.svg?style=svg)](https://circleci.com/gh/NREL/OpenStudio-workflow-gem/tree/develop)
-[![Coverage Status](https://coveralls.io/repos/NREL/OpenStudio-workflow-gem/badge.svg?branch=develop&service=github)](https://coveralls.io/github/NREL/OpenStudio-workflow-gem?branch=develop)
 [![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
 
 ## OpenStudio Workflow Gem

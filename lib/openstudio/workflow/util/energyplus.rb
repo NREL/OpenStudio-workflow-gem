@@ -253,35 +253,6 @@ module OpenStudio
             OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object)
           end
 
-          # this is a workaround for issue #1699 -- remove when 1699 is closed.
-          needs_hourly = true
-          needs_timestep = true
-          needs_daily = true
-          needs_monthy = true
-          idf.getObjectsByType('Output:Variable'.to_IddObjectType).each do |object|
-            timestep = object.getString(2, true).get
-            if /Hourly/i =~ timestep
-              needs_hourly = false
-            elsif /Timestep/i =~ timestep
-              needs_timestep = false
-            elsif /Daily/i =~ timestep
-              needs_daily = false
-            elsif /Monthly/i =~ timestep
-              needs_monthy = false
-            end
-          end
-
-          new_objects = []
-          new_objects << 'Output:Variable,*,Zone Air Temperature,Hourly;' if needs_hourly
-          new_objects << 'Output:Variable,*,Site Outdoor Air Wetbulb Temperature,Timestep;' if needs_timestep
-          new_objects << 'Output:Variable,*,Zone Air Relative Humidity,Daily;' if needs_daily
-          new_objects << 'Output:Variable,*,Site Outdoor Air Drybulb Temperature,Monthly;' if needs_monthy
-
-          new_objects.each do |obj|
-            object = OpenStudio::IdfObject.load(obj).get
-            OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object)
-          end
-
           logger.info 'Finished EnergyPlus Preprocess'
         end
 
@@ -304,6 +275,7 @@ module OpenStudio
           allowed_objects << 'Output:Meter:Cumulative:MeterFileOnly'
           allowed_objects << 'Meter:Custom'
           allowed_objects << 'Meter:CustomDecrement'
+          allowed_objects << 'EnergyManagementSystem:OutputVariable'
 
           if allowed_objects.include?(idd_object.name)
             unless check_for_object(workspace, idf_object, idd_object.type)

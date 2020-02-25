@@ -597,18 +597,88 @@ describe 'OSW Integration' do
     expect(osw_out[:steps].size).to be > 0
     osw_out[:steps].each do |step|
       expect(step[:result]).to_not be_nil
+      # Only the EDA reporting measure step is supposed to have failed
+      if (step[:measure_dir_name] == "Xcel EDA Reporting and QAQC")
+        expect(step[:result][:step_result]).to eq 'Fail'
+      else
+        expect(step[:result][:step_result]).to eq 'Success'
+      end
     end
 
     expected_r = /Peak Demand timeseries \(Electricity:Facility at zone timestep\) could not be found, cannot determine the informati(no|on) needed to calculate savings or incentives./
     expect(osw_out[:steps].last[:result][:step_errors].last).to match expected_r
 
+    # TODO: Temporary comment
+    # Not sure why the in.idf ends up there at the root? Shouldn't it just be
+    # in run/in.idf?
     idf_out_path = osw_path.gsub(File.basename(osw_path), 'in.idf')
     expect(File.exist?(idf_out_path)).to eq true
 
     # even if it fails, make sure that we save off the datapoint.zip
+    # It shouldn't be in the wrong location at root next to OSW
     zip_path = osw_path.gsub(File.basename(osw_path), 'data_point.zip')
     expect(File.exist?(zip_path)).to eq false
+    # It should be under run/
+    zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
+    expect(File.exist?(zip_path)).to eq true
+
   end
+
+  it 'should error out while copying html reports' do
+    osw_path = File.expand_path('./../../../files/reporting_measure_raise/reporting_measure_raise.osw', __FILE__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :errored
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Fail'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be > 0
+    osw_out[:steps].each do |step|
+      expect(step[:result]).to_not be_nil
+      # Only the broken reporting measure step is supposed to have failed
+      if (step[:measure_dir_name] == "purposefully_broken_reporting_measure")
+        expect(step[:result][:step_result]).to eq 'Fail'
+      else
+        expect(step[:result][:step_result]).to eq 'Success'
+      end
+    end
+
+    expected_r = /I'm purposefully breaking the reporting! Before the report was already created!/
+    expect(osw_out[:steps].last[:result][:step_errors].last).to match expected_r
+
+    idf_out_path = File.join(File.dirname(osw_path), 'run', 'in.idf')
+    expect(File.exist?(idf_out_path)).to eq true
+
+    zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
+    expect(File.exist?(zip_path)).to eq true
+
+    # Tests that we find the two reports that actually worked fine:
+    # eplus + openstudio_results.
+    # The broken one shouldn't be there since I raise before it
+    reports_dir_path = File.join(File.dirname(osw_path), 'reports')
+    html_reports = Dir.glob(File.join(reports_dir_path, "*.html"))
+    html_reports_names = html_reports.map{|f| File.basename(f)}
+    expect(html_reports_names.size).to eq 2
+    expect(html_reports_names.include?('eplustbl.html')).to eq true
+    expect(html_reports_names.include?('openstudio_results_report.html')).to eq true
+  end
+
 
 
   it 'should allow passing model to arguments() method of ReportingMeasure' do

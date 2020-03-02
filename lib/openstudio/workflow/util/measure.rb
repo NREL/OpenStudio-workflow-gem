@@ -363,7 +363,6 @@ module OpenStudio
                 n_args = measure_object.method(:arguments).arity
                 if (n_args == 0)
                   logger.warn "Reporting Measure at #{measure_path} is using the old format where the 'arguments' method does not take model. Please consider updating this to `def arguments(model)`."
-                  logger.debug "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
                   arguments = measure_object.arguments
                 else
                   arguments = measure_object.arguments(@model.clone(true).to_Model)

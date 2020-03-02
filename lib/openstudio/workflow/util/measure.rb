@@ -358,12 +358,15 @@ module OpenStudio
               elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                 arguments = measure_object.arguments(@model_idf.clone(true))
               else measure_type == 'ReportingMeasure'.to_MeasureType
-                begin
-                  arguments = measure_object.arguments(@model.clone(true).to_Model)
-                rescue => e
-                  logger.error "Reporting Measure at #{measure_path} is using the old format where the 'arguments' method does not take model. Please consider updating this to `def arguments(model)`."
-                  logger.error "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
+                # arity gives the number of expected arguments
+                # We handle the case where n_args == 0 for backward compatibility
+                n_args = measure_object.method(:arguments).arity
+                if (n_args == 0)
+                  logger.warn "Reporting Measure at #{measure_path} is using the old format where the 'arguments' method does not take model. Please consider updating this to `def arguments(model)`."
+                  logger.debug "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
                   arguments = measure_object.arguments
+                else
+                  arguments = measure_object.arguments(@model.clone(true).to_Model)
                 end
               end
 

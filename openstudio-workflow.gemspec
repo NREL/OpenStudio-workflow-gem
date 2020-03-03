@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'coveralls', '~> 0.8.21'
   s.add_development_dependency 'parallel', '~> 1.19.1'
 
-  s.add_development_dependency 'rubocop', '~> 0.80.0'
+  s.add_development_dependency 'rubocop', '~> 0.80.1'
   s.add_development_dependency 'rubocop-checkstyle_formatter', '~> 0.4.0'
   s.add_development_dependency 'public_suffix', '~> 4.0.3'
   s.add_development_dependency 'rainbow', '~> 3.0.0'

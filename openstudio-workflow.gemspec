@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
 
   s.add_development_dependency 'bundler', '~> 2.1'
-  s.add_development_dependency 'rspec', '~> 3.7'
+  s.add_development_dependency 'rspec', '~> 3.9'
 
   s.add_development_dependency 'json-schema', '~> 2.8.0'
 

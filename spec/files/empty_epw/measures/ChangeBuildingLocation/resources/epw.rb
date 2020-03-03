@@ -156,7 +156,7 @@ module OpenStudio
         header_section = true
         row_count = 0
 
-        CSV.foreach(@filename, 'r') do |row|
+        CSV.foreach(@filename) do |row|
           row_count += 1
 
           if header_section

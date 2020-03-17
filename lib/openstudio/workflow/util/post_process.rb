@@ -38,7 +38,6 @@ module OpenStudio
     module Util
       require 'openstudio/workflow/util/measure'
       require 'csv'
-      require 'rexml/document'
 
       # This module serves as a wrapper around various post-processing tasks used to manage outputs
       # @todo (rhorsey) ummmm. So some of this is pretty ugly. Since @dmacumber had ideas about this maybe he can figure
@@ -193,6 +192,7 @@ module OpenStudio
                                                             measure_dir_name, 'measure.xml'))
             logger.info "measure_xml_path: #{measure_xml_path}"
             if File.exists? measure_xml_path
+              require 'rexml/document'
               measure_xml = REXML::Document.new File.read(measure_xml_path)
               measure_class_name = OpenStudio.toUnderscoreCase(measure_xml.root.elements['class_name'].text)
             else

@@ -192,6 +192,7 @@ module OpenStudio
                                                             measure_dir_name, 'measure.xml'))
             logger.info "measure_xml_path: #{measure_xml_path}"
             if File.exists? measure_xml_path
+              # REXML is slow, so we lazy load only as needed
               require 'rexml/document'
               measure_xml = REXML::Document.new File.read(measure_xml_path)
               measure_class_name = OpenStudio.toUnderscoreCase(measure_xml.root.elements['class_name'].text)

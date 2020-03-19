@@ -679,6 +679,56 @@ describe 'OSW Integration' do
     expect(html_reports_names.include?('openstudio_results_report.html')).to eq true
   end
 
+
+
+  it 'should allow passing model to arguments() method of ReportingMeasure' do
+    osw_path = File.expand_path('./../../../files/reporting_measure_arguments_model/reporting_measure_arguments_model.osw', __FILE__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+        debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Success'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be 1
+    step = osw_out[:steps][0]
+    expect(step[:measure_dir_name]).to eq 'reporting_measure_that_takes_model_in_arguments'
+    expect(step[:result][:step_result]).to eq 'Success'
+
+    expect(step[:result][:step_info]).to include('Getting argument add_for_thermal_zones')
+    expect(step[:result][:step_info]).to include('Argument add_for_thermal_zones is true')
+
+    idf_out_path = File.join(File.dirname(osw_path), 'run', 'in.idf')
+    expect(File.exist?(idf_out_path)).to eq true
+
+    zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
+    expect(File.exist?(zip_path)).to eq true
+
+    # Tests that we find the two reports that actually worked fine:
+    # eplus + our reporting measure.
+    reports_dir_path = File.join(File.dirname(osw_path), 'reports')
+    html_reports = Dir.glob(File.join(reports_dir_path, "*.html"))
+    html_reports_names = html_reports.map{|f| File.basename(f)}
+    expect(html_reports_names.size).to eq 2
+    expect(html_reports_names.include?('eplustbl.html')).to eq true
+    expect(html_reports_names.include?('reporting_measure_that_takes_model_in_arguments_report.html')).to eq true
+  end
+
   it 'should associate results with the correct step' do
     (1..2).each do |i|
       osw_path = File.expand_path("./../../../files/results_in_order/data_point_#{i}/data_point.osw", __FILE__)

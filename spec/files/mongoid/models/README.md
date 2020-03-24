@@ -1,2 +1,0 @@
-# Mongo Adapter Models
-

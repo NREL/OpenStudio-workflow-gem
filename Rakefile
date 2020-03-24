@@ -1,22 +1,21 @@
 require 'bundler'
-require 'bundler/gem_tasks'
-begin
-  Bundler.setup
-rescue Bundler::BundlerError => e
-  $stderr.puts e.message
-  $stderr.puts 'Run `bundle install` to install missing gems'
-  exit e.status_code
-end
+Bundler.setup
 
-require 'rake'
-require 'rspec/core'
 require 'rspec/core/rake_task'
 
-# require 'rubocop/rake_task'
-RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.rspec_opts = %w(--format progress --format CI::Reporter::RSpec)
+# Always create spec reports
+require 'ci/reporter/rake/rspec'
+
+# Gem tasks
+require 'bundler/gem_tasks'
+
+RSpec::Core::RakeTask.new('spec:unit') do |spec|
+  spec.rspec_opts = ['--format', 'progress', '--format', 'CI::Reporter::RSpec']
   spec.pattern = FileList['spec/**/*_spec.rb']
 end
+
+task 'spec:unit' => 'ci:setup:rspec'
+task default: 'spec:unit'
 
 require 'rubocop/rake_task'
 desc 'Run RuboCop on the lib directory'
@@ -28,4 +27,10 @@ RuboCop::RakeTask.new(:rubocop) do |task|
   task.fail_on_error = false
 end
 
-task default: [:spec]
+require 'openstudio-workflow'
+desc 'test extracting zip'
+task :test_zip do
+  f = File.join(File.dirname(__FILE__), 'spec/files/example_models/the_project.zip')
+  puts "Trying to extract #{f}"
+  OpenStudio::Workflow.extract_archive(f, 'junk_out', true)
+end

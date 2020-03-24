@@ -1,96 +1,65 @@
-######################################################################
-#  Copyright (c) 2008-2014, Alliance for Sustainable Energy.
-#  All rights reserved.
+# *******************************************************************************
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
+# All rights reserved.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License, or (at your option) any later version.
+# (1) Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# (2) Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-######################################################################
+# (3) Neither the name of the copyright holder nor the names of any contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission from the respective party.
+#
+# (4) Other than as required in clauses (1) and (2), distributions in any form
+# of modifications or other derivative works may not use the "OpenStudio"
+# trademark, "OS", "os", or any other confusingly similar designation without
+# specific prior written permission from Alliance for Sustainable Energy, LLC.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER, THE UNITED STATES
+# GOVERNMENT, OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# *******************************************************************************
 
-require 'aasm'
-require 'pp'
-require 'multi_json'
-require 'colored'
 require 'fileutils'
-require 'json' # needed for a single pretty generate call
+require 'json'
 require 'pathname'
 
-begin
-  require 'facter'
-rescue LoadError => e
-  puts 'Could not load Facter. Will not be able to save the IP address to the log'.red
-end
-
-require 'openstudio/workflow/version'
-require 'openstudio/workflow/multi_delegator'
-require 'openstudio/workflow/run'
-require 'openstudio/workflow/jobs/lib/apply_measures'
-
-begin
-  require 'openstudio'
-  $openstudio_gem = true
-rescue LoadError => e
-  $openstudio_gem = false
-  puts 'OpenStudio did not load, but most functionality is still available. Will try to continue...'.red
-end
-
-# some core extensions
-class String
-  def snake_case
-    gsub(/::/, '/')
-        .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-        .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-        .tr(' -', '__')
-        .downcase
-  end
-end
+require_relative 'openstudio/workflow/version'
+require_relative 'openstudio/workflow/multi_delegator'
+require_relative 'openstudio/workflow/run'
+require_relative 'openstudio/workflow/job'
+require_relative 'openstudio/workflow/time_logger'
+require_relative 'openstudio/workflow/registry'
+require_relative 'openstudio/workflow/util'
+require 'openstudio'
+require_relative 'openstudio/workflow_runner'
 
 module OpenStudio
   module Workflow
-    extend self
+    module_function
 
-    # Create a new workflow instance using the defined adapter and UUID
-    def load(adapter_name, run_directory, options = {})
-      defaults = { adapter_options: {} }
-      options = defaults.merge(options)
-
-      # Convert various paths to absolute paths
-      if options[:adapter_options] && options[:adapter_options][:mongoid_path] &&
-          (Pathname.new options[:adapter_options][:mongoid_path]).absolute? == false
-        options[:adapter_options][:mongoid_path] = File.expand_path options[:adapter_options][:mongoid_path]
-      end
-      if options[:analysis_root_path] &&
-          (Pathname.new options[:analysis_root_path]).absolute? == false
-        options[:analysis_root_path] = File.expand_path options[:analysis_root_path]
-      end
-      unless (Pathname.new run_directory).absolute?
-        # relative to wherever you are running the script
-        run_directory = File.expand_path run_directory
-      end
-      adapter = load_adapter adapter_name, options[:adapter_options]
-      run_klass = OpenStudio::Workflow::Run.new(adapter, run_directory, options)
-      # return the run class
-      run_klass
-    end
-
-    private
-
-    def load_adapter(name, adapter_options = {})
-      require "openstudio/workflow/adapters/#{name.downcase}"
-      klass_name = name.to_s.split('_').map(&:capitalize) * ''
-      # pp "#{klass_name} is the adapter class name"
-      klass = OpenStudio::Workflow::Adapters.const_get(klass_name).new(adapter_options)
-      klass
+    # Extract an archive to a specific location
+    #
+    # @param archive_filename [String] Path and name of the file to extract
+    # @param destination [String] Path to extract to
+    # @param overwrite [Boolean] If true, will overwrite any extracted file that may already exist
+    #
+    def extract_archive(archive_filename, destination, overwrite = true)
+      zf = OpenStudio::UnzipFile.new(archive_filename)
+      zf.extractAllFiles(destination)
     end
   end
 end

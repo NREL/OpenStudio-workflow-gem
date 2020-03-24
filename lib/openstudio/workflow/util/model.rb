@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -63,6 +65,7 @@ module OpenStudio
             loaded_model = OpenStudio::Model::Model.load(osm_path)
           end
           raise "Failed to load OSM file #{osm_path}" if loaded_model.empty?
+
           loaded_model.get
         end
 
@@ -80,6 +83,7 @@ module OpenStudio
 
           idf = OpenStudio::Workspace.load(idf_path)
           raise "Failed to load IDF file #{idf_path}" if idf.empty?
+
           idf.get
         end
 

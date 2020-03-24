@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -79,9 +81,10 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
     # Save the OSM if the :debug option is true
     return nil unless @options[:debug]
-    @registry[:time_logger].start('Saving OSM') if @registry[:time_logger]
+
+    @registry[:time_logger]&.start('Saving OSM')
     osm_name = save_osm(@registry[:model], @registry[:root_dir])
-    @registry[:time_logger].stop('Saving OSM') if @registry[:time_logger]
+    @registry[:time_logger]&.stop('Saving OSM')
     @logger.debug "Saved model as #{osm_name}"
 
     nil

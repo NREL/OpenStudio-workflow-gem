@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'openstudio'
 require 'openstudio-workflow'
 require 'openstudio/workflow/adapters/output_adapter'

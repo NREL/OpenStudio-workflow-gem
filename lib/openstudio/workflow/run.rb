@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -248,7 +250,7 @@ module OpenStudio
           end
 
           if @current_state == :errored
-            @registry[:workflow_json].setCompletedStatus('Fail') if @registry[:workflow_json]
+            @registry[:workflow_json]&.setCompletedStatus('Fail')
           else
             # completed status will already be set if workflow was halted
             if @registry[:workflow_json].completedStatus.empty?
@@ -268,7 +270,7 @@ module OpenStudio
           end
 
           # Write out the TimeLogger to the filesystem
-          @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
+          @registry[:time_logger]&.save(File.join(@registry[:run_dir], 'profile.json'))
 
           if @current_state == :errored
             @output_adapter.communicate_failure

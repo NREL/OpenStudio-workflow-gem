@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -62,6 +64,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     # DLM: this key is the raw JSON object, it is deprecated and should not be used, use :workflow_json instead
     @registry.register(:workflow) { @input_adapter.workflow }
     raise 'Specified workflow was nil' unless @registry[:workflow]
+
     @logger.debug 'Retrieved the workflow from the adapter'
 
     @registry.register(:osw_dir) { @input_adapter.osw_dir }
@@ -129,6 +132,7 @@ class RunInitialization < OpenStudio::Workflow::Job
       if model_full_path.empty?
         raise "Seed model #{model_path.get} specified in OSW cannot be found"
       end
+
       model_full_path = model_full_path.get
 
       if File.extname(model_full_path.to_s) == '.idf'
@@ -157,9 +161,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     end
 
     if @registry[:openstudio_2]
-      if @registry[:model]
-        @registry[:model].setWorkflowJSON(workflow_json.clone)
-      end
+      @registry[:model]&.setWorkflowJSON(workflow_json.clone)
     end
 
     # DLM: TODO, load weather_file from options so it can be overriden by user_options
@@ -189,6 +191,7 @@ class RunInitialization < OpenStudio::Workflow::Job
       if weather_full_path.empty?
         raise "Weather file '#{weather_path}' specified but cannot be found"
       end
+
       weather_full_path = weather_full_path.get
 
       @registry.register(:wf) { weather_full_path.to_s }

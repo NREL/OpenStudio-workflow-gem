@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -51,6 +53,7 @@ class Optional_Shim
 
   def get
     raise 'Uninitialized Optional_Shim' if @obj.nil?
+
     @obj
   end
 end
@@ -121,6 +124,7 @@ class WorkflowStepResult_Shim
     if @result[:initial_condition]
       return Optional_Shim.new(@result[:initial_condition])
     end
+
     return Optional_Shim.new(nil)
   end
 
@@ -128,6 +132,7 @@ class WorkflowStepResult_Shim
     if @result[:final_condition]
       return Optional_Shim.new(@result[:final_condition])
     end
+
     return Optional_Shim.new(nil)
   end
 

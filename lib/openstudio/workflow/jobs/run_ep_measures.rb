@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -63,9 +65,10 @@ class RunEnergyPlusMeasures < OpenStudio::Workflow::Job
 
     # Save both the OSM and IDF if the :debug option is true
     return nil unless @options[:debug]
-    @registry[:time_logger].start('Saving IDF') if @registry[:time_logger]
+
+    @registry[:time_logger]&.start('Saving IDF')
     idf_name = save_idf(@registry[:model_idf], @registry[:root_dir])
-    @registry[:time_logger].stop('Saving IDF') if @registry[:time_logger]
+    @registry[:time_logger]&.stop('Saving IDF')
     @logger.debug "Saved IDF as #{idf_name}"
 
     nil

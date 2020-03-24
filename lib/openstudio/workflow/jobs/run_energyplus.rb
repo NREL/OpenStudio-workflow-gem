@@ -44,7 +44,7 @@ class RunEnergyPlus < OpenStudio::Workflow::Job
 
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
-    
+
     # skip if halted
     halted = @registry[:runner].halted
     @logger.info 'Workflow halted, skipping the EnergyPlus simulation' if halted

@@ -37,7 +37,7 @@ require 'logger'
 
 class Logger
   def format_message(severity, datetime, _progname, msg)
-    "[%s %s] %s\n" % [datetime.strftime('%H:%M:%S.%6N'), severity, msg]
+    format("[%s %s] %s\n", datetime.strftime('%H:%M:%S.%6N'), severity, msg)
   end
 end
 

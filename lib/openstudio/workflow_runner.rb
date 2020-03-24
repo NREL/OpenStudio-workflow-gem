@@ -46,7 +46,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     @analysis = nil
     @halted = false
     @use_os_halted = OpenStudio::Ruleset::OSRunner.method_defined?(:halted)
-    
+
     begin
       # OpenStudio 2.X
       super(@workflow_json)
@@ -58,27 +58,23 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       super()
     end
   end
-  
+
   def timeString
-    ::Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+    ::Time.now.utc.strftime('%Y%m%dT%H%M%SZ')
   end
-  
-  def datapoint
-    @datapoint
-  end
-  
+
+  attr_reader :datapoint
+
   def setDatapoint(datapoint)
     @datapoint = datapoint
   end
-  
-  def analysis
-    @analysis
-  end
-  
+
+  attr_reader :analysis
+
   def setAnalysis(analysis)
     @analysis = analysis
   end
-  
+
   # Returns the workflow currently being run. New in OS 2.0.
   # WorkflowJSON workflow() const;
   def workflow
@@ -113,7 +109,6 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   # only called in OpenStudio 1.X
   # virtual void prepareForUserScriptRun(const UserScript& userScript);
   def prepareForUserScriptRun(userScript)
-    
     if @openstudio_2
       prepareForMeasureRun(userScript)
     else

@@ -44,7 +44,7 @@ class RunTranslation < OpenStudio::Workflow::Job
 
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
-    
+
     # skip if halted
     if @registry[:runner].halted
       @logger.info 'Workflow halted, skipping OSM to IDF translation'
@@ -63,7 +63,7 @@ class RunTranslation < OpenStudio::Workflow::Job
     else
       @logger.warn "EPW file not found or not sent to #{self.class}"
     end
-    
+
     # Translate the OSM to an IDF
     @logger.info 'Beginning the translation to IDF'
     @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]

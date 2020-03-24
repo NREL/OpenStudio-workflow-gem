@@ -56,7 +56,7 @@ module OpenStudio
           begin
             translator = OpenStudio::OSVersion::VersionTranslator.new
             loaded_model = translator.loadModel(osm_path)
-          rescue
+          rescue StandardError
             # TODO: get translator working in embedded.
             # Need to embed idd files
             logger.warn 'OpenStudio VersionTranslator could not be loaded'
@@ -91,7 +91,7 @@ module OpenStudio
         # @todo (rhorsey) rescue errors here
         #
         def translate_to_energyplus(model, logger = nil)
-          logger = ::Logger.new(STDOUT) unless logger
+          logger ||= ::Logger.new(STDOUT)
           logger.info 'Translate object to EnergyPlus IDF in preparation for EnergyPlus'
           a = ::Time.now
           # ensure objects exist for reporting purposes
@@ -113,12 +113,12 @@ module OpenStudio
         #
         def save_osm(model, save_directory, name = 'in.osm')
           osm_filename = File.join(save_directory.to_s, name.to_s)
-          File.open(osm_filename, 'w') do |f| 
-            f << model.to_s 
+          File.open(osm_filename, 'w') do |f|
+            f << model.to_s
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end
@@ -134,12 +134,12 @@ module OpenStudio
         #
         def save_idf(model_idf, save_directory, name = 'in.idf')
           idf_filename = File.join(save_directory.to_s, name.to_s)
-          File.open(idf_filename, 'w') do |f| 
-            f << model_idf.to_s 
+          File.open(idf_filename, 'w') do |f|
+            f << model_idf.to_s
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end

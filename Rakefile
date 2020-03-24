@@ -10,7 +10,7 @@ require 'ci/reporter/rake/rspec'
 require 'bundler/gem_tasks'
 
 RSpec::Core::RakeTask.new('spec:unit') do |spec|
-  spec.rspec_opts = %w(--format progress --format CI::Reporter::RSpec)
+  spec.rspec_opts = ['--format', 'progress', '--format', 'CI::Reporter::RSpec']
   spec.pattern = FileList['spec/**/*_spec.rb']
 end
 

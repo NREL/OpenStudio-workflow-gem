@@ -83,12 +83,12 @@ class TimeLogger
 
   # save the data to a file. This will overwrite the file if it already exists
   def save(filename)
-    File.open(filename, 'w') do |f| 
+    File.open(filename, 'w') do |f|
       f << JSON.pretty_generate(@logger)
       # make sure data is written to the disk one way or the other
       begin
         f.fsync
-      rescue
+      rescue StandardError
         f.flush
       end
     end

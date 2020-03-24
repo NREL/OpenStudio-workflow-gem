@@ -91,13 +91,13 @@ EOT
 js_header_text.strip!
 
 paths = [
-    { glob: 'lib/**/*.rb', license: ruby_header_text, regex: ruby_regex },
-    { glob: 'spec/openstudio/workflow/*.rb', license: ruby_header_text, regex: ruby_regex },
-    { glob: 'spec/openstudio/workflow/*.rb', license: ruby_header_text, regex: ruby_regex },
+  { glob: 'lib/**/*.rb', license: ruby_header_text, regex: ruby_regex },
+  { glob: 'spec/openstudio/workflow/*.rb', license: ruby_header_text, regex: ruby_regex },
+  { glob: 'spec/openstudio/workflow/*.rb', license: ruby_header_text, regex: ruby_regex },
 
-    # single files
-    { glob: 'spec/list_registry_options.rb', license: ruby_header_text, regex: ruby_regex },
-    { glob: 'spec/spec_helper.rb', license: ruby_header_text, regex: ruby_regex },
+  # single files
+  { glob: 'spec/list_registry_options.rb', license: ruby_header_text, regex: ruby_regex },
+  { glob: 'spec/spec_helper.rb', license: ruby_header_text, regex: ruby_regex }
 ]
 
 paths.each do |path|

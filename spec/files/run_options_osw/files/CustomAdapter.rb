@@ -8,10 +8,10 @@ class CustomAdapter < OpenStudio::Workflow::OutputAdapters
   def initialize(options = {})
     raise 'The required :output_directory option was not passed to the local output adapter' unless options[:output_directory]
     raise 'The required :custom_option option was not passed to the local output adapter' unless options[:custom_option]
-    
+
     super
   end
-  
+
   # Write to the filesystem that the process has started
   #
   def communicate_started
@@ -32,18 +32,15 @@ class CustomAdapter < OpenStudio::Workflow::OutputAdapters
 
   # Do nothing on a state transition
   #
-  def communicate_transition(_ = nil, _ = nil, _ = nil)
-  end
+  def communicate_transition(_ = nil, _ = nil, _ = nil); end
 
   # Do nothing on EnergyPlus stdout
   #
-  def communicate_energyplus_stdout(_ = nil, _ = nil)
-  end
-  
+  def communicate_energyplus_stdout(_ = nil, _ = nil); end
+
   # Do nothing on Measure result
   #
-  def communicate_measure_result(_ = nil, _ = nil)
-  end
+  def communicate_measure_result(_ = nil, _ = nil); end
 
   # Write the measure attributes to the filesystem
   #
@@ -72,5 +69,4 @@ class CustomAdapter < OpenStudio::Workflow::OutputAdapters
       puts "Unknown datapoint result type. Please handle #{results.class}"
     end
   end
-
 end

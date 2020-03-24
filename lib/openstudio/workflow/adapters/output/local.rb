@@ -48,12 +48,12 @@ module OpenStudio
         # Write to the filesystem that the process has started
         #
         def communicate_started
-          File.open("#{@options[:output_directory]}/started.job", 'w') do |f| 
-            f << "Started Workflow #{::Time.now}" 
+          File.open("#{@options[:output_directory]}/started.job", 'w') do |f|
+            f << "Started Workflow #{::Time.now}"
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end
@@ -62,12 +62,12 @@ module OpenStudio
         # Write to the filesystem that the process has completed
         #
         def communicate_complete
-          File.open("#{@options[:output_directory]}/finished.job", 'w') do |f| 
-            f << "Finished Workflow #{::Time.now}" 
+          File.open("#{@options[:output_directory]}/finished.job", 'w') do |f|
+            f << "Finished Workflow #{::Time.now}"
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end
@@ -76,12 +76,12 @@ module OpenStudio
         # Write to the filesystem that the process has failed
         #
         def communicate_failure
-          File.open("#{@options[:output_directory]}/failed.job", 'w') do |f| 
-            f << "Failed Workflow #{::Time.now}" 
+          File.open("#{@options[:output_directory]}/failed.job", 'w') do |f|
+            f << "Failed Workflow #{::Time.now}"
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end
@@ -89,18 +89,15 @@ module OpenStudio
 
         # Do nothing on a state transition
         #
-        def communicate_transition(_ = nil, _ = nil, _ = nil)
-        end
+        def communicate_transition(_ = nil, _ = nil, _ = nil); end
 
         # Do nothing on EnergyPlus stdout
         #
-        def communicate_energyplus_stdout(_ = nil, _ = nil)
-        end
-        
+        def communicate_energyplus_stdout(_ = nil, _ = nil); end
+
         # Do nothing on Measure result
         #
-        def communicate_measure_result(_ = nil, _ = nil)
-        end
+        def communicate_measure_result(_ = nil, _ = nil); end
 
         # Write the measure attributes to the filesystem
         #
@@ -112,7 +109,7 @@ module OpenStudio
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end
@@ -123,12 +120,12 @@ module OpenStudio
         def communicate_objective_function(objectives, _ = nil)
           obj_fun_file = "#{@options[:output_directory]}/objectives.json"
           FileUtils.rm_f(obj_fun_file) if File.exist?(obj_fun_file)
-          File.open(obj_fun_file, 'w') do |f| 
-            f << JSON.pretty_generate(objectives) 
+          File.open(obj_fun_file, 'w') do |f|
+            f << JSON.pretty_generate(objectives)
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end
@@ -142,17 +139,17 @@ module OpenStudio
           if results.is_a? Hash
             # DLM: don't we want this in the results zip?
             # DLM: deprecate in favor of out.osw
-            File.open("#{@options[:output_directory]}/data_point_out.json", 'w') do |f| 
-              f << JSON.pretty_generate(results) 
+            File.open("#{@options[:output_directory]}/data_point_out.json", 'w') do |f|
+              f << JSON.pretty_generate(results)
               # make sure data is written to the disk one way or the other
               begin
                 f.fsync
-              rescue
+              rescue StandardError
                 f.flush
               end
             end
           else
-            #puts "Unknown datapoint result type. Please handle #{results.class}"
+            # puts "Unknown datapoint result type. Please handle #{results.class}"
           end
         end
       end

@@ -90,7 +90,7 @@ module OpenStudio
           energyplus_exe, expand_objects_exe = nil
           Dir["#{energyplus_path}/*"].each do |file|
             next if File.directory? file
-            
+
             # copy idd and ini files
             if File.extname(file).downcase =~ /.idd|.ini/
               dest_file = "#{run_directory}/#{File.basename(file)}"
@@ -100,7 +100,6 @@ module OpenStudio
 
             energyplus_exe = file if File.basename(file) =~ ENERGYPLUS_REGEX
             expand_objects_exe = file if File.basename(file) =~ EXPAND_OBJECTS_REGEX
-            
           end
 
           raise "Could not find EnergyPlus executable in #{energyplus_path}" unless energyplus_exe
@@ -124,7 +123,7 @@ module OpenStudio
         #
         def call_energyplus(run_directory, energyplus_path = nil, output_adapter = nil, logger = nil, workflow_json = nil)
           logger ||= ::Logger.new(STDOUT) unless logger
-          
+
           current_dir = Dir.pwd
           energyplus_path ||= find_energyplus
           logger.info "EnergyPlus path is #{energyplus_path}"
@@ -142,7 +141,7 @@ module OpenStudio
                 end
               end
             end
-          
+
             # Check if expand objects did anything
             if File.exist? 'expanded.idf'
               FileUtils.mv('in.idf', 'pre-expand.idf', force: true) if File.exist?('in.idf')
@@ -170,22 +169,22 @@ module OpenStudio
 
           if File.exist? 'eplusout.err'
             eplus_err = File.read('eplusout.err').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
-            
+
             if workflow_json
               begin
                 if !@options[:fast]
                   workflow_json.setEplusoutErr(eplus_err)
                 end
-              rescue => e
+              rescue StandardError => e
                 # older versions of OpenStudio did not have the setEplusoutErr method
               end
             end
-            
+
             if eplus_err =~ /EnergyPlus Terminated--Fatal Error Detected/
               raise 'EnergyPlus Terminated with a Fatal Error. Check eplusout.err log.'
             end
           end
-          
+
           if File.exist? 'eplusout.end'
             f = File.read('eplusout.end').force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
             warnings_count = f[/(\d*).Warning/, 1]
@@ -197,8 +196,7 @@ module OpenStudio
           else
             raise 'EnergyPlus failed and did not create an eplusout.end file. Check the stdout-energyplus log.'
           end
-          
-        rescue => e
+        rescue StandardError => e
           log_message = "#{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
           logger.error log_message
           raise log_message

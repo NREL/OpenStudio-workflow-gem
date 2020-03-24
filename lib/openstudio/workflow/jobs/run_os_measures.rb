@@ -55,7 +55,7 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
       if !epwFile.empty?
         OpenStudio::Model::WeatherFile.setWeatherFile(@registry[:model], epwFile.get)
       else
-        @logger.warn "Could not load weather file from '#{@registry[:wf].to_s}'"
+        @logger.warn "Could not load weather file from '#{@registry[:wf]}'"
       end
     end
 

@@ -46,7 +46,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
-    
+
     # halted workflow is handled in apply_measures
 
     # Ensure that the directory is created (but it should already be at this point)
@@ -54,12 +54,12 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
     # save the pre-preprocess file
     if !@options[:skip_energyplus_preprocess]
-      File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') do |f| 
-        f << @registry[:model_idf].to_s 
+      File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') do |f|
+        f << @registry[:model_idf].to_s
         # make sure data is written to the disk one way or the other
         begin
           f.fsync
-        rescue
+        rescue StandardError
           f.flush
         end
       end

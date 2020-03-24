@@ -58,7 +58,7 @@ module OpenStudio
       def communicate_measure_result(result, options = {})
         instance.communicate_measure_result result, options
       end
-      
+
       def communicate_measure_attributes(measure_attributes, options = {})
         instance.communicate_measure_attributes measure_attributes, options
       end
@@ -131,7 +131,7 @@ module OpenStudio
 
         zf = nil
         GC.start
-        
+
         File.chmod(0o664, zip_filename)
       end
 

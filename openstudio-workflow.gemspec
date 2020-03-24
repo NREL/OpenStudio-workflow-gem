@@ -1,4 +1,4 @@
-lib = File.expand_path('../lib/', __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 
 require 'openstudio/workflow/version'
@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '~> 2.5.0'
 
-  s.files = Dir.glob('lib/**/*') + %w(README.md CHANGELOG.md Rakefile)
+  s.files = Dir.glob('lib/**/*') + ['README.md', 'CHANGELOG.md', 'Rakefile']
   s.require_path = 'lib'
 
   s.add_development_dependency 'bundler', '~> 2.1'

@@ -1,7 +1,7 @@
 
 OS:Version,
-  {8104bb12-60dc-4fd8-9e01-a67fb1d63967}, !- Handle
-  2.9.0;                                  !- Version Identifier
+  {7d105be6-4895-4025-b520-5597445f08bb}, !- Handle
+  3.0.0;                                  !- Version Identifier
 
 OS:SimulationControl,
   {fb205df5-0f5d-4d3f-84b1-aee623a2ce36}, !- Handle
@@ -52,8 +52,16 @@ OS:ConvergenceLimits,
 
 OS:ShadowCalculation,
   {a804fe44-d024-4cc5-83b1-0f31b49f378f}, !- Handle
-  20,                                     !- Calculation Frequency
-  15000;                                  !- Maximum Figures in Shadow Overlap Calculations
+  PolygonClipping,                        !- Shading Calculation Method
+  ,                                       !- Shading Calculation Update Frequency Method
+  20,                                     !- Shading Calculation Update Frequency
+  15000,                                  !- Maximum Figures in Shadow Overlap Calculations
+  ,                                       !- Polygon Clipping Algorithm
+  512,                                    !- Pixel Counting Resolution
+  ,                                       !- Sky Diffuse Modeling Algorithm
+  No,                                     !- Output External Shading Calculation Results
+  No,                                     !- Disable Self-Shading Within Shading Zone Groups
+  No;                                     !- Disable Self-Shading From Shading Zone Groups to Other Zones
 
 OS:Site,
   {16710b02-e708-4436-b649-019fdf5f10f9}, !- Handle
@@ -1939,8 +1947,6 @@ OS:Sizing:Zone,
   ,                                       !- Heating Maximum Air Flow per Zone Floor Area {m3/s-m2}
   ,                                       !- Heating Maximum Air Flow {m3/s}
   ,                                       !- Heating Maximum Air Flow Fraction
-  ,                                       !- Design Zone Air Distribution Effectiveness in Cooling Mode
-  ,                                       !- Design Zone Air Distribution Effectiveness in Heating Mode
   No,                                     !- Account for Dedicated Outdoor Air System
   NeutralSupplyAir,                       !- Dedicated Outdoor Air System Control Strategy
   autosize,                               !- Dedicated Outdoor Air Low Setpoint Temperature for Design {C}

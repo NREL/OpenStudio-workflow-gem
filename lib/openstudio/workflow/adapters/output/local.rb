@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -42,6 +44,7 @@ module OpenStudio
       class Local < OutputAdapters
         def initialize(options = {})
           raise 'The required :output_directory option was not passed to the local output adapter' unless options[:output_directory]
+
           super
         end
 

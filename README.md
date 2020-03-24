@@ -4,30 +4,30 @@
 
 ## OpenStudio Workflow Gem
 
-This branch is the development branch for the OpenStudio workflow gem. 
+This branch is the development branch for the OpenStudio workflow gem.
 ## Installation
 
 The OpenStudio Workflow Gem has the following dependencies:
 
-* Ruby 2.2.4
-* OpenStudio 2.x
+* Ruby 2.5.5
+* OpenStudio 3.x
 
-[OpenStudio](http://developer.nrel.gov/downloads/buildings/openstudio/builds/) needs to be installed and in your path.  On Mac/Linux it is easiest to add the following to your .bash_profile or /etc/profile.d/<file>.sh to ensure OpenStudio loads. Assuming OpenStudio 2.9.1 installed:
+[OpenStudio](https://www.openstudio.net/) needs to be installed and in your path.  On Mac/Linux it is easiest to add the following to your .bash_profile or /etc/profile.d/<file>.sh to ensure OpenStudio loads. Assuming OpenStudio 3.0.0 installed:
 
-    export RUBYLIB=/usr/local/openstudio-2.9.1/Ruby
+    export RUBYLIB=/usr/local/openstudio-3.0.0/Ruby
 
 Add this line to your application's Gemfile:
 
     gem 'OpenStudio-workflow'
 
 And then execute:
-    
+
     bundle install
-        
+
 Or install it yourself as:
-    
+
     $ gem install openstudio-workflow
-    
+
 ## Usage
 
 There are currently two adapters to run OpenStudio workflow. The first is a simple Local adapter allowing the user to pass in the directory to simulation. The directory must have an [analysis/problem JSON file](spec/files/local_ex1/analysis_1.json) and a [datapoint JSON file](spec/files/local_ex1/datapoint_1.json).
@@ -52,7 +52,7 @@ rspec spec/
 ### Docker
 
 ```
-export OPENSTUDIO_VERSION=2.9.1
+export OPENSTUDIO_VERSION=3.0.0
 docker run -v $(pwd):/var/simdata/openstudio \
       nrel/openstudio:$OPENSTUDIO_VERSION \
       /var/simdata/openstudio/test/bin/docker-run.sh

@@ -123,14 +123,14 @@ class WorkflowStepResult_Shim
     end
     return Optional_Shim.new(nil)
   end
-  
+
   def stepFinalCondition
     if @result[:final_condition]
       return Optional_Shim.new(@result[:final_condition])
     end
     return Optional_Shim.new(nil)
   end
-  
+
   def stepErrors
     return @result[:step_errors]
   end
@@ -154,11 +154,10 @@ class WorkflowStepResult_Shim
   def stepResult
     Optional_Shim.new(@result[:step_result])
   end
-  
-   def setStepResult(step_result)
+
+  def setStepResult(step_result)
     @result[:step_result] = step_result
-  end 
-   
+ end
 end
 
 # WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X
@@ -209,9 +208,9 @@ class WorkflowJSON_Shim
   def string
     JSON.fast_generate(@workflow)
   end
-  
+
   def timeString
-    ::Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+    ::Time.now.utc.strftime('%Y%m%dT%H%M%SZ')
   end
 
   # Returns the absolute path to the directory this workflow was loaded from or saved to.  Returns current working dir for new WorkflowJSON.
@@ -226,7 +225,7 @@ class WorkflowJSON_Shim
       # make sure data is written to the disk one way or the other
       begin
         f.fsync
-      rescue
+      rescue StandardError
         f.flush
       end
     end
@@ -335,7 +334,7 @@ class WorkflowJSON_Shim
     end
     result
   end
-  
+
   def addFilePath(path)
     if !@workflow[:file_paths]
       @workflow[:file_paths] = []
@@ -343,7 +342,7 @@ class WorkflowJSON_Shim
     @workflow[:file_paths] << path
   end
 
-  def resetFilePaths()
+  def resetFilePaths
     @workflow[:file_paths] = []
   end
 
@@ -464,11 +463,11 @@ class WorkflowJSON_Shim
     @workflow[:completed_status] = status
     @workflow[:completed_at] = timeString
   end
-  
+
   def setEplusoutErr(eplusout_err)
     @workflow[:eplusout_err] = eplusout_err
   end
-  
+
   # return empty optional
   def runOptions
     return Optional_Shim.new(nil)

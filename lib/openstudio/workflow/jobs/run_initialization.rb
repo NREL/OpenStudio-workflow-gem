@@ -142,7 +142,7 @@ class RunInitialization < OpenStudio::Workflow::Job
 
       # add default objects to the model
       begin
-        OpenStudio::Model::initializeModelObjects(@registry[:model])
+        OpenStudio::Model.initializeModelObjects(@registry[:model])
       rescue NameError
         @registry[:model].getBuilding
         @registry[:model].getFacility

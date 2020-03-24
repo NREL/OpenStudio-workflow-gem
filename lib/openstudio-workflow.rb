@@ -49,7 +49,7 @@ require_relative 'openstudio/workflow_runner'
 
 module OpenStudio
   module Workflow
-    extend self
+    module_function
 
     # Extract an archive to a specific location
     #

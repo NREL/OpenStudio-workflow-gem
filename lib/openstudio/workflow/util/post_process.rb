@@ -78,7 +78,7 @@ module OpenStudio
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end
@@ -153,7 +153,6 @@ module OpenStudio
           rename_keys[hash]
         end
 
-
         # Save reports to a common directory
         #
         # @param [String] run_dir
@@ -178,7 +177,7 @@ module OpenStudio
               # make sure data is written to the disk one way or the other
               begin
                 f.fsync
-              rescue
+              rescue StandardError
                 f.flush
               end
             end
@@ -191,7 +190,7 @@ module OpenStudio
             measure_xml_path = File.absolute_path(File.join(File.dirname(report), '../../..', 'measures',
                                                             measure_dir_name, 'measure.xml'))
             logger.info "measure_xml_path: #{measure_xml_path}"
-            if File.exists? measure_xml_path
+            if File.exist? measure_xml_path
               # REXML is slow, so we lazy load only as needed
               require 'rexml/document'
               measure_xml = REXML::Document.new File.read(measure_xml_path)
@@ -207,20 +206,17 @@ module OpenStudio
           end
 
           # Remove empty directories in run folder
-          Dir["#{run_dir}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w(. ..)).empty? }.each do |d|
+          Dir["#{run_dir}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - ['.', '..']).empty? }.each do |d|
             logger.info "Removing empty directory #{d}"
             Dir.rmdir d
           end
         end
-
 
         # A general post-processing step which could be made significantly more modular
         #
         # @param [String] run_dir
         #
         def cleanup(run_dir, directory, logger)
-
-
           paths_to_rm = []
           # paths_to_rm << Pathname.glob("#{run_dir}/*.osm")
           # paths_to_rm << Pathname.glob("#{run_dir}/*.idf") # keep the idfs
@@ -229,8 +225,8 @@ module OpenStudio
           # paths_to_rm << Pathname.glob("#{run_dir}/*.eso")
           paths_to_rm << Pathname.glob("#{run_dir}/*.mtr")
           paths_to_rm << Pathname.glob("#{run_dir}/*.epw")
-          #paths_to_rm << Pathname.glob("#{run_dir}/*.mtd")
-          #paths_to_rm << Pathname.glob("#{run_dir}/*.rdd")
+          # paths_to_rm << Pathname.glob("#{run_dir}/*.mtd")
+          # paths_to_rm << Pathname.glob("#{run_dir}/*.rdd")
           paths_to_rm.each { |p| FileUtils.rm_rf(p) }
         end
       end

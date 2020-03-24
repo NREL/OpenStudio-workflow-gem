@@ -85,7 +85,7 @@ module OpenStudio
         return nil unless @items.key?(key)
         begin
           @items[key].call
-        rescue
+        rescue StandardError
           return nil
         end
         @results_cache[key] = @items[key].call

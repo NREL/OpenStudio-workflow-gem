@@ -80,10 +80,10 @@ module OpenStudio
           super
           @socket.write(line)
         end
-        
+
         def communicate_measure_result(result, options = {})
           super
-          
+
           step_result = result.stepResult
           initial_condition = result.stepInitialCondition
           final_condition = result.stepFinalCondition
@@ -96,11 +96,10 @@ module OpenStudio
           @socket.write("#{tab}Result: #{step_result.get.valueName}\n") if !step_result.empty?
           @socket.write("#{tab}Initial Condition: #{initial_condition.get}\n") if !initial_condition.empty?
           @socket.write("#{tab}Final Condition: #{final_condition.get}\n") if !final_condition.empty?
-          errors.each {|error| @socket.write("#{tab}Error: #{error}\n") }
-          warnings.each {|warning| @socket.write("#{tab}Warn: #{warning}\n") }
-          infos.each {|info| @socket.write("#{tab}Info: #{info}\n") }
+          errors.each { |error| @socket.write("#{tab}Error: #{error}\n") }
+          warnings.each { |warning| @socket.write("#{tab}Warn: #{warning}\n") }
+          infos.each { |info| @socket.write("#{tab}Info: #{info}\n") }
         end
-        
       end
     end
   end

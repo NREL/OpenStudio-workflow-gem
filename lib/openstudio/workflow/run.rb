@@ -203,13 +203,13 @@ module OpenStudio
         @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
         @options[:fast] = @input_adapter.fast(user_options, false)
 
-        openstudio_dir = "unknown"
+        openstudio_dir = 'unknown'
         begin
           openstudio_dir = $OpenStudio_Dir
           if openstudio_dir.nil?
-            openstudio_dir = OpenStudio::getOpenStudioModuleDirectory.to_s
+            openstudio_dir = OpenStudio.getOpenStudioModuleDirectory.to_s
           end
-        rescue
+        rescue StandardError
         end
         @logger.info "openstudio_dir = #{openstudio_dir}"
 
@@ -228,7 +228,7 @@ module OpenStudio
         begin
           next_state
           while @current_state != :finished && @current_state != :errored
-            #sleep 2
+            # sleep 2
             step
           end
 
@@ -236,7 +236,7 @@ module OpenStudio
             @logger.info 'Finished workflow - communicating results and zipping files'
             @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
           end
-        rescue => e
+        rescue StandardError => e
           @logger.info "Error occurred during running with #{e.message}"
         ensure
           @logger.info 'Workflow complete'
@@ -262,7 +262,7 @@ module OpenStudio
           @registry[:log_targets].each(&:flush)
 
           # save workflow with results
-          if @registry[:workflow_json] and !@options[:fast]
+          if @registry[:workflow_json] && !@options[:fast]
             out_path = @registry[:workflow_json].absoluteOutPath
             @registry[:workflow_json].saveAs(out_path)
           end
@@ -275,7 +275,6 @@ module OpenStudio
           else
             @output_adapter.communicate_complete
           end
-
         end
 
         @current_state
@@ -295,7 +294,7 @@ module OpenStudio
           @output_adapter.communicate_transition("Returned from state #{@current_state}", :state)
         end
         next_state
-      rescue => e
+      rescue StandardError => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
       end
 

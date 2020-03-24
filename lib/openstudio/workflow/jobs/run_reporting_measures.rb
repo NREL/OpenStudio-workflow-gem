@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -68,6 +70,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
         @logger.debug "Attempting to load #{osm_path}"
         @registry.register(:model) { load_osm('.', osm_path) }
         raise "Unable to load #{osm_path}" unless @registry[:model]
+
         @logger.debug "Successfully loaded #{osm_path}"
       end
       if @registry[:model_idf].nil?
@@ -75,6 +78,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
         @logger.debug "Attempting to load #{idf_path}"
         @registry.register(:model_idf) { load_idf(idf_path, @logger) }
         raise "Unable to load #{idf_path}" unless @registry[:model_idf]
+
         @logger.debug "Successfully loaded #{idf_path}"
       end
       if @registry[:sql].nil?

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -77,6 +79,7 @@ module OpenStudio
         #
         def workflow
           raise "Could not read workflow from #{@osw_abs_path}" if @workflow.nil?
+
           @workflow
         end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -35,6 +37,6 @@
 
 module OpenStudio
   module Workflow
-    VERSION = '1.3.5'.freeze # Suffixes must have periods (not dashes)
+    VERSION = '2.0.0-pre1' # Suffixes must have periods (not dashes)
   end
 end

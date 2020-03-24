@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'C:/Program Files/OpenStudio 1.14.0/Ruby/openstudio'
 
 failures = []

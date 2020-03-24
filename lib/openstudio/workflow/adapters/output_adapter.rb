@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -109,6 +111,7 @@ module OpenStudio
             if File.basename(file) =~ /seed|measures|weather/
               next
             end
+
             # skip x-large directory
             if File.size?(file)
               next if File.size?(file) >= 15000000
@@ -117,6 +120,7 @@ module OpenStudio
           else
             next if File.extname(file) =~ /\.rb.*/
             next if File.extname(file) =~ /\.zip.*/
+
             # skip large non-osm/idf files
             if File.size(file)
               if File.size(file) >= 100000000

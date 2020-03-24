@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -138,6 +140,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
       if current_step.empty?
         raise 'Cannot find current_step'
       end
+
       current_step = current_step.get
 
       if current_step.step[:result].nil?
@@ -258,6 +261,7 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
   # Overload halted
   def halted
     return @halted unless @use_os_halted
+
     super
   end
 end

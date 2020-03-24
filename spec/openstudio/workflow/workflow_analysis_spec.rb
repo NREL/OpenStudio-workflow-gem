@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -785,6 +787,7 @@ describe 'OSW Integration' do
           arguments.each_pair do |argument_name, argument_value|
             argument_name = argument_name.to_s
             next if argument_name == '__SKIP__'
+
             puts "argument_name = #{argument_name}"
             puts "argument_value = #{argument_value}"
             i = step_values.find_index { |x| x[:name] == argument_name }

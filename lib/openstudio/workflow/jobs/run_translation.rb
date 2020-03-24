@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -66,17 +68,18 @@ class RunTranslation < OpenStudio::Workflow::Job
 
     # Translate the OSM to an IDF
     @logger.info 'Beginning the translation to IDF'
-    @registry[:time_logger].start('Translating to EnergyPlus') if @registry[:time_logger]
+    @registry[:time_logger]&.start('Translating to EnergyPlus')
     model_idf = translate_to_energyplus @registry[:model], @logger
-    @registry[:time_logger].stop('Translating to EnergyPlus') if @registry[:time_logger]
+    @registry[:time_logger]&.stop('Translating to EnergyPlus')
     @registry.register(:model_idf) { model_idf }
     @logger.info 'Successfully translated to IDF'
 
     # Save the generated IDF file if the :debug option is true
     return nil unless @options[:debug]
-    @registry[:time_logger].start('Saving IDF') if @registry[:time_logger]
+
+    @registry[:time_logger]&.start('Saving IDF')
     idf_name = save_idf(@registry[:model_idf], @registry[:root_dir])
-    @registry[:time_logger].stop('Saving IDF') if @registry[:time_logger]
+    @registry[:time_logger]&.stop('Saving IDF')
     @logger.debug "Saved IDF as #{idf_name}"
 
     nil

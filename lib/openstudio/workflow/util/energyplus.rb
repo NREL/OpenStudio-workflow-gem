@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -41,8 +43,8 @@ module OpenStudio
       module EnergyPlus
         require 'openstudio/workflow/util/io'
         include OpenStudio::Workflow::Util::IO
-        ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i
-        EXPAND_OBJECTS_REGEX = /^expandobjects\D{0,4}$/i
+        ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i.freeze
+        EXPAND_OBJECTS_REGEX = /^expandobjects\D{0,4}$/i.freeze
 
         # Find the installation directory of EnergyPlus linked to the OpenStudio version being used
         #
@@ -51,6 +53,7 @@ module OpenStudio
         def find_energyplus
           path = OpenStudio.getEnergyPlusDirectory.to_s
           raise 'Unable to find the EnergyPlus executable' unless File.exist? path
+
           path
         end
 
@@ -156,7 +159,7 @@ module OpenStudio
             ::IO.popen(command) do |io|
               while (line = io.gets)
                 file << line
-                output_adapter.communicate_energyplus_stdout(line) if output_adapter
+                output_adapter&.communicate_energyplus_stdout(line)
               end
             end
           end
@@ -345,229 +348,229 @@ module OpenStudio
         end
 
         def self.monthly_report_idf_text
-          <<-HEREDOC
-Output:Table:Monthly,
-  Building Energy Performance - Electricity,  !- Name
-    2,                       !- Digits After Decimal
-    InteriorLights:Electricity,  !- Variable or Meter 1 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 1
-    ExteriorLights:Electricity,  !- Variable or Meter 2 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 2
-    InteriorEquipment:Electricity,  !- Variable or Meter 3 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 3
-    ExteriorEquipment:Electricity,  !- Variable or Meter 4 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 4
-    Fans:Electricity,        !- Variable or Meter 5 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 5
-    Pumps:Electricity,       !- Variable or Meter 6 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 6
-    Heating:Electricity,     !- Variable or Meter 7 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 7
-    Cooling:Electricity,     !- Variable or Meter 8 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 8
-    HeatRejection:Electricity,  !- Variable or Meter 9 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 9
-    Humidifier:Electricity,  !- Variable or Meter 10 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 10
-    HeatRecovery:Electricity,!- Variable or Meter 11 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 11
-    WaterSystems:Electricity,!- Variable or Meter 12 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 12
-    Cogeneration:Electricity,!- Variable or Meter 13 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 13
-    Refrigeration:Electricity,!- Variable or Meter 14 Name
-    SumOrAverage;            !- Aggregation Type for Variable or Meter 14
+          <<~HEREDOC
+            Output:Table:Monthly,
+              Building Energy Performance - Electricity,  !- Name
+                2,                       !- Digits After Decimal
+                InteriorLights:Electricity,  !- Variable or Meter 1 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 1
+                ExteriorLights:Electricity,  !- Variable or Meter 2 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 2
+                InteriorEquipment:Electricity,  !- Variable or Meter 3 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 3
+                ExteriorEquipment:Electricity,  !- Variable or Meter 4 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 4
+                Fans:Electricity,        !- Variable or Meter 5 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 5
+                Pumps:Electricity,       !- Variable or Meter 6 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 6
+                Heating:Electricity,     !- Variable or Meter 7 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 7
+                Cooling:Electricity,     !- Variable or Meter 8 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 8
+                HeatRejection:Electricity,  !- Variable or Meter 9 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 9
+                Humidifier:Electricity,  !- Variable or Meter 10 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 10
+                HeatRecovery:Electricity,!- Variable or Meter 11 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 11
+                WaterSystems:Electricity,!- Variable or Meter 12 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 12
+                Cogeneration:Electricity,!- Variable or Meter 13 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 13
+                Refrigeration:Electricity,!- Variable or Meter 14 Name
+                SumOrAverage;            !- Aggregation Type for Variable or Meter 14
 
-Output:Table:Monthly,
-  Building Energy Performance - Natural Gas,  !- Name
-    2,                       !- Digits After Decimal
-    InteriorEquipment:Gas,   !- Variable or Meter 1 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 1
-    ExteriorEquipment:Gas,   !- Variable or Meter 2 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 2
-    Heating:Gas,             !- Variable or Meter 3 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 3
-    Cooling:Gas,             !- Variable or Meter 4 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 4
-    WaterSystems:Gas,        !- Variable or Meter 5 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 5
-    Cogeneration:Gas,        !- Variable or Meter 6 Name
-    SumOrAverage;            !- Aggregation Type for Variable or Meter 6
+            Output:Table:Monthly,
+              Building Energy Performance - Natural Gas,  !- Name
+                2,                       !- Digits After Decimal
+                InteriorEquipment:Gas,   !- Variable or Meter 1 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 1
+                ExteriorEquipment:Gas,   !- Variable or Meter 2 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 2
+                Heating:Gas,             !- Variable or Meter 3 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 3
+                Cooling:Gas,             !- Variable or Meter 4 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 4
+                WaterSystems:Gas,        !- Variable or Meter 5 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 5
+                Cogeneration:Gas,        !- Variable or Meter 6 Name
+                SumOrAverage;            !- Aggregation Type for Variable or Meter 6
 
-Output:Table:Monthly,
-  Building Energy Performance - District Heating,  !- Name
-    2,                       !- Digits After Decimal
-    InteriorLights:DistrictHeating,  !- Variable or Meter 1 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 1
-    ExteriorLights:DistrictHeating,  !- Variable or Meter 2 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 2
-    InteriorEquipment:DistrictHeating,  !- Variable or Meter 3 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 3
-    ExteriorEquipment:DistrictHeating,  !- Variable or Meter 4 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 4
-    Fans:DistrictHeating,        !- Variable or Meter 5 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 5
-    Pumps:DistrictHeating,       !- Variable or Meter 6 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 6
-    Heating:DistrictHeating,     !- Variable or Meter 7 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 7
-    Cooling:DistrictHeating,     !- Variable or Meter 8 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 8
-    HeatRejection:DistrictHeating,  !- Variable or Meter 9 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 9
-    Humidifier:DistrictHeating,  !- Variable or Meter 10 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 10
-    HeatRecovery:DistrictHeating,!- Variable or Meter 11 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 11
-    WaterSystems:DistrictHeating,!- Variable or Meter 12 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 12
-    Cogeneration:DistrictHeating,!- Variable or Meter 13 Name
-    SumOrAverage;            !- Aggregation Type for Variable or Meter 13
+            Output:Table:Monthly,
+              Building Energy Performance - District Heating,  !- Name
+                2,                       !- Digits After Decimal
+                InteriorLights:DistrictHeating,  !- Variable or Meter 1 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 1
+                ExteriorLights:DistrictHeating,  !- Variable or Meter 2 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 2
+                InteriorEquipment:DistrictHeating,  !- Variable or Meter 3 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 3
+                ExteriorEquipment:DistrictHeating,  !- Variable or Meter 4 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 4
+                Fans:DistrictHeating,        !- Variable or Meter 5 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 5
+                Pumps:DistrictHeating,       !- Variable or Meter 6 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 6
+                Heating:DistrictHeating,     !- Variable or Meter 7 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 7
+                Cooling:DistrictHeating,     !- Variable or Meter 8 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 8
+                HeatRejection:DistrictHeating,  !- Variable or Meter 9 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 9
+                Humidifier:DistrictHeating,  !- Variable or Meter 10 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 10
+                HeatRecovery:DistrictHeating,!- Variable or Meter 11 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 11
+                WaterSystems:DistrictHeating,!- Variable or Meter 12 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 12
+                Cogeneration:DistrictHeating,!- Variable or Meter 13 Name
+                SumOrAverage;            !- Aggregation Type for Variable or Meter 13
 
-Output:Table:Monthly,
-  Building Energy Performance - District Cooling,  !- Name
-    2,                       !- Digits After Decimal
-    InteriorLights:DistrictCooling,  !- Variable or Meter 1 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 1
-    ExteriorLights:DistrictCooling,  !- Variable or Meter 2 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 2
-    InteriorEquipment:DistrictCooling,  !- Variable or Meter 3 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 3
-    ExteriorEquipment:DistrictCooling,  !- Variable or Meter 4 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 4
-    Fans:DistrictCooling,        !- Variable or Meter 5 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 5
-    Pumps:DistrictCooling,       !- Variable or Meter 6 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 6
-    Heating:DistrictCooling,     !- Variable or Meter 7 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 7
-    Cooling:DistrictCooling,     !- Variable or Meter 8 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 8
-    HeatRejection:DistrictCooling,  !- Variable or Meter 9 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 9
-    Humidifier:DistrictCooling,  !- Variable or Meter 10 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 10
-    HeatRecovery:DistrictCooling,!- Variable or Meter 11 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 11
-    WaterSystems:DistrictCooling,!- Variable or Meter 12 Name
-    SumOrAverage,            !- Aggregation Type for Variable or Meter 12
-    Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
-    SumOrAverage;            !- Aggregation Type for Variable or Meter 13
+            Output:Table:Monthly,
+              Building Energy Performance - District Cooling,  !- Name
+                2,                       !- Digits After Decimal
+                InteriorLights:DistrictCooling,  !- Variable or Meter 1 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 1
+                ExteriorLights:DistrictCooling,  !- Variable or Meter 2 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 2
+                InteriorEquipment:DistrictCooling,  !- Variable or Meter 3 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 3
+                ExteriorEquipment:DistrictCooling,  !- Variable or Meter 4 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 4
+                Fans:DistrictCooling,        !- Variable or Meter 5 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 5
+                Pumps:DistrictCooling,       !- Variable or Meter 6 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 6
+                Heating:DistrictCooling,     !- Variable or Meter 7 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 7
+                Cooling:DistrictCooling,     !- Variable or Meter 8 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 8
+                HeatRejection:DistrictCooling,  !- Variable or Meter 9 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 9
+                Humidifier:DistrictCooling,  !- Variable or Meter 10 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 10
+                HeatRecovery:DistrictCooling,!- Variable or Meter 11 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 11
+                WaterSystems:DistrictCooling,!- Variable or Meter 12 Name
+                SumOrAverage,            !- Aggregation Type for Variable or Meter 12
+                Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
+                SumOrAverage;            !- Aggregation Type for Variable or Meter 13
 
-Output:Table:Monthly,
-  Building Energy Performance - Electricity Peak Demand,  !- Name
-    2,                       !- Digits After Decimal
-    Electricity:Facility,  !- Variable or Meter 1 Name
-    Maximum,            !- Aggregation Type for Variable or Meter 1
-    InteriorLights:Electricity,  !- Variable or Meter 1 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
-    ExteriorLights:Electricity,  !- Variable or Meter 2 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
-    InteriorEquipment:Electricity,  !- Variable or Meter 3 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
-    ExteriorEquipment:Electricity,  !- Variable or Meter 4 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
-    Fans:Electricity,        !- Variable or Meter 5 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
-    Pumps:Electricity,       !- Variable or Meter 6 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
-    Heating:Electricity,     !- Variable or Meter 7 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
-    Cooling:Electricity,     !- Variable or Meter 8 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
-    HeatRejection:Electricity,  !- Variable or Meter 9 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
-    Humidifier:Electricity,  !- Variable or Meter 10 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
-    HeatRecovery:Electricity,!- Variable or Meter 11 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
-    WaterSystems:Electricity,!- Variable or Meter 12 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
-    Cogeneration:Electricity,!- Variable or Meter 13 Name
-    ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+            Output:Table:Monthly,
+              Building Energy Performance - Electricity Peak Demand,  !- Name
+                2,                       !- Digits After Decimal
+                Electricity:Facility,  !- Variable or Meter 1 Name
+                Maximum,            !- Aggregation Type for Variable or Meter 1
+                InteriorLights:Electricity,  !- Variable or Meter 1 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
+                ExteriorLights:Electricity,  !- Variable or Meter 2 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
+                InteriorEquipment:Electricity,  !- Variable or Meter 3 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
+                ExteriorEquipment:Electricity,  !- Variable or Meter 4 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
+                Fans:Electricity,        !- Variable or Meter 5 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
+                Pumps:Electricity,       !- Variable or Meter 6 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
+                Heating:Electricity,     !- Variable or Meter 7 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
+                Cooling:Electricity,     !- Variable or Meter 8 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
+                HeatRejection:Electricity,  !- Variable or Meter 9 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
+                Humidifier:Electricity,  !- Variable or Meter 10 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
+                HeatRecovery:Electricity,!- Variable or Meter 11 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
+                WaterSystems:Electricity,!- Variable or Meter 12 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
+                Cogeneration:Electricity,!- Variable or Meter 13 Name
+                ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
 
-Output:Table:Monthly,
-  Building Energy Performance - Natural Gas Peak Demand,  !- Name
-    2,                       !- Digits After Decimal
-    Gas:Facility,  !- Variable or Meter 1 Name
-    Maximum,            !- Aggregation Type for Variable or Meter 1
-    InteriorEquipment:Gas,   !- Variable or Meter 1 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
-    ExteriorEquipment:Gas,   !- Variable or Meter 2 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
-    Heating:Gas,             !- Variable or Meter 3 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
-    Cooling:Gas,             !- Variable or Meter 4 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
-    WaterSystems:Gas,        !- Variable or Meter 5 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
-    Cogeneration:Gas,        !- Variable or Meter 6 Name
-    ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 6
+            Output:Table:Monthly,
+              Building Energy Performance - Natural Gas Peak Demand,  !- Name
+                2,                       !- Digits After Decimal
+                Gas:Facility,  !- Variable or Meter 1 Name
+                Maximum,            !- Aggregation Type for Variable or Meter 1
+                InteriorEquipment:Gas,   !- Variable or Meter 1 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
+                ExteriorEquipment:Gas,   !- Variable or Meter 2 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
+                Heating:Gas,             !- Variable or Meter 3 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
+                Cooling:Gas,             !- Variable or Meter 4 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
+                WaterSystems:Gas,        !- Variable or Meter 5 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
+                Cogeneration:Gas,        !- Variable or Meter 6 Name
+                ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 6
 
-Output:Table:Monthly,
-  Building Energy Performance - District Heating Peak Demand,  !- Name
-    2,                       !- Digits After Decimal
-    DistrictHeating:Facility,  !- Variable or Meter 1 Name
-    Maximum,            !- Aggregation Type for Variable or Meter 1
-    InteriorLights:DistrictHeating,  !- Variable or Meter 1 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
-    ExteriorLights:DistrictHeating,  !- Variable or Meter 2 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
-    InteriorEquipment:DistrictHeating,  !- Variable or Meter 3 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
-    ExteriorEquipment:DistrictHeating,  !- Variable or Meter 4 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
-    Fans:DistrictHeating,        !- Variable or Meter 5 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
-    Pumps:DistrictHeating,       !- Variable or Meter 6 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
-    Heating:DistrictHeating,     !- Variable or Meter 7 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
-    Cooling:DistrictHeating,     !- Variable or Meter 8 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
-    HeatRejection:DistrictHeating,  !- Variable or Meter 9 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
-    Humidifier:DistrictHeating,  !- Variable or Meter 10 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
-    HeatRecovery:DistrictHeating,!- Variable or Meter 11 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
-    WaterSystems:DistrictHeating,!- Variable or Meter 12 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
-    Cogeneration:DistrictHeating,!- Variable or Meter 13 Name
-    ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+            Output:Table:Monthly,
+              Building Energy Performance - District Heating Peak Demand,  !- Name
+                2,                       !- Digits After Decimal
+                DistrictHeating:Facility,  !- Variable or Meter 1 Name
+                Maximum,            !- Aggregation Type for Variable or Meter 1
+                InteriorLights:DistrictHeating,  !- Variable or Meter 1 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
+                ExteriorLights:DistrictHeating,  !- Variable or Meter 2 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
+                InteriorEquipment:DistrictHeating,  !- Variable or Meter 3 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
+                ExteriorEquipment:DistrictHeating,  !- Variable or Meter 4 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
+                Fans:DistrictHeating,        !- Variable or Meter 5 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
+                Pumps:DistrictHeating,       !- Variable or Meter 6 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
+                Heating:DistrictHeating,     !- Variable or Meter 7 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
+                Cooling:DistrictHeating,     !- Variable or Meter 8 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
+                HeatRejection:DistrictHeating,  !- Variable or Meter 9 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
+                Humidifier:DistrictHeating,  !- Variable or Meter 10 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
+                HeatRecovery:DistrictHeating,!- Variable or Meter 11 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
+                WaterSystems:DistrictHeating,!- Variable or Meter 12 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
+                Cogeneration:DistrictHeating,!- Variable or Meter 13 Name
+                ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
 
-Output:Table:Monthly,
-  Building Energy Performance - District Cooling Peak Demand,  !- Name
-    2,                       !- Digits After Decimal
-    DistrictCooling:Facility,  !- Variable or Meter 1 Name
-    Maximum,            !- Aggregation Type for Variable or Meter 1
-    InteriorLights:DistrictCooling,  !- Variable or Meter 1 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
-    ExteriorLights:DistrictCooling,  !- Variable or Meter 2 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
-    InteriorEquipment:DistrictCooling,  !- Variable or Meter 3 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
-    ExteriorEquipment:DistrictCooling,  !- Variable or Meter 4 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
-    Fans:DistrictCooling,        !- Variable or Meter 5 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
-    Pumps:DistrictCooling,       !- Variable or Meter 6 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
-    Heating:DistrictCooling,     !- Variable or Meter 7 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
-    Cooling:DistrictCooling,     !- Variable or Meter 8 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
-    HeatRejection:DistrictCooling,  !- Variable or Meter 9 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
-    Humidifier:DistrictCooling,  !- Variable or Meter 10 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
-    HeatRecovery:DistrictCooling,!- Variable or Meter 11 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
-    WaterSystems:DistrictCooling,!- Variable or Meter 12 Name
-    ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
-    Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
-    ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
- HEREDOC
+            Output:Table:Monthly,
+              Building Energy Performance - District Cooling Peak Demand,  !- Name
+                2,                       !- Digits After Decimal
+                DistrictCooling:Facility,  !- Variable or Meter 1 Name
+                Maximum,            !- Aggregation Type for Variable or Meter 1
+                InteriorLights:DistrictCooling,  !- Variable or Meter 1 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
+                ExteriorLights:DistrictCooling,  !- Variable or Meter 2 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
+                InteriorEquipment:DistrictCooling,  !- Variable or Meter 3 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
+                ExteriorEquipment:DistrictCooling,  !- Variable or Meter 4 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
+                Fans:DistrictCooling,        !- Variable or Meter 5 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
+                Pumps:DistrictCooling,       !- Variable or Meter 6 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 6
+                Heating:DistrictCooling,     !- Variable or Meter 7 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 7
+                Cooling:DistrictCooling,     !- Variable or Meter 8 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 8
+                HeatRejection:DistrictCooling,  !- Variable or Meter 9 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 9
+                Humidifier:DistrictCooling,  !- Variable or Meter 10 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 10
+                HeatRecovery:DistrictCooling,!- Variable or Meter 11 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 11
+                WaterSystems:DistrictCooling,!- Variable or Meter 12 Name
+                ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 12
+                Cogeneration:DistrictCooling,!- Variable or Meter 13 Name
+                ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 13
+          HEREDOC
         end
       end
     end

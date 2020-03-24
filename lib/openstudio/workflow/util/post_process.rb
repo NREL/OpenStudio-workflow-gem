@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
 # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
@@ -52,6 +54,7 @@ module OpenStudio
         #
         def load_sql_file(sql_file)
           return nil unless File.exist? sql_file
+
           OpenStudio::SqlFile.new(@sql_filename)
         end
 
@@ -135,7 +138,7 @@ module OpenStudio
         #
         def rename_hash_keys(hash, logger)
           # @todo should we log the name changes?
-          regex = /[|!@#\$%^&\*\(\)\{\}\\\[\];:'",<.>\/?\+=]+/
+          regex = %r{[|!@#\$%^&\*\(\)\{\}\\\[\];:'",<.>/?\+=]+}
 
           rename_keys = lambda do |h|
             if Hash === h

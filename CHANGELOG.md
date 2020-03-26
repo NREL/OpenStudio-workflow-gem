@@ -1,7 +1,7 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Version 2.0.0 (Unreleased)
+Version 2.0.0
 --------------------------
 
 * Support Ruby > 2.5

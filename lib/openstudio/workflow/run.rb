@@ -60,22 +60,25 @@ module OpenStudio
       def self.default_jobs
         [
           { state: :queued, next_state: :initialization, options: { initial: true } },
-          { state: :initialization, next_state: :os_measures, job: :RunInitialization,
+          #{ state: :initialization, next_state: :os_measures, job: :RunInitialization,
+          { state: :initialization, next_state: :fmu, job: :RunInitialization,
             file: 'openstudio/workflow/jobs/run_initialization', options: {} },
-          { state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
-            file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {} },
-          { state: :translator, next_state: :ep_measures, job: :RunTranslation,
-            file: 'openstudio/workflow/jobs/run_translation.rb', options: {} },
-          { state: :ep_measures, next_state: :preprocess, job: :RunEnergyPlusMeasures,
-            file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {} },
-          { state: :preprocess, next_state: :simulation, job: :RunPreprocess,
-            file: 'openstudio/workflow/jobs/run_preprocess.rb', options: {} },
-          { state: :simulation, next_state: :reporting_measures, job: :RunEnergyPlus,
-            file: 'openstudio/workflow/jobs/run_energyplus.rb', options: {} },
-          { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
-            file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
-          { state: :postprocess, next_state: :finished, job: :RunPostprocess,
-            file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+          #{ state: :os_measures, next_state: :translator, job: :RunOpenStudioMeasures,
+          #  file: 'openstudio/workflow/jobs/run_os_measures.rb', options: {} },
+          #{ state: :translator, next_state: :ep_measures, job: :RunTranslation,
+          #  file: 'openstudio/workflow/jobs/run_translation.rb', options: {} },
+          #{ state: :ep_measures, next_state: :preprocess, job: :RunEnergyPlusMeasures,
+          #  file: 'openstudio/workflow/jobs/run_ep_measures.rb', options: {} },
+          #{ state: :preprocess, next_state: :simulation, job: :RunPreprocess,
+          #  file: 'openstudio/workflow/jobs/run_preprocess.rb', options: {} },
+          #{ state: :simulation, next_state: :reporting_measures, job: :RunEnergyPlus,
+          #  file: 'openstudio/workflow/jobs/run_energyplus.rb', options: {} },
+          #{ state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
+          #  file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
+          #{ state: :postprocess, next_state: :fmu, job: :RunPostprocess,
+          #  file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+          { state: :fmu, next_state: :finished, job: :RunFmu,
+            file: 'openstudio/workflow/jobs/run_fmu.rb', options: {} },  
           { state: :finished },
           { state: :errored }
         ]
@@ -143,7 +146,9 @@ module OpenStudio
         @registry.register(:osw_path) { Pathname.new(@input_adapter.osw_path).realpath }
         @registry.register(:osw_dir) { Pathname.new(@input_adapter.osw_dir).realpath }
         @registry.register(:run_dir) { Pathname.new(@input_adapter.run_dir).cleanpath } # run dir might not yet exist, calling realpath will throw
-
+        if !(@input_adapter.lib_dir.nil?) 
+          @registry.register(:lib_dir) { Pathname.new(@input_adapter.lib_dir).cleanpath } # run dir might not yet exist, calling realpath will throw
+        end
         # get info to set up logging first in case of failures later
         @options[:debug] = @input_adapter.debug(user_options, false)
         @options[:preserve_run_dir] = @input_adapter.preserve_run_dir(user_options, false)

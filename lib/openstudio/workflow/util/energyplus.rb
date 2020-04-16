@@ -227,7 +227,7 @@ module OpenStudio
             # just add this, we don't allow this type in add_energyplus_output_request
             logger.info 'Adding SQL Output to IDF'
             object = OpenStudio::IdfObject.load('Output:SQLite,SimpleAndTabular;').get
-            idf.addObjects(object)
+            idf.addObject(object)
           end
 
           # merge in monthly reports

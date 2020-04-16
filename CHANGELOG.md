@@ -1,8 +1,13 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version 2.0.1
+-------------
+
+* Bug fix for idf.addObjects(object) to idf.addObject(object)
+
 Version 2.0.0
---------------------------
+-------------
 
 * Support Ruby > 2.5
 * Support OpenStudio 3.x

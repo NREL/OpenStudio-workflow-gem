@@ -64,7 +64,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
     
     #get OSA[:urbanopt]  #BLB should prob be sent in as cli arg and used in options but for now just do this
-    @registry[:urbanopt] = false
+    @registry.register(:urbanopt) { false }
     if @registry[:osw_path]
       workflow = nil
       if File.exist? @registry[:osw_path]

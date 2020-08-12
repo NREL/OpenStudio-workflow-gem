@@ -151,7 +151,9 @@ module OpenStudio
         if Dir.exist?(directory) && File.directory?(directory)
           zip_filename = @datapoint ? "data_point_#{@datapoint.uuid}.zip" : 'data_point.zip'
           zip_filename = File.join(directory, zip_filename)
-          zip_directory directory, zip_filename
+          #zip_directory directory, zip_filename
+          zf = ZipFileGenerator.new(directory, zip_filename)
+          zf.write
         end
 
         # zip up only the reports folder
@@ -159,9 +161,57 @@ module OpenStudio
         if Dir.exist?(report_dir) && File.directory?(report_dir)
           zip_filename = @datapoint ? "data_point_#{@datapoint.uuid}_reports.zip" : 'data_point_reports.zip'
           zip_filename = File.join(directory, zip_filename)
-          zip_directory directory, zip_filename, 'reports'
+          #zip_directory directory, zip_filename, 'reports'
+          zf = ZipFileGenerator.new(report_dir, zip_filename)
+          zf.write
         end
       end
+
     end
+    
+    require 'zip'    
+    class ZipFileGenerator
+      # Initialize with the directory to zip and the location of the output archive.
+      def initialize(input_dir, output_file)
+        @input_dir = input_dir
+        @output_file = output_file
+      end
+
+      # Zip the input directory.
+      def write
+        entries = Dir.entries(@input_dir) - %w[. ..]
+
+        ::Zip::File.open(@output_file, ::Zip::File::CREATE) do |zipfile|
+          write_entries entries, '', zipfile
+        end
+      end
+
+      private
+
+      # A helper method to make the recursion work.
+      def write_entries(entries, path, zipfile)
+        entries.each do |e|
+          zipfile_path = path == '' ? e : File.join(path, e)
+          disk_file_path = File.join(@input_dir, zipfile_path)
+
+          if File.directory? disk_file_path
+            recursively_deflate_directory(disk_file_path, zipfile, zipfile_path)
+          else
+            put_into_archive(disk_file_path, zipfile, zipfile_path)
+          end
+        end
+      end
+
+      def recursively_deflate_directory(disk_file_path, zipfile, zipfile_path)
+        zipfile.mkdir zipfile_path
+        subdir = Dir.entries(disk_file_path) - %w[. ..]
+        write_entries subdir, zipfile_path, zipfile
+      end
+
+      def put_into_archive(disk_file_path, zipfile, zipfile_path)
+        zipfile.add(zipfile_path, disk_file_path)
+      end
+    end
+    
   end
 end

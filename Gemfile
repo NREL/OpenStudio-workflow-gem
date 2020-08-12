@@ -2,6 +2,8 @@
 
 source 'http://rubygems.org'
 
+gem 'rubyzip'
+
 # Specify your gem's dependencies in OpenStudio-workflow.gemspec
 gemspec
 

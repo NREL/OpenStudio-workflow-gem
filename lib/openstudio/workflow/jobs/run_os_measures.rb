@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -55,7 +57,7 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
       if !epwFile.empty?
         OpenStudio::Model::WeatherFile.setWeatherFile(@registry[:model], epwFile.get)
       else
-        @logger.warn "Could not load weather file from '#{@registry[:wf].to_s}'"
+        @logger.warn "Could not load weather file from '#{@registry[:wf]}'"
       end
     end
 
@@ -79,9 +81,10 @@ class RunOpenStudioMeasures < OpenStudio::Workflow::Job
 
     # Save the OSM if the :debug option is true
     return nil unless @options[:debug]
-    @registry[:time_logger].start('Saving OSM') if @registry[:time_logger]
+
+    @registry[:time_logger]&.start('Saving OSM')
     osm_name = save_osm(@registry[:model], @registry[:root_dir])
-    @registry[:time_logger].stop('Saving OSM') if @registry[:time_logger]
+    @registry[:time_logger]&.stop('Saving OSM')
     @logger.debug "Saved model as #{osm_name}"
 
     nil

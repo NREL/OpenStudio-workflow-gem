@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -60,6 +62,7 @@ module OpenStudio
       #
       def register(key, &block)
         raise ArgumentError, 'block required' unless block_given?
+
         @items[key] = block
         @results_cache[key] = @items[key].call
       end
@@ -71,6 +74,7 @@ module OpenStudio
       #
       def get(key)
         return nil unless @items.key?(key)
+
         @results_cache[key]
       end
       alias [] get
@@ -83,9 +87,10 @@ module OpenStudio
       #
       def eval(key)
         return nil unless @items.key?(key)
+
         begin
           @items[key].call
-        rescue
+        rescue StandardError
           return nil
         end
         @results_cache[key] = @items[key].call

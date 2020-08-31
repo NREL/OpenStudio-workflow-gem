@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -60,6 +62,7 @@ module OpenStudio
           end
           weather_file = get_weather_file_from_osm(model, logger) if weather_file.nil?
           raise 'Could not locate the weather file in the filesystem. Please see the log' if weather_file == false
+
           logger.warn 'The weather file could not be determined. Please see the log for details' unless weather_file
           weather_file
         end
@@ -113,6 +116,7 @@ module OpenStudio
         #
         def get_weather_file_from_fs(directory, wf, wf_search_array, logger)
           raise "wf was defined as #{wf}. Please correct" unless wf
+
           weather_file = nil
           if Pathname.new(wf).absolute?
             weather_file = wf
@@ -120,6 +124,7 @@ module OpenStudio
             wf_search_array.each do |wf_dir|
               logger.warn "The path #{wf_dir} does not exist" unless File.exist? File.join(directory, wf_dir)
               next unless File.exist? File.join(directory, wf_dir)
+
               if Dir.entries(File.join(directory, wf_dir)).include? File.basename(wf)
                 weather_file = File.absolute_path(File.join(directory, wf_dir, wf))
                 break

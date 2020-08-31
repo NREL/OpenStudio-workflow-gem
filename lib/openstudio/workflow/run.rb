@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -83,7 +85,7 @@ module OpenStudio
       #
       # @param [String] osw_path the path to the OSW file to run. It is highly recommended that this be an absolute
       #   path, however if not it will be made absolute relative to the current working directory
-      # @param [Hash] user_options ({}) A set of user-specified options that are used to override default behaviors. 
+      # @param [Hash] user_options ({}) A set of user-specified options that are used to override default behaviors.
       # @option user_options [Hash] :cleanup Remove unneccessary files during post processing, overrides OSW option if set, defaults to true
       # @option user_options [Hash] :debug Print debugging messages, overrides OSW option if set, defaults to false
       # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
@@ -102,7 +104,7 @@ module OpenStudio
         @final_message = ''
         @current_state = nil
         @options = {}
-        
+
         # Registry is a large hash of objects that are populated during the run, the number of objects in the registry should be reduced over time, especially if the functionality can be added to the WorkflowJSON class
         # - analysis - the current OSA parsed as a Ruby Hash
         # - datapoint - the current OSD parsed as a Ruby Hash
@@ -122,7 +124,7 @@ module OpenStudio
         # - time_logger - logger for doing profiling - time to run each step will be captured in OSResult, deprecate
         # - wf - the path to the current weather file as a string, updated after each step
         # - workflow - the current OSW parsed as a Ruby Hash
-        # - workflow_json - the current WorkflowJSON object        
+        # - workflow_json - the current WorkflowJSON object
         @registry = Registry.new
 
         openstudio_2 = false
@@ -136,19 +138,19 @@ module OpenStudio
 
         # get the input osw
         @input_adapter = OpenStudio::Workflow::InputAdapter::Local.new(osw_path)
-        
+
         # DLM: need to check that we have correct permissions to all these paths
         @registry.register(:osw_path) { Pathname.new(@input_adapter.osw_path).realpath }
         @registry.register(:osw_dir) { Pathname.new(@input_adapter.osw_dir).realpath }
         @registry.register(:run_dir) { Pathname.new(@input_adapter.run_dir).cleanpath } # run dir might not yet exist, calling realpath will throw
-        
+
         # get info to set up logging first in case of failures later
         @options[:debug] = @input_adapter.debug(user_options, false)
         @options[:preserve_run_dir] = @input_adapter.preserve_run_dir(user_options, false)
         @options[:skip_expand_objects] = @input_adapter.skip_expand_objects(user_options, false)
         @options[:skip_energyplus_preprocess] = @input_adapter.skip_energyplus_preprocess(user_options, false)
         @options[:profile] = @input_adapter.profile(user_options, false)
-        
+
         # if running in osw dir, force preserve run dir
         if @registry[:osw_dir] == @registry[:run_dir]
           # force preserving the run directory
@@ -173,7 +175,7 @@ module OpenStudio
           @options[:targets] = user_options[:targets]
         else
           # don't create these files unless we want to use them
-          # DLM: TODO, make sure that run.log will be closed later 
+          # DLM: TODO, make sure that run.log will be closed later
           @options[:targets] = [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
         end
 
@@ -183,11 +185,11 @@ module OpenStudio
         # Initialize the MultiDelegator logger
         logger_level = @options[:debug] ? ::Logger::DEBUG : ::Logger::WARN
         @logger = ::Logger.new(MultiDelegator.delegate(:write, :close).to(*@options[:targets])) # * is the splat operator
-        @logger.level = logger_level 
+        @logger.level = logger_level
         @registry.register(:logger) { @logger }
-        
+
         @logger.info "openstudio_2 = #{@registry[:openstudio_2]}"
-        
+
         # get the output adapter
         default_output_adapter = OpenStudio::Workflow::OutputAdapter::Local.new(output_directory: @input_adapter.run_dir)
         @output_adapter = @input_adapter.output_adapter(user_options, default_output_adapter, @logger)
@@ -196,20 +198,20 @@ module OpenStudio
         default_jobs = OpenStudio::Workflow::Run.default_jobs
         @jobs = @input_adapter.jobs(user_options, default_jobs, @logger)
 
-        # get other run options out of user_options and into permanent options 
+        # get other run options out of user_options and into permanent options
         @options[:cleanup] = @input_adapter.cleanup(user_options, true)
-        @options[:energyplus_path] = @input_adapter.energyplus_path(user_options, nil) 
+        @options[:energyplus_path] = @input_adapter.energyplus_path(user_options, nil)
         @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
         @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
         @options[:fast] = @input_adapter.fast(user_options, false)
 
-        openstudio_dir = "unknown"
+        openstudio_dir = 'unknown'
         begin
           openstudio_dir = $OpenStudio_Dir
           if openstudio_dir.nil?
-            openstudio_dir = OpenStudio::getOpenStudioModuleDirectory.to_s
+            openstudio_dir = OpenStudio.getOpenStudioModuleDirectory.to_s
           end
-        rescue
+        rescue StandardError
         end
         @logger.info "openstudio_dir = #{openstudio_dir}"
 
@@ -228,7 +230,7 @@ module OpenStudio
         begin
           next_state
           while @current_state != :finished && @current_state != :errored
-            #sleep 2
+            # sleep 2
             step
           end
 
@@ -236,13 +238,19 @@ module OpenStudio
             @logger.info 'Finished workflow - communicating results and zipping files'
             @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
           end
-        rescue => e
+        rescue StandardError => e
           @logger.info "Error occurred during running with #{e.message}"
         ensure
           @logger.info 'Workflow complete'
 
+          # If we let the :reporting_measures step fail to continue with
+          # postprocess, we still want to report and error
+          if @final_message != ''
+            @current_state = :errored
+          end
+
           if @current_state == :errored
-            @registry[:workflow_json].setCompletedStatus('Fail') if @registry[:workflow_json]
+            @registry[:workflow_json]&.setCompletedStatus('Fail')
           else
             # completed status will already be set if workflow was halted
             if @registry[:workflow_json].completedStatus.empty?
@@ -256,20 +264,19 @@ module OpenStudio
           @registry[:log_targets].each(&:flush)
 
           # save workflow with results
-          if @registry[:workflow_json] and !@options[:fast]
+          if @registry[:workflow_json] && !@options[:fast]
             out_path = @registry[:workflow_json].absoluteOutPath
             @registry[:workflow_json].saveAs(out_path)
           end
 
           # Write out the TimeLogger to the filesystem
-          @registry[:time_logger].save(File.join(@registry[:run_dir], 'profile.json')) if @registry[:time_logger]
+          @registry[:time_logger]&.save(File.join(@registry[:run_dir], 'profile.json'))
 
           if @current_state == :errored
             @output_adapter.communicate_failure
           else
             @output_adapter.communicate_complete
           end
-
         end
 
         @current_state
@@ -289,7 +296,7 @@ module OpenStudio
           @output_adapter.communicate_transition("Returned from state #{@current_state}", :state)
         end
         next_state
-      rescue => e
+      rescue StandardError => e
         step_error("#{e.message}:#{e.backtrace.join("\n")}")
       end
 
@@ -298,11 +305,20 @@ module OpenStudio
       def step_error(*args)
         # Make sure to set the instance variable @error to true in order to stop the :step
         # event from being fired.
-        @final_message = "Found error in state '#{@current_state}' with message #{args}}"
-        @logger.error @final_message
 
-        # transition to an error state
-        @current_state = :errored
+        # Allow continuing anyways if it fails in reporting measures
+        if @current_state == :reporting_measures
+          @final_message = "Found error in state '#{@current_state}' with message #{args}}"
+          @logger.error @final_message
+
+          next_state
+        else
+          @final_message = "Found error in state '#{@current_state}' with message #{args}}"
+          @logger.error @final_message
+
+          # transition to an error state
+          @current_state = :errored
+        end
       end
 
       # Return the finished state and exit

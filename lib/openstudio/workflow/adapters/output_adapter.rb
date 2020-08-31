@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -58,7 +60,7 @@ module OpenStudio
       def communicate_measure_result(result, options = {})
         instance.communicate_measure_result result, options
       end
-      
+
       def communicate_measure_attributes(measure_attributes, options = {})
         instance.communicate_measure_attributes measure_attributes, options
       end
@@ -109,6 +111,7 @@ module OpenStudio
             if File.basename(file) =~ /seed|measures|weather/
               next
             end
+
             # skip x-large directory
             if File.size?(file)
               #next if File.size?(file) >= 15000000
@@ -117,6 +120,7 @@ module OpenStudio
           else
             next if File.extname(file) =~ /\.rb.*/
             next if File.extname(file) =~ /\.zip.*/
+
             # skip large non-osm/idf files
             if File.size(file)
               if File.size(file) >= 100000000
@@ -131,7 +135,7 @@ module OpenStudio
 
         zf = nil
         GC.start
-        
+
         File.chmod(0o664, zip_filename)
       end
 

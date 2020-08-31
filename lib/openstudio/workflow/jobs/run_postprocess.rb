@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -51,7 +53,7 @@ class RunPostprocess < OpenStudio::Workflow::Job
     @logger.debug "Calling #{__method__} in the #{self.class} class"
 
     # do not skip post_process if halted
-    
+
     if !@options[:fast]
       @logger.info 'Gathering reports'
       gather_reports(@registry[:run_dir], @registry[:root_dir], @registry[:workflow_json], @logger)

@@ -1,7 +1,9 @@
-require 'C:/Program Files/OpenStudio 1.14.0/Ruby/openstudio'
+# frozen_string_literal: true
+
+require '/home/julien/Software/Others/OS-build/Products/ruby/openstudio.so'
 
 failures = []
-Dir.glob(File.join(File.dirname(__FILE__), "*/**/*.osm")).each do |path|
+Dir.glob(File.join(File.dirname(__FILE__), '*/**/*.osm')).each do |path|
   puts path
   vt = OpenStudio::OSVersion::VersionTranslator.new
   m = vt.loadModel(path)
@@ -12,8 +14,8 @@ Dir.glob(File.join(File.dirname(__FILE__), "*/**/*.osm")).each do |path|
   end
 end
 
-if failures.size > 0
+if !failures.empty?
   puts
-  puts "Failures:"
+  puts 'Failures:'
   puts failures.join("\n")
 end

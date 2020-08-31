@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -46,7 +48,7 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
   def perform
     @logger.debug "Calling #{__method__} in the #{self.class} class"
-    
+
     # halted workflow is handled in apply_measures
 
     # Ensure that the directory is created (but it should already be at this point)
@@ -54,12 +56,12 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
     # save the pre-preprocess file
     if !@options[:skip_energyplus_preprocess]
-      File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') do |f| 
-        f << @registry[:model_idf].to_s 
+      File.open("#{@registry[:run_dir]}/pre-preprocess.idf", 'w') do |f|
+        f << @registry[:model_idf].to_s
         # make sure data is written to the disk one way or the other
         begin
           f.fsync
-        rescue
+        rescue StandardError
           f.flush
         end
       end
@@ -78,9 +80,9 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
     # Perform pre-processing on in.idf to capture logic in RunManager
     if !@options[:skip_energyplus_preprocess]
-      @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
+      @registry[:time_logger]&.start('Running EnergyPlus Preprocess')
       energyplus_preprocess(@registry[:model_idf], @logger)
-      @registry[:time_logger].start('Running EnergyPlus Preprocess') if @registry[:time_logger]
+      @registry[:time_logger]&.start('Running EnergyPlus Preprocess')
       @logger.info 'Finished preprocess job for EnergyPlus simulation'
     end
 
@@ -94,9 +96,10 @@ class RunPreprocess < OpenStudio::Workflow::Job
 
     # Save the generated IDF file if the :debug option is true
     return nil unless @options[:debug]
-    @registry[:time_logger].start('Saving IDF') if @registry[:time_logger]
+
+    @registry[:time_logger]&.start('Saving IDF')
     idf_name = save_idf(@registry[:model_idf], @registry[:root_dir])
-    @registry[:time_logger].stop('Saving IDF') if @registry[:time_logger]
+    @registry[:time_logger]&.stop('Saving IDF')
     @logger.debug "Saved IDF as #{idf_name}"
 
     nil

@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -47,14 +49,14 @@ module OpenStudio
           if File.exist? @osw_abs_path
             @workflow = ::JSON.parse(File.read(@osw_abs_path), symbolize_names: true)
           end
-          
+
           begin
             # configure the OSW with paths for loaded extension gems
             # Bundler.require is called in the CLI to load extension gems
-            @workflow = OpenStudio::Extension::configure_osw(@workflow)          
+            @workflow = OpenStudio::Extension.configure_osw(@workflow)
           rescue NameError => e
           end
-          
+
           @workflow_json = nil
           @run_options = nil
           if @workflow
@@ -65,10 +67,10 @@ module OpenStudio
             rescue NameError => e
               @workflow_json = WorkflowJSON_Shim.new(workflow, osw_dir)
             end
-            
-            begin 
+
+            begin
               @run_options = @workflow_json.runOptions
-            rescue
+            rescue StandardError
             end
           end
         end
@@ -77,6 +79,7 @@ module OpenStudio
         #
         def workflow
           raise "Could not read workflow from #{@osw_abs_path}" if @workflow.nil?
+
           @workflow
         end
 
@@ -99,17 +102,16 @@ module OpenStudio
           if @workflow_json
             begin
               result = @workflow_json.absoluteRunDir.to_s
-            rescue
+            rescue StandardError
             end
           end
           result
         end
-        
+
         def output_adapter(user_options, default, logger)
-          
           # user option trumps all others
           return user_options[:output_adapter] if user_options[:output_adapter]
-          
+
           # try to read from OSW
           if @run_options && !@run_options.empty?
             custom_adapter = @run_options.get.customOutputAdapter
@@ -117,14 +119,14 @@ module OpenStudio
               begin
                 custom_file_name = custom_adapter.get.customFileName
                 class_name = custom_adapter.get.className
-                options = ::JSON.parse(custom_adapter.get.options, :symbolize_names => true)
-                
+                options = ::JSON.parse(custom_adapter.get.options, symbolize_names: true)
+
                 # merge with user options, user options will replace options loaded from OSW
                 options.merge!(user_options)
-                  
+
                 # stick output_directory in options
                 options[:output_directory] = run_dir
-                
+
                 p = @workflow_json.findFile(custom_file_name)
                 if !p.empty?
                   load(p.get.to_s)
@@ -135,50 +137,47 @@ module OpenStudio
                   logger.error log_message
                   raise log_message
                 end
-              rescue
+              rescue StandardError
                 log_message = "Failed to load custom adapter '#{class_name}' from file '#{custom_file_name}'"
                 logger.error log_message
                 raise log_message
               end
             end
           end
-        
+
           return default
         end
-        
+
         def jobs(user_options, default, logger)
-          
           # user option trumps all others
           return user_options[:jobs] if user_options[:jobs]
 
           # try to read from OSW
           begin
-            #log_message = "Reading custom job states from OSW is not currently supported'"
-            #logger.info log_message
-          rescue
+            # log_message = "Reading custom job states from OSW is not currently supported'"
+            # logger.info log_message
+          rescue StandardError
           end
-        
+
           return default
         end
-        
+
         def debug(user_options, default)
-          
           # user option trumps all others
           return user_options[:debug] if user_options[:debug]
-          
+
           # try to read from OSW
           if @run_options && !@run_options.empty?
             return @run_options.get.debug
           end
-        
+
           return default
         end
-        
+
         def fast(user_options, default)
-        
           # user option trumps all others
           return user_options[:fast] if user_options[:fast]
-          
+
           # try to read from OSW
           if @run_options && !@run_options.empty?
             if @run_options.get.respond_to?(:fast)
@@ -189,28 +188,26 @@ module OpenStudio
               end
             end
           end
-          
+
           return default
         end
-        
+
         def preserve_run_dir(user_options, default)
-          
           # user option trumps all others
           return user_options[:preserve_run_dir] if user_options[:preserve_run_dir]
-          
+
           # try to read from OSW
           if @run_options && !@run_options.empty?
             return @run_options.get.preserveRunDir
           end
-        
+
           return default
         end
-        
+
         def skip_expand_objects(user_options, default)
-          
           # user option trumps all others
           return user_options[:skip_expand_objects] if user_options[:skip_expand_objects]
-           
+
           # try to read from OSW
           if @run_options && !@run_options.empty?
             if @run_options.get.respond_to?(:skipExpandObjects)
@@ -221,15 +218,14 @@ module OpenStudio
               end
             end
           end
-        
+
           return default
         end
-        
+
         def skip_energyplus_preprocess(user_options, default)
-          
           # user option trumps all others
           return user_options[:skip_energyplus_preprocess] if user_options[:skip_energyplus_preprocess]
-          
+
           # try to read from OSW
           if @run_options && !@run_options.empty?
             if @run_options.get.respond_to?(:skipEnergyPlusPreprocess)
@@ -240,60 +236,55 @@ module OpenStudio
               end
             end
           end
-        
+
           return default
         end
-        
+
         def cleanup(user_options, default)
-          
           # user option trumps all others
           return user_options[:cleanup] if user_options[:cleanup]
-          
+
           # try to read from OSW
           if @run_options && !@run_options.empty?
             return @run_options.get.cleanup
           end
-        
+
           return default
         end
-        
+
         def energyplus_path(user_options, default)
-          
           # user option trumps all others
           return user_options[:energyplus_path] if user_options[:energyplus_path]
-        
+
           return default
         end
-        
+
         def profile(user_options, default)
-          
           # user option trumps all others
           return user_options[:profile] if user_options[:profile]
-        
+
           return default
-        end   
-        
+        end
+
         def verify_osw(user_options, default)
-          
           # user option trumps all others
           return user_options[:verify_osw] if user_options[:verify_osw]
-        
+
           return default
-        end   
-        
+        end
+
         def weather_file(user_options, default)
-          
           # user option trumps all others
           return user_options[:weather_file] if user_options[:weather_file]
-          
+
           # try to read from OSW
           if !@workflow_json.weatherFile.empty?
             return @workflow_json.weatherFile.get.to_s
           end
-        
+
           return default
         end
-        
+
         # Get the associated OSD (datapoint) file from the local filesystem
         #
         def datapoint
@@ -317,7 +308,6 @@ module OpenStudio
           end
           return result
         end
-        
       end
     end
   end

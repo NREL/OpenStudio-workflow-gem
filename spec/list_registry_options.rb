@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -37,11 +39,10 @@ registry = []
 registry_register = []
 options = []
 
-Dir.glob(File.expand_path('../lib/', File.dirname(__FILE__)) + "/**/*.rb").each do |p|
-  
+Dir.glob(File.expand_path('../lib/', File.dirname(__FILE__)) + '/**/*.rb').each do |p|
   next if /run.rb/.match(p)
   next if /local.rb/.match(p)
-  
+
   File.open(p, 'r').each_line do |line|
     if md = /registry\[(.*?)\]/.match(line)
       registry << md[1]
@@ -53,13 +54,13 @@ Dir.glob(File.expand_path('../lib/', File.dirname(__FILE__)) + "/**/*.rb").each 
   end
 end
 
-puts "Registry:"
+puts 'Registry:'
 puts registry.uniq.sort
 puts
 
-puts "Registry Register:"
+puts 'Registry Register:'
 puts registry_register.uniq.sort
 puts
 
-puts "Options:"
+puts 'Options:'
 puts options.uniq.sort

@@ -1,8 +1,31 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Version 1.3.4 (Unreleased)
---------------------------
+Version 2.0.1
+-------------
+
+* Bug fix for idf.addObjects(object) to idf.addObject(object)
+
+Version 2.0.0
+-------------
+
+* Support Ruby > 2.5
+* Support OpenStudio 3.x
+
+Version 1.3.5
+-------------
+
+* Allow reporting to fail gracefully so HTML reports are returned Fixed [this](https://github.com/NREL/OpenStudio/issues/864).
+* Allow EMS:OutputVariable in reporting measure
+* Fixes [#93](https://github.com/NREL/OpenStudio-workflow-gem/issues/93) - Pass Model to the arguments method of ReportingMeasure
+* Update README
+* Remove CircleCI in favor of Jenkins
+* Update license and copyright
+* Improve speed by not loading REXML unless needed
+* Fix ChangeBuildingLocation test failure
+
+Version 1.3.4
+-------------
 * Remove support for Ruby 2.0
 * Update license
 

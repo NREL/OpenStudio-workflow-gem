@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -38,7 +40,6 @@ module OpenStudio
     module Util
       require 'openstudio/workflow/util/measure'
       require 'csv'
-      require 'rexml/document'
 
       # This module serves as a wrapper around various post-processing tasks used to manage outputs
       # @todo (rhorsey) ummmm. So some of this is pretty ugly. Since @dmacumber had ideas about this maybe he can figure
@@ -53,6 +54,7 @@ module OpenStudio
         #
         def load_sql_file(sql_file)
           return nil unless File.exist? sql_file
+
           OpenStudio::SqlFile.new(@sql_filename)
         end
 
@@ -74,12 +76,12 @@ module OpenStudio
           end
 
           logger.info 'Saving the result hash to file'
-          File.open("#{run_dir}/results.json", 'w') do |f| 
-            f << JSON.pretty_generate(results) 
+          File.open("#{run_dir}/results.json", 'w') do |f|
+            f << JSON.pretty_generate(results)
             # make sure data is written to the disk one way or the other
             begin
               f.fsync
-            rescue
+            rescue StandardError
               f.flush
             end
           end
@@ -136,7 +138,7 @@ module OpenStudio
         #
         def rename_hash_keys(hash, logger)
           # @todo should we log the name changes?
-          regex = /[|!@#\$%^&\*\(\)\{\}\\\[\];:'",<.>\/?\+=]+/
+          regex = %r{[|!@#\$%^&\*\(\)\{\}\\\[\];:'",<.>/?\+=]+}
 
           rename_keys = lambda do |h|
             if Hash === h
@@ -153,7 +155,6 @@ module OpenStudio
 
           rename_keys[hash]
         end
-
 
         # Save reports to a common directory
         #
@@ -174,12 +175,12 @@ module OpenStudio
             html = File.read(eplus_html)
             html = html.force_encoding('ISO-8859-1').encode('utf-8', replace: nil)
             logger.info "Saving EnergyPlus HTML report to #{directory}/reports/eplustbl.html"
-            File.open("#{directory}/reports/eplustbl.html", 'w') do |f| 
-              f << html 
+            File.open("#{directory}/reports/eplustbl.html", 'w') do |f|
+              f << html
               # make sure data is written to the disk one way or the other
               begin
                 f.fsync
-              rescue
+              rescue StandardError
                 f.flush
               end
             end
@@ -192,7 +193,9 @@ module OpenStudio
             measure_xml_path = File.absolute_path(File.join(File.dirname(report), '../../..', 'measures',
                                                             measure_dir_name, 'measure.xml'))
             logger.info "measure_xml_path: #{measure_xml_path}"
-            if File.exists? measure_xml_path
+            if File.exist? measure_xml_path
+              # REXML is slow, so we lazy load only as needed
+              require 'rexml/document'
               measure_xml = REXML::Document.new File.read(measure_xml_path)
               measure_class_name = OpenStudio.toUnderscoreCase(measure_xml.root.elements['class_name'].text)
             else
@@ -206,20 +209,17 @@ module OpenStudio
           end
 
           # Remove empty directories in run folder
-          Dir["#{run_dir}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - %w(. ..)).empty? }.each do |d|
+          Dir["#{run_dir}/*"].select { |d| File.directory? d }.select { |d| (Dir.entries(d) - ['.', '..']).empty? }.each do |d|
             logger.info "Removing empty directory #{d}"
             Dir.rmdir d
           end
         end
-
 
         # A general post-processing step which could be made significantly more modular
         #
         # @param [String] run_dir
         #
         def cleanup(run_dir, directory, logger)
-
-
           paths_to_rm = []
           # paths_to_rm << Pathname.glob("#{run_dir}/*.osm")
           # paths_to_rm << Pathname.glob("#{run_dir}/*.idf") # keep the idfs
@@ -228,8 +228,8 @@ module OpenStudio
           # paths_to_rm << Pathname.glob("#{run_dir}/*.eso")
           paths_to_rm << Pathname.glob("#{run_dir}/*.mtr")
           paths_to_rm << Pathname.glob("#{run_dir}/*.epw")
-          #paths_to_rm << Pathname.glob("#{run_dir}/*.mtd")
-          #paths_to_rm << Pathname.glob("#{run_dir}/*.rdd")
+          # paths_to_rm << Pathname.glob("#{run_dir}/*.mtd")
+          # paths_to_rm << Pathname.glob("#{run_dir}/*.rdd")
           paths_to_rm.each { |p| FileUtils.rm_rf(p) }
         end
       end

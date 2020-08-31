@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -57,7 +59,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
     @logger.debug 'RunPostProcess Retrieving datapoint and problem'
 
     # halted workflow is handled in apply_measures
-    
+
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
 
@@ -68,6 +70,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
         @logger.debug "Attempting to load #{osm_path}"
         @registry.register(:model) { load_osm('.', osm_path) }
         raise "Unable to load #{osm_path}" unless @registry[:model]
+
         @logger.debug "Successfully loaded #{osm_path}"
       end
       if @registry[:model_idf].nil?
@@ -75,23 +78,24 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
         @logger.debug "Attempting to load #{idf_path}"
         @registry.register(:model_idf) { load_idf(idf_path, @logger) }
         raise "Unable to load #{idf_path}" unless @registry[:model_idf]
+
         @logger.debug "Successfully loaded #{idf_path}"
       end
       if @registry[:sql].nil?
         sql_path = File.absolute_path(File.join(@registry[:run_dir], 'eplusout.sql'))
-        if File.exists?(sql_path)
+        if File.exist?(sql_path)
           @registry.register(:sql) { sql_path }
           @logger.debug "Registered the sql filepath as #{@registry[:sql]}"
         end
-        #raise "Unable to load #{sql_path}" unless @registry[:sql]
+        # raise "Unable to load #{sql_path}" unless @registry[:sql]
       end
       if @registry[:wf].nil?
         epw_path = File.absolute_path(File.join(@registry[:run_dir], 'in.epw'))
-        if File.exists?(epw_path)
+        if File.exist?(epw_path)
           @registry.register(:wf) { epw_path }
           @logger.debug "Registered the wf filepath as #{@registry[:wf]}"
         end
-        #raise "Unable to load #{epw_path}" unless @registry[:wf]
+        # raise "Unable to load #{epw_path}" unless @registry[:wf]
       end
     end
 

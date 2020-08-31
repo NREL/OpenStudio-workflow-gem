@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -53,7 +55,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     @logger.info "Calling #{__method__} in the #{self.class} class"
 
     # do not skip initialization if halted
-    
+
     # Communicate that the workflow has been started
     @logger.debug 'Registering that the workflow has started with the adapter'
     @output_adapter.communicate_started
@@ -62,6 +64,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     # DLM: this key is the raw JSON object, it is deprecated and should not be used, use :workflow_json instead
     @registry.register(:workflow) { @input_adapter.workflow }
     raise 'Specified workflow was nil' unless @registry[:workflow]
+
     @logger.debug 'Retrieved the workflow from the adapter'
 
     @registry.register(:osw_dir) { @input_adapter.osw_dir }
@@ -84,7 +87,7 @@ class RunInitialization < OpenStudio::Workflow::Job
 
     @registry.register(:root_dir) { workflow_json.absoluteRootDir }
     @logger.debug "The root_dir for the datapoint is #{@registry[:root_dir]}"
-    
+
     generated_files_dir = "#{@registry[:root_dir]}/generated_files"
     if File.exist?(generated_files_dir)
       @logger.debug "Removing existing generated files directory: #{generated_files_dir}"
@@ -92,7 +95,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     end
     @logger.debug "Creating generated files directory: #{generated_files_dir}"
     FileUtils.mkdir_p(generated_files_dir)
-    
+
     # insert the generated files directory in the first spot so all generated ExternalFiles go here
     file_paths = @registry[:workflow_json].filePaths
     @registry[:workflow_json].resetFilePaths
@@ -100,7 +103,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     file_paths.each do |file_path|
       @registry[:workflow_json].addFilePath(file_path)
     end
-    
+
     reports_dir = "#{@registry[:root_dir]}/reports"
     if File.exist?(reports_dir)
       @logger.debug "Removing existing reports directory: #{reports_dir}"
@@ -112,7 +115,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     @registry[:runner].setDatapoint(@registry[:datapoint])
     @registry[:runner].setAnalysis(@registry[:analysis])
     @logger.debug 'Initialized runner'
-    
+
     # Validate the OSW measures if the flag is set to true, (the default state)
     if @options[:verify_osw]
       @logger.info 'Attempting to validate the measure workflow'
@@ -129,6 +132,7 @@ class RunInitialization < OpenStudio::Workflow::Job
       if model_full_path.empty?
         raise "Seed model #{model_path.get} specified in OSW cannot be found"
       end
+
       model_full_path = model_full_path.get
 
       if File.extname(model_full_path.to_s) == '.idf'
@@ -139,10 +143,10 @@ class RunInitialization < OpenStudio::Workflow::Job
       end
     else
       @registry.register(:model) { OpenStudio::Model::Model.new }
-      
+
       # add default objects to the model
       begin
-        OpenStudio::Model::initializeModelObjects(@registry[:model])
+        OpenStudio::Model.initializeModelObjects(@registry[:model])
       rescue NameError
         @registry[:model].getBuilding
         @registry[:model].getFacility
@@ -157,13 +161,11 @@ class RunInitialization < OpenStudio::Workflow::Job
     end
 
     if @registry[:openstudio_2]
-      if @registry[:model]
-        @registry[:model].setWorkflowJSON(workflow_json.clone)
-      end
+      @registry[:model]&.setWorkflowJSON(workflow_json.clone)
     end
-    
+
     # DLM: TODO, load weather_file from options so it can be overriden by user_options
-    
+
     # Find the weather file, should it exist and be findable
     @logger.debug 'Getting the initial weather file'
     weather_path = workflow_json.weatherFile
@@ -189,6 +191,7 @@ class RunInitialization < OpenStudio::Workflow::Job
       if weather_full_path.empty?
         raise "Weather file '#{weather_path}' specified but cannot be found"
       end
+
       weather_full_path = weather_full_path.get
 
       @registry.register(:wf) { weather_full_path.to_s }
@@ -197,7 +200,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     @logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
 
     workflow_json.start
-    
+
     nil
   end
 end

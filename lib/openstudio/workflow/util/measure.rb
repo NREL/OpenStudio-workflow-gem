@@ -76,6 +76,11 @@ module OpenStudio
 
             measure_dir_name = step.measureDirName
 
+            pn = Pathname.new(measure_dir_name)
+            if pn.exist?
+              logger.warn "measure_dir_name should not be a full path. It should be the measure directory name containing the measure.rb file."
+            end
+
             measure_dir = workflow_json.findMeasure(measure_dir_name)
             fail "Cannot find #{measure_dir_name}" if measure_dir.empty?
             measure_dir = measure_dir.get

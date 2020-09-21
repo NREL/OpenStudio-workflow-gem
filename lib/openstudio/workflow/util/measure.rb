@@ -77,7 +77,7 @@ module OpenStudio
             measure_dir_name = step.measureDirName
 
             pn = Pathname.new(measure_dir_name)
-            if pn.exist?
+            if pn.absolute?
               logger.warn "measure_dir_name should not be a full path. It should be a relative path to the measure directory or the name of the measure directory containing the measure.rb file."
             end
 

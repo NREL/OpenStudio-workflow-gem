@@ -1,0 +1,12 @@
+{
+    "weather_file": "USA_CO_Denver.Intl.AP.725650_TMY3.epw",
+    "seed_file": "office.osm",
+    "steps": [
+        {
+            "measure_dir_name":"/OpenStudio-workflow-gem/spec/files/full_measure_dir_osw/measures/Rotate Building Relative to Current Orientation",
+            "arguments": {
+                "relative_building_rotation": 45
+            }
+        }
+    ]
+}

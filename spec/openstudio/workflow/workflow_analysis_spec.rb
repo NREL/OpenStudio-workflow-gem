@@ -652,10 +652,9 @@ describe 'OSW Integration' do
 
     expect(osw_out[:steps][0]).to_not be_nil
 
-    if osw_out[:steps][0][:measure_dir_name] == "/OpenStudio-workflow-gem/spec/files/full_measure_dir_osw/measures/"
+    if osw_out[:steps][0][:measure_dir_name] == '/OpenStudio-workflow-gem/spec/files/full_measure_dir_osw/measures/'
       expect(osw_out[:steps][0][:result][:step_warnings]).to eq 'measure_dir_name should not be a full path. It should be a relative path to the measure directory or the name of the measure directory containing the measure.rb file.'
     end
-
   end
 
   it 'should error out while copying html reports' do

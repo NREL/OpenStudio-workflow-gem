@@ -41,7 +41,7 @@ desc 'Transition IDF Files'
 task :transition_idf do
   lst_path = File.join(Dir.pwd, 'IdfFilesToTransition.lst')
   File.open(lst_path, 'w') do |file|
-    Dir.glob("**/*.idf").each do |idf|
+    Dir.glob('**/*.idf').each do |idf|
       file.puts(File.join(Dir.pwd, idf))
     end
   end

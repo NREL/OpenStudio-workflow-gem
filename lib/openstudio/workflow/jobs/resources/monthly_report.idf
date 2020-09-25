@@ -1,3 +1,5 @@
+Version,9.4;
+
 Output:Table:Monthly,
   Building Energy Performance - Electricity,  !- Name
     2,                       !- Digits After Decimal

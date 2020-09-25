@@ -1,6 +1,11 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version 2.1.0
+-------------
+* Support for EnergyPlus 9.4. This version will not work with prior versions of EnergyPlus.
+* Add warning when paths are not relative
+
 Version 2.0.1
 -------------
 

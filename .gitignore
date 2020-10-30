@@ -33,3 +33,4 @@ run.log
 reports
 */**/out*.osw
 .ruby-version
+IdfFilesToTransition.lst

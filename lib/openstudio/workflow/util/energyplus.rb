@@ -239,13 +239,13 @@ module OpenStudio
           end
 
           # These are needed for the calibration report
-          new_objects << 'Output:Meter:MeterFileOnly,Gas:Facility,Daily;'
+          new_objects << 'Output:Meter:MeterFileOnly,NaturalGas:Facility,Daily;'
           new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Timestep;'
           new_objects << 'Output:Meter:MeterFileOnly,Electricity:Facility,Daily;'
 
           # Always add in the timestep facility meters
           new_objects << 'Output:Meter,Electricity:Facility,Timestep;'
-          new_objects << 'Output:Meter,Gas:Facility,Timestep;'
+          new_objects << 'Output:Meter,NaturalGas:Facility,Timestep;'
           new_objects << 'Output:Meter,DistrictCooling:Facility,Timestep;'
           new_objects << 'Output:Meter,DistrictHeating:Facility,Timestep;'
 
@@ -384,17 +384,17 @@ module OpenStudio
             Output:Table:Monthly,
               Building Energy Performance - Natural Gas,  !- Name
                 2,                       !- Digits After Decimal
-                InteriorEquipment:Gas,   !- Variable or Meter 1 Name
+                InteriorEquipment:NaturalGas,   !- Variable or Meter 1 Name
                 SumOrAverage,            !- Aggregation Type for Variable or Meter 1
-                ExteriorEquipment:Gas,   !- Variable or Meter 2 Name
+                ExteriorEquipment:NaturalGas,   !- Variable or Meter 2 Name
                 SumOrAverage,            !- Aggregation Type for Variable or Meter 2
-                Heating:Gas,             !- Variable or Meter 3 Name
+                Heating:NaturalGas,             !- Variable or Meter 3 Name
                 SumOrAverage,            !- Aggregation Type for Variable or Meter 3
-                Cooling:Gas,             !- Variable or Meter 4 Name
+                Cooling:NaturalGas,             !- Variable or Meter 4 Name
                 SumOrAverage,            !- Aggregation Type for Variable or Meter 4
-                WaterSystems:Gas,        !- Variable or Meter 5 Name
+                WaterSystems:NaturalGas,        !- Variable or Meter 5 Name
                 SumOrAverage,            !- Aggregation Type for Variable or Meter 5
-                Cogeneration:Gas,        !- Variable or Meter 6 Name
+                Cogeneration:NaturalGas,        !- Variable or Meter 6 Name
                 SumOrAverage;            !- Aggregation Type for Variable or Meter 6
 
             Output:Table:Monthly,
@@ -492,19 +492,19 @@ module OpenStudio
             Output:Table:Monthly,
               Building Energy Performance - Natural Gas Peak Demand,  !- Name
                 2,                       !- Digits After Decimal
-                Gas:Facility,  !- Variable or Meter 1 Name
+                NaturalGas:Facility,  !- Variable or Meter 1 Name
                 Maximum,            !- Aggregation Type for Variable or Meter 1
-                InteriorEquipment:Gas,   !- Variable or Meter 1 Name
+                InteriorEquipment:NaturalGas,   !- Variable or Meter 1 Name
                 ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 1
-                ExteriorEquipment:Gas,   !- Variable or Meter 2 Name
+                ExteriorEquipment:NaturalGas,   !- Variable or Meter 2 Name
                 ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 2
-                Heating:Gas,             !- Variable or Meter 3 Name
+                Heating:NaturalGas,             !- Variable or Meter 3 Name
                 ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 3
-                Cooling:Gas,             !- Variable or Meter 4 Name
+                Cooling:NaturalGas,             !- Variable or Meter 4 Name
                 ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 4
-                WaterSystems:Gas,        !- Variable or Meter 5 Name
+                WaterSystems:NaturalGas,        !- Variable or Meter 5 Name
                 ValueWhenMaximumOrMinimum,            !- Aggregation Type for Variable or Meter 5
-                Cogeneration:Gas,        !- Variable or Meter 6 Name
+                Cogeneration:NaturalGas,        !- Variable or Meter 6 Name
                 ValueWhenMaximumOrMinimum;            !- Aggregation Type for Variable or Meter 6
 
             Output:Table:Monthly,

@@ -624,6 +624,39 @@ describe 'OSW Integration' do
     expect(File.exist?(zip_path)).to eq true
   end
 
+  it 'should raise error when full measure directory path specified' do
+    osw_path = File.expand_path('../../files/full_measure_dir_osw/full_measure_dir.osw', __dir__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    run_options = {
+      debug: true
+    }
+
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :errored
+    expect(File.exist?(osw_out_path)).to eq true
+
+    osw_out = nil
+    File.open(osw_out_path, 'r') do |file|
+      osw_out = JSON.parse(file.read, symbolize_names: true)
+    end
+
+    expect(osw_out).to be_instance_of Hash
+    expect(osw_out[:completed_status]).to eq 'Fail'
+    expect(osw_out[:steps]).to be_instance_of Array
+    expect(osw_out[:steps].size).to be == 1
+
+    expect(osw_out[:steps][0]).to_not be_nil
+
+    if osw_out[:steps][0][:measure_dir_name] == '/OpenStudio-workflow-gem/spec/files/full_measure_dir_osw/measures/'
+      expect(osw_out[:steps][0][:result][:step_warnings]).to eq 'measure_dir_name should not be a full path. It should be a relative path to the measure directory or the name of the measure directory containing the measure.rb file.'
+    end
+  end
+
   it 'should error out while copying html reports' do
     osw_path = File.expand_path('../../files/reporting_measure_raise/reporting_measure_raise.osw', __dir__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')

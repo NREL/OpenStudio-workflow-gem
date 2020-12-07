@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'ci_reporter_rspec', '~> 1.0.0'
   s.add_development_dependency 'coveralls', '~> 0.8.21'
   s.add_development_dependency 'json-schema', '~> 2.8.0'
+  s.add_development_dependency 'openstudio-standards', '~> 0.2.12'
   s.add_development_dependency 'parallel', '~> 1.19.1'
   s.add_development_dependency 'public_suffix', '~> 4.0.3'
   s.add_development_dependency 'rainbow', '~> 3.0.0'

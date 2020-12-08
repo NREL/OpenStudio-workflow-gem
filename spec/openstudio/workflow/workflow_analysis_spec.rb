@@ -1175,4 +1175,27 @@ describe 'OSW Integration' do
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.run).to eq :finished
   end
+  
+    it 'should fail to run reporting measures without UrbanOpt and with no idf' do
+    osw_path = File.join(__FILE__, './../../../files/urbanopt/data_point.osw')
+    # run post process
+    run_options = {
+      debug: true,
+      preserve_run_dir: true,
+      jobs: [
+        { state: :queued, next_state: :initialization, options: { initial: true } },
+        { state: :initialization, next_state: :reporting_measures, job: :RunInitialization,
+          file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
+        { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
+          file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
+        { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+          file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+        { state: :finished },
+        { state: :errored }
+      ]
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :errored
+  end
 end

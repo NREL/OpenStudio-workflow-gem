@@ -203,7 +203,7 @@ def create_results()
     #map each fuel type in EndUseFuelTypes to a specific FuelTypes
     fuel_type_map = {  
       OpenStudio::EndUseFuelType.new("Electricity").value => OpenStudio::FuelType.new("Electricity"),
-      OpenStudio::EndUseFuelType.new("Gas").value => OpenStudio::FuelType.new("Gas"),
+      OpenStudio::EndUseFuelType.new("NaturalGas").value => OpenStudio::FuelType.new("NaturalGas"),
       OpenStudio::EndUseFuelType.new("AdditionalFuel").value => OpenStudio::FuelType.new("Diesel"), #TODO add other fuel types
       OpenStudio::EndUseFuelType.new("DistrictCooling").value => OpenStudio::FuelType.new("DistrictCooling"),
       OpenStudio::EndUseFuelType.new("DistrictHeating").value => OpenStudio::FuelType.new("DistrictHeating"),
@@ -213,7 +213,7 @@ def create_results()
     #map each fuel type in EndUseFuelTypes to a specific FuelTypes
     fuel_type_alias_map = {  
       OpenStudio::EndUseFuelType.new("Electricity").value => "electricity",
-      OpenStudio::EndUseFuelType.new("Gas").value => "gas",
+      OpenStudio::EndUseFuelType.new("NaturalGas").value => "NaturalGas",
       OpenStudio::EndUseFuelType.new("AdditionalFuel").value => "other_energy",
       OpenStudio::EndUseFuelType.new("DistrictCooling").value => "district_cooling",
       OpenStudio::EndUseFuelType.new("DistrictHeating").value => "district_heating",
@@ -508,11 +508,11 @@ def create_results()
         utility_cost_elems << OpenStudio::Attribute.new("electricity_demand_charge", electric_demand_charge, "dollars")
 
         #gas
-        gas = @sql.annualTotalCost(OpenStudio::FuelType.new("Gas"))
+        gas = @sql.annualTotalCost(OpenStudio::FuelType.new("NaturalGas"))
         if gas.is_initialized
-          annual_utility_cost_map[OpenStudio::EndUseFuelType.new("Gas").valueName] = gas.get
+          annual_utility_cost_map[OpenStudio::EndUseFuelType.new("NaturalGas").valueName] = gas.get
         else
-          annual_utility_cost_map[OpenStudio::EndUseFuelType.new("Gas").valueName] = 0.0
+          annual_utility_cost_map[OpenStudio::EndUseFuelType.new("NaturalGas").valueName] = 0.0
         end
         
         #district_cooling
@@ -573,7 +573,7 @@ def create_results()
     
         # export remaining costs in the correct order
         # gas
-        utility_cost_elems << OpenStudio::Attribute.new("gas", annual_utility_cost_map[OpenStudio::EndUseFuelType.new("Gas").valueName], "dollars")
+        utility_cost_elems << OpenStudio::Attribute.new("gas", annual_utility_cost_map[OpenStudio::EndUseFuelType.new("NaturalGas").valueName], "dollars")
         # other_energy
         utility_cost_elems << OpenStudio::Attribute.new("other_energy", annual_utility_cost_map[OpenStudio::EndUseFuelType.new("AdditionalFuel").valueName], "dollars")        
         # district_cooling

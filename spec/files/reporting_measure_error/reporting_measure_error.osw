@@ -10,9 +10,6 @@
         },
         {
             "measure_dir_name": "openstudio_results"
-        },
-        {
-            "measure_dir_name": "Xcel EDA Reporting and QAQC"
         }
     ]
 }

@@ -1,0 +1,50 @@
+{
+  "seed_file": "",
+  "weather_file": "",
+  "file_format_version": "0.0.1",
+  "osa_id": "42751ae1-b50b-4eeb-a94b-e6ea05a5e5ef",
+  "osd_id": "d4180b9d-721f-4e68-b365-2be121458e3b",
+  "created_at": "2020-12-08 00:59:09 +0000",
+  "measure_paths": [
+    "../measures"
+  ],
+  "file_paths": [
+    "../weather",
+    "../seeds",
+    "../seed"
+  ],
+  "run_directory": "./run",
+  "steps": [
+    {
+      "measure_dir_name": "urban_opt_report",
+      "arguments": {
+        "scenario_name": "highefficiency_scenario",
+        "feature_id": 1,
+        "output_name": "electricity"
+      },
+      "name": "urban_opt_report",
+      "description": "UrbanOpt Report",
+      "measure_id": "744899a6-9da8-4888-870b-40bca78f505b",
+      "version_id": "aa87fa65-ce1a-4717-8791-56471a32563c",
+      "taxonomy": "Reporting.QAQC",
+      "measure_type": "ModelMeasure"
+    },
+    {
+      "measure_dir_name": "urban_opt_report",
+      "arguments": {
+        "scenario_name": "highefficiency_scenario",
+        "feature_id": 1,
+        "output_name": "natural_gas"
+      },
+      "name": "urban_opt_report_2",
+      "description": "UrbanOpt Report",
+      "measure_id": "744899a6-9da8-4888-870b-40bca78f505b",
+      "version_id": "aa87fa65-ce1a-4717-8791-56471a32563c",
+      "taxonomy": "Reporting.QAQC",
+      "measure_type": "ModelMeasure"
+    }
+  ],
+  "name": "API Generated 2020-12-08 00:58:59 +0000",
+  "description": "",
+  "urbanopt": true
+}

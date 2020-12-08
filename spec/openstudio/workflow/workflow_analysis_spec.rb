@@ -1152,4 +1152,55 @@ describe 'OSW Integration' do
     # out.osw not saved in fast mode
     expect(File.exist?(osw_out_path)).to eq false
   end
+  
+  it 'should run reporting measures for UrbanOpt with no idf' do
+    osw_path = File.join(__FILE__, './../../../files/urbanopt/data_point.osw')
+    # run post process
+    run_options = {
+      debug: true,
+      preserve_run_dir: false,
+      jobs: [
+        { state: :queued, next_state: :initialization, options: { initial: true } },
+        { state: :initialization, next_state: :reporting_measures, job: :RunInitialization,
+          file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
+        { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
+          file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
+        { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+          file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+        { state: :finished },
+        { state: :errored }
+      ]
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+  end
+
+  it 'should run reporting measures without UrbanOpt and with no idf with a fail' do
+    osw_path = File.join(__FILE__, './../../../files/urbanopt/data_point_no_urbanopt.osw')
+    run_dir = File.join(__FILE__, './../../../files/urbanopt/run')
+    #osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    FileUtils.rm_rf(run_dir) # if File.exist?(osw_out_path)
+    #expect(File.exist?(osw_out_path)).to eq false
+    
+    # run post process
+    run_options = {
+      debug: true,
+      preserve_run_dir: false,
+      jobs: [
+        { state: :queued, next_state: :initialization, options: { initial: true } },
+        { state: :initialization, next_state: :reporting_measures, job: :RunInitialization,
+          file: 'openstudio/workflow/jobs/run_initialization.rb', options: {} },
+        { state: :reporting_measures, next_state: :postprocess, job: :RunReportingMeasures,
+          file: 'openstudio/workflow/jobs/run_reporting_measures.rb', options: {} },
+        { state: :postprocess, next_state: :finished, job: :RunPostprocess,
+          file: 'openstudio/workflow/jobs/run_postprocess.rb', options: {} },
+        { state: :finished },
+        { state: :errored }
+      ]
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :errored
+  end
 end

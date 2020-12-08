@@ -62,9 +62,23 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
 
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
+    
+    #get OSA[:urbanopt]  #BLB should prob be sent in as cli arg and used in options but for now just do this
+    @registry.register(:urbanopt) { false }
+    if @registry[:osw_path]
+      workflow = nil
+      if File.exist? @registry[:osw_path]
+        workflow = ::JSON.parse(File.read(@registry[:osw_path]), symbolize_names: true)
+        if !workflow.nil?
+          if !workflow[:urbanopt].nil?
+            @registry.register(:urbanopt) { workflow[:urbanopt] }
+          end
+        end
+      end    
+    end
 
     # Load simulation files as required
-    unless @registry[:runner].halted
+    unless @registry[:runner].halted || @registry[:urbanopt]
       if @registry[:model].nil?
         osm_path = File.absolute_path(File.join(@registry[:run_dir], 'in.osm'))
         @logger.debug "Attempting to load #{osm_path}"

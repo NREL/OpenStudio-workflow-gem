@@ -1175,11 +1175,12 @@ describe 'OSW Integration' do
     expect(k).to be_instance_of OpenStudio::Workflow::Run
     expect(k.run).to eq :finished
   end
-  
-    it 'should fail to run reporting measures without UrbanOpt and with no idf' do
-    osw_out_path = File.join(__FILE__, './../../../files/urbanopt/run')
+
+  it 'should run reporting measures without UrbanOpt and with no idf with a fail' do
+    osw_path = File.join(__FILE__, './../../../files/urbanopt/data_point_no_urbanopt.osw')
+    run_dir = File.join(__FILE__, './../../../files/urbanopt/run')
     #osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
-    FileUtils.rm_rf(osw_out_path) # if File.exist?(osw_out_path)
+    FileUtils.rm_rf(run_dir) # if File.exist?(osw_out_path)
     #expect(File.exist?(osw_out_path)).to eq false
     
     # run post process

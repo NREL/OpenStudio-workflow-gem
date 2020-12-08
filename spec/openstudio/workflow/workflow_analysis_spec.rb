@@ -1177,10 +1177,10 @@ describe 'OSW Integration' do
   end
   
     it 'should fail to run reporting measures without UrbanOpt and with no idf' do
-    osw_path = File.join(__FILE__, './../../../files/urbanopt/data_point.osw')
-    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
-    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
-    expect(File.exist?(osw_out_path)).to eq false
+    osw_out_path = File.join(__FILE__, './../../../files/urbanopt/run')
+    #osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    FileUtils.rm_rf(osw_out_path) # if File.exist?(osw_out_path)
+    #expect(File.exist?(osw_out_path)).to eq false
     
     # run post process
     run_options = {

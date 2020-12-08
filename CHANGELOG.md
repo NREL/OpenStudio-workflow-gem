@@ -1,6 +1,11 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version 2.1.1
+-------------
+* Add support for URBANopt Workflow
+* Update reporting measure in tests
+
 Version 2.1.0
 -------------
 * Support for EnergyPlus 9.4. This version will not work with prior versions of EnergyPlus.

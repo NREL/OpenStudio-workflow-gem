@@ -334,7 +334,7 @@ module OpenStudio
 
             #-BLB python test
             #measure_path = measure.primaryRubyScriptPath
-            measure_path = 'C:/Projects/OS-workflow-gem-python/spec/files/python_measure/measures/PythonMeasure/measure.py'
+            measure_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/measure.py"
             fail "Measure does not have a primary ruby script specified" if measure_path.empty?
             #measure_path = measure_path.get
             fail "#{measure_path} file does not exist" unless File.exist?(measure_path.to_s)
@@ -349,7 +349,8 @@ module OpenStudio
               PyCall.import_module('openstudio')
               logger.debug "import sys"
               sys = PyCall.import_module('sys')
-              sys.path.insert(0, "C:\\Projects\\OS-workflow-gem-python\\spec\\files\\python_measure\\measures\\PythonMeasure")
+              python_inclue_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/"              
+              sys.path.insert(0, python_include_path)
               logger.debug "sys.path: #{print sys.path}"
               #pyfrom 'measure', import: 'PythonMeasureName'
               pyimport 'measure', as: :PythonMeasureName

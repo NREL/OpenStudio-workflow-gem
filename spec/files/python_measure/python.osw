@@ -1,0 +1,17 @@
+{
+	"weather_file": "srrl_2013_amy.epw",
+	"seed_file": null,
+	"steps": [
+		{
+			"measure_dir_name": "PythonMeasure",
+			"arguments": {}
+		}
+	],
+  "run_options": {
+    "preserve_run_dir": false,
+    "fast": true,
+    "skip_expand_objects": true,
+    "skip_energyplus_preprocess": true,
+    "cleanup": false
+  }
+}

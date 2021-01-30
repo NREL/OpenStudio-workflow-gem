@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<measure>
+  <schema_version>3.0</schema_version>
+  <name>python_measure_name</name>
+  <uid>07a76483-233f-4be7-8f94-d1187bd3c33d</uid>
+  <version_id>b87a00cb-2445-4f0c-b60b-231e97a8f5d8</version_id>
+  <version_modified>20210129T220012Z</version_modified>
+  <xml_checksum>D8922A73</xml_checksum>
+  <class_name>PythonMeasureName</class_name>
+  <display_name>PythonMeasureName</display_name>
+  <description>DESCRIPTION_TEXT</description>
+  <modeler_description>MODELER_DESCRIPTION_TEXT</modeler_description>
+  <arguments>
+    <argument>
+      <name>example_arg</name>
+      <display_name>example argument</display_name>
+      <description>This is a placeholder for an argument</description>
+      <type>String</type>
+      <units></units>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+      <default_value></default_value>
+      <min_value></min_value>
+      <max_value></max_value>
+    </argument>
+  </arguments>
+  <outputs />
+  <provenances />
+  <tags>
+    <tag>Whole Building.Space Types</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Measure Type</name>
+      <value>ModelMeasure</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>Apply Measure Now</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>OpenStudio Application</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>Parametric Analysis Tool</value>
+      <datatype>string</datatype>
+    </attribute>
+  </attributes>
+  <files>
+    <file>
+      <filename>example_model.osm</filename>
+      <filetype>osm</filetype>
+      <usage_type>test</usage_type>
+      <checksum>53D14E69</checksum>
+    </file>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>3.0.0</identifier>
+        <min_compatible>3.0.0</min_compatible>
+      </version>
+      <filename>measure.py</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>02B35885</checksum>
+    </file>
+    <file>
+      <filename>model_measure_test.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>AE4514CA</checksum>
+    </file>
+  </files>
+</measure>

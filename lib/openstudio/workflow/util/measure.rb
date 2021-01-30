@@ -32,7 +32,8 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # *******************************************************************************
-
+require 'pycall/import'
+include PyCall::Import
 module OpenStudio
   module Workflow
     module Util
@@ -331,9 +332,11 @@ module OpenStudio
             class_name = measure.className
             measure_type = measure.measureType
 
-            measure_path = measure.primaryRubyScriptPath
+            #-BLB python test
+            #measure_path = measure.primaryRubyScriptPath
+            measure_path = 'C:/Projects/OS-workflow-gem-python/spec/files/python_measure/measures/PythonMeasure/measure.py'
             fail "Measure does not have a primary ruby script specified" if measure_path.empty?
-            measure_path = measure_path.get
+            #measure_path = measure_path.get
             fail "#{measure_path} file does not exist" unless File.exist?(measure_path.to_s)
 
             logger.debug "Loading Measure from #{measure_path}"
@@ -341,7 +344,15 @@ module OpenStudio
             measure_object = nil
             result = nil
             begin
-              load measure_path.to_s
+              #load measure_path.to_s
+              logger.debug "import openstudio"
+              PyCall.import_module('openstudio')
+              logger.debug "import sys"
+              sys = PyCall.import_module('sys')
+              sys.path.insert(0, "C:\\Projects\\OS-workflow-gem-python\\spec\\files\\python_measure\\measures\\PythonMeasure")
+              logger.debug "sys.path: #{print sys.path}"
+              #pyfrom 'measure', import: 'PythonMeasureName'
+              pyimport 'measure', as: :PythonMeasureName
               measure_object = Object.const_get(class_name).new
             rescue => e
 

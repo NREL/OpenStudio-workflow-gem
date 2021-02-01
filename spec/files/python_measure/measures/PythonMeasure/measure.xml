@@ -32,7 +32,7 @@
   <attributes>
     <attribute>
       <name>Measure Type</name>
-      <value>ModelMeasure</value>
+      <value>PythonMeasure</value>
       <datatype>string</datatype>
     </attribute>
     <attribute>

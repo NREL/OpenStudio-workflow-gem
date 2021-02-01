@@ -172,6 +172,8 @@ module OpenStudio
                 fail "EnergyPlus measure #{measure_dir} called after Energyplus simulation." if state == 'ReportingMeasure'.to_MeasureType
               elsif measure_instance_type == 'ReportingMeasure'.to_MeasureType
                 state = 'ReportingMeasure'.to_MeasureType if state != 'ReportingMeasure'.to_MeasureType
+              elsif measure_instance_type == 'PythonMeasure'.to_MeasureType
+                logger.debug "found python measure"
               else
                 fail "Error: MeasureType #{measure_instance_type.valueName} of measure #{measure_dir} is not supported"
               end
@@ -349,12 +351,18 @@ module OpenStudio
               PyCall.import_module('openstudio')
               logger.debug "import sys"
               sys = PyCall.import_module('sys')
-              python_inclue_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/"              
-              sys.path.insert(0, python_include_path)
+              python_include_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/"
+              logger.debug "python_include_path: #{python_include_path}"
+              sys.path.insert(0, "#{python_include_path}")
               logger.debug "sys.path: #{print sys.path}"
               #pyfrom 'measure', import: 'PythonMeasureName'
+              logger.debug "pyimport measure"
               pyimport 'measure', as: :PythonMeasureName
-              measure_object = Object.const_get(class_name).new
+              #measure_object = Object.const_get(class_name).new
+              logger.debug "measure_object"
+              measure_object = PythonMeasureName()
+              logger.debug "measure_type: #{measure_type}"
+              logger.debug "class_name: #{class_name}"
             rescue => e
 
               # add the error to the osw.out

@@ -16,7 +16,7 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
         human readable description of modeling approach
         """
         return "MODELER_DESCRIPTION_TEXT"
-    def arguments(model):
+    def arguments(openstudio.model):
         """
         define what happens when the measure is run
         """
@@ -29,11 +29,11 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
         args.append(example_arg)
         
         return args
-    def run(model, runner, user_arguments):
+    def run(openstudio.model, runner, user_arguments):
         """
         define what happens when the measure is run
         """
-        super(model, runner, user_arguments)
+        super(openstudio.model, runner, user_arguments)
         # runner = openstudio.measure.OSRunner(openstudio.openstudioutilities.openstudioutilitiesfiletypes.WorkflowJSON())
         #
         print(openstudio.openStudioLongVersion())

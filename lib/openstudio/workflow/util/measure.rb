@@ -60,8 +60,9 @@ module OpenStudio
           logger = registry[:logger]
           runner = registry[:runner]
           workflow_json = registry[:workflow_json]
-
+          logger.debug "workflow_json: #{workflow_json.to_s}"
           workflow_steps = workflow_json.workflowSteps
+          logger.debug "workflow_steps: #{workflow_steps.inspect}"
           fail "The 'steps' array of the OSW is required." unless workflow_steps
 
           logger.debug "Finding measures of type #{measure_type.valueName}"
@@ -71,6 +72,7 @@ module OpenStudio
 
             if @registry[:openstudio_2]
               if !step.to_MeasureStep.empty?
+                logger.debug ".to_MeasureStep !empty"
                 step = step.to_MeasureStep.get
               end
             end
@@ -92,6 +94,8 @@ module OpenStudio
 
             class_name = measure.className
             measure_instance_type = measure.measureType
+            logger.debug "measure_instance_type: #{measure_instance_type}"
+            logger.debug "measure_type: #{measure_type}"
             if measure_instance_type == measure_type
               if energyplus_output_requests
                 logger.info "Found measure #{class_name} of type #{measure_type.valueName}. Collecting EnergyPlus Output Requests now."
@@ -136,15 +140,17 @@ module OpenStudio
 
           logger = registry[:logger] if logger.nil?
           workflow_json = registry[:workflow_json]
-
+          logger.debug "validate_measures workflow_json: #{workflow_json}"
           state = 'ModelMeasure'.to_MeasureType
           steps = workflow_json.workflowSteps
+          logger.debug "validate_measures steps: #{steps}"
           steps.each_with_index do |step, index|
             begin
               logger.debug "Validating step #{index}"
 
               if @registry[:openstudio_2]
                 if !step.to_MeasureStep.empty?
+                  logger.debug "validate_measures step.to_MeasureStep !empty"
                   step = step.to_MeasureStep.get
                 end
               end
@@ -162,18 +168,19 @@ module OpenStudio
 
               class_name = measure.className
               measure_instance_type = measure.measureType
-
+              logger.debug "validate_measure class_name: #{class_name}"
+              logger.debug "validate_measure measure_instance_type: #{measure_instance_type}"
               # Ensure that measures are in order, i.e. no OS after E+, E+ or OS after Reporting
               if measure_instance_type == 'ModelMeasure'.to_MeasureType
                 fail "OpenStudio measure #{measure_dir} called after transition to EnergyPlus." if state == 'EnergyPlusMeasure'.to_MeasureType
                 fail "OpenStudio measure #{measure_dir} called after after Energyplus simulation." if state == 'ReportingMeasure'.to_MeasureType
+              elsif measure_instance_type == 'PythonMeasure'.to_MeasureType
+                state = 'PythonMeasure'.to_MeasureType if state == 'ModelMeasure'.to_MeasureType
               elsif measure_instance_type == "EnergyPlusMeasure".to_MeasureType
-                state = 'EnergyPlusMeasure'.to_MeasureType if state == 'ModelMeasure'.to_MeasureType
+                state = 'EnergyPlusMeasure'.to_MeasureType if state == 'PythonMeasure'.to_MeasureType
                 fail "EnergyPlus measure #{measure_dir} called after Energyplus simulation." if state == 'ReportingMeasure'.to_MeasureType
               elsif measure_instance_type == 'ReportingMeasure'.to_MeasureType
                 state = 'ReportingMeasure'.to_MeasureType if state != 'ReportingMeasure'.to_MeasureType
-              elsif measure_instance_type == 'PythonMeasure'.to_MeasureType
-                logger.debug "found python measure"
               else
                 fail "Error: MeasureType #{measure_instance_type.valueName} of measure #{measure_dir} is not supported"
               end

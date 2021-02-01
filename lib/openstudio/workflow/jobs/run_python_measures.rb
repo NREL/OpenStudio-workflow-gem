@@ -67,7 +67,7 @@ class RunPythonMeasures < OpenStudio::Workflow::Job
     # Execute the Python measures
     @options[:output_adapter] = @output_adapter
     @logger.info 'Beginning to execute Python measures.'
-    apply_measures('ModelMeasure'.to_MeasureType, @registry, @options)
+    apply_measures('PythonMeasure'.to_MeasureType, @registry, @options)
     @logger.info('Finished applying Python measures.')
 
     # Send the measure output attributes to the output adapter

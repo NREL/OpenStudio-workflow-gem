@@ -3,8 +3,9 @@
 	"seed_file": null,
 	"steps": [
 		{
-			"measure_dir_name": "PythonMeasure",
-			"arguments": {}
+  		   "measure_dir_name": "PythonMeasure",
+		   "arguments": {},
+		   "measure_type": "PythonMeasure"
 		}
 	],
   "run_options": {

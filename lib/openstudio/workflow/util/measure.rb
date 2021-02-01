@@ -387,9 +387,11 @@ module OpenStudio
               # Initialize arguments which may be model dependent, don't allow arguments method access to real model in case it changes something
               if measure_type == 'ModelMeasure'.to_MeasureType
                 arguments = measure_object.arguments(@model.clone(true).to_Model)
+              elsif measure_type == 'PythonMeasure'.to_MeasureType
+                arguments = measure_object.arguments(@model.clone(true).to_Model)
               elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                 arguments = measure_object.arguments(@model_idf.clone(true))
-              else measure_type == 'ReportingMeasure'.to_MeasureType
+              elsif measure_type == 'ReportingMeasure'.to_MeasureType
                 # arity gives the number of expected arguments
                 # We handle the case where n_args == 0 for backward compatibility
                 n_args = measure_object.method(:arguments).arity

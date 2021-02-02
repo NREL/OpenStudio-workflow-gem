@@ -359,10 +359,12 @@ module OpenStudio
               logger.debug "import sys"
               sys = PyCall.import_module('sys')
               logger.debug "sys.path: #{print sys.path}"
+              logger.debug sys.path
               python_include_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/"
               logger.debug "python_include_path: #{python_include_path}"
               sys.path.insert(0, "#{python_include_path}")
               logger.debug "sys.path: #{print sys.path}"
+              logger.debug sys.path
               #pyfrom 'measure', import: 'PythonMeasureName'
               logger.debug "pyimport measure"
               pyimport 'measure', as: 'measuremodule'
@@ -410,11 +412,13 @@ module OpenStudio
               if measure_type == 'PythonMeasure'.to_MeasureType
                 # We're getting a python map... so we need to convert that to a
                 # ruby one
+                # openstudio.openstudiomeasure.OSArgumentVector
                 puts("arguments.__class__: #{arguments.__class__}")
                 for i in 0..(arguments.__len__() - 1)
                   python_arg = arguments.__getitem__(i)
                   ruby_arg_type = OpenStudio::Measure::OSArgumentType.new(python_arg.type().value())
                   argument_map[python_arg.name()] = OpenStudio::Measure::OSArgument.new(python_arg.name(), ruby_arg_type, python_arg.required(), python_arg.modelDependent())
+                  logger.debug "arg #{python_arg.name()}"
                 end
               else
                 if arguments
@@ -555,6 +559,8 @@ module OpenStudio
                   logger.debug "Calling measure.run for '#{measure_dir_name}'"
                   if measure_type == 'ModelMeasure'.to_MeasureType
                     measure_object.run(@model, runner, argument_map)
+                  elsif measure_type == 'PythonMeasure'.to_MeasureType
+                    measure_object.run(@model, runner, argument_map)
                   elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                     measure_object.run(@model_idf, runner, argument_map)
                   elsif measure_type == 'ReportingMeasure'.to_MeasureType
@@ -593,8 +599,9 @@ module OpenStudio
 
               result = nil
               begin
-                result = runner.result
-
+                result = runner.result()
+                puts "result"
+                puts result
                 # incrementStep must be called after run
                 runner.incrementStep
 

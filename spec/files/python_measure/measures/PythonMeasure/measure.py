@@ -1,40 +1,78 @@
 import openstudio
+
+
 class PythonMeasureName(openstudio.measure.PythonMeasure):
+
     def name(self):
         """
         Return the human readable name.
         Measure name should be the title case of the class name.
         """
         return "PythonMeasureName"
+
     def description(self):
         """
         human readable description
         """
         return "DESCRIPTION_TEXT"
+
     def modeler_description(self):
         """
         human readable description of modeling approach
         """
         return "MODELER_DESCRIPTION_TEXT"
-    def arguments(openstudio.model):
+
+    def arguments(self, model: openstudio.model.Model):
         """
         define what happens when the measure is run
         """
         args = openstudio.measure.OSArgumentVector()
-        
-        example_arg = openstudio.measure.OSArgument.makeStringArgument('example_arg', True)
-        example_arg.setDisplayName('example argument')
-        example_arg.setDescription('This is a placeholder for an argument')
-        example_arg.setDefaultValue('default_value')
+
+        example_arg = openstudio.measure.OSArgument.makeStringArgument('space_name', True)
+        example_arg.setDisplayName('New space name')
+        example_arg.setDescription('This name will be used as the name of the new space.')
+        example_arg.setDefaultValue('default_space_name')
         args.append(example_arg)
-        
+
         return args
-    def run(openstudio.model, runner, user_arguments):
+
+    def run(self,
+            model: openstudio.model.Model,
+            runner: openstudio.measure.OSRunner,
+            user_arguments: openstudio.measure.OSArgumentMap):
         """
         define what happens when the measure is run
         """
-        super(openstudio.model, runner, user_arguments)
-        # runner = openstudio.measure.OSRunner(openstudio.openstudioutilities.openstudioutilitiesfiletypes.WorkflowJSON())
-        #
+        super().run(model, runner, user_arguments)
+
+        if not(runner.validateUserArguments(self.arguments(model), user_arguments)):
+            return False
+
+        # assign the user inputs to variables
+        space_name = runner.getStringArgumentValue('space_name',
+                                                   user_arguments)
+
+        # check the example_arg for reasonableness
+        if not space_name:
+            runner.registerError('Empty space name was entered.')
+            return False
+
+        # report initial condition of model
+        runner.registerInitialCondition(
+            f"The building started with {len(model.getSpaces())} spaces."
+        )
+
+        # add a new space to the model
+        new_space = openstudio.model.Space(model)
+        new_space.setName(space_name)
+
+        # echo the new space's name back to the user
+        runner.registerInfo(f"Space {new_space.nameString()} was added.")
+
+        # report final condition of model
+        runner.registerFinalCondition(
+            f"The building finished with {len(model.getSpaces())} spaces."
+        )
+
         print(openstudio.openStudioLongVersion())
-        return true
+        return True

@@ -358,16 +358,18 @@ module OpenStudio
               PyCall.import_module('openstudio')
               logger.debug "import sys"
               sys = PyCall.import_module('sys')
+              logger.debug "sys.path: #{print sys.path}"
               python_include_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/"
               logger.debug "python_include_path: #{python_include_path}"
               sys.path.insert(0, "#{python_include_path}")
               logger.debug "sys.path: #{print sys.path}"
               #pyfrom 'measure', import: 'PythonMeasureName'
               logger.debug "pyimport measure"
-              pyimport 'measure', as: :PythonMeasureName
+              pyimport 'measure', as: 'measuremodule'
               #measure_object = Object.const_get(class_name).new
               logger.debug "measure_object"
-              measure_object = PythonMeasureName()
+              measure_object = measuremodule.PythonMeasureName()
+
               logger.debug "measure_type: #{measure_type}"
               logger.debug "class_name: #{class_name}"
             rescue => e
@@ -404,10 +406,21 @@ module OpenStudio
               end
 
               # Create argument map and initialize all the arguments
-              argument_map = OpenStudio::Ruleset::OSArgumentMap.new
-              if arguments
-                arguments.each do |v|
-                  argument_map[v.name] = v.clone
+              argument_map = OpenStudio::Measure::OSArgumentMap.new
+              if measure_type == 'PythonMeasure'.to_MeasureType
+                # We're getting a python map... so we need to convert that to a
+                # ruby one
+                puts("arguments.__class__: #{arguments.__class__}")
+                for i in 0..(arguments.__len__() - 1)
+                  python_arg = arguments.__getitem__(i)
+                  ruby_arg_type = OpenStudio::Measure::OSArgumentType.new(python_arg.type().value())
+                  argument_map[python_arg.name()] = OpenStudio::Measure::OSArgument.new(python_arg.name(), ruby_arg_type, python_arg.required(), python_arg.modelDependent())
+                end
+              else
+                if arguments
+                  arguments.each do |v|
+                    argument_map[v.name] = v.clone
+                  end
                 end
               end
 

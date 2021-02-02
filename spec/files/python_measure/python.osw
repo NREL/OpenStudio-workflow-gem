@@ -4,7 +4,9 @@
     "steps": [
         {
             "measure_dir_name": "PythonMeasure",
-            "arguments": {"space_name": "My New Space"},
+            "arguments": {
+                "space_name": "My New Space"
+            },
             "measure_type": "PythonMeasure"
         }
     ],

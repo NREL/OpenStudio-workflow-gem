@@ -43,10 +43,12 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
         """
         define what happens when the measure is run
         """
+        print("Hello!")
         super().run(model, runner, user_arguments)
-
-        if not(runner.validateUserArguments(self.arguments(model), user_arguments)):
+        if not(runner.validateUserArguments(self.arguments(model),
+                                            user_arguments)):
             return False
+
 
         # assign the user inputs to variables
         space_name = runner.getStringArgumentValue('space_name',
@@ -58,8 +60,10 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
             return False
 
         # report initial condition of model
+        n_ori = len(model.getSpaces())
+        print(f"The building started with {n_ori} spaces.")
         runner.registerInitialCondition(
-            f"The building started with {len(model.getSpaces())} spaces."
+            f"The building started with {n_ori} spaces."
         )
 
         # add a new space to the model

@@ -355,7 +355,8 @@ module OpenStudio
             begin
               #load measure_path.to_s
               logger.debug "import openstudio"
-              PyCall.import_module('openstudio')
+              #openstudio_python = PyCall.import_module('openstudio')
+              pyimport 'openstudio', as: 'openstudio_python'
               logger.debug "import sys"
               sys = PyCall.import_module('sys')
               logger.debug "sys.path: #{print sys.path}"
@@ -370,7 +371,7 @@ module OpenStudio
               pyimport 'measure', as: 'measuremodule'
               #measure_object = Object.const_get(class_name).new
               logger.debug "measure_object"
-              measure_object = measuremodule.PythonMeasureName()
+              measure_object = measuremodule.PythonMeasureName.new()
 
               logger.debug "measure_type: #{measure_type}"
               logger.debug "class_name: #{class_name}"
@@ -408,19 +409,36 @@ module OpenStudio
               end
 
               # Create argument map and initialize all the arguments
-              argument_map = OpenStudio::Measure::OSArgumentMap.new
               if measure_type == 'PythonMeasure'.to_MeasureType
                 # We're getting a python map... so we need to convert that to a
                 # ruby one
                 # openstudio.openstudiomeasure.OSArgumentVector
+
+                # So; this is weird looking, but this instantiate a python type
+                # from ruby...
+                argument_map = openstudio_python.measure.OSArgumentMap.new()
+                # argument_map = openstudio_python.measure.convertOSArgumentVectorToMap(arguments)
+
                 puts("arguments.__class__: #{arguments.__class__}")
+                puts("argument_map.__class__: #{argument_map.__class__}")
+
                 for i in 0..(arguments.__len__() - 1)
                   python_arg = arguments.__getitem__(i)
-                  ruby_arg_type = OpenStudio::Measure::OSArgumentType.new(python_arg.type().value())
-                  argument_map[python_arg.name()] = OpenStudio::Measure::OSArgument.new(python_arg.name(), ruby_arg_type, python_arg.required(), python_arg.modelDependent())
+                  puts("python_arg.__class__: #{python_arg.__class__}")
+
+                  #ruby_arg_type = OpenStudio::Measure::OSArgumentType.new(python_arg.type().value())
+                  #argument_map[python_arg.name()] = OpenStudio::Measure::OSArgument.new(python_arg.name(), ruby_arg_type, python_arg.required(), python_arg.modelDependent())
+                  arg_clone = python_arg.clone()
+                  puts("arg_clone.__class__: #{arg_clone.__class__}")
+                  puts("arg_name: #{python_arg.name()}")
+                  argument_map[python_arg.name()] = arg_clone
+                  #argument_map.__setitem__(python_arg.name(), arg_clone)
                   logger.debug "arg #{python_arg.name()}"
                 end
+
               else
+                argument_map = OpenStudio::Measure::OSArgumentMap.new
+
                 if arguments
                   arguments.each do |v|
                     argument_map[v.name] = v.clone
@@ -437,15 +455,15 @@ module OpenStudio
                 if !argument_value.nil?
 
                   if registry[:openstudio_2]
-                    variant_type = argument_value.variantType
-                    if variant_type == "String".to_VariantType
-                      argument_value = argument_value.valueAsString
-                    elsif variant_type == "Double".to_VariantType
-                      argument_value = argument_value.valueAsDouble
-                    elsif variant_type == "Integer".to_VariantType
-                      argument_value = argument_value.valueAsInteger
-                    elsif variant_type == "Boolean".to_VariantType
-                      argument_value = argument_value.valueAsBoolean
+                    variant_type = argument_value.variantType().valueName()
+                    if variant_type == "String"
+                      argument_value = argument_value.valueAsString()
+                    elsif variant_type == "Double"
+                      argument_value = argument_value.valueAsDouble()
+                    elsif variant_type == "Integer"
+                      argument_value = argument_value.valueAsInteger()
+                    elsif variant_type == "Boolean"
+                      argument_value = argument_value.valueAsBoolean()
                     end
                   end
 
@@ -480,7 +498,47 @@ module OpenStudio
 
                   # regular argument
                   if registry[:openstudio_2]
-                    success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
+                    if measure_type == 'PythonMeasure'.to_MeasureType
+                      # success = apply_arguments_python(argument_map, argument_name, argument_value, logger)
+
+                      unless argument_value.nil?
+                        logger.info "Setting argument value '#{argument_name}' to '#{argument_value}'"
+
+                        puts "#{argument_name.class}"
+                        puts argument_map.asdict()
+                        # TODO: hardcoded here!
+                        v = argument_map['space_name'] # passing a stirng litteral works, passing argument_name or argument_name.to_s doesn't
+                        fail "Could not find argument '#{argument_name}' in argument_map" unless v
+                        value_set = false
+                        variant_type = argument_value.variantType().valueName()
+                        puts "variant_type=#{variant_type}"
+                        if variant_type == "String"
+                          argument_value = argument_value.valueAsString()
+                          puts("String: argument_value='#{argument_value}'")
+                          value_set = v.setValue('My New Space') # TODO: hardcoded here!
+                          puts("value_set=#{value_set}")
+                          puts("v.valueAsString()=#{v.valueAsString()}")
+
+                        elsif variant_type == "Double"
+                          argument_value = argument_value.valueAsDouble()
+                          value_set = v.setValue(argument_value)
+                        elsif variant_type == "Integer"
+                          argument_value = argument_value.valueAsInteger()
+                          value_set = v.setValue(argument_value)
+                        elsif variant_type == "Boolean"
+                          argument_value = argument_value.valueAsBoolean
+                          value_set = v.setValue(argument_value)
+                        end
+                        fail "Could not set argument '#{argument_name}' to value '#{argument_value}'" unless value_set
+                        argument_map['space_name'] = v.clone() #argument_name.to_s] = v.clone()
+                      else
+                        logger.warn "Value for argument '#{argument_name}' not set in argument list therefore will use default"
+                      end
+                      success = value_set
+
+                    else
+                      success = apply_arguments_2(argument_map, argument_name, argument_value, logger)
+                    end
                   else
                     success = apply_arguments(argument_map, argument_name, argument_value, logger)
                   end
@@ -489,30 +547,31 @@ module OpenStudio
 
               end
 
+              # TODO: Temporarily disable while I try to make the rest work...
               # map any choice display names to choice values, in either set values or defaults
-              argument_map.each_key do |argument_name|
+              #argument_map.each_key do |argument_name|
 
-                # don't validate choices if measure is being skipped
-                next if skip_measure
+                ## don't validate choices if measure is being skipped
+                #next if skip_measure
 
-                v = argument_map[argument_name]
-                choice_values = v.choiceValues
-                if !choice_values.empty?
-                  value = nil
-                  value = v.defaultValueAsString if v.hasDefaultValue
-                  value = v.valueAsString if v.hasValue
-                  if value && choice_values.index(value).nil?
-                    display_names = v.choiceValueDisplayNames
-                    i = display_names.index(value)
-                    if i && choice_values[i]
-                      logger.debug "Mapping display name '#{value}' to value '#{choice_values[i]}' for argument '#{argument_name}'"
-                      value_set = v.setValue(choice_values[i])
-                      fail "Could not set argument '#{argument_name}' to mapped value '#{choice_values[i]}'" unless value_set
-                      argument_map[argument_name.to_s] = v.clone
-                    end
-                  end
-                end
-              end
+                #v = argument_map[argument_name]
+                #choice_values = v.choiceValues
+                #if !choice_values.empty?
+                  #value = nil
+                  #value = v.defaultValueAsString if v.hasDefaultValue
+                  #value = v.valueAsString if v.hasValue
+                  #if value && choice_values.index(value).nil?
+                    #display_names = v.choiceValueDisplayNames
+                    #i = display_names.index(value)
+                    #if i && choice_values[i]
+                      #logger.debug "Mapping display name '#{value}' to value '#{choice_values[i]}' for argument '#{argument_name}'"
+                      #value_set = v.setValue(choice_values[i])
+                      #fail "Could not set argument '#{argument_name}' to mapped value '#{choice_values[i]}'" unless value_set
+                      #argument_map[argument_name.to_s] = v.clone
+                    #end
+                  #end
+                #end
+              #end
 
             rescue => e
 
@@ -560,7 +619,18 @@ module OpenStudio
                   if measure_type == 'ModelMeasure'.to_MeasureType
                     measure_object.run(@model, runner, argument_map)
                   elsif measure_type == 'PythonMeasure'.to_MeasureType
-                    measure_object.run(@model, runner, argument_map)
+                    puts "runner.workflow"
+                    puts runner.workflow.to_s
+                    python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
+                    puts "python workflow"
+                    puts (python_workflow)
+                    py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
+                    puts argument_map
+                    puts measure_object
+                    py_idf_file = openstudio_python.IdfFile_load(@model.to_s.encode('utf-8'), openstudio_python.IddFileType.new("OpenStudio")).get()
+                    py_model = openstudio_python.model.Model.new(py_idf_file)
+                    puts(py_model)
+                    measure_object.run(py_model, py_runner, argument_map)
                   elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                     measure_object.run(@model_idf, runner, argument_map)
                   elsif measure_type == 'ReportingMeasure'.to_MeasureType

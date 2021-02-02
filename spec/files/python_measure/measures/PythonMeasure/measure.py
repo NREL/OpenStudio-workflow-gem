@@ -1,5 +1,5 @@
 import openstudio
-
+import typing
 
 class PythonMeasureName(openstudio.measure.PythonMeasure):
 
@@ -22,7 +22,7 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
         """
         return "MODELER_DESCRIPTION_TEXT"
 
-    def arguments(self, model: openstudio.model.Model):
+    def arguments(self, model: typing.Optional[openstudio.model.Model]=None):
         """
         define what happens when the measure is run
         """

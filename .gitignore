@@ -34,3 +34,7 @@ reports
 */**/out*.osw
 .ruby-version
 IdfFilesToTransition.lst
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]

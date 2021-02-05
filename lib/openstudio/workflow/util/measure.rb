@@ -630,7 +630,9 @@ module OpenStudio
                     py_idf_file = openstudio_python.IdfFile_load(@model.to_s.encode('utf-8'), openstudio_python.IddFileType.new("OpenStudio")).get()
                     py_model = openstudio_python.model.Model.new(py_idf_file)
                     puts(py_model)
-                    measure_object.run(py_model, py_runner, argument_map)
+                    PyCall.without_gvl do
+                      measure_object.run(py_model, py_runner, argument_map)
+                    end
                   elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                     measure_object.run(@model_idf, runner, argument_map)
                   elsif measure_type == 'ReportingMeasure'.to_MeasureType

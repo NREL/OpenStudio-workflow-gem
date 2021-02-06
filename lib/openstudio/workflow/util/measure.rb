@@ -621,6 +621,8 @@ module OpenStudio
                   elsif measure_type == 'PythonMeasure'.to_MeasureType
                     puts "runner.workflow"
                     puts runner.workflow.to_s
+                    puts "runner"
+                    puts runner.to_s
                     python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
                     puts "python workflow"
                     puts (python_workflow)

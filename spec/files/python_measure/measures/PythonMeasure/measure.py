@@ -45,6 +45,7 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
         """
         print("Hello!")
         super().run(model, runner, user_arguments)
+        print("Hello again!")
         if not(runner.validateUserArguments(self.arguments(model),
                                             user_arguments)):
             return False

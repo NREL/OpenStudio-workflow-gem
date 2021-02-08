@@ -45,7 +45,7 @@ class TestPythonMeasureName:
         measure = PythonMeasureName()
 
         # create runner with empty OSW
-        osw = openstudio.WorkflowJSON()
+        osw = openstudio.openstudioutilitiesfiletypes.WorkflowJSON()
         runner = openstudio.measure.OSRunner(osw)
 
         # load the test model

@@ -621,14 +621,21 @@ module OpenStudio
                   elsif measure_type == 'PythonMeasure'.to_MeasureType
                     puts "runner.workflow"
                     puts runner.workflow.to_s
+                    puts "runner"
+                    puts (runner)
                     python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
                     puts "python workflow"
                     puts (python_workflow)
                     py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
+                    puts "py_runner"
+                    puts (py_runner)
+                    puts "argument_map"
                     puts argument_map
+                    puts "measure_object"
                     puts measure_object
                     py_idf_file = openstudio_python.IdfFile_load(@model.to_s.encode('utf-8'), openstudio_python.IddFileType.new("OpenStudio")).get()
                     py_model = openstudio_python.model.Model.new(py_idf_file)
+                    puts "py_model"
                     puts(py_model)
                     PyCall.without_gvl do
                       measure_object.run(py_model, py_runner, argument_map)

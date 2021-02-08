@@ -3,6 +3,7 @@
 import pytest
 import openstudio
 import pathlib
+import os
 from measure import PythonMeasureName
 
 
@@ -44,8 +45,14 @@ class TestPythonMeasureName:
         # create an instance of the measure
         measure = PythonMeasureName()
 
-        # create runner with empty OSW
-        osw = openstudio.openstudioutilitiesfiletypes.WorkflowJSON()
+        # create runner from an OSW
+        #path = openstudio.path("/usr/local/src/wfg/spec/files/python_measure/measures/PythonMeasure/tests/python.osw")
+        path_s = os.path.dirname(os.path.abspath(__file__)) + "/python.osw"
+        print(f"path_s: {path_s}")
+        path = openstudio.path(path_s)
+        print(f"path: {path}")
+        osw = openstudio.openstudioutilitiesfiletypes.WorkflowJSON(path)
+        print(f"osw: {osw}")
         runner = openstudio.measure.OSRunner(osw)
 
         # load the test model

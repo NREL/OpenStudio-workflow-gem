@@ -629,49 +629,93 @@ module OpenStudio
                     puts (p_workflowJSON_string)
                     puts "type:"
                     puts(p_workflowJSON_string.class)
-                    #python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
-                    #puts "python workflow"
-                    #puts (python_workflow)
-                    #create workflowJSON from string
-                    puts"make workflowJSON"
-                    #not sure if below works, doesnt get the "is not a workflowJSON file" message, but runner still isnt being made correctly.
-                    #p_workflowJSON = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON(p_workflowJSON_string)
-                    #Try saving to file and then .new from file
-                    File.open(File.dirname(__FILE__) + "/workflow.json", "w") do |f|
-                      f.write(p_workflowJSON_string)
+
+                    puts "\n\n\n"
+                    puts "runner.result()"
+                    puts runner.result
+
+                    pass_python_objects = true
+
+                    if pass_python_objects
+
+                      use_file = false
+
+                      if use_file
+                        #create workflowJSON from string
+                        puts"make workflowJSON"
+                        #not sure if below works, doesnt get the "is not a workflowJSON file" message, but runner still isnt being made correctly.
+                        #p_workflowJSON = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON(p_workflowJSON_string)
+                        #Try saving to file and then .new from file
+                        File.open(File.dirname(__FILE__) + "/workflow.json", "w") do |f|
+                          f.write(p_workflowJSON_string)
+                        end
+                        #wfjson_path = OpenStudio::Path.new(File.dirname(__FILE__)+"/workflow.json")
+                        wfjson_path = openstudio_python.path.new(File.dirname(__FILE__)+"/workflow.json")
+                        puts "wfjson_path: #{wfjson_path.to_s}"
+                        p_workflowJSON = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.new(wfjson_path)
+                        puts "p_workflowJSON"
+                        puts (p_workflowJSON)
+                        #create python runner from p_workflowJSON
+                        py_runner = openstudio_python.measure.OSRunner.new(p_workflowJSON)
+                      else
+                        puts "runner.workflow"
+                        puts runner.workflow.to_s
+                        python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
+                        puts "python workflow"
+                        puts (python_workflow)
+                        py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
+                      end
+
+                      puts "py_runner.workflow"
+                      puts ""
+                      print(py_runner.workflow())
+                      puts ""
+                      puts "argument_map"
+                      puts argument_map
+                      puts "measure_object"
+                      puts measure_object
+                      py_idf_file = openstudio_python.IdfFile_load(@model.to_s.encode('utf-8'), openstudio_python.IddFileType.new("OpenStudio")).get()
+                      py_model = openstudio_python.model.Model.new(py_idf_file)
+                      puts "py_model"
+                      puts(py_model)
+                      puts "py_runner.result"
+                      print(py_runner.result())
+                      puts ""
+
+                      sleep(1.minutes)
+
+                      PyCall.without_gvl do
+                        measure_object.run(py_model, py_runner, argument_map)
+                      end
+                      puts "py_runner.workflow after .run()"
+                      print py_runner.workflow()
+                      puts "py_runner.result after .run()"
+                      print(py_runner.result())
+                      puts ""
+
+                      puts "Trying to set the workflow step result back to ruby runner"
+                      # Now we need to set the worklow step result back to the
+                      # ruby runner
+                      step_result = WorkflowStepResult::fromString(py_runner.result.string())
+                      puts "Ruby created step_result"
+                      puts step_result.get
+
+                      puts ""
+                      puts ""
+                      runner.setStepResult(step_result.get)
+                      puts "RUBY runner.result after .run()"
+                      puts runner.result
+
+                      sleep(1.minutes)
+
+                    else
+
+                      # This fails in the measure.py at super().run(),
+                      # failed with message undefined method `registerError' for nil:NilClass
+                      puts "Running with ruby objects: measure_object.run(@model, runner, argument_map)"
+                      measure_object.run(@model, runner, argument_map)
+
                     end
-                    #wfjson_path = OpenStudio::Path.new(File.dirname(__FILE__)+"/workflow.json")
-                    wfjson_path = openstudio_python.path.new(File.dirname(__FILE__)+"/workflow.json")
-                    puts "wfjson_path: #{wfjson_path.to_s}"
-                    p_workflowJSON = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.new(wfjson_path)
-                    puts "p_workflowJSON"
-                    puts (p_workflowJSON)
-                    #create python runner from p_workflowJSON
-                    py_runner = openstudio_python.measure.OSRunner.new(p_workflowJSON)
-                    #py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
-                    puts "py_runner.workflow"
-                    puts ""
-                    print(py_runner.workflow())
-                    puts ""
-                    puts "argument_map"
-                    puts argument_map
-                    puts "measure_object"
-                    puts measure_object
-                    py_idf_file = openstudio_python.IdfFile_load(@model.to_s.encode('utf-8'), openstudio_python.IddFileType.new("OpenStudio")).get()
-                    py_model = openstudio_python.model.Model.new(py_idf_file)
-                    puts "py_model"
-                    puts(py_model)
-                    puts "py_runner.result"
-                    print(py_runner.result())
-                    puts ""
-                    PyCall.without_gvl do
-                      measure_object.run(py_model, py_runner, argument_map)
-                    end
-                    puts "py_runner.workflow after .run()"
-                    print py_runner.workflow()
-                    puts "py_runner.result after .run()"
-                    print(py_runner.result())
-                    puts ""
                   elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                     measure_object.run(@model_idf, runner, argument_map)
                   elsif measure_type == 'ReportingMeasure'.to_MeasureType

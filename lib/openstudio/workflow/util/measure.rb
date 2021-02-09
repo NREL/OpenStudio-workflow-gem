@@ -661,11 +661,17 @@ module OpenStudio
                     py_model = openstudio_python.model.Model.new(py_idf_file)
                     puts "py_model"
                     puts(py_model)
+                    puts "py_runner.result"
+                    print(py_runner.result())
+                    puts ""
                     PyCall.without_gvl do
                       measure_object.run(py_model, py_runner, argument_map)
                     end
                     puts "py_runner.workflow after .run()"
                     print py_runner.workflow()
+                    puts "py_runner.result after .run()"
+                    print(py_runner.result())
+                    puts ""
                   elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                     measure_object.run(@model_idf, runner, argument_map)
                   elsif measure_type == 'ReportingMeasure'.to_MeasureType
@@ -679,19 +685,27 @@ module OpenStudio
               rescue => e
 
                 # add the error to the osw.out
-                runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                if measure_type != 'PythonMeasure'.to_MeasureType
+                  runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
 
-                result = runner.result
+                  result = runner.result
+                else
+                  py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+
+                  result = py_runner.result
+                end
 
                 if !energyplus_output_requests
                   # incrementStep must be called after run
-                  runner.incrementStep
-
+                  if measure_type != 'PythonMeasure'.to_MeasureType
+                    runner.incrementStep
+                  else
+                    py_runner.incrementStep
+                  end
                   add_result_measure_info(result, measure)
                 end
 
                 options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
-
                 log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
                 raise log_message
               end
@@ -704,12 +718,19 @@ module OpenStudio
 
               result = nil
               begin
-                result = runner.result()
+                if measure_type != 'PythonMeasure'.to_MeasureType
+                  result = runner.result()
+                else
+                  result = py_runner.result().to_s
+                end
                 puts "result"
                 puts result
                 # incrementStep must be called after run
-                runner.incrementStep
-
+                if measure_type != 'PythonMeasure'.to_MeasureType
+                  runner.incrementStep
+                else
+                  py_runner.incrementStep
+                end
                 add_result_measure_info(result, measure)
 
                 options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]

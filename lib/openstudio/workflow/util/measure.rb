@@ -721,10 +721,16 @@ module OpenStudio
                 if measure_type != 'PythonMeasure'.to_MeasureType
                   result = runner.result()
                 else
-                  result = py_runner.result().to_s
+                  result_string = py_runner.result().string()
+                  puts "result_string"
+                  puts(result_string)
+                  puts ""
+                  result = OpenStudio::WorkflowStepResult.fromString(result_string)
+                  result = result.get()
                 end
                 puts "result"
                 puts result
+                puts ""
                 # incrementStep must be called after run
                 if measure_type != 'PythonMeasure'.to_MeasureType
                   runner.incrementStep

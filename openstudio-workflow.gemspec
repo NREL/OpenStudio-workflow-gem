@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
 
   s.add_development_dependency 'builder', '~> 3.2.4'
-  s.add_development_dependency 'bundler', '~> 2.2'
+  s.add_development_dependency 'bundler', '>= 2.1.0'
   s.add_development_dependency 'ci_reporter', '~> 2.0.0'
   s.add_development_dependency 'ci_reporter_rspec', '~> 1.0.0'
   s.add_development_dependency 'coveralls', '~> 0.8.21'

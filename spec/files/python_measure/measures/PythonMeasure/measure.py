@@ -44,13 +44,17 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
         define what happens when the measure is run
         """
         print("Hello!")
+        print(f"runner: {runner}")
+        print(f"runner.workflow(): {runner.workflow()}")
+        print(f"model: {model}")
         super().run(model, runner, user_arguments)
+        print(f"super().run() runner.workflow(): {runner.workflow()}")
         print("Hello again!")
         if not(runner.validateUserArguments(self.arguments(model),
                                             user_arguments)):
             return False
 
-
+        print("Hello x2")
         # assign the user inputs to variables
         space_name = runner.getStringArgumentValue('space_name',
                                                    user_arguments)
@@ -60,13 +64,15 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
             runner.registerError('Empty space name was entered.')
             return False
 
+        print("Hello x3")
         # report initial condition of model
         n_ori = len(model.getSpaces())
+        print("Hello x4")
         print(f"The building started with {n_ori} spaces.")
         runner.registerInitialCondition(
             f"The building started with {n_ori} spaces."
         )
-
+        print("Hello x5")
         # add a new space to the model
         new_space = openstudio.model.Space(model)
         new_space.setName(space_name)
@@ -79,5 +85,6 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
             f"The building finished with {len(model.getSpaces())} spaces."
         )
 
+        print("end of measure")
         print(openstudio.openStudioLongVersion())
         return True

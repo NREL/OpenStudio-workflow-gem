@@ -638,7 +638,7 @@ module OpenStudio
 
                     if pass_python_objects
 
-                      use_file = false
+                      use_file = true
 
                       if use_file
                         #create workflowJSON from string
@@ -657,6 +657,11 @@ module OpenStudio
                         puts (p_workflowJSON)
                         #create python runner from p_workflowJSON
                         py_runner = openstudio_python.measure.OSRunner.new(p_workflowJSON)
+                        #try prepareForUserScript
+                        puts ".prepareForUserScriptRun(measure_object)"
+                        py_runner.prepareForUserScriptRun(measure_object)
+                        puts ".incrementStep"
+                        py_runner.incrementStep
                       else
                         puts "runner.workflow"
                         puts runner.workflow.to_s
@@ -682,7 +687,7 @@ module OpenStudio
                       print(py_runner.result())
                       puts ""
 
-                      sleep(1.minutes)
+                      #sleep(1.minutes)
 
                       PyCall.without_gvl do
                         measure_object.run(py_model, py_runner, argument_map)

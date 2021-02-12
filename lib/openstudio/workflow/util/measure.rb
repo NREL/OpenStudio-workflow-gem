@@ -60,6 +60,8 @@ module OpenStudio
           logger = registry[:logger]
           runner = registry[:runner]
           workflow_json = registry[:workflow_json]
+          runner_workflow_json = runner.workflow()
+          logger.debug "runner_workflow_json: #{runner_workflow_json.string}"
           logger.debug "workflow_json: #{workflow_json.to_s}"
           workflow_steps = workflow_json.workflowSteps
           logger.debug "workflow_steps: #{workflow_steps.inspect}"
@@ -69,11 +71,13 @@ module OpenStudio
           workflow_steps.each_index do |step_index|
 
             step = workflow_steps[step_index]
+            logger.debug "workflow_step: #{step.string}"
 
             if @registry[:openstudio_2]
               if !step.to_MeasureStep.empty?
                 logger.debug ".to_MeasureStep !empty"
                 step = step.to_MeasureStep.get
+                logger.debug "step: #{step.string}"
               end
             end
 
@@ -105,11 +109,15 @@ module OpenStudio
 
                 # check if simulation has been halted
                 halted = runner.halted
+                logger.debug "runner.halted: #{halted}"
 
                 # fast forward current step index to this index, skips any previous steps
                 # DLM: this is needed when running reporting measures only
                 if !halted
+                  logger.debug "step_index: #{step_index}"
+                  logger.debug "workflow_json.currentStepIndex: #{workflow_json.currentStepIndex}"
                   while workflow_json.currentStepIndex < step_index
+                    logger.debug "incrementing step"
                     workflow_json.incrementStep
                   end
                 end
@@ -292,6 +300,19 @@ module OpenStudio
           workflow_json = registry[:workflow_json]
           measure_dir_name = step.measureDirName
 
+          puts "\n\n\n apply_measure"
+          puts "runner.workflow: #{runner.workflow().string}"
+          puts "workflow_json: #{workflow_json}"
+
+          logger.debug "import openstudio"
+          #openstudio_python = PyCall.import_module('openstudio')
+          pyimport 'openstudio', as: 'openstudio_python'
+          python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
+          puts "python workflow"
+          puts (python_workflow)
+          puts "create py_runner earlier"
+          py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
+          puts "done \n"
           run_dir = registry[:run_dir]
           fail 'No run directory set in the registry' unless run_dir
 
@@ -354,9 +375,9 @@ module OpenStudio
             result = nil
             begin
               #load measure_path.to_s
-              logger.debug "import openstudio"
-              #openstudio_python = PyCall.import_module('openstudio')
-              pyimport 'openstudio', as: 'openstudio_python'
+              #IMPORTED EARLIER
+              #logger.debug "import openstudio"
+              #pyimport 'openstudio', as: 'openstudio_python'
               logger.debug "import sys"
               sys = PyCall.import_module('sys')
               logger.debug "sys.path: #{print sys.path}"
@@ -638,7 +659,7 @@ module OpenStudio
 
                     if pass_python_objects
 
-                      use_file = true
+                      use_file = false
 
                       if use_file
                         #create workflowJSON from string
@@ -660,15 +681,16 @@ module OpenStudio
                         #try prepareForUserScript
                         puts ".prepareForUserScriptRun(measure_object)"
                         py_runner.prepareForUserScriptRun(measure_object)
-                        puts ".incrementStep"
-                        py_runner.incrementStep
+                        #puts ".incrementStep"
+                        #py_runner.incrementStep
                       else
+                        puts "RUNNER IS NOW CREATED EARLIER"
                         puts "runner.workflow"
                         puts runner.workflow.to_s
-                        python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
+                        #python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
                         puts "python workflow"
                         puts (python_workflow)
-                        py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
+                        #py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
                       end
 
                       puts "py_runner.workflow"

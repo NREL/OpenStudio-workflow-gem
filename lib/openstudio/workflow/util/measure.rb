@@ -729,7 +729,7 @@ module OpenStudio
 
                       puts ""
                       puts ""
-                      runner.setStepResult(step_result.get)
+                      runner.workflow().currentStep().get().setResult(step_result.get)
                       puts "RUBY runner.result after .run()"
                       puts runner.result
 

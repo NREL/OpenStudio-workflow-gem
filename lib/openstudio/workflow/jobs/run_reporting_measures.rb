@@ -62,8 +62,8 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
 
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
-    
-    #get OSA[:urbanopt]  #BLB should prob be sent in as cli arg and used in options but for now just do this
+
+    # get OSA[:urbanopt]  #BLB should prob be sent in as cli arg and used in options but for now just do this
     @registry.register(:urbanopt) { false }
     if @registry[:osw_path]
       workflow = nil
@@ -74,7 +74,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
             @registry.register(:urbanopt) { workflow[:urbanopt] }
           end
         end
-      end    
+      end
     end
 
     # Load simulation files as required

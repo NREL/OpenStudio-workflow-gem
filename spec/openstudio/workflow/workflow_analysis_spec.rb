@@ -571,58 +571,58 @@ describe 'OSW Integration' do
     end
   end
 
-#XcelEDAReportingandQAQC measure not work with OS 3.1
+  # XcelEDAReportingandQAQC measure not work with OS 3.1
   # it 'should error out nicely' do
-    # osw_path = File.expand_path('../../files/reporting_measure_error/reporting_measure_error.osw', __dir__)
-    # osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+  # osw_path = File.expand_path('../../files/reporting_measure_error/reporting_measure_error.osw', __dir__)
+  # osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 
-    # FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
-    # expect(File.exist?(osw_out_path)).to eq false
+  # FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+  # expect(File.exist?(osw_out_path)).to eq false
 
-    # run_options = {
-      # debug: true
-    # }
-    # k = OpenStudio::Workflow::Run.new osw_path, run_options
-    # expect(k).to be_instance_of OpenStudio::Workflow::Run
-    # expect(k.run).to eq :errored
+  # run_options = {
+  # debug: true
+  # }
+  # k = OpenStudio::Workflow::Run.new osw_path, run_options
+  # expect(k).to be_instance_of OpenStudio::Workflow::Run
+  # expect(k.run).to eq :errored
 
-    # expect(File.exist?(osw_out_path)).to eq true
+  # expect(File.exist?(osw_out_path)).to eq true
 
-    # osw_out = nil
-    # File.open(osw_out_path, 'r') do |file|
-      # osw_out = JSON.parse(file.read, symbolize_names: true)
-    # end
+  # osw_out = nil
+  # File.open(osw_out_path, 'r') do |file|
+  # osw_out = JSON.parse(file.read, symbolize_names: true)
+  # end
 
-    # expect(osw_out).to be_instance_of Hash
-    # expect(osw_out[:completed_status]).to eq 'Fail'
-    # expect(osw_out[:steps]).to be_instance_of Array
-    # expect(osw_out[:steps].size).to be > 0
-    # osw_out[:steps].each do |step|
-      # expect(step[:result]).to_not be_nil
-      # # Only the EDA reporting measure step is supposed to have failed
-      # if step[:measure_dir_name] == 'Xcel EDA Reporting and QAQC'
-        # expect(step[:result][:step_result]).to eq 'Fail'
-      # else
-        # expect(step[:result][:step_result]).to eq 'Success'
-      # end
-    # end
+  # expect(osw_out).to be_instance_of Hash
+  # expect(osw_out[:completed_status]).to eq 'Fail'
+  # expect(osw_out[:steps]).to be_instance_of Array
+  # expect(osw_out[:steps].size).to be > 0
+  # osw_out[:steps].each do |step|
+  # expect(step[:result]).to_not be_nil
+  # # Only the EDA reporting measure step is supposed to have failed
+  # if step[:measure_dir_name] == 'Xcel EDA Reporting and QAQC'
+  # expect(step[:result][:step_result]).to eq 'Fail'
+  # else
+  # expect(step[:result][:step_result]).to eq 'Success'
+  # end
+  # end
 
-    # expected_r = /Peak Demand timeseries \(Electricity:Facility at zone timestep\) could not be found, cannot determine the informati(no|on) needed to calculate savings or incentives./
-    # expect(osw_out[:steps].last[:result][:step_errors].last).to match expected_r
+  # expected_r = /Peak Demand timeseries \(Electricity:Facility at zone timestep\) could not be found, cannot determine the informati(no|on) needed to calculate savings or incentives./
+  # expect(osw_out[:steps].last[:result][:step_errors].last).to match expected_r
 
-    # # TODO: Temporary comment
-    # # Not sure why the in.idf ends up there at the root? Shouldn't it just be
-    # # in run/in.idf?
-    # idf_out_path = osw_path.gsub(File.basename(osw_path), 'in.idf')
-    # expect(File.exist?(idf_out_path)).to eq true
+  # # TODO: Temporary comment
+  # # Not sure why the in.idf ends up there at the root? Shouldn't it just be
+  # # in run/in.idf?
+  # idf_out_path = osw_path.gsub(File.basename(osw_path), 'in.idf')
+  # expect(File.exist?(idf_out_path)).to eq true
 
-    # # even if it fails, make sure that we save off the datapoint.zip
-    # # It shouldn't be in the wrong location at root next to OSW
-    # zip_path = osw_path.gsub(File.basename(osw_path), 'data_point.zip')
-    # expect(File.exist?(zip_path)).to eq false
-    # # It should be under run/
-    # zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
-    # expect(File.exist?(zip_path)).to eq true
+  # # even if it fails, make sure that we save off the datapoint.zip
+  # # It shouldn't be in the wrong location at root next to OSW
+  # zip_path = osw_path.gsub(File.basename(osw_path), 'data_point.zip')
+  # expect(File.exist?(zip_path)).to eq false
+  # # It should be under run/
+  # zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
+  # expect(File.exist?(zip_path)).to eq true
   # end
 
   it 'should raise error when full measure directory path specified' do
@@ -761,91 +761,91 @@ describe 'OSW Integration' do
     expect(html_reports_names.include?('reporting_measure_that_takes_model_in_arguments_report.html')).to eq true
   end
 
-#XcelEDAReportingandQAQC no workie
+  # XcelEDAReportingandQAQC no workie
   # it 'should associate results with the correct step' do
-    # (1..2).each do |i|
-      # osw_path = File.expand_path("./../../../files/results_in_order/data_point_#{i}/data_point.osw", __FILE__)
-      # osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+  # (1..2).each do |i|
+  # osw_path = File.expand_path("./../../../files/results_in_order/data_point_#{i}/data_point.osw", __FILE__)
+  # osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 
-      # FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
-      # expect(File.exist?(osw_out_path)).to eq false
+  # FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+  # expect(File.exist?(osw_out_path)).to eq false
 
-      # if !File.exist?(osw_out_path)
-        # run_options = {
-          # debug: true
-        # }
-        # k = OpenStudio::Workflow::Run.new osw_path, run_options
-        # expect(k).to be_instance_of OpenStudio::Workflow::Run
-        # expect(k.run).to eq :finished
-      # end
+  # if !File.exist?(osw_out_path)
+  # run_options = {
+  # debug: true
+  # }
+  # k = OpenStudio::Workflow::Run.new osw_path, run_options
+  # expect(k).to be_instance_of OpenStudio::Workflow::Run
+  # expect(k.run).to eq :finished
+  # end
 
-      # expect(File.exist?(osw_out_path)).to eq true
+  # expect(File.exist?(osw_out_path)).to eq true
 
-      # osw_out = nil
-      # File.open(osw_out_path, 'r') do |file|
-        # osw_out = JSON.parse(file.read, symbolize_names: true)
-      # end
+  # osw_out = nil
+  # File.open(osw_out_path, 'r') do |file|
+  # osw_out = JSON.parse(file.read, symbolize_names: true)
+  # end
 
-      # expect(osw_out).to be_instance_of Hash
-      # expect(osw_out[:completed_status]).to eq 'Success'
-      # expect(osw_out[:steps]).to be_instance_of Array
-      # expect(osw_out[:steps].size).to be == 3
-      # osw_out[:steps].each do |step|
-        # expect(step[:arguments]).to_not be_nil
+  # expect(osw_out).to be_instance_of Hash
+  # expect(osw_out[:completed_status]).to eq 'Success'
+  # expect(osw_out[:steps]).to be_instance_of Array
+  # expect(osw_out[:steps].size).to be == 3
+  # osw_out[:steps].each do |step|
+  # expect(step[:arguments]).to_not be_nil
 
-        # arguments = step[:arguments]
-        # puts "arguments = #{arguments}"
+  # arguments = step[:arguments]
+  # puts "arguments = #{arguments}"
 
-        # expect(step[:result]).to_not be_nil
-        # expect(step[:result][:step_values]).to_not be_nil
+  # expect(step[:result]).to_not be_nil
+  # expect(step[:result][:step_values]).to_not be_nil
 
-        # step_values = step[:result][:step_values]
-        # puts "step_values = #{step_values}"
+  # step_values = step[:result][:step_values]
+  # puts "step_values = #{step_values}"
 
-        # # check that each argument is in a value
-        # skipped = false
-        # arguments.each_pair do |argument_name, argument_value|
-          # argument_name = argument_name.to_s
-          # if argument_name == '__SKIP__'
-            # skipped = argument_value
-          # end
-        # end
+  # # check that each argument is in a value
+  # skipped = false
+  # arguments.each_pair do |argument_name, argument_value|
+  # argument_name = argument_name.to_s
+  # if argument_name == '__SKIP__'
+  # skipped = argument_value
+  # end
+  # end
 
-        # if skipped
+  # if skipped
 
-          # # step_values are not populated if the measure is skipped
-          # expect(step_values.size).to be == 0
-          # expect(step[:result][:step_result]).to be == 'Skip'
+  # # step_values are not populated if the measure is skipped
+  # expect(step_values.size).to be == 0
+  # expect(step[:result][:step_result]).to be == 'Skip'
 
-        # else
+  # else
 
-          # arguments.each_pair do |argument_name, argument_value|
-            # argument_name = argument_name.to_s
-            # next if argument_name == '__SKIP__'
+  # arguments.each_pair do |argument_name, argument_value|
+  # argument_name = argument_name.to_s
+  # next if argument_name == '__SKIP__'
 
-            # puts "argument_name = #{argument_name}"
-            # puts "argument_value = #{argument_value}"
-            # i = step_values.find_index { |x| x[:name] == argument_name }
-            # expect(i).to_not be_nil
-            # expect(step_values[i][:value]).to be == argument_value
-          # end
+  # puts "argument_name = #{argument_name}"
+  # puts "argument_value = #{argument_value}"
+  # i = step_values.find_index { |x| x[:name] == argument_name }
+  # expect(i).to_not be_nil
+  # expect(step_values[i][:value]).to be == argument_value
+  # end
 
-          # expect(step[:result][:step_result]).to be == 'Success'
-        # end
+  # expect(step[:result][:step_result]).to be == 'Success'
+  # end
 
-        # expected_results = []
-        # if step[:measure_dir_name] == 'XcelEDAReportingandQAQC'
-          # expected_results << 'cash_flows_capital_type'
-          # expected_results << 'annual_consumption_electricity'
-          # expected_results << 'annual_consumption_gas'
-        # end
+  # expected_results = []
+  # if step[:measure_dir_name] == 'XcelEDAReportingandQAQC'
+  # expected_results << 'cash_flows_capital_type'
+  # expected_results << 'annual_consumption_electricity'
+  # expected_results << 'annual_consumption_gas'
+  # end
 
-        # expected_results.each do |expected_result|
-          # i = step_values.find_index { |x| x[:name] == expected_result }
-          # expect(i).to_not be_nil
-        # end
-      # end
-    # end
+  # expected_results.each do |expected_result|
+  # i = step_values.find_index { |x| x[:name] == expected_result }
+  # expect(i).to_not be_nil
+  # end
+  # end
+  # end
   # end
 
   it 'should run OSW custom output adapter' do
@@ -1152,7 +1152,7 @@ describe 'OSW Integration' do
     # out.osw not saved in fast mode
     expect(File.exist?(osw_out_path)).to eq false
   end
-  
+
   it 'should run reporting measures for UrbanOpt with no idf' do
     osw_path = File.join(__FILE__, './../../../files/urbanopt/data_point.osw')
     # run post process
@@ -1179,10 +1179,10 @@ describe 'OSW Integration' do
   it 'should run reporting measures without UrbanOpt and with no idf with a fail' do
     osw_path = File.join(__FILE__, './../../../files/urbanopt/data_point_no_urbanopt.osw')
     run_dir = File.join(__FILE__, './../../../files/urbanopt/run')
-    #osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    # osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
     FileUtils.rm_rf(run_dir) # if File.exist?(osw_out_path)
-    #expect(File.exist?(osw_out_path)).to eq false
-    
+    # expect(File.exist?(osw_out_path)).to eq false
+
     # run post process
     run_options = {
       debug: true,

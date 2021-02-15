@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# frozen_string_literal: true
 
 ruby_regex = /^#.\*{79}.*#.\*{79}$/m
 erb_regex = /^<%.*#.\*{79}.*#.\*{79}.%>$/m
@@ -7,7 +6,7 @@ js_regex = %r{^/\* @preserve.*Copyright.*license.{2}\*/}m
 
 ruby_header_text = <<~EOT
   # *******************************************************************************
-  # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
+  # OpenStudio(R), Copyright (c) 2008-2021, Alliance for Sustainable Energy, LLC.
   # All rights reserved.
   # Redistribution and use in source and binary forms, with or without
   # modification, are permitted provided that the following conditions are met:
@@ -46,7 +45,7 @@ ruby_header_text.strip!
 erb_header_text = <<~EOT
   <%
     # *******************************************************************************
-    # OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
+    # OpenStudio(R), Copyright (c) 2008-2021, Alliance for Sustainable Energy, LLC.
     # All rights reserved.
     # Redistribution and use in source and binary forms, with or without
     # modification, are permitted provided that the following conditions are met:
@@ -85,7 +84,7 @@ erb_header_text.strip!
 
 js_header_text = <<~EOT
   /* @preserve
-   * OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC. All rights reserved.
+   * OpenStudio(R), Copyright (c) 2008-2021, Alliance for Sustainable Energy, LLC. All rights reserved.
    * Use of this source code is governed by a BSD-style license that can be found at openstudio.net/license.
   */
 EOT

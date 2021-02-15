@@ -1,10 +1,11 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Version 2.2.0 (Unreleased)
+Version 2.2.0
 -------------
 * Minimum Ruby version upgraded to 2.7.0
 * Bundler bumped to ~> 2.2
+* Updated copyright
 
 Version 2.1.1
 -------------

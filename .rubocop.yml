@@ -9,5 +9,5 @@ AllCops:
     - 'spec/files/mongo_pat1/run/**/*'
 
 inherit_from:
-  - http://s3.amazonaws.com/openstudio-resources/styles/rubocop.yml
+  - http://s3.amazonaws.com/openstudio-resources/styles/rubocop_v3.yml
 

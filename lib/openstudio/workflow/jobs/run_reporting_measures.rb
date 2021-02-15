@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # *******************************************************************************
-# OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC.
+# OpenStudio(R), Copyright (c) 2008-2021, Alliance for Sustainable Energy, LLC.
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -62,8 +62,8 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
 
     # Ensure output_attributes is initialized in the registry
     @registry.register(:output_attributes) { {} } unless @registry[:output_attributes]
-    
-    #get OSA[:urbanopt]  #BLB should prob be sent in as cli arg and used in options but for now just do this
+
+    # get OSA[:urbanopt]  #BLB should prob be sent in as cli arg and used in options but for now just do this
     @registry.register(:urbanopt) { false }
     if @registry[:osw_path]
       workflow = nil
@@ -74,7 +74,7 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
             @registry.register(:urbanopt) { workflow[:urbanopt] }
           end
         end
-      end    
+      end
     end
 
     # Load simulation files as required

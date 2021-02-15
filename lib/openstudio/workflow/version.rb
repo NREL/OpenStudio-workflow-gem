@@ -37,6 +37,6 @@
 
 module OpenStudio
   module Workflow
-    VERSION = '2.1.1' # Suffixes must have periods (not dashes)
+    VERSION = '2.2.0' # Suffixes must have periods (not dashes)
   end
 end

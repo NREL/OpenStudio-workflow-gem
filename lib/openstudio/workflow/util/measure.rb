@@ -313,14 +313,26 @@ module OpenStudio
           python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
           puts "python workflow"
           puts (python_workflow)
-          puts "create py_runner earlier \n"
+          puts "**************************************\n"
+          # This is what I would like to see
+
+          # Save the value
+          ptr = runner.__toIntPtr()
+
+          # print it out, is it a number like it should be?
+          puts "toIntPtr #{ptr}\n"
+
+          # Then pass it into _fromIntPtr
+          py_runner = openstudio_python.measure.OSRunner._fromIntPtr(ptr)
+          puts "**************************************\n"
+          #puts "create py_runner earlier \n"
           #py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
-          runner.__toIntPtr()
-          puts "toIntPtr \n"
-          py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
+          #runner.__toIntPtr()
+          #puts "toIntPtr \n"
+          #py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
           puts "done create py_runner"
           #py_runner = openstudio_python.measure.OSRunner._fromIntPtr(0)
-          puts "test \n"
+          #puts "test \n"
           #py_runner = openstudio_python.measure.OSRunner._fromIntPtr()
           puts "done \n"
           run_dir = registry[:run_dir]

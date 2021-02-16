@@ -315,7 +315,8 @@ module OpenStudio
           puts (python_workflow)
           puts "create py_runner earlier"
           #py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
-          py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
+          #py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
+          py_runner = openstudio_python.measure.OSRunner._fromIntPtr(0)
           puts "test"
           #py_runner = openstudio_python.measure.OSRunner._fromIntPtr()
           puts "done \n"

@@ -300,19 +300,6 @@ module OpenStudio
           workflow_json = registry[:workflow_json]
           measure_dir_name = step.measureDirName
 
-          puts "\n\n\n apply_measure"
-          puts "runner.workflow: #{runner.workflow().string}"
-          puts "workflow_json: #{workflow_json}"
-
-          logger.debug "import openstudio"
-          #openstudio_python = PyCall.import_module('openstudio')
-          pyimport 'openstudio', as: 'openstudio_python'
-          python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
-          puts "python workflow"
-          puts (python_workflow)
-          puts "create py_runner earlier"
-          py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
-          puts "done \n"
           run_dir = registry[:run_dir]
           fail 'No run directory set in the registry' unless run_dir
 
@@ -374,10 +361,11 @@ module OpenStudio
             measure_object = nil
             result = nil
             begin
-              #load measure_path.to_s
-              #IMPORTED EARLIER
-              #logger.debug "import openstudio"
-              #pyimport 'openstudio', as: 'openstudio_python'
+
+              logger.debug "import openstudio"
+              #openstudio_python = PyCall.import_module('openstudio')
+              pyimport 'openstudio', as: 'openstudio_python'
+
               logger.debug "import sys"
               sys = PyCall.import_module('sys')
               logger.debug "sys.path: #{print sys.path}"
@@ -626,7 +614,6 @@ module OpenStudio
               end
             else
 
-              begin
                 if energyplus_output_requests
                   logger.debug "Calling measure.energyPlusOutputRequests for '#{measure_dir_name}'"
                   idf_objects = measure_object.energyPlusOutputRequests(runner, argument_map)
@@ -644,105 +631,37 @@ module OpenStudio
                     puts runner.workflow.to_s
                     puts "runner"
                     puts (runner)
-                    #get workflowJSON from runner
-                    p_workflowJSON_string = runner.workflow.string()
-                    puts "p_workflowJSON_string"
-                    puts (p_workflowJSON_string)
-                    puts "type:"
-                    puts(p_workflowJSON_string.class)
 
                     puts "\n\n\n"
                     puts "runner.result()"
                     puts runner.result
 
-                    pass_python_objects = true
+                    # We create a python version of the runner via pointer cast. It
+                    # points to the SAME C++ runner as the ruby one, so no need to do it
+                    # the other way around after measure has run
+                    puts "Convert ruby to python OSRunner"
+                    py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
+                    # Same for model
+                    puts "Convert ruby to python Model"
+                    py_model = openstudio_python.model.Model._fromIntPtr(@model.__toIntPtr())
+                    # Argument_map we handled above
 
-                    if pass_python_objects
-
-                      use_file = false
-
-                      if use_file
-                        #create workflowJSON from string
-                        puts"make workflowJSON"
-                        #not sure if below works, doesnt get the "is not a workflowJSON file" message, but runner still isnt being made correctly.
-                        #p_workflowJSON = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON(p_workflowJSON_string)
-                        #Try saving to file and then .new from file
-                        File.open(File.dirname(__FILE__) + "/workflow.json", "w") do |f|
-                          f.write(p_workflowJSON_string)
-                        end
-                        #wfjson_path = OpenStudio::Path.new(File.dirname(__FILE__)+"/workflow.json")
-                        wfjson_path = openstudio_python.path.new(File.dirname(__FILE__)+"/workflow.json")
-                        puts "wfjson_path: #{wfjson_path.to_s}"
-                        p_workflowJSON = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.new(wfjson_path)
-                        puts "p_workflowJSON"
-                        puts (p_workflowJSON)
-                        #create python runner from p_workflowJSON
-                        py_runner = openstudio_python.measure.OSRunner.new(p_workflowJSON)
-                        #try prepareForUserScript
-                        puts ".prepareForUserScriptRun(measure_object)"
-                        py_runner.prepareForUserScriptRun(measure_object)
-                        #puts ".incrementStep"
-                        #py_runner.incrementStep
-                      else
-                        puts "RUNNER IS NOW CREATED EARLIER"
-                        puts "runner.workflow"
-                        puts runner.workflow.to_s
-                        #python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
-                        puts "python workflow"
-                        puts (python_workflow)
-                        #py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
-                      end
-
-                      puts "py_runner.workflow"
-                      puts ""
-                      print(py_runner.workflow())
-                      puts ""
-                      puts "argument_map"
-                      puts argument_map
-                      puts "measure_object"
-                      puts measure_object
-                      py_idf_file = openstudio_python.IdfFile_load(@model.to_s.encode('utf-8'), openstudio_python.IddFileType.new("OpenStudio")).get()
-                      py_model = openstudio_python.model.Model.new(py_idf_file)
-                      puts "py_model"
-                      puts(py_model)
-                      puts "py_runner.result"
-                      print(py_runner.result())
-                      puts ""
-
-                      #sleep(1.minutes)
-
-                      PyCall.without_gvl do
-                        measure_object.run(py_model, py_runner, argument_map)
-                      end
-                      puts "py_runner.workflow after .run()"
-                      print py_runner.workflow()
-                      puts "py_runner.result after .run()"
-                      print(py_runner.result())
-                      puts ""
-
-                      puts "Trying to set the workflow step result back to ruby runner"
-                      # Now we need to set the worklow step result back to the
-                      # ruby runner
-                      step_result = WorkflowStepResult::fromString(py_runner.result.string())
-                      puts "Ruby created step_result"
-                      puts step_result.get
-
-                      puts ""
-                      puts ""
-                      runner.workflow().currentStep().get().setResult(step_result.get)
-                      puts "RUBY runner.result after .run()"
-                      puts runner.result
-
-                      sleep(1.minutes)
-
-                    else
-
-                      # This fails in the measure.py at super().run(),
-                      # failed with message undefined method `registerError' for nil:NilClass
-                      puts "Running with ruby objects: measure_object.run(@model, runner, argument_map)"
-                      measure_object.run(@model, runner, argument_map)
-
+                    PyCall.without_gvl do
+                      measure_object.run(py_model, py_runner, argument_map)
                     end
+                    puts "py_runner.workflow after .run()"
+                    print py_runner.workflow()
+                    puts "py_runner.result after .run()"
+                    print(py_runner.result())
+
+                    puts ""
+                    puts ""
+                    puts "RUBY runner.workflow after .run()"
+                    puts runner.workflow
+
+                    puts "RUBY runner.result after .run()"
+                    puts runner.result
+
                   elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                     measure_object.run(@model_idf, runner, argument_map)
                   elsif measure_type == 'ReportingMeasure'.to_MeasureType
@@ -753,33 +672,35 @@ module OpenStudio
 
                 # Run garbage collector after every measure to help address race conditions
                 GC.start
-              rescue => e
+              #rescue => e
 
-                # add the error to the osw.out
-                if measure_type != 'PythonMeasure'.to_MeasureType
-                  runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                ## add the error to the osw.out
+                #if measure_type != 'PythonMeasure'.to_MeasureType
 
-                  result = runner.result
-                else
-                  py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                  #puts "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
+                  #runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
 
-                  result = py_runner.result
-                end
+                  #result = runner.result
+                #else
+                  #py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
 
-                if !energyplus_output_requests
-                  # incrementStep must be called after run
-                  if measure_type != 'PythonMeasure'.to_MeasureType
-                    runner.incrementStep
-                  else
-                    py_runner.incrementStep
-                  end
-                  add_result_measure_info(result, measure)
-                end
+                  #result = py_runner.result
+                #end
 
-                options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
-                log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-                raise log_message
-              end
+                #if !energyplus_output_requests
+                  ## incrementStep must be called after run
+                  #if measure_type != 'PythonMeasure'.to_MeasureType
+                    #runner.incrementStep
+                  #else
+                    #py_runner.incrementStep
+                  #end
+                  #add_result_measure_info(result, measure)
+                #end
+
+                #options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
+                #log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+                #raise log_message
+              #end
 
               # if doing output requests we are done now
               if energyplus_output_requests

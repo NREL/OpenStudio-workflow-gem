@@ -307,6 +307,9 @@ module OpenStudio
           logger.debug "import openstudio"
           #openstudio_python = PyCall.import_module('openstudio')
           pyimport 'openstudio', as: 'openstudio_python'
+          ruby_v = OpenStudio::openStudioLongVersion()
+          python_v = openstudio_python.openStudioLongVersion()
+          logger.debug "ruby: #{ruby_v}, python_v: #{python_v}"
           python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
           puts "python workflow"
           puts (python_workflow)

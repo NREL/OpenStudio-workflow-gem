@@ -321,6 +321,7 @@ module OpenStudio
 
           # print it out, is it a number like it should be?
           puts "toIntPtr #{ptr}\n"
+          puts "ptr is integer?: #{ptr.is_a? Integer}"
 
           # Then pass it into _fromIntPtr
           py_runner = openstudio_python.measure.OSRunner._fromIntPtr(ptr)

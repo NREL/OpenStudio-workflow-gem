@@ -315,9 +315,9 @@ module OpenStudio
           puts (python_workflow)
           puts "create py_runner earlier"
           #py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
-          #py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr(0))
+          py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr(0))
           puts "test"
-          py_runner = openstudio_python.measure.OSRunner._fromIntPtr()
+          #py_runner = openstudio_python.measure.OSRunner._fromIntPtr()
           puts "done \n"
           run_dir = registry[:run_dir]
           fail 'No run directory set in the registry' unless run_dir

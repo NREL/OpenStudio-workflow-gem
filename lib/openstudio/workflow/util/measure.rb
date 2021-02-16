@@ -313,11 +313,14 @@ module OpenStudio
           python_workflow = openstudio_python.openstudioutilitiesfiletypes.WorkflowJSON.load(runner.workflow.to_s.encode('utf-8')).get()
           puts "python workflow"
           puts (python_workflow)
-          puts "create py_runner earlier"
+          puts "create py_runner earlier \n"
           #py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
-          #py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
-          py_runner = openstudio_python.measure.OSRunner._fromIntPtr(0)
-          puts "test"
+          runner.__toIntPtr()
+          puts "toIntPtr \n"
+          py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
+          puts "done create py_runner"
+          #py_runner = openstudio_python.measure.OSRunner._fromIntPtr(0)
+          puts "test \n"
           #py_runner = openstudio_python.measure.OSRunner._fromIntPtr()
           puts "done \n"
           run_dir = registry[:run_dir]

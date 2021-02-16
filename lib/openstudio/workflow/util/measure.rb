@@ -311,7 +311,8 @@ module OpenStudio
           puts "python workflow"
           puts (python_workflow)
           puts "create py_runner earlier"
-          py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
+          #py_runner = openstudio_python.measure.OSRunner.new(python_workflow)
+          py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
           puts "done \n"
           run_dir = registry[:run_dir]
           fail 'No run directory set in the registry' unless run_dir
@@ -701,8 +702,9 @@ module OpenStudio
                       puts argument_map
                       puts "measure_object"
                       puts measure_object
-                      py_idf_file = openstudio_python.IdfFile_load(@model.to_s.encode('utf-8'), openstudio_python.IddFileType.new("OpenStudio")).get()
-                      py_model = openstudio_python.model.Model.new(py_idf_file)
+                      #py_idf_file = openstudio_python.IdfFile_load(@model.to_s.encode('utf-8'), openstudio_python.IddFileType.new("OpenStudio")).get()
+                      #py_model = openstudio_python.model.Model.new(py_idf_file)
+                      py_model = openstudio_python.model.Model._fromIntPtr(@model.__toIntPtr())
                       puts "py_model"
                       puts(py_model)
                       puts "py_runner.result"
@@ -720,16 +722,16 @@ module OpenStudio
                       print(py_runner.result())
                       puts ""
 
-                      puts "Trying to set the workflow step result back to ruby runner"
+                      #puts "Trying to set the workflow step result back to ruby runner"
                       # Now we need to set the worklow step result back to the
                       # ruby runner
-                      step_result = WorkflowStepResult::fromString(py_runner.result.string())
-                      puts "Ruby created step_result"
-                      puts step_result.get
+                      #step_result = WorkflowStepResult::fromString(py_runner.result.string())
+                      #puts "Ruby created step_result"
+                      #puts step_result.get
 
                       puts ""
-                      puts ""
-                      runner.workflow().currentStep().get().setResult(step_result.get)
+                      #puts ""
+                      #runner.workflow().currentStep().get().setResult(step_result.get)
                       puts "RUBY runner.result after .run()"
                       puts runner.result
 

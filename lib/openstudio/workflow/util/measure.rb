@@ -384,6 +384,11 @@ module OpenStudio
 
               logger.debug "measure_type: #{measure_type}"
               logger.debug "class_name: #{class_name}"
+
+
+              ruby_v = OpenStudio::openStudioLongVersion()
+              python_v = openstudio_python.openStudioLongVersion()
+              logger.debug "ruby #{ruby_v}, python #{python_v}"
             rescue => e
 
               # add the error to the osw.out
@@ -636,19 +641,28 @@ module OpenStudio
                     puts "runner.result()"
                     puts runner.result
 
+                    ruby_v = OpenStudio::openStudioLongVersion()
+                    python_v = openstudio_python.openStudioLongVersion()
+                    logger.debug "ruby #{ruby_v}, python #{python_v}"
+
                     # We create a python version of the runner via pointer cast. It
                     # points to the SAME C++ runner as the ruby one, so no need to do it
                     # the other way around after measure has run
                     puts "Convert ruby to python OSRunner"
-                    py_runner = openstudio_python.measure.OSRunner._fromIntPtr(runner.__toIntPtr())
+
+                    ptr = OpenStudio::Measure::toInt(runner)
+                    puts "Runner ptr: #{ptr}, #{ptr.class}"
+                    py_runner = openstudio_python.measure.fromInt(ptr)
                     # Same for model
                     puts "Convert ruby to python Model"
-                    py_model = openstudio_python.model.Model._fromIntPtr(@model.__toIntPtr())
+                    ptr = OpenStudio::Model::toInt(@model)
+                    puts "Model ptr: #{ptr}, #{ptr.class}"
+                    py_model = openstudio_python.model.fromInt(ptr)
                     # Argument_map we handled above
 
-                    PyCall.without_gvl do
+                    #PyCall.without_gvl do
                       measure_object.run(py_model, py_runner, argument_map)
-                    end
+                    #end
                     puts "py_runner.workflow after .run()"
                     print py_runner.workflow()
                     puts "py_runner.result after .run()"
@@ -672,35 +686,35 @@ module OpenStudio
 
                 # Run garbage collector after every measure to help address race conditions
                 GC.start
-              rescue => e
+              #rescue => e
 
-                # add the error to the osw.out
-                if measure_type != 'PythonMeasure'.to_MeasureType
+                ## add the error to the osw.out
+                #if measure_type != 'PythonMeasure'.to_MeasureType
 
-                  puts "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
-                  runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                  #puts "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
+                  #runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
 
-                  result = runner.result
-                else
-                  py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                  #result = runner.result
+                #else
+                  #py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
 
-                  result = py_runner.result
-                end
+                  #result = py_runner.result
+                #end
 
-                if !energyplus_output_requests
-                  # incrementStep must be called after run
-                  if measure_type != 'PythonMeasure'.to_MeasureType
-                    runner.incrementStep
-                  else
-                    py_runner.incrementStep
-                  end
-                  add_result_measure_info(result, measure)
-                end
+                #if !energyplus_output_requests
+                  ## incrementStep must be called after run
+                  #if measure_type != 'PythonMeasure'.to_MeasureType
+                    #runner.incrementStep
+                  #else
+                    #py_runner.incrementStep
+                  #end
+                  #add_result_measure_info(result, measure)
+                #end
 
-                options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
-                log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-                raise log_message
-              end
+                #options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
+                #log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+                #raise log_message
+              #end
 
               # if doing output requests we are done now
               if energyplus_output_requests

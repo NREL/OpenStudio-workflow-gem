@@ -345,11 +345,14 @@ module OpenStudio
             class_name = measure.className
             measure_type = measure.measureType
 
-            #-BLB python test
-            #measure_path = measure.primaryRubyScriptPath
-            measure_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/measure.py"
+            if measure_type == 'PythonMeasure'.to_MeasureType
+              measure_path = measure.primaryPythonScriptPath
+            else
+              measure_path = measure.primaryRubyScriptPath
+            end
+            #measure_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/measure.py"
             fail "Measure does not have a primary ruby script specified" if measure_path.empty?
-            #measure_path = measure_path.get
+            measure_path = measure_path.get
             fail "#{measure_path} file does not exist" unless File.exist?(measure_path.to_s)
 
             logger.debug "Loading Measure from #{measure_path}"

@@ -668,9 +668,9 @@ module OpenStudio
 
                     # this was introduced in 1.3.0, but pycall > 1.3.0 fails
                     # for me https://github.com/mrkn/pycall.rb/issues/121
-                    PyCall.without_gvl do
+                    #PyCall.without_gvl do
                       measure_object.run(py_model, py_runner, argument_map)
-                    end
+                    #end
                     puts "py_runner.workflow after .run()"
                     print py_runner.workflow()
                     puts "py_runner.result after .run()"

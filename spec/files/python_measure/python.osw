@@ -8,6 +8,13 @@
                 "space_name": "My New Space"
             },
             "measure_type": "PythonMeasure"
+        },
+	{
+            "measure_dir_name": "PythonMeasure",
+            "arguments": {
+                "space_name": "My New Space"
+            },
+            "measure_type": "PythonMeasure"
         }
     ],
     "run_options": {

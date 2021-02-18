@@ -66,8 +66,9 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
 
         print("Hello x3")
         # report initial condition of model
-        #n_ori = len(model.getSpaces())
-        n_ori = 0
+        spaces = model.getSpaces()
+        n_ori = len(spaces)
+        #n_ori = 0
         print("Hello x4")
         print(f"The building started with {n_ori} spaces.")
         runner.registerInitialCondition(

@@ -624,7 +624,7 @@ module OpenStudio
                 end
               end
             else
-
+              begin
                 if energyplus_output_requests
                   logger.debug "Calling measure.energyPlusOutputRequests for '#{measure_dir_name}'"
                   idf_objects = measure_object.energyPlusOutputRequests(runner, argument_map)
@@ -675,6 +675,8 @@ module OpenStudio
                     print py_runner.workflow()
                     puts "py_runner.result after .run()"
                     print(py_runner.result())
+                    puts "py_runner.result().stepResult().is_initialized() after .run()"
+                    print(py_runner.result().stepResult().is_initialized())
 
                     puts ""
                     puts ""
@@ -683,6 +685,8 @@ module OpenStudio
 
                     puts "RUBY runner.result after .run()"
                     puts runner.result
+                    puts "RUBY runner.result.stepResult.is_initialized() after .run()"
+                    puts runner.result.stepResult.is_initialized()
 
                   elsif measure_type == 'EnergyPlusMeasure'.to_MeasureType
                     measure_object.run(@model_idf, runner, argument_map)
@@ -694,35 +698,31 @@ module OpenStudio
 
                 # Run garbage collector after every measure to help address race conditions
                 GC.start
-              #rescue => e
+              rescue => e
 
-                ## add the error to the osw.out
-                #if measure_type != 'PythonMeasure'.to_MeasureType
+                # add the error to the osw.out
+                if measure_type != 'PythonMeasure'.to_MeasureType
 
-                  #puts "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
-                  #runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                  puts "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
+                  runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
 
-                  #result = runner.result
-                #else
-                  #py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                  result = runner.result
+                else
+                  py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
 
-                  #result = py_runner.result
-                #end
+                  result = py_runner.result
+                end
 
-                #if !energyplus_output_requests
-                  ## incrementStep must be called after run
-                  #if measure_type != 'PythonMeasure'.to_MeasureType
-                    #runner.incrementStep
-                  #else
-                    #py_runner.incrementStep
-                  #end
-                  #add_result_measure_info(result, measure)
-                #end
+                if !energyplus_output_requests
+                  # incrementStep must be called after run
+                  runner.incrementStep
+                  add_result_measure_info(result, measure)
+                end
 
-                #options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
-                #log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
-                #raise log_message
-              #end
+                options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]
+                log_message = "Runner error #{__FILE__} failed with #{e.message}, #{e.backtrace.join("\n")}"
+                raise log_message
+              end
 
               # if doing output requests we are done now
               if energyplus_output_requests
@@ -732,25 +732,11 @@ module OpenStudio
 
               result = nil
               begin
-                if measure_type != 'PythonMeasure'.to_MeasureType
-                  result = runner.result()
-                else
-                  result_string = py_runner.result().string()
-                  puts "result_string"
-                  puts(result_string)
-                  puts ""
-                  result = OpenStudio::WorkflowStepResult.fromString(result_string)
-                  result = result.get()
-                end
+                result = runner.result()
                 puts "result"
                 puts result
-                puts ""
                 # incrementStep must be called after run
-                if measure_type != 'PythonMeasure'.to_MeasureType
-                  runner.incrementStep
-                else
-                  py_runner.incrementStep
-                end
+                runner.incrementStep
                 add_result_measure_info(result, measure)
 
                 options[:output_adapter].communicate_measure_result(result) if options[:output_adapter]

@@ -74,7 +74,7 @@ module OpenStudio
               if !step.to_MeasureStep.empty?
                 #logger.debug ".to_MeasureStep !empty"
                 step = step.to_MeasureStep.get
-                logger.debug "step: #{step.string}"
+                #logger.debug "step: #{step.string}"
               end
             end
 

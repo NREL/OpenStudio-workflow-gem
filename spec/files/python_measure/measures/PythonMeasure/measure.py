@@ -66,9 +66,10 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
 
         print("Hello x3")
         # report initial condition of model
-        spaces = model.getSpaces()
-        n_ori = len(spaces)
-        #n_ori = 0
+        #spaces = model.getSpaces()
+        #print(f"space: {spaces}")
+        #n_ori = len(spaces)
+        n_ori = 0
         print("Hello x4")
         print(f"The building started with {n_ori} spaces.")
         runner.registerInitialCondition(
@@ -83,6 +84,7 @@ class PythonMeasureName(openstudio.measure.PythonMeasure):
         # echo the new space's name back to the user
         runner.registerInfo(f"Space {new_space.nameString()} was added.")
         print("Hello x8")
+        print(f"model after space: {model}")
         # report final condition of model
         #runner.registerFinalCondition(f"The building finished with {len(model.getSpaces())} spaces.")
         runner.registerFinalCondition("the measure ended")

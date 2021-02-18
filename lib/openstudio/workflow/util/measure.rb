@@ -372,8 +372,8 @@ module OpenStudio
               # We can't rely on the installed pypi package, we want both ruby
               # and python to laod the SAME .so at the same time, so we pick it
               # up from the build directory
-              openstudio_python_path = '/media/DataExt4/Software/Others/OS-build-python2/Products/python'
-              sys.path.insert(0, "#{openstudio_python_path}")
+              #openstudio_python_path = '/media/DataExt4/Software/Others/OS-build-python2/Products/python'
+              #sys.path.insert(0, "#{openstudio_python_path}")
               pyimport 'openstudio', as: 'openstudio_python'
 
               python_include_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/"

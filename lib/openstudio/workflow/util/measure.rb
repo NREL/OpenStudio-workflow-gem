@@ -60,22 +60,19 @@ module OpenStudio
           logger = registry[:logger]
           runner = registry[:runner]
           workflow_json = registry[:workflow_json]
-          runner_workflow_json = runner.workflow()
-          logger.debug "runner_workflow_json: #{runner_workflow_json.string}"
-          logger.debug "workflow_json: #{workflow_json.to_s}"
+          #logger.debug "workflow_json: #{workflow_json.to_s}"
           workflow_steps = workflow_json.workflowSteps
-          logger.debug "workflow_steps: #{workflow_steps.inspect}"
           fail "The 'steps' array of the OSW is required." unless workflow_steps
 
           logger.debug "Finding measures of type #{measure_type.valueName}"
           workflow_steps.each_index do |step_index|
 
             step = workflow_steps[step_index]
-            logger.debug "workflow_step: #{step.string}"
+            #logger.debug "workflow_step: #{step.string}"
 
             if @registry[:openstudio_2]
               if !step.to_MeasureStep.empty?
-                logger.debug ".to_MeasureStep !empty"
+                #logger.debug ".to_MeasureStep !empty"
                 step = step.to_MeasureStep.get
                 logger.debug "step: #{step.string}"
               end
@@ -109,7 +106,7 @@ module OpenStudio
 
                 # check if simulation has been halted
                 halted = runner.halted
-                logger.debug "runner.halted: #{halted}"
+                #logger.debug "runner.halted: #{halted}"
 
                 # fast forward current step index to this index, skips any previous steps
                 # DLM: this is needed when running reporting measures only
@@ -635,9 +632,6 @@ module OpenStudio
                     measure_object.run(@model, runner, argument_map)
                   elsif measure_type == 'PythonMeasure'.to_MeasureType
                     logger.debug "PythonMeasure:"
-                    ruby_v = OpenStudio::openStudioLongVersion()
-                    python_v = openstudio_python.openStudioLongVersion()
-                    logger.debug "ruby #{ruby_v}, python #{python_v}"
 
                     # We create a python version of the runner via pointer cast. It
                     # points to the SAME C++ runner as the ruby one, so no need to do it
@@ -689,17 +683,14 @@ module OpenStudio
               rescue => e
 
                 # add the error to the osw.out
-                if measure_type != 'PythonMeasure'.to_MeasureType
-
+                #if measure_type != 'PythonMeasure'.to_MeasureType
                   puts "#{e.message}\n\t#{e.backtrace.join("\n\t")}"
                   runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
-
                   result = runner.result
-                else
-                  py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
-
-                  result = py_runner.result
-                end
+                #else
+                #  py_runner.registerError("#{e.message}\n\t#{e.backtrace.join("\n\t")}")
+                #  result = py_runner.result
+                #end
 
                 if !energyplus_output_requests
                   # incrementStep must be called after run
@@ -721,8 +712,7 @@ module OpenStudio
               result = nil
               begin
                 result = runner.result()
-                puts "result"
-                puts result
+                logger.debug "result: #{result}"
                 # incrementStep must be called after run
                 runner.incrementStep
                 add_result_measure_info(result, measure)

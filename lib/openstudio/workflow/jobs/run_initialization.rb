@@ -84,7 +84,7 @@ class RunInitialization < OpenStudio::Workflow::Job
       workflow_json = WorkflowJSON_Shim.new(@registry[:workflow], @registry[:osw_dir])
     end
     @registry.register(:workflow_json) { workflow_json }
-    @logger.debug "run_initialization workflow_json: #{workflow_json}"
+    #@logger.debug "run_initialization workflow_json: #{workflow_json}"
     @registry.register(:root_dir) { workflow_json.absoluteRootDir }
     @logger.debug "The root_dir for the datapoint is #{@registry[:root_dir]}"
 
@@ -110,7 +110,7 @@ class RunInitialization < OpenStudio::Workflow::Job
       FileUtils.rm_rf(reports_dir)
     end
 
-    @logger.debug "run_initialization @registry[:workflow_json]: #{@registry[:workflow_json]}"
+    #@logger.debug "run_initialization @registry[:workflow_json]: #{@registry[:workflow_json]}"
     # create the runner with our WorkflowJSON
     @registry.register(:runner) { WorkflowRunner.new(@registry[:logger], @registry[:workflow_json], @registry[:openstudio_2]) }
     @registry[:runner].setDatapoint(@registry[:datapoint])
@@ -162,7 +162,7 @@ class RunInitialization < OpenStudio::Workflow::Job
     end
 
     if @registry[:openstudio_2]
-      @logger.debug "workflow_json.clone: #{workflow_json}"
+      #@logger.debug "workflow_json.clone: #{workflow_json}"
       @registry[:model]&.setWorkflowJSON(workflow_json.clone)
     end
 
@@ -200,7 +200,7 @@ class RunInitialization < OpenStudio::Workflow::Job
 
     end
     @logger.warn 'No valid weather file defined in either the osm or osw.' unless @registry[:wf]
-    @logger.debug "workflow_json.start: #{workflow_json}"
+    #@logger.debug "workflow_json.start: #{workflow_json}"
     workflow_json.start
 
     nil

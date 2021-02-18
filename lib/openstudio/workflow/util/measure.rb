@@ -364,12 +364,18 @@ module OpenStudio
 
               logger.debug "import openstudio"
               #openstudio_python = PyCall.import_module('openstudio')
-              pyimport 'openstudio', as: 'openstudio_python'
 
               logger.debug "import sys"
               sys = PyCall.import_module('sys')
               logger.debug "sys.path: #{print sys.path}"
               logger.debug sys.path
+              # We can't rely on the installed pypi package, we want both ruby
+              # and python to laod the SAME .so at the same time, so we pick it
+              # up from the build directory
+              openstudio_python_path = '/media/DataExt4/Software/Others/OS-build-python2/Products/python'
+              sys.path.insert(0, "#{openstudio_python_path}")
+              pyimport 'openstudio', as: 'openstudio_python'
+
               python_include_path = "#{File.dirname(__FILE__)}/../../../../spec/files/python_measure/measures/PythonMeasure/"
               logger.debug "python_include_path: #{python_include_path}"
               sys.path.insert(0, "#{python_include_path}")
@@ -660,9 +666,11 @@ module OpenStudio
                     py_model = openstudio_python.model.fromInt(ptr)
                     # Argument_map we handled above
 
-                    #PyCall.without_gvl do
+                    # this was introduced in 1.3.0, but pycall > 1.3.0 fails
+                    # for me https://github.com/mrkn/pycall.rb/issues/121
+                    PyCall.without_gvl do
                       measure_object.run(py_model, py_runner, argument_map)
-                    #end
+                    end
                     puts "py_runner.workflow after .run()"
                     print py_runner.workflow()
                     puts "py_runner.result after .run()"

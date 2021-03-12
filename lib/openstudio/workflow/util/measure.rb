@@ -342,6 +342,8 @@ module OpenStudio
             result = nil
             begin
               load measure_path.to_s
+              # load.c in ruby can result in changing dir to root / so preserve cwd here. happens in openstudio cli 
+              Dir.chdir measure_run_dir 
               measure_object = Object.const_get(class_name).new
             rescue => e
 

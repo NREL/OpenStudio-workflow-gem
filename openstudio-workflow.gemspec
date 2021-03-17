@@ -16,17 +16,18 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/NREL/OpenStudio-workflow-gem'
   s.license = 'BSD'
 
-  s.required_ruby_version = '~> 2.5.0'
+  s.required_ruby_version = '~> 2.7.0'
 
   s.files = Dir.glob('lib/**/*') + ['README.md', 'CHANGELOG.md', 'Rakefile']
   s.require_path = 'lib'
 
   s.add_development_dependency 'builder', '~> 3.2.4'
-  s.add_development_dependency 'bundler', '~> 2.1'
+  s.add_development_dependency 'bundler', '>= 2.1.0'
   s.add_development_dependency 'ci_reporter', '~> 2.0.0'
   s.add_development_dependency 'ci_reporter_rspec', '~> 1.0.0'
   s.add_development_dependency 'coveralls', '~> 0.8.21'
   s.add_development_dependency 'json-schema', '~> 2.8.0'
+  s.add_development_dependency 'openstudio-standards', '~> 0.2.12'
   s.add_development_dependency 'parallel', '~> 1.19.1'
   s.add_development_dependency 'public_suffix', '~> 4.0.3'
   s.add_development_dependency 'rainbow', '~> 3.0.0'

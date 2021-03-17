@@ -9,7 +9,7 @@ This branch is the development branch for the OpenStudio workflow gem.
 
 The OpenStudio Workflow Gem has the following dependencies:
 
-* Ruby 2.5.5
+* Ruby 2.7.2
 * OpenStudio 3.x
 
 [OpenStudio](https://www.openstudio.net/) needs to be installed and in your path.  On Mac/Linux it is easiest to add the following to your .bash_profile or /etc/profile.d/<file>.sh to ensure OpenStudio loads. Assuming OpenStudio 3.0.0 installed:

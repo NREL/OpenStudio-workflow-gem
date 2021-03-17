@@ -1,6 +1,17 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version 2.2.0
+-------------
+* Minimum Ruby version upgraded to 2.7.0
+* Bundler bumped to ~> 2.2
+* Updated copyright
+
+Version 2.1.1
+-------------
+* Add support for URBANopt Workflow
+* Update reporting measure in tests
+
 Version 2.1.0
 -------------
 * Support for EnergyPlus 9.4. This version will not work with prior versions of EnergyPlus.
@@ -8,18 +19,15 @@ Version 2.1.0
 
 Version 2.0.1
 -------------
-
 * Bug fix for idf.addObjects(object) to idf.addObject(object)
 
 Version 2.0.0
 -------------
-
 * Support Ruby > 2.5
 * Support OpenStudio 3.x
 
 Version 1.3.5
 -------------
-
 * Allow reporting to fail gracefully so HTML reports are returned Fixed [this](https://github.com/NREL/OpenStudio/issues/864).
 * Allow EMS:OutputVariable in reporting measure
 * Fixes [#93](https://github.com/NREL/OpenStudio-workflow-gem/issues/93) - Pass Model to the arguments method of ReportingMeasure

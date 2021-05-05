@@ -192,6 +192,24 @@ module OpenStudio
           return default
         end
 
+        def skip_zip_results(user_options, default)
+          # user option trumps all others
+          return user_options[:skip_zip_results] if user_options[:skip_zip_results]
+
+          # try to read from OSW
+          if @run_options && !@run_options.empty?
+            if @run_options.get.respond_to?(:skipZipResults)
+              return @run_options.get.skipZipResults
+            else
+              if @workflow[:run_options]
+                return @workflow[:run_options][:skip_zip_results]
+              end
+            end
+          end
+
+          return default
+        end
+
         def preserve_run_dir(user_options, default)
           # user option trumps all others
           return user_options[:preserve_run_dir] if user_options[:preserve_run_dir]

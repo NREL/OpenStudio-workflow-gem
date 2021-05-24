@@ -90,7 +90,7 @@ module OpenStudio
       # @option user_options [Hash] :debug Print debugging messages, overrides OSW option if set, defaults to false
       # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
       # @option user_options [Hash] :fast Speeds up workflow by skipping steps not needed for running simulations, defaults to false
-      # @option user_options [Hash] :skip_zip_results Skips creating the data_point.zip file, defaults to false
+      # @option user_options [Hash] :skip_zip_results Skips creating the data_point.zip file. Setting to `true` can cause issues with workflows expecting .zip files to signal completion (e.g., OpenStudio Analysis Framework), defaults to false
       # @option user_options [Hash] :jobs Simulation workflow, overrides jobs in OSW if set, defaults to default_jobs
       # @option user_options [Hash] :output_adapter Output adapter to use, overrides output adapter in OSW if set, defaults to local adapter
       # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW option if set, defaults to false - DLM, Deprecate

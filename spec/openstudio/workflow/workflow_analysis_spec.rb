@@ -1153,6 +1153,31 @@ describe 'OSW Integration' do
     expect(File.exist?(osw_out_path)).to eq false
   end
 
+  it 'should run skip_zip_results OSW file' do
+    osw_path = File.expand_path('../../files/skip_zip_results_osw/skip_zip_results.osw', __dir__)
+    osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
+    zip_path = File.join(File.dirname(osw_path), 'run', 'data_point.zip')
+
+    FileUtils.rm_rf(osw_out_path) if File.exist?(osw_out_path)
+    expect(File.exist?(osw_out_path)).to eq false
+
+    FileUtils.rm_rf(zip_path) if File.exist?(zip_path)
+    expect(File.exist?(zip_path)).to eq false
+
+    run_options = {
+      debug: true
+    }
+    k = OpenStudio::Workflow::Run.new osw_path, run_options
+    expect(k).to be_instance_of OpenStudio::Workflow::Run
+    expect(k.run).to eq :finished
+
+    # out.osw saved in skip_zip_results mode
+    expect(File.exist?(osw_out_path)).to eq true
+
+    # data_point.zip not saved in skip_zip_results mode
+    expect(File.exist?(zip_path)).to eq false
+  end
+
   it 'should run reporting measures for UrbanOpt with no idf' do
     osw_path = File.join(__FILE__, './../../../files/urbanopt/data_point.osw')
     # run post process

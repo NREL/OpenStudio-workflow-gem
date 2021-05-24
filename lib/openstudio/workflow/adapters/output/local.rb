@@ -136,8 +136,10 @@ module OpenStudio
 
         # Write the results of the workflow to the filesystem
         #
-        def communicate_results(directory, results)
-          zip_results(directory)
+        def communicate_results(directory, results, skip_zip_results)
+          if !skip_zip_results
+            zip_results(directory)
+          end
 
           if results.is_a? Hash
             # DLM: don't we want this in the results zip?

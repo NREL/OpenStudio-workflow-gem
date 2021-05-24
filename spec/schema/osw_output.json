@@ -110,6 +110,9 @@
 						"fast": {
 							"type": "boolean"
 						},
+						"skip_zip_results": {
+							"type": "boolean"
+						},
 						"preserve_run_dir": {
 							"type": "boolean"
 						},

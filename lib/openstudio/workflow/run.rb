@@ -90,6 +90,7 @@ module OpenStudio
       # @option user_options [Hash] :debug Print debugging messages, overrides OSW option if set, defaults to false
       # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
       # @option user_options [Hash] :fast Speeds up workflow by skipping steps not needed for running simulations, defaults to false
+      # @option user_options [Hash] :skip_zip_results Skips creating the data_point.zip file. Setting to `true` can cause issues with workflows expecting .zip files to signal completion (e.g., OpenStudio Analysis Framework), defaults to false
       # @option user_options [Hash] :jobs Simulation workflow, overrides jobs in OSW if set, defaults to default_jobs
       # @option user_options [Hash] :output_adapter Output adapter to use, overrides output adapter in OSW if set, defaults to local adapter
       # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW option if set, defaults to false - DLM, Deprecate
@@ -204,6 +205,7 @@ module OpenStudio
         @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
         @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
         @options[:fast] = @input_adapter.fast(user_options, false)
+        @options[:skip_zip_results] = @input_adapter.skip_zip_results(user_options, false)
 
         openstudio_dir = 'unknown'
         begin
@@ -236,7 +238,7 @@ module OpenStudio
 
           if !@options[:fast]
             @logger.info 'Finished workflow - communicating results and zipping files'
-            @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
+            @output_adapter.communicate_results(@registry[:run_dir], @registry[:results], @options[:skip_zip_results])
           end
         rescue StandardError => e
           @logger.info "Error occurred during running with #{e.message}"

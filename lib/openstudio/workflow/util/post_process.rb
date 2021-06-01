@@ -138,10 +138,10 @@ module OpenStudio
         #
         def rename_hash_keys(hash, logger)
           # @todo should we log the name changes?
-          regex = %r{[|!@#\$%^&\*\(\)\{\}\\\[\];:'",<.>/?\+=]+}
+          regex = %r{[|!@#$%^&*()\{\}\\\[\];:'",<.>/?+=]+}
 
           rename_keys = lambda do |h|
-            if Hash === h
+            if h.is_a?(Hash)
               h.each_key do |key|
                 if key.to_s =~ regex
                   logger.warn "Renaming result key '#{key}' to remove invalid characters"

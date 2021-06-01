@@ -95,7 +95,7 @@ module OpenStudio
         # @todo (rhorsey) rescue errors here
         #
         def translate_to_energyplus(model, logger = nil)
-          logger ||= ::Logger.new(STDOUT)
+          logger ||= ::Logger.new($stdout)
           logger.info 'Translate object to EnergyPlus IDF in preparation for EnergyPlus'
           a = ::Time.now
           # ensure objects exist for reporting purposes

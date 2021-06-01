@@ -89,9 +89,7 @@ class WorkflowStepResultValue_Shim
     @type = type
   end
 
-  attr_reader :name
-
-  attr_reader :value
+  attr_reader :name, :value
 
   def variantType
     @type
@@ -162,7 +160,7 @@ class WorkflowStepResult_Shim
 
   def setStepResult(step_result)
     @result[:step_result] = step_result
- end
+  end
 end
 
 # WorkflowStep_Shim provides a shim interface to the WorkflowStep class in OpenStudio 2.X when running in OpenStudio 1.X

@@ -125,7 +125,7 @@ module OpenStudio
         # @return [Void]
         #
         def call_energyplus(run_directory, energyplus_path = nil, output_adapter = nil, logger = nil, workflow_json = nil)
-          logger ||= ::Logger.new(STDOUT) unless logger
+          logger ||= ::Logger.new($stdout) unless logger
 
           current_dir = Dir.pwd
           energyplus_path ||= find_energyplus
@@ -231,7 +231,7 @@ module OpenStudio
           end
 
           # merge in monthly reports
-          EnergyPlus.monthly_report_idf_text.split(/^[\s]*$/).each do |object|
+          EnergyPlus.monthly_report_idf_text.split(/^\s*$/).each do |object|
             object = object.strip
             next if object.empty?
 
@@ -278,11 +278,9 @@ module OpenStudio
           allowed_objects << 'Meter:CustomDecrement'
           allowed_objects << 'EnergyManagementSystem:OutputVariable'
 
-          if allowed_objects.include?(idd_object.name)
-            unless check_for_object(workspace, idf_object, idd_object.type)
-              workspace.addObject(idf_object)
-              num_added += 1
-            end
+          if allowed_objects.include?(idd_object.name) && !check_for_object(workspace, idf_object, idd_object.type)
+            workspace.addObject(idf_object)
+            num_added += 1
           end
 
           allowed_unique_objects = []
@@ -293,15 +291,13 @@ module OpenStudio
           # OutputControl:ReportingTolerances # not allowed
           # Output:SQLite # not allowed
 
-          if allowed_unique_objects.include?(idf_object.iddObject.name)
-            if idf_object.iddObject.name == 'Output:Table:SummaryReports'
-              summary_reports = workspace.getObjectsByType(idf_object.iddObject.type)
-              if summary_reports.empty?
-                workspace.addObject(idf_object)
-                num_added += 1
-              else
-                merge_output_table_summary_reports(summary_reports[0], idf_object)
-              end
+          if allowed_unique_objects.include?(idf_object.iddObject.name) && (idf_object.iddObject.name == 'Output:Table:SummaryReports')
+            summary_reports = workspace.getObjectsByType(idf_object.iddObject.type)
+            if summary_reports.empty?
+              workspace.addObject(idf_object)
+              num_added += 1
+            else
+              merge_output_table_summary_reports(summary_reports[0], idf_object)
             end
           end
 

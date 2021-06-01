@@ -47,22 +47,6 @@ module OpenStudio
           raise 'The required :url option was not passed to the web output adapter' unless options[:url]
         end
 
-        def communicate_started
-          super
-        end
-
-        def communicate_results(directory, results)
-          super
-        end
-
-        def communicate_complete
-          super
-        end
-
-        def communicate_failure
-          super
-        end
-
         def communicate_objective_function(objectives, options = {})
           super
         end

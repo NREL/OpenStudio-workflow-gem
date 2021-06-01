@@ -48,12 +48,7 @@ module OpenStudio
     class Run
       attr_accessor :registry
 
-      attr_reader :options
-      attr_reader :input_adapter
-      attr_reader :output_adapter
-      attr_reader :final_message
-      attr_reader :job_results
-      attr_reader :current_state
+      attr_reader :options, :input_adapter, :output_adapter, :final_message, :job_results, :current_state
 
       # Define the default set of jobs. Note that the states of :queued of :finished need to exist for all job arrays.
       #
@@ -159,15 +154,13 @@ module OpenStudio
         end
 
         # By default blow away the entire run directory every time and recreate it
-        unless @options[:preserve_run_dir]
-          if File.exist?(@registry[:run_dir])
-            # logger is not initialized yet (it needs run dir to exist for log)
-            puts "Removing existing run directory #{@registry[:run_dir]}" if @options[:debug]
+        if !@options[:preserve_run_dir] && File.exist?(@registry[:run_dir])
+          # logger is not initialized yet (it needs run dir to exist for log)
+          puts "Removing existing run directory #{@registry[:run_dir]}" if @options[:debug]
 
-            # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
-            # TODO: Echoing Dan's comment
-            FileUtils.rm_rf(@registry[:run_dir])
-          end
+          # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
+          # TODO: Echoing Dan's comment
+          FileUtils.rm_rf(@registry[:run_dir])
         end
         FileUtils.mkdir_p(@registry[:run_dir])
 
@@ -177,7 +170,7 @@ module OpenStudio
         else
           # don't create these files unless we want to use them
           # DLM: TODO, make sure that run.log will be closed later
-          @options[:targets] = [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
+          @options[:targets] = [$stdout, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
         end
 
         @registry.register(:log_targets) { @options[:targets] }

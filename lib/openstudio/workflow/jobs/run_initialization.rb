@@ -181,7 +181,7 @@ class RunInitialization < OpenStudio::Workflow::Job
 
     unless weather_path.empty?
       weather_path = weather_path.get
-      @logger.debug 'Searching for weather file #{weather_path}'
+      @logger.debug "Searching for weather file #{weather_path}"
 
       weather_full_path = workflow_json.findFile(weather_path)
       if weather_full_path.empty?

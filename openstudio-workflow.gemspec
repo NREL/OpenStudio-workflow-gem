@@ -27,11 +27,11 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'ci_reporter_rspec', '~> 1.0.0'
   s.add_development_dependency 'coveralls', '~> 0.8.21'
   s.add_development_dependency 'json-schema', '~> 2.8.0'
+  s.add_development_dependency 'openstudio_measure_tester', '~> 0.3.1'
   s.add_development_dependency 'openstudio-standards', '~> 0.2.14'
   s.add_development_dependency 'parallel', '~> 1.19.1'
   s.add_development_dependency 'public_suffix', '~> 4.0.3'
   s.add_development_dependency 'rainbow', '~> 3.0.0'
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rspec', '~> 3.9'
-  s.add_development_dependency 'openstudio_measure_tester', '~> 0.3.1'
 end

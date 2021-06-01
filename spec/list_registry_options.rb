@@ -39,7 +39,7 @@ registry = []
 registry_register = []
 options = []
 
-Dir.glob(File.expand_path('../lib/', File.dirname(__FILE__)) + '/**/*.rb').each do |p|
+Dir.glob("#{File.expand_path('../lib/', File.dirname(__FILE__))}/**/*.rb").each do |p|
   next if /run.rb/.match(p)
   next if /local.rb/.match(p)
 

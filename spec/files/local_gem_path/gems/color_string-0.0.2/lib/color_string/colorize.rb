@@ -2,7 +2,7 @@
 
 module ColorString
   class Colorize
-    REGEX = /\[[a-z0-9_-]+\]/i
+    REGEX = /\[[a-z0-9_-]+\]/i.freeze
     CODES = {
       'default' => '39',
 

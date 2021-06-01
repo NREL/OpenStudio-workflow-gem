@@ -40,7 +40,7 @@ require 'json-schema'
 
 def get_schema(allow_optionals = true)
   schema = nil
-  schema_path = File.dirname(__FILE__) + '/../../schema/osw.json'
+  schema_path = "#{File.dirname(__FILE__)}/../../schema/osw.json"
   expect(File.exist?(schema_path)).to be true
   File.open(schema_path) do |f|
     schema = JSON.parse(f.read, symbolize_names: true)
@@ -56,7 +56,7 @@ end
 
 def get_osw(path)
   osw = nil
-  osw_path = File.dirname(__FILE__) + '/../../files/' + path
+  osw_path = "#{File.dirname(__FILE__)}/../../files/#{path}"
   expect(File.exist?(osw_path)).to be true
   File.open(osw_path) do |f|
     osw = JSON.parse(f.read, symbolize_names: true)

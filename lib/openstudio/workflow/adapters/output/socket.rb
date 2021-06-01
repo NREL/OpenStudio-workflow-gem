@@ -55,10 +55,6 @@ module OpenStudio
           @socket.write("Started\n")
         end
 
-        def communicate_results(directory, results)
-          super
-        end
-
         def communicate_complete
           super
           @socket.write("Complete\n")
@@ -75,7 +71,7 @@ module OpenStudio
 
         def communicate_transition(message, type, options = {})
           super
-          @socket.write(message + "\n")
+          @socket.write("#{message}\n")
         end
 
         def communicate_energyplus_stdout(line, options = {})

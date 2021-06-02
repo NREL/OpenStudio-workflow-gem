@@ -3,6 +3,8 @@ OpenStudio::Workflow Change Log
 
 Version 2.2.1
 -------------
+* Fixes [#4150](https://github.com/NREL/OpenStudio/issues/4150) LoadError changes current working directory in CLI
+* Add skip option to not zip up datapoint results
 * Update measure tester gem which upgrades Rubocop to 1.15
 * Update styles to v4 based on new version of Rubocop
 

@@ -69,10 +69,8 @@ class RunReportingMeasures < OpenStudio::Workflow::Job
       workflow = nil
       if File.exist? @registry[:osw_path]
         workflow = ::JSON.parse(File.read(@registry[:osw_path]), symbolize_names: true)
-        if !workflow.nil?
-          if !workflow[:urbanopt].nil?
-            @registry.register(:urbanopt) { workflow[:urbanopt] }
-          end
+        if !workflow.nil? && !workflow[:urbanopt].nil?
+          @registry.register(:urbanopt) { workflow[:urbanopt] }
         end
       end
     end

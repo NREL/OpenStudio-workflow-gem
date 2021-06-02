@@ -7,7 +7,6 @@ AllCops:
     - 'spec/files/pat_project/data_point_*/**/*'
     - 'spec/files/pat_project/run/**/*'
     - 'spec/files/mongo_pat1/run/**/*'
-
+require: rubocop-performance
 inherit_from:
-  - http://s3.amazonaws.com/openstudio-resources/styles/rubocop_v3.yml
-
+  - http://s3.amazonaws.com/openstudio-resources/styles/rubocop_v4.yml

@@ -65,13 +65,11 @@ class WorkflowRunner < OpenStudio::Ruleset::OSRunner
     ::Time.now.utc.strftime('%Y%m%dT%H%M%SZ')
   end
 
-  attr_reader :datapoint
+  attr_reader :datapoint, :analysis
 
   def setDatapoint(datapoint)
     @datapoint = datapoint
   end
-
-  attr_reader :analysis
 
   def setAnalysis(analysis)
     @analysis = analysis

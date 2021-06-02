@@ -48,12 +48,7 @@ module OpenStudio
     class Run
       attr_accessor :registry
 
-      attr_reader :options
-      attr_reader :input_adapter
-      attr_reader :output_adapter
-      attr_reader :final_message
-      attr_reader :job_results
-      attr_reader :current_state
+      attr_reader :options, :input_adapter, :output_adapter, :final_message, :job_results, :current_state
 
       # Define the default set of jobs. Note that the states of :queued of :finished need to exist for all job arrays.
       #
@@ -90,6 +85,7 @@ module OpenStudio
       # @option user_options [Hash] :debug Print debugging messages, overrides OSW option if set, defaults to false
       # @option user_options [Hash] :energyplus_path Specifies path to energyplus executable, defaults to empty
       # @option user_options [Hash] :fast Speeds up workflow by skipping steps not needed for running simulations, defaults to false
+      # @option user_options [Hash] :skip_zip_results Skips creating the data_point.zip file. Setting to `true` can cause issues with workflows expecting .zip files to signal completion (e.g., OpenStudio Analysis Framework), defaults to false
       # @option user_options [Hash] :jobs Simulation workflow, overrides jobs in OSW if set, defaults to default_jobs
       # @option user_options [Hash] :output_adapter Output adapter to use, overrides output adapter in OSW if set, defaults to local adapter
       # @option user_options [Hash] :preserve_run_dir Prevents run directory from being cleaned prior to run, overrides OSW option if set, defaults to false - DLM, Deprecate
@@ -158,15 +154,13 @@ module OpenStudio
         end
 
         # By default blow away the entire run directory every time and recreate it
-        unless @options[:preserve_run_dir]
-          if File.exist?(@registry[:run_dir])
-            # logger is not initialized yet (it needs run dir to exist for log)
-            puts "Removing existing run directory #{@registry[:run_dir]}" if @options[:debug]
+        if !@options[:preserve_run_dir] && File.exist?(@registry[:run_dir])
+          # logger is not initialized yet (it needs run dir to exist for log)
+          puts "Removing existing run directory #{@registry[:run_dir]}" if @options[:debug]
 
-            # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
-            # TODO: Echoing Dan's comment
-            FileUtils.rm_rf(@registry[:run_dir])
-          end
+          # DLM: this is dangerous, we are calling rm_rf on a user entered directory, need to check this first
+          # TODO: Echoing Dan's comment
+          FileUtils.rm_rf(@registry[:run_dir])
         end
         FileUtils.mkdir_p(@registry[:run_dir])
 
@@ -176,7 +170,7 @@ module OpenStudio
         else
           # don't create these files unless we want to use them
           # DLM: TODO, make sure that run.log will be closed later
-          @options[:targets] = [STDOUT, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
+          @options[:targets] = [$stdout, File.open(File.join(@registry[:run_dir], 'run.log'), 'a')]
         end
 
         @registry.register(:log_targets) { @options[:targets] }
@@ -204,6 +198,7 @@ module OpenStudio
         @options[:verify_osw] = @input_adapter.verify_osw(user_options, true)
         @options[:weather_file] = @input_adapter.weather_file(user_options, nil)
         @options[:fast] = @input_adapter.fast(user_options, false)
+        @options[:skip_zip_results] = @input_adapter.skip_zip_results(user_options, false)
 
         openstudio_dir = 'unknown'
         begin
@@ -236,7 +231,7 @@ module OpenStudio
 
           if !@options[:fast]
             @logger.info 'Finished workflow - communicating results and zipping files'
-            @output_adapter.communicate_results(@registry[:run_dir], @registry[:results])
+            @output_adapter.communicate_results(@registry[:run_dir], @registry[:results], @options[:skip_zip_results])
           end
         rescue StandardError => e
           @logger.info "Error occurred during running with #{e.message}"

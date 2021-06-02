@@ -1,6 +1,11 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version 2.2.1
+-------------
+* Update measure tester gem which upgrades Rubocop to 1.15
+* Update styles to v4 based on new version of Rubocop
+
 Version 2.2.0
 -------------
 * Minimum Ruby version upgraded to 2.7.0

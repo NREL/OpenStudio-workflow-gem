@@ -95,10 +95,19 @@ module OpenStudio
             next if File.directory? file
 
             # copy idd and ini files
-            if File.extname(file).downcase =~ /.idd|.ini/
-              dest_file = "#{run_directory}/#{File.basename(file)}"
-              energyplus_files << dest_file
-              FileUtils.copy file, dest_file
+
+            if @options[:epjson]
+              if File.extname(file).downcase =~ /.epjson/
+                dest_file = "#{run_directory}/#{File.basename(file)}"
+                energyplus_files << dest_file
+                FileUtils.copy file, dest_file
+              end
+            else 
+              if File.extname(file).downcase =~ /.idd|.ini/
+                dest_file = "#{run_directory}/#{File.basename(file)}"
+                energyplus_files << dest_file
+                FileUtils.copy file, dest_file
+              end
             end
 
             energyplus_exe = file if File.basename(file) =~ ENERGYPLUS_REGEX

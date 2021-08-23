@@ -94,7 +94,7 @@ module OpenStudio
         # @return [Object] Returns and OpenStudio::Workspace object
         # @todo (rhorsey) rescue errors here
         #
-        def translate_to_energyplus(model, logger = nil)
+        def translate_to_energyplus(model, logger = nil, epjson = false)
           logger ||= ::Logger.new($stdout)
           logger.info 'Translate object to EnergyPlus IDF in preparation for EnergyPlus'
           a = ::Time.now
@@ -105,7 +105,12 @@ module OpenStudio
           model_idf = forward_translator.translateModel(model)
           b = ::Time.now
           logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
-          model_idf
+          if epjson
+            model_epjson = openstudio::epJSON::toJSON(model_idf)
+            return model_epjson
+          else
+            return model_idf
+          end
         end
 
         # Saves an OpenStudio model object to file

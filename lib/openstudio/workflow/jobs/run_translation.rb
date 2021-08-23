@@ -66,10 +66,20 @@ class RunTranslation < OpenStudio::Workflow::Job
       @logger.warn "EPW file not found or not sent to #{self.class}"
     end
 
+    # Translate the OSM to an epJSON if true
+    if @options[:epjson]
+      @logger.info 'Beginning the translation to epJSON'
+      @registry[:time_logger]&.start('Translating to EnergyPlus')
+      model_epjson = translate_to_energyplus @registry[:model], @logger, @options[:epjson]
+      @registry[:time_logger]&.stop('Translating to EnergyPlus')
+      @registry.register(:model_epjson) { model_epjson }
+      @logger.info 'Successfully translated to epJSON'
+    end
+
     # Translate the OSM to an IDF
     @logger.info 'Beginning the translation to IDF'
     @registry[:time_logger]&.start('Translating to EnergyPlus')
-    model_idf = translate_to_energyplus @registry[:model], @logger
+    model_idf = translate_to_energyplus @registry[:model], @logger, false
     @registry[:time_logger]&.stop('Translating to EnergyPlus')
     @registry.register(:model_idf) { model_idf }
     @logger.info 'Successfully translated to IDF'

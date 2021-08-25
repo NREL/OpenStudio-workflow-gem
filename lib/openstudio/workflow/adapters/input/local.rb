@@ -291,6 +291,13 @@ module OpenStudio
           return default
         end
 
+        def epjson(user_options, default)
+          # user option trumps all others
+          return user_options[:epjson] if user_options[:epjson]
+
+          return default
+        end
+
         def weather_file(user_options, default)
           # user option trumps all others
           return user_options[:weather_file] if user_options[:weather_file]

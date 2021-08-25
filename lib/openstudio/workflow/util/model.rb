@@ -94,7 +94,7 @@ module OpenStudio
         # @return [Object] Returns and OpenStudio::Workspace object
         # @todo (rhorsey) rescue errors here
         #
-        def translate_to_energyplus(model, logger = nil, epjson = false)
+        def translate_to_energyplus(model, logger = nil)
           logger ||= ::Logger.new($stdout)
           logger.info 'Translate object to EnergyPlus IDF in preparation for EnergyPlus'
           a = ::Time.now
@@ -105,12 +105,23 @@ module OpenStudio
           model_idf = forward_translator.translateModel(model)
           b = ::Time.now
           logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
-          if epjson
-            model_epjson = openstudio::epJSON::toJSON(model_idf)
-            return model_epjson
-          else
-            return model_idf
-          end
+          model_idf
+        end
+         # Translates an IDF model into an EnergyPlus epJSON object
+        #
+        # @param [Object] OpenStudio::IdfFile instance to translate into an OpenStudio epJSON object -- see
+        #   the OpenStudio SDK for details on the process
+        # @return [Object] Returns and OpenStudio::epJSONobject
+        #
+        def translate_idf_to_epjson(model_idf, logger = nil)
+          logger ||= ::Logger.new($stdout)
+          logger.info 'Translate IDF to epJSON in preparation for EnergyPlus'
+          a = ::Time.now
+          model_epjson = OpenStudio::EPJSON::toJSON(model_idf)
+          b = ::Time.now
+          logger.info "Translate IDF to EnergyPlus epJSON took #{b.to_f - a.to_f}"
+
+          model_epjson
         end
 
         # Saves an OpenStudio model object to file
@@ -153,6 +164,27 @@ module OpenStudio
             end
           end
           idf_filename
+        end
+
+        # Saves an OpenStudio EpJSON model object to file
+        #
+        # @param [Object] model The OpenStudio::Workspace instance to save to file
+        # @param [String] save_directory Folder to save the model in
+        # @param [String] name ('in.epJSON') Option to define a non-standard name
+        # @return [String] epJSON file name
+        #
+        def save_epjson(model_epjson, save_directory, name = 'in.epJSON')
+          epjson_filename = File.join(save_directory.to_s, name.to_s)
+          File.open(epjson_filename, 'w') do |f|
+            f << model_epjson.to_s
+            # make sure data is written to the disk one way or the other
+            begin
+              f.fsync
+            rescue StandardError
+              f.flush
+            end
+          end
+          epjson_filename
         end
       end
     end

@@ -133,28 +133,8 @@ module OpenStudio
           energyplus_path ||= find_energyplus
           logger.info "EnergyPlus path is #{energyplus_path}"
 
-          # Translate the IDF to an epJSON if @options[:epjson] is true
-          # Ideally, this would be done sooner in the workflow process but many processes 
-          # manipulate the model_idf, some which are ep_measures that may not work with json 
-          # so we do the conversion here from idf to epJSON before running energyplus
-          if @options[:epjson]
-            @logger.info 'Beginning the translation to epJSON'
-            @registry[:time_logger]&.start('Translating to EnergyPlus epJSON')
-            model_epjson = translate_idf_to_epjson @registry[:model_idf], @logger
-            @registry[:time_logger]&.stop('Translating to EnergyPlus')
-            @registry.register(:model_epjson) { model_epjson }
-            @logger.info 'Successfully translated to epJSON'
-  
-            @registry[:time_logger]&.start('Saving epJSON')
-            epjson_name = save_epjson(@registry[:model_epjson], @registry[:root_dir])
-            @registry[:time_logger]&.stop('Saving epJSON')
-            @logger.debug "Saved epJSON as #{epjson_name}"
-
-          end
-
           energyplus_files, energyplus_exe, expand_objects_exe = prepare_energyplus_dir(run_directory, logger, energyplus_path)
 
-    
           Dir.chdir(run_directory)
           logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
@@ -176,8 +156,28 @@ module OpenStudio
             end
           end
 
-          # Run using epJSON if @options[:epjson] true, otherwise default 
-          # to use IDF
+          # Translate the IDF to an epJSON if @options[:epjson] is true
+          # Ideally, this would be done sooner in the workflow process but many processes 
+          # manipulate the model_idf, some which are ep_measures that may not work with json 
+          # and ExpandObjects does not currently support epjson anyway to that still needs to run
+          # before this can be changed. 
+          if @options[:epjson]
+            @logger.info 'Beginning the translation to epJSON'
+            @registry[:time_logger]&.start('Translating to EnergyPlus epJSON')
+            idf_final = load_idf('in.idf', @logger)
+            #model_epjson = translate_idf_to_epjson idf_final, @logger
+            model_epjson = translate_idf_to_epjson @registry[:model_idf], @logger
+            @registry[:time_logger]&.stop('Translating to EnergyPlus')
+            @registry.register(:model_epjson) { model_epjson }
+            @logger.info 'Successfully translated to epJSON'
+            @registry[:time_logger]&.start('Saving epJSON')
+            epjson_name = save_epjson(@registry[:model_epjson], run_directory)
+            epjson_name = save_epjson(@registry[:model_epjson], @registry[:root_dir])
+            @registry[:time_logger]&.stop('Saving epJSON')
+            @logger.debug "Saved epJSON as #{epjson_name}"
+          end
+
+          # Run using epJSON if @options[:epjson] true, otherwise use ID 
           if @options[:epjson]
             command = popen_command("\"#{energyplus_exe} in.epJSON\" 2>&1")
             logger.info "Running command '#{command}'"

@@ -117,7 +117,7 @@ module OpenStudio
           logger ||= ::Logger.new($stdout)
           logger.info 'Translate IDF to epJSON in preparation for EnergyPlus'
           a = ::Time.now
-          model_epjson = OpenStudio::EPJSON::toJSON(model_idf)
+          model_epjson = OpenStudio::EPJSON::toJSONString(model_idf)
           b = ::Time.now
           logger.info "Translate IDF to EnergyPlus epJSON took #{b.to_f - a.to_f}"
 

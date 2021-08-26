@@ -165,21 +165,19 @@ module OpenStudio
             @logger.info 'Beginning the translation to epJSON'
             @registry[:time_logger]&.start('Translating to EnergyPlus epJSON')
             idf_final = load_idf('in.idf', @logger)
-            #model_epjson = translate_idf_to_epjson idf_final, @logger
-            model_epjson = translate_idf_to_epjson @registry[:model_idf], @logger
+            model_epjson = translate_idf_to_epjson idf_final, @logger
             @registry[:time_logger]&.stop('Translating to EnergyPlus')
             @registry.register(:model_epjson) { model_epjson }
             @logger.info 'Successfully translated to epJSON'
             @registry[:time_logger]&.start('Saving epJSON')
             epjson_name = save_epjson(@registry[:model_epjson], run_directory)
-            epjson_name = save_epjson(@registry[:model_epjson], @registry[:root_dir])
             @registry[:time_logger]&.stop('Saving epJSON')
             @logger.debug "Saved epJSON as #{epjson_name}"
           end
 
           # Run using epJSON if @options[:epjson] true, otherwise use ID 
           if @options[:epjson]
-            command = popen_command("\"#{energyplus_exe} in.epJSON\" 2>&1")
+            command = popen_command("\"#{energyplus_exe}\" in.epJSON 2>&1")
             logger.info "Running command '#{command}'"
             File.open('stdout-energyplus', 'w') do |file|
               ::IO.popen(command) do |io|

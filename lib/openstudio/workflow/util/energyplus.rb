@@ -167,10 +167,9 @@ module OpenStudio
             idf_final = load_idf('in.idf', @logger)
             model_epjson = translate_idf_to_epjson idf_final, @logger
             @registry[:time_logger]&.stop('Translating to EnergyPlus')
-            @registry.register(:model_epjson) { model_epjson }
             @logger.info 'Successfully translated to epJSON'
             @registry[:time_logger]&.start('Saving epJSON')
-            epjson_name = save_epjson(@registry[:model_epjson], run_directory)
+            epjson_name = save_epjson(model_epjson, run_directory)
             @registry[:time_logger]&.stop('Saving epJSON')
             @logger.debug "Saved epJSON as #{epjson_name}"
           end

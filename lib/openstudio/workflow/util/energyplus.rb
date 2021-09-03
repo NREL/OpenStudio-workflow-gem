@@ -164,7 +164,7 @@ module OpenStudio
           if @options[:epjson]
             @logger.info 'Beginning the translation to epJSON'
             @registry[:time_logger]&.start('Translating to EnergyPlus epJSON')
-            idf_final = load_idf('in.idf', @logger)
+            idf_final = load_idf("#{run_directory}/in.idf", @logger)
             model_epjson = translate_idf_to_epjson idf_final, @logger
             @registry[:time_logger]&.stop('Translating to EnergyPlus')
             @logger.info 'Successfully translated to epJSON'

@@ -291,6 +291,23 @@ module OpenStudio
           return default
         end
 
+        def epjson(user_options, default, logger)
+     
+          # check version for this feature
+          os_version = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
+          min_version_epjson_feature = OpenStudio::VersionString.new("3.2.2")
+          unless os_version >= min_version_epjson_feature
+            log_message = "epJSON is only supporteded for versions >= 3.2.2.  Falling back to using IDF"
+            logger.info log_message
+            return default
+          end
+
+               # user option trumps all others
+          return user_options[:epjson] if user_options[:epjson]
+
+          return default
+        end
+
         def weather_file(user_options, default)
           # user option trumps all others
           return user_options[:weather_file] if user_options[:weather_file]

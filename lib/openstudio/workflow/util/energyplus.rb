@@ -43,6 +43,8 @@ module OpenStudio
       module EnergyPlus
         require 'openstudio/workflow/util/io'
         include OpenStudio::Workflow::Util::IO
+        require 'openstudio/workflow/util/model'
+        include OpenStudio::Workflow::Util::Model
         ENERGYPLUS_REGEX = /^energyplus\D{0,4}$/i.freeze
         EXPAND_OBJECTS_REGEX = /^expandobjects\D{0,4}$/i.freeze
 
@@ -94,8 +96,8 @@ module OpenStudio
           Dir["#{energyplus_path}/*"].each do |file|
             next if File.directory? file
 
-            # copy idd and ini files
-            if File.extname(file).downcase =~ /.idd|.ini/
+            # copy idd, ini and epJSON schema files
+            if File.extname(file).downcase =~ /.idd|.ini|.epjson/
               dest_file = "#{run_directory}/#{File.basename(file)}"
               energyplus_files << dest_file
               FileUtils.copy file, dest_file
@@ -130,7 +132,9 @@ module OpenStudio
           current_dir = Dir.pwd
           energyplus_path ||= find_energyplus
           logger.info "EnergyPlus path is #{energyplus_path}"
+
           energyplus_files, energyplus_exe, expand_objects_exe = prepare_energyplus_dir(run_directory, logger, energyplus_path)
+
           Dir.chdir(run_directory)
           logger.info "Starting simulation in run directory: #{Dir.pwd}"
 
@@ -152,18 +156,50 @@ module OpenStudio
             end
           end
 
-          # create stdout
-          command = popen_command("\"#{energyplus_exe}\" 2>&1")
-          logger.info "Running command '#{command}'"
-          File.open('stdout-energyplus', 'w') do |file|
-            ::IO.popen(command) do |io|
-              while (line = io.gets)
-                file << line
-                output_adapter&.communicate_energyplus_stdout(line)
+          # Translate the IDF to an epJSON if @options[:epjson] is true
+          # Ideally, this would be done sooner in the workflow process but many processes 
+          # manipulate the model_idf, some which are ep_measures that may not work with json 
+          # and ExpandObjects does not currently support epjson anyway to that still needs to run
+          # before this can be changed. 
+          if @options[:epjson]
+            @logger.info 'Beginning the translation to epJSON'
+            @registry[:time_logger]&.start('Translating to EnergyPlus epJSON')
+            idf_final = load_idf("#{run_directory}/in.idf", @logger)
+            model_epjson = translate_idf_to_epjson idf_final, @logger
+            @registry[:time_logger]&.stop('Translating to EnergyPlus')
+            @logger.info 'Successfully translated to epJSON'
+            @registry[:time_logger]&.start('Saving epJSON')
+            epjson_name = save_epjson(model_epjson, run_directory)
+            @registry[:time_logger]&.stop('Saving epJSON')
+            @logger.debug "Saved epJSON as #{epjson_name}"
+          end
+
+          # Run using epJSON if @options[:epjson] true, otherwise use ID 
+          if @options[:epjson]
+            command = popen_command("\"#{energyplus_exe}\" in.epJSON 2>&1")
+            logger.info "Running command '#{command}'"
+            File.open('stdout-energyplus', 'w') do |file|
+              ::IO.popen(command) do |io|
+                while (line = io.gets)
+                  file << line
+                  output_adapter&.communicate_energyplus_stdout(line)
+                end
               end
             end
+            r = $?
+          else
+            command = popen_command("\"#{energyplus_exe}\" 2>&1")
+            logger.info "Running command '#{command}'"
+            File.open('stdout-energyplus', 'w') do |file|
+              ::IO.popen(command) do |io|
+                while (line = io.gets)
+                  file << line
+                  output_adapter&.communicate_energyplus_stdout(line)
+                end
+              end
+            end
+            r = $?
           end
-          r = $?
 
           logger.info "EnergyPlus returned '#{r}'"
           unless r.to_i.zero?

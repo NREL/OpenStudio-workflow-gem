@@ -102,6 +102,13 @@ module OpenStudio
           model.getFacility
           model.getBuilding
           forward_translator = OpenStudio::EnergyPlus::ForwardTranslator.new
+
+          # Currently, exclude_space_translation default value is set to true but this will be 
+          # eventually be changed to false once this is standardized. 
+          if @options[:exclude_space_translation] == false
+            forward_translator.setexclude_space_translation(@options[:exclude_space_translation])
+          end
+
           model_idf = forward_translator.translateModel(model)
           b = ::Time.now
           logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"

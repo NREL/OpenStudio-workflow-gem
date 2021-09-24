@@ -295,15 +295,32 @@ module OpenStudio
      
           # check version for this feature
           os_version = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
-          min_version_epjson_feature = OpenStudio::VersionString.new("3.2.2")
-          unless os_version >= min_version_epjson_feature
+          min_version_feature = OpenStudio::VersionString.new("3.2.2")
+          unless os_version >= min_version_feature
             log_message = "epJSON is only supporteded for versions >= 3.2.2.  Falling back to using IDF"
             logger.info log_message
             return default
           end
 
-               # user option trumps all others
+          # user option trumps all others
           return user_options[:epjson] if user_options[:epjson]
+
+          return default
+        end
+
+        def exclude_space_translation(user_options, default, logger)
+     
+          # check version for this feature
+          os_version = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
+          min_version_feature = OpenStudio::VersionString.new("3.3.0")
+          unless os_version >= min_version_feature
+            log_message = "epJSON is only supporteded for versions >= 3.3.0.  Setting to true by default"
+            logger.info log_message
+            return default
+          end
+
+          # user option trumps all others
+          return user_options[:exclude_space_translation] if user_options[:epjson]
 
           return default
         end

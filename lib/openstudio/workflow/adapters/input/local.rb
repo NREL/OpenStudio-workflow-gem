@@ -292,18 +292,35 @@ module OpenStudio
         end
 
         def epjson(user_options, default, logger)
-     
+
           # check version for this feature
           os_version = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
-          min_version_epjson_feature = OpenStudio::VersionString.new("3.2.2")
-          unless os_version >= min_version_epjson_feature
-            log_message = "epJSON is only supporteded for versions >= 3.2.2.  Falling back to using IDF"
+          min_version_feature = OpenStudio::VersionString.new("3.3.0")
+          unless os_version >= min_version_feature
+            log_message = "epJSON is only supported for versions >= 3.3.0. Falling back to using IDF"
             logger.info log_message
             return default
           end
 
                # user option trumps all others
           return user_options[:epjson] if user_options[:epjson]
+
+          return default
+        end
+
+        def ft_options(user_options, default, logger)
+
+          # check version for this feature
+          os_version = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
+          min_version_feature = OpenStudio::VersionString.new("3.3.0")
+          unless os_version >= min_version_feature
+            log_message = "ft_options subhash are only supported for versions >= 3.3.0. Setting to empty by default"
+            logger.info log_message
+            return default
+          end
+
+          # user option trumps all others
+          return user_options[:ft_options] if user_options[:ft_options]
 
           return default
         end

@@ -105,23 +105,18 @@ module OpenStudio
 
           ft_options = @options[:ft_options]
           if !ft_options.empty?
-            mapping = {
-              :runcontrolspecialdays => :setKeepRunControlSpecialDays,
-              :ip_tabular_output => :setIPTabularOutput,
-              :no_lifecyclecosts => :setExcludeLCCObjects,
-              :no_sqlite_output => :setExcludeSQliteOutputReport,
-              :no_html_output => :setExcludeHTMLOutputReport,
-              :no_variable_dictionary => :setExcludeVariableDictionary,
-              :no_space_translation => :setExcludeSpaceTranslation,
-            }
 
             msg = "Custom ForwardTranslator options passed:\n"
-            mapping.each do |opt_flag_name, ft_method|
-              opt_flag = ft_options[opt_flag_name]
-              if !opt_flag.nil?
-                ft.method(ft_method).call(opt_flag)
-                msg += "* :#{opt_flag_name}=#{opt_flag} => ft.#{ft_method}(#{opt_flag})\n"
-              end
+
+            ft_options.each do |opt_flag_name, h|
+
+              ft_method = h[:method_name]
+              opt_flag = h[:value]
+
+              # Call the FT setter with the value passed in
+              ft.method(ft_method).call(opt_flag)
+
+              msg += "* :#{opt_flag_name}=#{opt_flag} => ft.#{ft_method}(#{opt_flag})\n"
             end
 
             logger.info msg

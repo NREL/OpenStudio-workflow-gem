@@ -308,19 +308,52 @@ module OpenStudio
           return default
         end
 
+        # Process the `run` method `ft_options` subhash
+        #
+        # This will validate that each suboption is supported in the current
+        # version as well as enhance the hash with the corresponding
+        # ForwardTranslator method name to set the value on the FT later
+        # in `translate_to_energyplus`
         def ft_options(user_options, default, logger)
 
           # check version for this feature
           os_version = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
-          min_version_feature = OpenStudio::VersionString.new("3.3.0")
-          unless os_version >= min_version_feature
-            log_message = "ft_options subhash are only supported for versions >= 3.3.0. Setting to empty by default"
-            logger.info log_message
-            return default
-          end
 
-          # user option trumps all others
-          return user_options[:ft_options] if user_options[:ft_options]
+          os300 = OpenStudio::VersionString.new("3.0.0")
+          os330 = OpenStudio::VersionString.new("3.3.0")
+          known_ft_opts = {
+            # All Versions
+            :runcontrolspecialdays => {:method_name => :setKeepRunControlSpecialDays, :min_version => nil},
+            :ip_tabular_output => {:method_name => :setIPTabularOutput, :min_version => nil},
+            :no_lifecyclecosts => {:method_name => :setExcludeLCCObjects, :min_version => nil},
+            # 3.0.0
+            :no_sqlite_output => {:method_name => :setExcludeSQliteOutputReport, :min_version => os300},
+            :no_html_output => {:method_name => :setExcludeHTMLOutputReport, :min_version => os300},
+            :no_variable_dictionary => {:method_name => :setExcludeVariableDictionary, :min_version => os300},
+            # 3.3.0
+            :no_space_translation => {:method_name => :setExcludeSpaceTranslation, :min_version => os330},
+          }
+
+          if user_options[:ft_options]
+            ft_opts = {}
+            user_options[:ft_options].each do |opt_flag_name, opt_flag|
+              puts "#{opt_flag_name} = #{opt_flag}"
+              unless known_ft_opts.key?(opt_flag_name)
+                log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."
+                logger.warn log_message
+                next
+              end
+              min_version = known_ft_opts[opt_flag_name][:min_version]
+              if !min_version.nil? && os_version < min_version
+                log_message = "'ft_options' suboption '#{opt_flag_name}' is only supported for OpenStudio Version >= #{min_version.str}, ignoring it."
+                logger.warn log_message
+                next
+              end
+              ft_opts[opt_flag_name] = {:method_name => known_ft_opts[opt_flag_name][:method_name], :value => opt_flag}
+            end
+
+            return ft_opts
+          end
 
           return default
         end

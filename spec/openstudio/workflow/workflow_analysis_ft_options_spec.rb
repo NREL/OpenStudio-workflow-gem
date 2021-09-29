@@ -50,7 +50,7 @@ describe 'OSW Integration' do
     expect(k.run).to eq :finished
   end
 
-  it 'should run compact OSW file with translator options (no space translation)' do
+  it 'should run compact OSW file with translator options 1' do
     osw_path = File.expand_path('../../files/compact_osw/compact.osw', __dir__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 
@@ -59,14 +59,15 @@ describe 'OSW Integration' do
 
     run_options = {
       debug: true,
-      runcontrolspecialdays: true,
-      ip_tabular_output: true,
-      no_lifecyclecosts: true,
-      no_sqlite_output: true,
-      no_html_output: true,
-      no_variable_dictionary: true,
-      no_space_translation: true
-
+      ft_options: {
+        runcontrolspecialdays: true,
+        ip_tabular_output: true,
+        no_lifecyclecosts: true,
+        no_sqlite_output: true,
+        no_html_output: true,
+        no_variable_dictionary: true,
+        no_space_translation: true
+      }
     }
     k = OpenStudio::Workflow::Run.new osw_path, run_options
     expect(k).to be_instance_of OpenStudio::Workflow::Run
@@ -88,7 +89,7 @@ describe 'OSW Integration' do
     end
   end
 
-  it 'should run compact OSW file with translator options (space translation)' do
+  it 'should run compact OSW file with translator options 2' do
     osw_path = File.expand_path('../../files/compact_osw/compact.osw', __dir__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
 

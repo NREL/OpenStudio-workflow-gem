@@ -174,7 +174,7 @@ module OpenStudio
             @logger.debug "Saved epJSON as #{epjson_name}"
           end
 
-          # Run using epJSON if @options[:epjson] true, otherwise use ID
+          # Run using epJSON if @options[:epjson] true, otherwise use IDF
           if @options[:epjson]
             command = popen_command("\"#{energyplus_exe}\" in.epJSON 2>&1")
             logger.info "Running command '#{command}'"

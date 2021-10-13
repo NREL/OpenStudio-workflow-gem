@@ -305,6 +305,11 @@ module OpenStudio
                # user option trumps all others
           return user_options[:epjson] if user_options[:epjson]
 
+          # try to read from OSW
+          if @run_options && !@run_options.get.epjson.empty?
+              return @run_options.get.epjson
+          end
+
           return default
         end
 
@@ -333,10 +338,32 @@ module OpenStudio
             # 3.3.0
             :no_space_translation => {:method_name => :setExcludeSpaceTranslation, :min_version => os330},
           }
+  
 
           if user_options[:ft_options]
             ft_opts = {}
             user_options[:ft_options].each do |opt_flag_name, opt_flag|
+              puts "#{opt_flag_name} = #{opt_flag}"
+              unless known_ft_opts.key?(opt_flag_name)
+                log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."
+                logger.warn log_message
+                next
+              end
+              min_version = known_ft_opts[opt_flag_name][:min_version]
+              if !min_version.nil? && os_version < min_version
+                log_message = "'ft_options' suboption '#{opt_flag_name}' is only supported for OpenStudio Version >= #{min_version.str}, ignoring it."
+                logger.warn log_message
+                next
+              end
+              ft_opts[opt_flag_name] = {:method_name => known_ft_opts[opt_flag_name][:method_name], :value => opt_flag}
+            end
+
+            return ft_opts
+          end
+
+          if @run_options && !@run_options.get.ft_options.empty?
+            ft_opts = {}
+            @run_options.get.ft_options.each do |opt_flag_name, opt_flag|
               puts "#{opt_flag_name} = #{opt_flag}"
               unless known_ft_opts.key?(opt_flag_name)
                 log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."

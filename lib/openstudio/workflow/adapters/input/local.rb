@@ -306,8 +306,9 @@ module OpenStudio
           return user_options[:epjson] if user_options[:epjson]
 
           # try to read from OSW
-          if @run_options && @run_options.get.respond_to?(:epjson)
-             return @run_options.get.epjson
+
+          if @run_options.is_initialized && @run_options.get.respond_to?(:epjson)
+            return @run_options.get.epjson
           end
 
           return default
@@ -363,10 +364,11 @@ module OpenStudio
           end
 
           # try to read from OSW
-          if @run_options &&@run_options.get.respond_to?(:forwardTranslateOptions) and !@run_options.get.forwardTranslateOptions.empty?
+
+          if @run_options.is_initialized && @run_options.get.respond_to?(:forwardTranslateOptions)
             ft_opts = {}
-            JSON.parse(@run_options.get.forwardTranslateOptions, :symbolize_names => true).each do |opt_flag_name, opt_flag|
-              unless known_ft_opts.key?(opt_flag_name)
+              JSON.parse(@run_options.get.forwardTranslateOptions, :symbolize_names => true).each do |opt_flag_name, opt_flag|
+                unless known_ft_opts.key?(opt_flag_name)
                 log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."
                 logger.warn log_message
                 next

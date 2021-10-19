@@ -101,8 +101,28 @@ module OpenStudio
           # ensure objects exist for reporting purposes
           model.getFacility
           model.getBuilding
-          forward_translator = OpenStudio::EnergyPlus::ForwardTranslator.new
-          model_idf = forward_translator.translateModel(model)
+          ft = OpenStudio::EnergyPlus::ForwardTranslator.new
+
+          ft_options = @options[:ft_options]
+          if !ft_options.empty?
+
+            msg = "Custom ForwardTranslator options passed:\n"
+
+            ft_options.each do |opt_flag_name, h|
+
+              ft_method = h[:method_name]
+              opt_flag = h[:value]
+
+              # Call the FT setter with the value passed in
+              ft.method(ft_method).call(opt_flag)
+
+              msg += "* :#{opt_flag_name}=#{opt_flag} => ft.#{ft_method}(#{opt_flag})\n"
+            end
+
+            logger.info msg
+          end
+
+          model_idf = ft.translateModel(model)
           b = ::Time.now
           logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
           model_idf

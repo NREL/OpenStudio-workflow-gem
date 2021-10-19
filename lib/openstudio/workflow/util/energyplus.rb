@@ -157,10 +157,10 @@ module OpenStudio
           end
 
           # Translate the IDF to an epJSON if @options[:epjson] is true
-          # Ideally, this would be done sooner in the workflow process but many processes 
-          # manipulate the model_idf, some which are ep_measures that may not work with json 
+          # Ideally, this would be done sooner in the workflow process but many processes
+          # manipulate the model_idf, some which are ep_measures that may not work with json
           # and ExpandObjects does not currently support epjson anyway to that still needs to run
-          # before this can be changed. 
+          # before this can be changed.
           if @options[:epjson]
             @logger.info 'Beginning the translation to epJSON'
             @registry[:time_logger]&.start('Translating to EnergyPlus epJSON')
@@ -174,7 +174,7 @@ module OpenStudio
             @logger.debug "Saved epJSON as #{epjson_name}"
           end
 
-          # Run using epJSON if @options[:epjson] true, otherwise use ID 
+          # Run using epJSON if @options[:epjson] true, otherwise use IDF
           if @options[:epjson]
             command = popen_command("\"#{energyplus_exe}\" in.epJSON 2>&1")
             logger.info "Running command '#{command}'"

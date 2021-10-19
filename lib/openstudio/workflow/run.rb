@@ -96,6 +96,7 @@ module OpenStudio
       # @option user_options [Hash] :verify_osw Check OSW for correctness, defaults to true
       # @option user_options [Hash] :weather_file Initial weather file to load, overrides OSW option if set, defaults to empty
       # @option user_options [Hash] :epjson - Create, export and run using epjson format. Default is IDF
+      # @option user_options [Hash] :ft_options - A subhash of options to set on the ForwardTranslator
       def initialize(osw_path, user_options = {})
         # DLM - what is final_message?
         @final_message = ''
@@ -201,6 +202,7 @@ module OpenStudio
         @options[:fast] = @input_adapter.fast(user_options, false)
         @options[:skip_zip_results] = @input_adapter.skip_zip_results(user_options, false)
         @options[:epjson] = @input_adapter.epjson(user_options, false,  @logger)
+        @options[:ft_options] = @input_adapter.ft_options(user_options, {},  @logger)
 
 
         openstudio_dir = 'unknown'

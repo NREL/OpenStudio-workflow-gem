@@ -98,6 +98,32 @@
 						"cleanup": {
 							"type": "boolean"
 						},
+						"epjson": {
+							"type": "boolean"
+						},
+						"ft_options": {
+							"runcontrolspecialdays": {
+								"type": "boolean"
+							},
+							"ip_tabular_output": {
+								"type": "boolean"
+							},
+							"no_lifecyclecosts": {
+								"type": "boolean"
+							},
+							"no_sqlite_output": {
+								"type": "boolean"
+							},
+							"no_html_output": {
+								"type": "boolean"
+							},
+							"no_variable_dictionary": {
+								"type": "boolean"
+							},
+							"no_space_translation": {
+								"type": "boolean"
+							}
+						},
 						"output_adapter": {
 							"type": "object",
 							"oneOf": [

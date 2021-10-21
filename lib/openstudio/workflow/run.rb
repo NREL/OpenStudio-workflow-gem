@@ -202,8 +202,7 @@ module OpenStudio
         @options[:fast] = @input_adapter.fast(user_options, false)
         @options[:skip_zip_results] = @input_adapter.skip_zip_results(user_options, false)
         @options[:epjson] = @input_adapter.epjson(user_options, false,  @logger)
-        @options[:ft_options] = @input_adapter.ft_options(user_options, {},  @logger)
-
+        @options[:ft_options] = @input_adapter.ft_options(user_options, {}, @logger)
 
         openstudio_dir = 'unknown'
         begin

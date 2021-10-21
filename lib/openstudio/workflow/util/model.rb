@@ -109,7 +109,6 @@ module OpenStudio
             msg = "Custom ForwardTranslator options passed:\n"
 
             ft_options.each do |opt_flag_name, h|
-
               ft_method = h[:method_name]
               opt_flag = h[:value]
 
@@ -127,7 +126,8 @@ module OpenStudio
           logger.info "Translate object to EnergyPlus IDF took #{b.to_f - a.to_f}"
           model_idf
         end
-         # Translates an IDF model into an EnergyPlus epJSON object
+
+        # Translates an IDF model into an EnergyPlus epJSON object
         #
         # @param [Object] OpenStudio::IdfFile instance to translate into an OpenStudio epJSON object -- see
         #   the OpenStudio SDK for details on the process
@@ -137,7 +137,7 @@ module OpenStudio
           logger ||= ::Logger.new($stdout)
           logger.info 'Translate IDF to epJSON in preparation for EnergyPlus'
           a = ::Time.now
-          model_epjson = OpenStudio::EPJSON::toJSONString(model_idf)
+          model_epjson = OpenStudio::EPJSON.toJSONString(model_idf)
           b = ::Time.now
           logger.info "Translate IDF to EnergyPlus epJSON took #{b.to_f - a.to_f}"
 

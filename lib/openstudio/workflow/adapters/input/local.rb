@@ -292,12 +292,11 @@ module OpenStudio
         end
 
         def epjson(user_options, default, logger)
-
           # check version for this feature
-          os_version = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
-          min_version_feature = OpenStudio::VersionString.new("3.3.0")
+          os_version = OpenStudio::VersionString.new(OpenStudio.openStudioVersion)
+          min_version_feature = OpenStudio::VersionString.new('3.3.0')
           unless os_version >= min_version_feature
-            log_message = "epJSON is only supported for versions >= 3.3.0. Falling back to using IDF"
+            log_message = 'epJSON is only supported for versions >= 3.3.0. Falling back to using IDF'
             logger.info log_message
             return default
           end
@@ -322,26 +321,25 @@ module OpenStudio
         # in `translate_to_energyplus`
         # user option trumps all others
         def ft_options(user_options, default, logger)
-
           # check version for this feature
-          os_version = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
+          os_version = OpenStudio::VersionString.new(OpenStudio.openStudioVersion)
 
-          os300 = OpenStudio::VersionString.new("3.0.0")
-          os330 = OpenStudio::VersionString.new("3.3.0")
+          os300 = OpenStudio::VersionString.new('3.0.0')
+          os330 = OpenStudio::VersionString.new('3.3.0')
           known_ft_opts = {
             # All Versions
-            :runcontrolspecialdays => {:method_name => :setKeepRunControlSpecialDays, :min_version => nil},
-            :ip_tabular_output => {:method_name => :setIPTabularOutput, :min_version => nil},
-            :no_lifecyclecosts => {:method_name => :setExcludeLCCObjects, :min_version => nil},
+            runcontrolspecialdays: { method_name: :setKeepRunControlSpecialDays, min_version: nil },
+            ip_tabular_output: { method_name: :setIPTabularOutput, min_version: nil },
+            no_lifecyclecosts: { method_name: :setExcludeLCCObjects, min_version: nil },
             # 3.0.0
-            :no_sqlite_output => {:method_name => :setExcludeSQliteOutputReport, :min_version => os300},
-            :no_html_output => {:method_name => :setExcludeHTMLOutputReport, :min_version => os300},
-            :no_variable_dictionary => {:method_name => :setExcludeVariableDictionary, :min_version => os300},
+            no_sqlite_output: { method_name: :setExcludeSQliteOutputReport, min_version: os300 },
+            no_html_output: { method_name: :setExcludeHTMLOutputReport, min_version: os300 },
+            no_variable_dictionary: { method_name: :setExcludeVariableDictionary, min_version: os300 },
             # 3.3.0
-            :no_space_translation => {:method_name => :setExcludeSpaceTranslation, :min_version => os330},
+            no_space_translation: { method_name: :setExcludeSpaceTranslation, min_version: os330 }
           }
-  
-          #user option trumps all others
+
+          # user option trumps all others
           if user_options[:ft_options]
             ft_opts = {}
             user_options[:ft_options].each do |opt_flag_name, opt_flag|
@@ -357,7 +355,7 @@ module OpenStudio
                 logger.warn log_message
                 next
               end
-              ft_opts[opt_flag_name] = {:method_name => known_ft_opts[opt_flag_name][:method_name], :value => opt_flag}
+              ft_opts[opt_flag_name] = { method_name: known_ft_opts[opt_flag_name][:method_name], value: opt_flag }
             end
 
             return ft_opts
@@ -367,8 +365,8 @@ module OpenStudio
 
           if @run_options.is_initialized && @run_options.get.respond_to?(:forwardTranslateOptions)
             ft_opts = {}
-              JSON.parse(@run_options.get.forwardTranslateOptions, :symbolize_names => true).each do |opt_flag_name, opt_flag|
-                unless known_ft_opts.key?(opt_flag_name)
+            JSON.parse(@run_options.get.forwardTranslateOptions, symbolize_names: true).each do |opt_flag_name, opt_flag|
+              unless known_ft_opts.key?(opt_flag_name)
                 log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."
                 logger.warn log_message
                 next
@@ -379,7 +377,7 @@ module OpenStudio
                 logger.warn log_message
                 next
               end
-              ft_opts[opt_flag_name] = {:method_name => known_ft_opts[opt_flag_name][:method_name], :value => opt_flag}
+              ft_opts[opt_flag_name] = { method_name: known_ft_opts[opt_flag_name][:method_name], value: opt_flag }
             end
 
             return ft_opts

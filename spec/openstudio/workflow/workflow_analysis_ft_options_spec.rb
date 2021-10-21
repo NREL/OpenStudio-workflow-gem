@@ -129,6 +129,4 @@ describe 'OSW Integration' do
       expect(step[:result]).to_not be_nil
     end
   end
-
 end
-

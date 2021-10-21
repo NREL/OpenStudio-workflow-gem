@@ -80,7 +80,7 @@ describe 'OSW Integration' do
       expect(step[:result]).to_not be_nil
     end
   end
- 
+
   it 'should run compact OSW file in m and w and p mode' do
     osw_path = File.expand_path('../../files/compact_mwp_osw/compact_mwp.osw', __dir__)
     osw_out_path = osw_path.gsub(File.basename(osw_path), 'out.osw')
@@ -1259,4 +1259,3 @@ describe 'OSW Integration' do
     expect(k.run).to eq :errored
   end
 end
-

@@ -1,6 +1,10 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version 2.3.0
+-------------
+* Feature [#135](https://github.com/NREL/OpenStudio-workflow-gem/issues/135) Add option to export/run epJSON
+
 Version 2.2.1
 -------------
 * Fixes [#4150](https://github.com/NREL/OpenStudio/issues/4150) LoadError changes current working directory in CLI

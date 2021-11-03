@@ -1,6 +1,10 @@
 OpenStudio::Workflow Change Log
 ==================================
 
+Version 2.3.1
+-------------
+* Forward tranlsation when !@run_options.get.forwardTranslateOptions().empty?
+
 Version 2.3.0
 -------------
 * Feature [#135](https://github.com/NREL/OpenStudio-workflow-gem/issues/135) Add option to export/run epJSON

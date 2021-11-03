@@ -363,7 +363,7 @@ module OpenStudio
 
           # try to read from OSW
 
-          if @run_options.is_initialized && @run_options.get.respond_to?(:forwardTranslateOptions)
+          if @run_options.is_initialized && @run_options.get.respond_to?(:forwardTranslateOptions) && !@run_options.get.forwardTranslateOptions().empty?
             ft_opts = {}
             JSON.parse(@run_options.get.forwardTranslateOptions, symbolize_names: true).each do |opt_flag_name, opt_flag|
               unless known_ft_opts.key?(opt_flag_name)

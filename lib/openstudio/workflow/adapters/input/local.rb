@@ -339,9 +339,40 @@ module OpenStudio
             no_space_translation: { method_name: :setExcludeSpaceTranslation, min_version: os330 }
           }
 
-          # user option trumps all others
+          ft_opts = {}
+
+          # try to read from OSW
+          if @run_options.is_initialized
+            jsonOpts = ""
+            if @run_options.get.respond_to?(:forwardTranslatorOptions)
+              # 3.6.0 and above. It still defines forwardTranslateOptions for
+              # backward compatibility but trying to avoid a Warn in the log
+              ftOpts = @run_options.get.forwardTranslatorOptions().string()
+            elsif @run_options.get.respond_to?(:forwardTranslateOptions)
+              ftOpts = @run_options.get.forwardTranslateOptions()
+            end
+            if !ftOpts.empty?
+              jsonOpts = JSON.parse(ftOpts, symbolize_names: true)
+
+              jsonOpts.each do |opt_flag_name, opt_flag|
+                unless known_ft_opts.key?(opt_flag_name)
+                  log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."
+                  logger.warn log_message
+                  next
+                end
+                min_version = known_ft_opts[opt_flag_name.to_sym][:min_version]
+                if !min_version.nil? && os_version < min_version
+                  log_message = "'ft_options' suboption '#{opt_flag_name}' is only supported for OpenStudio Version >= #{min_version.str}, ignoring it."
+                  logger.warn log_message
+                  next
+                end
+                ft_opts[opt_flag_name] = { method_name: known_ft_opts[opt_flag_name][:method_name], value: opt_flag }
+              end
+            end
+          end
+
+          # user option trumps all others, so do it last
           if user_options[:ft_options]
-            ft_opts = {}
             user_options[:ft_options].each do |opt_flag_name, opt_flag|
               puts "#{opt_flag_name} = #{opt_flag}"
               unless known_ft_opts.key?(opt_flag_name)
@@ -357,42 +388,10 @@ module OpenStudio
               end
               ft_opts[opt_flag_name] = { method_name: known_ft_opts[opt_flag_name][:method_name], value: opt_flag }
             end
-
-            return ft_opts
           end
 
-          # try to read from OSW
-
-          if @run_options.is_initialized
-            jsonOpts = ""
-            if @run_options.get.respond_to?(:forwardTranslatorOptions)
-              # 3.6.0 and above. It still defines forwardTranslateOptions for
-              # backward compatibility but trying to avoid a Warn in the log
-              ftOpts = @run_options.get.forwardTranslatorOptions().string()
-            elsif @run_options.get.respond_to?(:forwardTranslateOptions)
-              ftOpts = @run_options.get.forwardTranslateOptions()
-            end
-            if !ftOpts.empty?
-              jsonOpts = JSON.parse(ftOpts, symbolize_names: true)
-
-              ft_opts = {}
-              jsonOpts.each do |opt_flag_name, opt_flag|
-                unless known_ft_opts.key?(opt_flag_name)
-                  log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."
-                  logger.warn log_message
-                  next
-                end
-                min_version = known_ft_opts[opt_flag_name.to_sym][:min_version]
-                if !min_version.nil? && os_version < min_version
-                  log_message = "'ft_options' suboption '#{opt_flag_name}' is only supported for OpenStudio Version >= #{min_version.str}, ignoring it."
-                  logger.warn log_message
-                  next
-                end
-                ft_opts[opt_flag_name] = { method_name: known_ft_opts[opt_flag_name][:method_name], value: opt_flag }
-              end
-
-              return ft_opts
-            end
+          if !ft_opts.empty?
+            return ft_opts
           end
 
           return default

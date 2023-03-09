@@ -343,7 +343,7 @@ module OpenStudio
 
           # try to read from OSW
           if @run_options.is_initialized
-            jsonOpts = ""
+            ftOpts = ""
             if @run_options.get.respond_to?(:forwardTranslatorOptions)
               # 3.6.0 and above. It still defines forwardTranslateOptions for
               # backward compatibility but trying to avoid a Warn in the log

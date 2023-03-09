@@ -363,24 +363,36 @@ module OpenStudio
 
           # try to read from OSW
 
-          if @run_options.is_initialized && @run_options.get.respond_to?(:forwardTranslateOptions) && !@run_options.get.forwardTranslateOptions().empty?
-            ft_opts = {}
-            JSON.parse(@run_options.get.forwardTranslateOptions, symbolize_names: true).each do |opt_flag_name, opt_flag|
-              unless known_ft_opts.key?(opt_flag_name)
-                log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."
-                logger.warn log_message
-                next
-              end
-              min_version = known_ft_opts[opt_flag_name.to_sym][:min_version]
-              if !min_version.nil? && os_version < min_version
-                log_message = "'ft_options' suboption '#{opt_flag_name}' is only supported for OpenStudio Version >= #{min_version.str}, ignoring it."
-                logger.warn log_message
-                next
-              end
-              ft_opts[opt_flag_name] = { method_name: known_ft_opts[opt_flag_name][:method_name], value: opt_flag }
+          if @run_options.is_initialized
+            jsonOpts = ""
+            if @run_options.get.respond_to?(:forwardTranslatorOptions)
+              # 3.6.0 and above. It still defines forwardTranslateOptions for
+              # backward compatibility but trying to avoid a Warn in the log
+              ftOpts = @run_options.get.forwardTranslatorOptions().string()
+            elsif @run_options.get.respond_to?(:forwardTranslateOptions)
+              ftOpts = @run_options.get.forwardTranslateOptions()
             end
+            if !ftOpts.empty?
+              jsonOpts = JSON.parse(ftOpts, symbolize_names: true)
 
-            return ft_opts
+              ft_opts = {}
+              jsonOpts.each do |opt_flag_name, opt_flag|
+                unless known_ft_opts.key?(opt_flag_name)
+                  log_message = "'ft_options' suboption '#{opt_flag_name}' is not recognized, ignoring it."
+                  logger.warn log_message
+                  next
+                end
+                min_version = known_ft_opts[opt_flag_name.to_sym][:min_version]
+                if !min_version.nil? && os_version < min_version
+                  log_message = "'ft_options' suboption '#{opt_flag_name}' is only supported for OpenStudio Version >= #{min_version.str}, ignoring it."
+                  logger.warn log_message
+                  next
+                end
+                ft_opts[opt_flag_name] = { method_name: known_ft_opts[opt_flag_name][:method_name], value: opt_flag }
+              end
+
+              return ft_opts
+            end
           end
 
           return default

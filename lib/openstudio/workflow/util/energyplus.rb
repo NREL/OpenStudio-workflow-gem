@@ -330,9 +330,9 @@ module OpenStudio
           allowed_unique_objects << 'Output:Diagnostics' # replace existing
           allowed_unique_objects << 'Output:EnergyManagementSystem' # replace existing
           allowed_unique_objects << 'Output:EnvironmentalImpactFactors' # replace existing
-          allowed_unique_objects << 'Output:JSON' # replace existing
+          # allowed_unique_objects << 'Output:JSON' # TODO: add a merge function
           allowed_unique_objects << 'Output:Schedules' # replace existing
-          allowed_unique_objects << 'Output:SQLite' # replace existing
+          # allowed_unique_objects << 'Output:SQLite' # TODO: add a merge function
           allowed_unique_objects << 'Output:Table:SummaryReports' # merge with existing
 
           if allowed_unique_objects.include?(idf_object.iddObject.name)

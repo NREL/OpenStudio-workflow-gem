@@ -508,7 +508,7 @@ module OpenStudio
                   idf_objects = measure_object.energyPlusOutputRequests(runner, argument_map)
                   num_added = 0
                   idf_objects.each do |idf_object|
-                    num_added += OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(@model_idf, idf_object)
+                    num_added += OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(@model_idf, idf_object, logger)
                   end
                   logger.debug "Finished measure.energyPlusOutputRequests for '#{measure_dir_name}', #{num_added} output requests added"
                 else

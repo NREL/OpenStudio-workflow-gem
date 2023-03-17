@@ -287,14 +287,14 @@ module OpenStudio
 
           new_objects.each do |obj|
             object = OpenStudio::IdfObject.load(obj).get
-            OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object)
+            OpenStudio::Workflow::Util::EnergyPlus.add_energyplus_output_request(idf, object, logger)
           end
 
           logger.info 'Finished EnergyPlus Preprocess'
         end
 
         # examines object and determines whether or not to add it to the workspace
-        def self.add_energyplus_output_request(workspace, idf_object)
+        def self.add_energyplus_output_request(workspace, idf_object, logger)
           num_added = 0
           idd_object = idf_object.iddObject
 
@@ -320,20 +320,32 @@ module OpenStudio
           end
 
           allowed_unique_objects = []
-          # allowed_unique_objects << "Output:EnergyManagementSystem" # TODO: have to merge
-          # allowed_unique_objects << "OutputControl:SurfaceColorScheme" # TODO: have to merge
-          allowed_unique_objects << 'Output:Table:SummaryReports' # TODO: have to merge
-          # OutputControl:Table:Style # not allowed
-          # OutputControl:ReportingTolerances # not allowed
-          # Output:SQLite # not allowed
+          allowed_unique_objects << 'Output:Constructions' # replace existing
+          allowed_unique_objects << 'OutputControl:Files' # replace existing
+          allowed_unique_objects << 'OutputControl:ReportingTolerances' # replace existing
+          # allowed_unique_objects << 'OutputControl:SurfaceColorScheme' # not wrapped
+          allowed_unique_objects << 'OutputControl:Table:Style' # replace existing
+          allowed_unique_objects << 'Output:DebuggingData' # replace existing
+          allowed_unique_objects << 'Output:Diagnostics' # replace existing
+          allowed_unique_objects << 'Output:EnergyManagementSystem' # replace existing
+          allowed_unique_objects << 'Output:EnvironmentalImpactFactors' # replace existing
+          allowed_unique_objects << 'Output:JSON' # replace existing
+          allowed_unique_objects << 'Output:Schedules' # replace existing
+          allowed_unique_objects << 'Output:SQLite' # replace existing
+          allowed_unique_objects << 'Output:Table:SummaryReports' # have to merge
 
-          if allowed_unique_objects.include?(idf_object.iddObject.name) && (idf_object.iddObject.name == 'Output:Table:SummaryReports')
-            summary_reports = workspace.getObjectsByType(idf_object.iddObject.type)
-            if summary_reports.empty?
+          if allowed_unique_objects.include?(idf_object.iddObject.name)
+            existing_objects = workspace.getObjectsByType(idf_object.iddObject.type)
+            if existing_objects.empty?
               workspace.addObject(idf_object)
               num_added += 1
             else
-              merge_output_table_summary_reports(summary_reports[0], idf_object)
+              if (idf_object.iddObject.name == 'Output:Table:SummaryReports')
+                merge_output_table_summary_reports(existing_objects[0], idf_object)
+              else
+                logger.warn "ReportingMeasure is replacing unique object of type '#{idf_object.iddObject.name}'."
+                workspace.removeObjects(existing_objects)
+              end
             end
           end
 

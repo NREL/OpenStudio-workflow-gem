@@ -325,6 +325,7 @@ module OpenStudio
           allowed_unique_objects << 'OutputControl:ReportingTolerances' # replace existing
           # allowed_unique_objects << 'OutputControl:SurfaceColorScheme' # not wrapped
           allowed_unique_objects << 'OutputControl:Table:Style' # replace existing
+          allowed_unique_objects << 'OutputControl:Timestamp' # replace existing
           allowed_unique_objects << 'Output:DebuggingData' # replace existing
           allowed_unique_objects << 'Output:Diagnostics' # replace existing
           allowed_unique_objects << 'Output:EnergyManagementSystem' # replace existing
@@ -332,7 +333,7 @@ module OpenStudio
           allowed_unique_objects << 'Output:JSON' # replace existing
           allowed_unique_objects << 'Output:Schedules' # replace existing
           allowed_unique_objects << 'Output:SQLite' # replace existing
-          allowed_unique_objects << 'Output:Table:SummaryReports' # have to merge
+          allowed_unique_objects << 'Output:Table:SummaryReports' # merge with existing
 
           if allowed_unique_objects.include?(idf_object.iddObject.name)
             existing_objects = workspace.getObjectsByType(idf_object.iddObject.type)

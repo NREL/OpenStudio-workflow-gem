@@ -2,7 +2,7 @@
 
 [![Dependency Status](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5531fb7b10e714121100102e)
 
-## OpenStudio Workflow Gem
+## OpenStudio(R) Workflow Gem
 
 This branch is the development branch for the OpenStudio workflow gem.
 ## Installation

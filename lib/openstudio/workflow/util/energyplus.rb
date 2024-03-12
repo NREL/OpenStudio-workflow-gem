@@ -400,33 +400,33 @@ Output:Table:Monthly,
   SumOrAverage;                           !- Aggregation Type for Variable or Meter 6
 
 Output:Table:Monthly,
-  Building Energy Performance - District Heating, !- Name
+  Building Energy Performance - District Heating Water, !- Name
   2,                                      !- Digits After Decimal
-  InteriorLights:DistrictHeating,         !- Variable or Meter Name 1
+  InteriorLights:DistrictHeatingWater,    !- Variable or Meter Name 1
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 1
-  ExteriorLights:DistrictHeating,         !- Variable or Meter Name 2
+  ExteriorLights:DistrictHeatingWater,    !- Variable or Meter Name 2
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 2
-  InteriorEquipment:DistrictHeating,      !- Variable or Meter Name 3
+  InteriorEquipment:DistrictHeatingWater, !- Variable or Meter Name 3
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 3
-  ExteriorEquipment:DistrictHeating,      !- Variable or Meter Name 4
+  ExteriorEquipment:DistrictHeatingWater, !- Variable or Meter Name 4
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 4
-  Fans:DistrictHeating,                   !- Variable or Meter Name 5
+  Fans:DistrictHeatingWater,              !- Variable or Meter Name 5
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 5
-  Pumps:DistrictHeating,                  !- Variable or Meter Name 6
+  Pumps:DistrictHeatingWater,             !- Variable or Meter Name 6
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 6
-  Heating:DistrictHeating,                !- Variable or Meter Name 7
+  Heating:DistrictHeatingWater,           !- Variable or Meter Name 7
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 7
-  Cooling:DistrictHeating,                !- Variable or Meter Name 8
+  Cooling:DistrictHeatingWater,           !- Variable or Meter Name 8
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 8
-  HeatRejection:DistrictHeating,          !- Variable or Meter Name 9
+  HeatRejection:DistrictHeatingWater,     !- Variable or Meter Name 9
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 9
-  Humidifier:DistrictHeating,             !- Variable or Meter Name 10
+  Humidifier:DistrictHeatingWater,        !- Variable or Meter Name 10
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 10
-  HeatRecovery:DistrictHeating,           !- Variable or Meter Name 11
+  HeatRecovery:DistrictHeatingWater,      !- Variable or Meter Name 11
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 11
-  WaterSystems:DistrictHeating,           !- Variable or Meter Name 12
+  WaterSystems:DistrictHeatingWater,      !- Variable or Meter Name 12
   SumOrAverage,                           !- Aggregation Type for Variable or Meter 12
-  Cogeneration:DistrictHeating,           !- Variable or Meter Name 13
+  Cogeneration:DistrictHeatingWater,      !- Variable or Meter Name 13
   SumOrAverage;                           !- Aggregation Type for Variable or Meter 13
 
 Output:Table:Monthly,
@@ -489,7 +489,9 @@ Output:Table:Monthly,
   WaterSystems:Electricity,               !- Variable or Meter Name 13
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 13
   Cogeneration:Electricity,               !- Variable or Meter Name 14
-  ValueWhenMaximumOrMinimum;              !- Aggregation Type for Variable or Meter 14
+  ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 14
+  Refrigeration:Electricity,              !- Variable or Meter Name 15
+  ValueWhenMaximumOrMinimum;              !- Aggregation Type for Variable or Meter 15
 
 Output:Table:Monthly,
   Building Energy Performance - Natural Gas Peak Demand, !- Name
@@ -510,35 +512,35 @@ Output:Table:Monthly,
   ValueWhenMaximumOrMinimum;              !- Aggregation Type for Variable or Meter 7
 
 Output:Table:Monthly,
-  Building Energy Performance - District Heating Peak Demand, !- Name
+  Building Energy Performance - District Heating Water Peak Demand, !- Name
   2,                                      !- Digits After Decimal
-  DistrictHeating:Facility,               !- Variable or Meter Name 1
+  DistrictHeatingWater:Facility,          !- Variable or Meter Name 1
   Maximum,                                !- Aggregation Type for Variable or Meter 1
-  InteriorLights:DistrictHeating,         !- Variable or Meter Name 2
+  InteriorLights:DistrictHeatingWater,    !- Variable or Meter Name 2
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 2
-  ExteriorLights:DistrictHeating,         !- Variable or Meter Name 3
+  ExteriorLights:DistrictHeatingWater,    !- Variable or Meter Name 3
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 3
-  InteriorEquipment:DistrictHeating,      !- Variable or Meter Name 4
+  InteriorEquipment:DistrictHeatingWater, !- Variable or Meter Name 4
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 4
-  ExteriorEquipment:DistrictHeating,      !- Variable or Meter Name 5
+  ExteriorEquipment:DistrictHeatingWater, !- Variable or Meter Name 5
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 5
-  Fans:DistrictHeating,                   !- Variable or Meter Name 6
+  Fans:DistrictHeatingWater,              !- Variable or Meter Name 6
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 6
-  Pumps:DistrictHeating,                  !- Variable or Meter Name 7
+  Pumps:DistrictHeatingWater,             !- Variable or Meter Name 7
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 7
-  Heating:DistrictHeating,                !- Variable or Meter Name 8
+  Heating:DistrictHeatingWater,           !- Variable or Meter Name 8
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 8
-  Cooling:DistrictHeating,                !- Variable or Meter Name 9
+  Cooling:DistrictHeatingWater,           !- Variable or Meter Name 9
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 9
-  HeatRejection:DistrictHeating,          !- Variable or Meter Name 10
+  HeatRejection:DistrictHeatingWater,     !- Variable or Meter Name 10
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 10
-  Humidifier:DistrictHeating,             !- Variable or Meter Name 11
+  Humidifier:DistrictHeatingWater,        !- Variable or Meter Name 11
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 11
-  HeatRecovery:DistrictHeating,           !- Variable or Meter Name 12
+  HeatRecovery:DistrictHeatingWater,      !- Variable or Meter Name 12
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 12
-  WaterSystems:DistrictHeating,           !- Variable or Meter Name 13
+  WaterSystems:DistrictHeatingWater,      !- Variable or Meter Name 13
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 13
-  Cogeneration:DistrictHeating,           !- Variable or Meter Name 14
+  Cogeneration:DistrictHeatingWater,      !- Variable or Meter Name 14
   ValueWhenMaximumOrMinimum;              !- Aggregation Type for Variable or Meter 14
 
 Output:Table:Monthly,
@@ -571,8 +573,7 @@ Output:Table:Monthly,
   WaterSystems:DistrictCooling,           !- Variable or Meter Name 13
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 13
   Cogeneration:DistrictCooling,           !- Variable or Meter Name 14
-  ValueWhenMaximumOrMinimum;              !- Aggregation Type for Variable or Meter 14
-          HEREDOC
+  ValueWhenMaximumOrMinimum;              !- Aggregation Type for Variable or Meter 14         HEREDOC
         end
       end
     end

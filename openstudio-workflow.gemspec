@@ -16,8 +16,6 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/NREL/OpenStudio-workflow-gem'
   s.license = 'BSD'
 
-  s.required_ruby_version = '~> 2.7.0'
-
   s.files = Dir.glob('lib/**/*') + ['README.md', 'CHANGELOG.md', 'Rakefile']
   s.require_path = 'lib'
 

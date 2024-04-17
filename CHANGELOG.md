@@ -3,6 +3,10 @@ OpenStudio::Workflow Change Log
 
 Version 2.3.1
 -------------
+* Minimum Ruby version upgraded to 3.2
+
+Version 2.3.1
+-------------
 * Forward translation when !@run_options.get.forwardTranslateOptions().empty?
 
 Version 2.3.0

@@ -1,7 +1,7 @@
 OpenStudio::Workflow Change Log
 ==================================
 
-Version 2.3.1
+Version 2.4.0
 -------------
 * Minimum Ruby version upgraded to 3.2
 

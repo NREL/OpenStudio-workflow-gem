@@ -61,7 +61,7 @@ class ViewModel_Test < MiniTest::Unit::TestCase
 
     current_dir = Dir.pwd
     run_dir = File.dirname(__FILE__) + '/output'
-    FileUtils.rm_rf(run_dir) if File.exists?(run_dir)
+    FileUtils.rm_rf(run_dir) if File.exist?(run_dir)
     FileUtils.mkdir_p(run_dir)
     Dir.chdir(run_dir)
     

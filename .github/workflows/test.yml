@@ -53,6 +53,8 @@ jobs:
           begin_group "OpenStudio"
           which openstudio
           ls -la $(which openstudio)
+          os_cli=$(readlink -f $(which openstudio))
+          os_root=$(dirname $(dirname $os_cli))
           openstudio --version
           openstudio gem_list
           echo "::endgroup::"
@@ -60,7 +62,7 @@ jobs:
           begin_group "System ruby is connected to openstudio"
           # Don't rely on RUBYLIB env var
           f=$(ruby -e "puts File.join(RbConfig::CONFIG['sitelibdir'], 'openstudio.rb')")
-          echo "require '/usr/local/openstudio-3.8.0/Ruby/openstudio.rb'" > $f
+          echo "require '$os_root/Ruby/openstudio.rb'" > $f
           ruby -e "require 'openstudio'; puts OpenStudio::openStudioLongVersion"
           echo "::endgroup::"
 

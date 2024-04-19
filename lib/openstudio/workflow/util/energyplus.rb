@@ -573,7 +573,8 @@ Output:Table:Monthly,
   WaterSystems:DistrictCooling,           !- Variable or Meter Name 13
   ValueWhenMaximumOrMinimum,              !- Aggregation Type for Variable or Meter 13
   Cogeneration:DistrictCooling,           !- Variable or Meter Name 14
-  ValueWhenMaximumOrMinimum;              !- Aggregation Type for Variable or Meter 14         HEREDOC
+  ValueWhenMaximumOrMinimum;              !- Aggregation Type for Variable or Meter 14         
+HEREDOC
         end
       end
     end

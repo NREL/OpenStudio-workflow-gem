@@ -148,13 +148,13 @@ class DencityReports < OpenStudio::Ruleset::ReportingUserScript
       end
 
       # determine how to format time series output
-      msgpack_flag = FALSE
-      csv_flag = FALSE
+      msgpack_flag = false
+      csv_flag = false
       if output_format == 'MessagePack' || output_format == 'Both'
-        msgpack_flag = TRUE
+        msgpack_flag = true
       end
       if output_format == 'CSV' || output_format == 'Both'
-        csv_flag = TRUE
+        csv_flag = true
       end
 
       # get the last model and sql file
@@ -445,7 +445,7 @@ class DencityReports < OpenStudio::Ruleset::ReportingUserScript
       # todo: find a way for the sql call to not rely on RUN PERIOD 1
       timeseries_start = Time.now.to_i
       available_meters = sql_file.execAndReturnVectorOfString("SELECT VariableName FROM ReportMeterDataDictionary WHERE VariableType='Sum' AND ReportingFrequency='Hourly'")
-      get_timeseries_flag = TRUE
+      get_timeseries_flag = true
       if available_meters.empty?
         runner.registerWarning('No meters found with Hourly reporting frequency to extract timeseries data from')
       else
@@ -454,7 +454,7 @@ class DencityReports < OpenStudio::Ruleset::ReportingUserScript
           runner.registerInfo("The following meters were found: #{meter_strings}")
         rescue
           runner.registerWarning('Unable to retrieve timeseries strings')
-          get_timeseries_flag = FALSE
+          get_timeseries_flag = false
         end
         meter_units = sql_file.execAndReturnVectorOfString("SELECT VariableUnits FROM ReportMeterDataDictionary WHERE VariableType='Sum' AND ReportingFrequency='Hourly'")
         begin
@@ -462,11 +462,11 @@ class DencityReports < OpenStudio::Ruleset::ReportingUserScript
           runner.registerInfo('Units were found for all available meters')
         rescue
           runner.registerWarning('Unable to retrieve timeseries unit strings')
-          get_timeseries_flag = FALSE
+          get_timeseries_flag = false
         end
         runner.registerInfo("The following meter units were found: #{meter_units}")
         runner.registerError('Timeseries variable names and units of differing lengths. Exiting Dencity Reports.') if meter_units.size != meter_strings.size
-        get_timeseries_flag = FALSE if meter_units.size != meter_strings.size
+        get_timeseries_flag = false if meter_units.size != meter_strings.size
       end
 
       runner.registerInfo("get_timeseries_flag is set to #{get_timeseries_flag}")

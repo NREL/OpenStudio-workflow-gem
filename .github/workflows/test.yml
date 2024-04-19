@@ -51,6 +51,8 @@ jobs:
           echo "::endgroup::"
 
           begin_group "OpenStudio"
+          which openstudio
+          ls -la $(which openstudio)
           openstudio --version
           openstudio gem_list
           echo "::endgroup::"

@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>urban_opt_report</name>
   <uid>744899a6-9da8-4888-870b-40bca78f505b</uid>
-  <version_id>aa87fa65-ce1a-4717-8791-56471a32563c</version_id>
-  <version_modified>20200723T210551Z</version_modified>
+  <version_id>e264374c-d3c0-4954-9c6f-cbde1ed02bbe</version_id>
+  <version_modified>2024-04-19T12:13:34Z</version_modified>
   <xml_checksum>9BF1E6AC</xml_checksum>
   <class_name>UrbanOptReport</class_name>
   <display_name>UrbanOptReport</display_name>
@@ -122,7 +122,19 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>16D2BDCB</checksum>
+      <checksum>8DB5162F</checksum>
+    </file>
+    <file>
+      <filename>default_feature_reports.json</filename>
+      <filetype>json</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>47CD59FE</checksum>
+    </file>
+    <file>
+      <filename>default_scenario_report.json</filename>
+      <filetype>json</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>B1A9AA98</checksum>
     </file>
   </files>
 </measure>

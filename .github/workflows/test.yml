@@ -1,0 +1,73 @@
+name: Test workflow gem
+
+# trigger action on all branches, pull requests and tags
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+
+env:
+  TEST_WITH_OPENSTUDIO: true
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install openstudio
+        run: |
+          wget http://openstudio-ci-builds.s3-website-us-west-2.amazonaws.com/PR-5149/OpenStudio-3.8.0-beta%2B2bc25028a3-Ubuntu-22.04-x86_64.deb
+          sudo apt-get -qq install -y ./OpenStudio*.deb
+          rm -Rf ./OpenStudio*.deb
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2.2' # Not needed with a .ruby-version file
+          bundler: '2.5.5'
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically. We should NOT change the Bundler path, because to perform caching, this action will use bundle config --local path $PWD/vendor/bundle.
+        env:
+          RUBYLIB: /usr/local/openstudio-3.8.0/Ruby
+
+      - name: show enviroment
+        shell: bash
+        run: |
+          begin_group() { echo -e "::group::\033[93m$1\033[0m"; }
+          begin_group "Ruby and bundler"
+          echo "Ruby version"
+          ruby -v
+          echo "Bundle version"
+          bundle --version
+          echo "bundle config get path"
+          bundle config get path
+          echo "bundle list"
+          bundle list
+          echo "::endgroup::"
+
+          begin_group "OpenStudio"
+          which openstudio
+          ls -la $(which openstudio)
+          os_cli=$(readlink -f $(which openstudio))
+          os_root=$(dirname $(dirname $os_cli))
+          openstudio --version
+          openstudio gem_list
+          echo "::endgroup::"
+
+          begin_group "System ruby is connected to openstudio"
+          # Don't rely on RUBYLIB env var
+          f=$(ruby -e "puts File.join(RbConfig::CONFIG['sitelibdir'], 'openstudio.rb')")
+          echo "require '$os_root/Ruby/openstudio.rb'" > $f
+          ruby -e "require 'openstudio'; puts OpenStudio::openStudioLongVersion"
+          echo "::endgroup::"
+
+
+      - name: test
+        shell: bash
+        run: |
+          bundle exec rake spec:unit

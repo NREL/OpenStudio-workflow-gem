@@ -1,15 +1,26 @@
+<?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
-  <name>Set EnergyPlus Infiltration Flow Rate Per Floor Area</name>
+  <schema_version>3.1</schema_version>
+  <name>set_energyplus_infiltration_flow_rate_per_floor_area</name>
   <uid>490a2af3-7b64-4915-bf9e-9a3a7b525a17</uid>
-  <version_id>22c341d1-64e2-486d-a430-f30d3c6f9ad4</version_id>
+  <version_id>f4f53827-f035-4d75-9bfb-d021dddcbc1c</version_id>
+  <version_modified>2024-04-19T12:12:11Z</version_modified>
   <xml_checksum>2AC0F979</xml_checksum>
   <class_name>SetEnergyPlusInfiltrationFlowRatePerFloorArea</class_name>
-  <display_name>Set EnergyPlus Infiltration Flow Rate Per Floor Area</display_name>
+  <display_name>SetEnergyPlusInfiltrationFlowRatePerFloorArea</display_name>
   <description>Set the flow rate per floor area value for all infiltration objects in the model. Input values are in SI units.</description>
   <modeler_description>Affected infiltration objects will have "Design Flor Rate Calculation Method" set to "Flow/Area" and the "Flow per Zone Floor Area" set to the requested SI value.</modeler_description>
-  <arguments/>
-  <provenances/>
+  <arguments>
+    <argument>
+      <name>flowPerZoneFloorArea</name>
+      <display_name>Flow per Zone Floor Area (m^3/s-m^2).</display_name>
+      <type>Double</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+  </arguments>
+  <outputs />
+  <provenances />
   <tags>
     <tag>Envelope.Infiltration</tag>
   </tags>
@@ -36,18 +47,6 @@
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
       <checksum>4BCA3C57</checksum>
-    </file>
-    <file>
-      <filename>Test.osm</filename>
-      <filetype>osm</filetype>
-      <usage_type>test</usage_type>
-      <checksum>BCF2DBB8</checksum>
-    </file>
-    <file>
-      <filename>SetEnergyPlusInfiltrationFlowRatePerFloorArea_Test.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>test</usage_type>
-      <checksum>F47EC348</checksum>
     </file>
   </files>
 </measure>

@@ -1,17 +1,18 @@
+<?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>os_change_weather_file</name>
   <uid>59b9b836-71ef-4d48-888c-5c4663e05577</uid>
-  <version_id>33b329e3-b11d-444c-974c-fffc162ee3bb</version_id>
-  <version_modified>20170120T204406Z</version_modified>
-  <xml_checksum>350B6836</xml_checksum>
+  <version_id>813e36c2-c0bb-4e8a-a356-7f0c7a394eff</version_id>
+  <version_modified>2024-04-19T12:13:33Z</version_modified>
+  <xml_checksum>EB1A0C08</xml_checksum>
   <class_name>OsChangeWeatherFile</class_name>
   <display_name>OsChangeWeatherFile</display_name>
   <description>Increase the R value of the insulation layer in roof constructinons by a percentage.</description>
   <modeler_description>Insulation later is inferred by finding the existing layer with the highest thermal resistance.</modeler_description>
-  <arguments/>
-  <outputs/>
-  <provenances/>
+  <arguments />
+  <outputs />
+  <provenances />
   <tags>
     <tag>Envelope.Opaque</tag>
   </tags>

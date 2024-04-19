@@ -46,7 +46,7 @@ class XcelEDAReportingandQAQC < OpenStudio::Ruleset::ReportingUserScript
     end
     
     resource_path = "#{File.dirname(__FILE__)}/resources/"
-    if not File.exists?("#{resource_path}/CreateResults.rb")
+    if not File.exist?("#{resource_path}/CreateResults.rb")
       # support pre 1.2.0 OpenStudio
       resource_path = "#{File.dirname(__FILE__)}/"
     end

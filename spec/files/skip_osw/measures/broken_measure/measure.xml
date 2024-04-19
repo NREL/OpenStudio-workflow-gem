@@ -1,9 +1,10 @@
+<?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>broken_measure</name>
   <uid>49d1132f-b6ee-413f-bea7-26cd5e910a5a</uid>
-  <version_id>3b6a6d19-25b8-47b5-b409-36cd94b00bbe</version_id>
-  <version_modified>20180216T052743Z</version_modified>
+  <version_id>04188fab-f6c1-4bca-8fff-b17275e08dc7</version_id>
+  <version_modified>2024-04-19T12:13:27Z</version_modified>
   <xml_checksum>2AF3A68E</xml_checksum>
   <class_name>BrokenMeasure</class_name>
   <display_name>BrokenMeasure</display_name>
@@ -39,8 +40,8 @@
       </choices>
     </argument>
   </arguments>
-  <outputs/>
-  <provenances/>
+  <outputs />
+  <provenances />
   <tags>
     <tag>Envelope.Form</tag>
   </tags>
@@ -68,18 +69,6 @@
   </attributes>
   <files>
     <file>
-      <filename>broken_measure_test.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>test</usage_type>
-      <checksum>BBC15C20</checksum>
-    </file>
-    <file>
-      <filename>example_model.osm</filename>
-      <filetype>osm</filetype>
-      <usage_type>test</usage_type>
-      <checksum>923B06C2</checksum>
-    </file>
-    <file>
       <version>
         <software_program>OpenStudio</software_program>
         <identifier>1.10.0</identifier>
@@ -89,6 +78,18 @@
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
       <checksum>11E22B3E</checksum>
+    </file>
+    <file>
+      <filename>broken_measure_test.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>BBC15C20</checksum>
+    </file>
+    <file>
+      <filename>example_model.osm</filename>
+      <filetype>osm</filetype>
+      <usage_type>test</usage_type>
+      <checksum>C656A12A</checksum>
     </file>
   </files>
 </measure>

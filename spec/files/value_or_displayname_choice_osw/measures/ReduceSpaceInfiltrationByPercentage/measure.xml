@@ -1,9 +1,10 @@
+<?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>reduce_space_infiltration_by_percentage</name>
   <uid>d8161857-8b77-4e1a-a76c-ae5deab7c1e0</uid>
-  <version_id>83e21dbf-635c-4c10-b016-cc4228d6d75b</version_id>
-  <version_modified>20160531T204353Z</version_modified>
+  <version_id>7e29a033-ec95-4692-b336-d0b2bc31b15b</version_id>
+  <version_modified>2024-04-19T12:12:59Z</version_modified>
   <xml_checksum>EACB548E</xml_checksum>
   <class_name>ReduceSpaceInfiltrationByPercentage</class_name>
   <display_name>ReduceSpaceInfiltrationByPercentage</display_name>
@@ -16,10 +17,10 @@
       <type>Choice</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
-      <default_value>{304de434-bc74-4228-b62f-e9b76f35d4ef}</default_value>
+      <default_value>{08d1f6c0-1d06-46d9-ba36-6213742baac8}</default_value>
       <choices>
         <choice>
-          <value>{304de434-bc74-4228-b62f-e9b76f35d4ef}</value>
+          <value>{08d1f6c0-1d06-46d9-ba36-6213742baac8}</value>
           <display_name>*Entire Building*</display_name>
         </choice>
       </choices>
@@ -57,7 +58,8 @@
       <default_value>1</default_value>
     </argument>
   </arguments>
-  <provenances/>
+  <outputs />
+  <provenances />
   <tags>
     <tag>Envelope.Infiltration</tag>
   </tags>
@@ -83,7 +85,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>AB0C763C</checksum>
+      <checksum>8937836D</checksum>
     </file>
   </files>
 </measure>

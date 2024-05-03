@@ -1,10 +1,11 @@
+<?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>reduce_space_infiltration_by_percentage</name>
   <uid>d8161857-8b77-4e1a-a76c-ae5deab7c1e0</uid>
-  <version_id>f30fd57a-cca1-45cb-91c8-ce93d536c353</version_id>
-  <version_modified>20170216T204321Z</version_modified>
-  <xml_checksum>BCB7218E</xml_checksum>
+  <version_id>14813957-bd2e-4d0d-bba5-b004c03e6df5</version_id>
+  <version_modified>2024-04-19T12:12:57Z</version_modified>
+  <xml_checksum>EACB548E</xml_checksum>
   <class_name>ReduceSpaceInfiltrationByPercentage</class_name>
   <display_name>ReduceSpaceInfiltrationByPercentage</display_name>
   <description>This measure will reduce space infiltration rates by the requested percentage. A cost per square foot of building area can be added to the model.</description>
@@ -16,10 +17,10 @@
       <type>Choice</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
-      <default_value>*Entire Building*</default_value>
+      <default_value>{5149c33c-574a-4aba-9d3b-22732b8150aa}</default_value>
       <choices>
         <choice>
-          <value>{5bc3b40d-9d19-4d4a-9029-1884b781ffb9}</value>
+          <value>{5149c33c-574a-4aba-9d3b-22732b8150aa}</value>
           <display_name>*Entire Building*</display_name>
         </choice>
       </choices>
@@ -89,8 +90,8 @@
       <default_value>1</default_value>
     </argument>
   </arguments>
-  <outputs/>
-  <provenances/>
+  <outputs />
+  <provenances />
   <tags>
     <tag>Envelope.Infiltration</tag>
   </tags>
@@ -116,7 +117,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>9A19772C</checksum>
+      <checksum>2C707716</checksum>
     </file>
   </files>
 </measure>

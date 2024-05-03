@@ -1,10 +1,11 @@
+<?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>add_rooftop_pv</name>
   <uid>34550614-0c87-44db-9252-0ca0915b1e64</uid>
-  <version_id>ab47e01d-5c24-4d4c-a152-6b61a57a47fa</version_id>
-  <version_modified>20161115T220751Z</version_modified>
-  <xml_checksum>C78730CC</xml_checksum>
+  <version_id>a3e05664-90e9-4400-ba59-88bfff761a50</version_id>
+  <version_modified>2024-04-19T12:12:08Z</version_modified>
+  <xml_checksum>178163B6</xml_checksum>
   <class_name>AddRooftopPV</class_name>
   <display_name>Add Rooftop PV</display_name>
   <description>This measure will create new shading surface geometry above the roof for each thermal zone inyour model where the surface azmith falls within the user specified range. Arguments are exposed for panel efficiency, inverter efficiency, and the fraction of each roof surface that has PV</description>
@@ -38,8 +39,8 @@
       <default_value>0.98</default_value>
     </argument>
   </arguments>
-  <outputs/>
-  <provenances/>
+  <outputs />
+  <provenances />
   <tags>
     <tag>Onsite Power Generation.Photovoltaic</tag>
   </tags>
@@ -87,10 +88,15 @@
   </attributes>
   <files>
     <file>
-      <filename>pv_test_input.osm</filename>
-      <filetype>osm</filetype>
-      <usage_type>test</usage_type>
-      <checksum>AB14A2B3</checksum>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>1.9.0</identifier>
+        <min_compatible>1.9.0</min_compatible>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>CF290DDF</checksum>
     </file>
     <file>
       <filename>os_lib_helper_methods.rb</filename>
@@ -105,21 +111,16 @@
       <checksum>C4185CAA</checksum>
     </file>
     <file>
-      <version>
-        <software_program>OpenStudio</software_program>
-        <identifier>1.9.0</identifier>
-        <min_compatible>1.9.0</min_compatible>
-      </version>
-      <filename>measure.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>script</usage_type>
-      <checksum>CF290DDF</checksum>
-    </file>
-    <file>
       <filename>add_rooftop_pv_test.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
       <checksum>039F06FA</checksum>
+    </file>
+    <file>
+      <filename>pv_test_input.osm</filename>
+      <filetype>osm</filetype>
+      <usage_type>test</usage_type>
+      <checksum>FC25C43B</checksum>
     </file>
   </files>
 </measure>

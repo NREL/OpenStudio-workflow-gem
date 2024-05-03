@@ -1,9 +1,10 @@
+<?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>change_building_location</name>
   <uid>d4db4971-f5ba-11e3-a3ac-0800200c9a66</uid>
-  <version_id>a1be49d3-697f-41bc-ab49-e7cae8ae7638</version_id>
-  <version_modified>20181121T231036Z</version_modified>
+  <version_id>599403de-af25-4c70-b03f-298e955a3638</version_id>
+  <version_modified>2024-04-19T12:12:57Z</version_modified>
   <xml_checksum>057E8D9D</xml_checksum>
   <class_name>ChangeBuildingLocation</class_name>
   <display_name>ChangeBuildingLocation</display_name>
@@ -165,8 +166,8 @@
       </choices>
     </argument>
   </arguments>
-  <outputs/>
-  <provenances/>
+  <outputs />
+  <provenances />
   <tags>
     <tag>Whole Building.Space Types</tag>
   </tags>
@@ -184,144 +185,6 @@
   </attributes>
   <files>
     <file>
-      <filename>another_weather_file.ddy</filename>
-      <filetype>ddy</filetype>
-      <usage_type>test</usage_type>
-      <checksum>D6178C51</checksum>
-    </file>
-    <file>
-      <filename>another_weather_file.epw</filename>
-      <filetype>epw</filetype>
-      <usage_type>test</usage_type>
-      <checksum>D3B7E25B</checksum>
-    </file>
-    <file>
-      <filename>another_weather_file.stat</filename>
-      <filetype>stat</filetype>
-      <usage_type>test</usage_type>
-      <checksum>E8C83421</checksum>
-    </file>
-    <file>
-      <filename>test.osm</filename>
-      <filetype>osm</filetype>
-      <usage_type>test</usage_type>
-      <checksum>0B8479BC</checksum>
-    </file>
-    <file>
-      <filename>USA_MA_Boston-Logan.Intl.AP.725090_TMY3.ddy</filename>
-      <filetype>ddy</filetype>
-      <usage_type>test</usage_type>
-      <checksum>E4CBEAF0</checksum>
-    </file>
-    <file>
-      <filename>USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw</filename>
-      <filetype>epw</filetype>
-      <usage_type>test</usage_type>
-      <checksum>B65824C3</checksum>
-    </file>
-    <file>
-      <filename>USA_MA_Boston-Logan.Intl.AP.725090_TMY3.stat</filename>
-      <filetype>stat</filetype>
-      <usage_type>test</usage_type>
-      <checksum>8657DDB9</checksum>
-    </file>
-    <file>
-      <filename>multiyear.ddy</filename>
-      <filetype>ddy</filetype>
-      <usage_type>test</usage_type>
-      <checksum>D6178C51</checksum>
-    </file>
-    <file>
-      <filename>multiyear.epw</filename>
-      <filetype>epw</filetype>
-      <usage_type>test</usage_type>
-      <checksum>F0A18702</checksum>
-    </file>
-    <file>
-      <filename>multiyear.stat</filename>
-      <filetype>stat</filetype>
-      <usage_type>test</usage_type>
-      <checksum>E715E1B9</checksum>
-    </file>
-    <file>
-      <filename>USA_WA_Renton.Muni.AP.727934_TMY3.ddy</filename>
-      <filetype>ddy</filetype>
-      <usage_type>test</usage_type>
-      <checksum>D2D8CDAB</checksum>
-    </file>
-    <file>
-      <filename>USA_WA_Renton.Muni.AP.727934_TMY3.epw</filename>
-      <filetype>epw</filetype>
-      <usage_type>test</usage_type>
-      <checksum>F6F36230</checksum>
-    </file>
-    <file>
-      <filename>USA_WA_Renton.Muni.AP.727934_TMY3.stat</filename>
-      <filetype>stat</filetype>
-      <usage_type>test</usage_type>
-      <checksum>7C51425E</checksum>
-    </file>
-    <file>
-      <filename>test.osw</filename>
-      <filetype>osw</filetype>
-      <usage_type>test</usage_type>
-      <checksum>F5FABCCF</checksum>
-    </file>
-    <file>
-      <filename>stat_file.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>FA04CAFA</checksum>
-    </file>
-    <file>
-      <filename>os_lib_helper_methods.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>9CFC43FB</checksum>
-    </file>
-    <file>
-      <filename>LICENSE.md</filename>
-      <filetype>md</filetype>
-      <usage_type>license</usage_type>
-      <checksum>9640B6CB</checksum>
-    </file>
-    <file>
-      <filename>README.md.erb</filename>
-      <filetype>erb</filetype>
-      <usage_type>readmeerb</usage_type>
-      <checksum>703C9964</checksum>
-    </file>
-    <file>
-      <filename>epw.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>C146EEBC</checksum>
-    </file>
-    <file>
-      <filename>change_building_location_test.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>test</usage_type>
-      <checksum>4E4E9E08</checksum>
-    </file>
-    <file>
-      <filename>CA_LOS-ANGELES-IAP_722950S_12.ddy</filename>
-      <filetype>ddy</filetype>
-      <usage_type>test</usage_type>
-      <checksum>6664A3D4</checksum>
-    </file>
-    <file>
-      <filename>CA_LOS-ANGELES-IAP_722950S_12.epw</filename>
-      <filetype>epw</filetype>
-      <usage_type>test</usage_type>
-      <checksum>E8072B82</checksum>
-    </file>
-    <file>
-      <filename>CA_LOS-ANGELES-IAP_722950S_12.stat</filename>
-      <filetype>stat</filetype>
-      <usage_type>test</usage_type>
-      <checksum>12BCA842</checksum>
-    </file>
-    <file>
       <version>
         <software_program>OpenStudio</software_program>
         <identifier>2.0.0</identifier>
@@ -330,13 +193,25 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>E6841C99</checksum>
+      <checksum>08BB16A1</checksum>
     </file>
     <file>
-      <filename>README.md</filename>
-      <filetype>md</filetype>
-      <usage_type>readme</usage_type>
-      <checksum>8A07E3FE</checksum>
+      <filename>epw.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>6CA28016</checksum>
+    </file>
+    <file>
+      <filename>os_lib_helper_methods.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>B1F6B297</checksum>
+    </file>
+    <file>
+      <filename>stat_file.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>E92FBCB3</checksum>
     </file>
   </files>
 </measure>

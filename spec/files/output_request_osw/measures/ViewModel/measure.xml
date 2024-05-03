@@ -1,16 +1,18 @@
+<?xml version="1.0"?>
 <measure>
-  <schema_version>3.0</schema_version>
+  <schema_version>3.1</schema_version>
   <name>view_model</name>
   <uid>f4669f10-fda5-489d-8e1c-7ca3c2d40378</uid>
-  <version_id>bee046af-2002-488a-8c20-e3b4d3efc278</version_id>
-  <version_modified>20160321T212510Z</version_modified>
+  <version_id>4ba4700d-b1fd-4dd6-866e-40bf4145303b</version_id>
+  <version_modified>2024-04-19T12:12:20Z</version_modified>
   <xml_checksum>1E1F8B97</xml_checksum>
   <class_name>ViewModel</class_name>
   <display_name>ViewModel</display_name>
   <description>Visualize an OpenStudio model in a web based viewer</description>
   <modeler_description>Converts the OpenStudio model to vA3C JSON format and renders using Three.js</modeler_description>
-  <arguments/>
-  <provenances/>
+  <arguments />
+  <outputs />
+  <provenances />
   <tags>
     <tag>Reporting.QAQC</tag>
   </tags>
@@ -28,24 +30,6 @@
   </attributes>
   <files>
     <file>
-      <filename>SimpleModel.osm</filename>
-      <filetype>osm</filetype>
-      <usage_type>test</usage_type>
-      <checksum>AC094EF8</checksum>
-    </file>
-    <file>
-      <filename>ExampleModel.osm</filename>
-      <filetype>osm</filetype>
-      <usage_type>test</usage_type>
-      <checksum>10636DB9</checksum>
-    </file>
-    <file>
-      <filename>ViewModel_Test.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>test</usage_type>
-      <checksum>705A2705</checksum>
-    </file>
-    <file>
       <version>
         <software_program>OpenStudio</software_program>
         <identifier>1.6.3</identifier>
@@ -57,16 +41,52 @@
       <checksum>656ECCCB</checksum>
     </file>
     <file>
+      <filename>report.html.in</filename>
+      <filetype>in</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>64866EE7</checksum>
+    </file>
+    <file>
       <filename>va3c.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
       <checksum>254BCDED</checksum>
     </file>
     <file>
-      <filename>report.html.in</filename>
-      <filetype>in</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>64866EE7</checksum>
+      <filename>ExampleModel.osm</filename>
+      <filetype>osm</filetype>
+      <usage_type>test</usage_type>
+      <checksum>C00C7964</checksum>
+    </file>
+    <file>
+      <filename>SimpleModel/project.log</filename>
+      <filetype>log</filetype>
+      <usage_type>test</usage_type>
+      <checksum>150441D3</checksum>
+    </file>
+    <file>
+      <filename>SimpleModel/project.osp</filename>
+      <filetype>osp</filetype>
+      <usage_type>test</usage_type>
+      <checksum>8FEBA31B</checksum>
+    </file>
+    <file>
+      <filename>SimpleModel/run.db</filename>
+      <filetype>db</filetype>
+      <usage_type>test</usage_type>
+      <checksum>406680D8</checksum>
+    </file>
+    <file>
+      <filename>SimpleModel.osm</filename>
+      <filetype>osm</filetype>
+      <usage_type>test</usage_type>
+      <checksum>33763533</checksum>
+    </file>
+    <file>
+      <filename>ViewModel_Test.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>43A40DD9</checksum>
     </file>
   </files>
 </measure>

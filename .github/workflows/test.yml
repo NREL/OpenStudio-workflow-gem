@@ -23,17 +23,17 @@ jobs:
 
       - name: install openstudio
         run: |
-          wget http://openstudio-ci-builds.s3-website-us-west-2.amazonaws.com/PR-5149/OpenStudio-3.8.0-beta%2B2bc25028a3-Ubuntu-22.04-x86_64.deb
+          wget https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+c77fbb9569-Ubuntu-22.04-x86_64.deb
           sudo apt-get -qq install -y ./OpenStudio*.deb
           rm -Rf ./OpenStudio*.deb
 
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2' # Not needed with a .ruby-version file
-          bundler: '2.5.5'
+          bundler: '2.4.10'
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically. We should NOT change the Bundler path, because to perform caching, this action will use bundle config --local path $PWD/vendor/bundle.
         env:
-          RUBYLIB: /usr/local/openstudio-3.8.0/Ruby
+          RUBYLIB: /usr/local/openstudio-3.9.0/Ruby
 
       - name: show enviroment
         shell: bash
@@ -65,7 +65,6 @@ jobs:
           echo "require '$os_root/Ruby/openstudio.rb'" > $f
           ruby -e "require 'openstudio'; puts OpenStudio::openStudioLongVersion"
           echo "::endgroup::"
-
 
       - name: test
         shell: bash

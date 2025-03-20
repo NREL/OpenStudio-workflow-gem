@@ -339,7 +339,7 @@ module OpenStudio
                 # We handle the case where n_args == 0 for backward compatibility
                 n_args = measure_object.method(:arguments).arity
                 if (n_args == 0)
-                  logger.warn "Reporting Measure at #{measure_path} is using the old format where the 'arguments' method does not take model. Please consider updating this to `def arguments(model)`."
+                  logger.warn "Reporting Measure at '#{measure_path}' is using the old format where the 'arguments' method does not take model. Please consider updating this to `def arguments(model)`."
                   arguments = measure_object.arguments
                 else
                   arguments = measure_object.arguments(@model.clone(true).to_Model)
@@ -474,6 +474,17 @@ module OpenStudio
 
               begin
                 if energyplus_output_requests
+
+                  # Just in case this workflow-gem is used (via bundle) in an
+                  # older OS SDK version, where the base class doesn't have it,
+                  # we check for existence to begin with
+                  if measure_object.respond_to?(:modelOutputRequests)
+                    # If there is an overidden method in the measure itself: Warn
+                    if measure_object.method(:modelOutputRequests).owner == measure_object.class
+                      logger.error "Reporting Measure at '#{measure_path}' has a 'modelOutputRequests' method, but that is only available in the C++ CLI, it will NOT be run."
+                    end
+                  end
+
                   logger.debug "Calling measure.energyPlusOutputRequests for '#{measure_dir_name}'"
                   idf_objects = measure_object.energyPlusOutputRequests(runner, argument_map)
                   num_added = 0

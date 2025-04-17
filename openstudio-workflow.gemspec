@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.files = Dir.glob('lib/**/*') + ['README.md', 'CHANGELOG.md', 'Rakefile']
   s.require_path = 'lib'
 
-  s.required_ruby_version = '~> 3.2.2'
+  s.required_ruby_version = '~> 3.3.7'
 
   s.add_development_dependency 'builder', '~> 3.2.4'
   s.add_development_dependency 'bundler', '2.4.10'

@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rainbow', '~> 3.0.0'
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rspec', '~> 3.9'
+  s.add_development_dependency 'rubocop', '~> 1.50.0'
   s.add_development_dependency 'openstudio-standards', '~> 0.7.0'
   s.add_development_dependency 'zip', '~> 2'
 end
